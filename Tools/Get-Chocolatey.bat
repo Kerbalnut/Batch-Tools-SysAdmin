@@ -1,0 +1,42 @@
+@ECHO OFF
+
+:: RUNAS /noprofile /user:IQ\gjames CMD.EXE
+
+:: RUNAS /noprofile /user:IQ\gjames "CMD.EXE /C ".\Get-Chocolatey.bat""
+
+:: BatchGotAdmin International-Fix Code
+:: https://sites.google.com/site/eneerge/home/BatchGotAdmin
+:-------------------------------------------------------------------------------
+REM  --> Check for permissions
+>nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
+
+REM --> If error flag set, we do not have admin.
+IF '%ERRORLEVEL%' NEQ '0' (
+    ECHO Requesting administrative privileges... ^(waiting 2 seconds^)
+	PING -n 3 127.0.0.1>nul
+    GOTO UACPrompt
+) ELSE ( GOTO gotAdmin )
+
+:UACPrompt
+    ECHO Set UAC = CreateObject^("Shell.Application"^) > "%Temp%\getadmin.vbs"
+    ECHO UAC.ShellExecute "%~s0", "", "", "RUNAS", 1 >> "%Temp%\getadmin.vbs"
+
+    "%Temp%\getadmin.vbs"
+    EXIT /B
+
+:gotAdmin
+    IF EXIST "%Temp%\getadmin.vbs" ( DEL "%Temp%\getadmin.vbs" )
+    PUSHD "%CD%"
+    CD /D "%~dp0"
+:-------------------------------------------------------------------------------
+
+
+@powershell -NoProfile -ExecutionPolicy Unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))" && SET PATH=%PATH%;%SYSTEMDRIVE%\chocolatey\bin;%ALLUSERSPROFILE%\chocolatey\bin
+:: @powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))" && SET PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin
+
+ECHO:
+ECHO ===============================================================================
+ECHO: 
+ECHO End %~nx0
+ECHO: 
+PAUSE

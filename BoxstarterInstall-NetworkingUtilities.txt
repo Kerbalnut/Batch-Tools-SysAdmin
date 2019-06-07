@@ -1,0 +1,118 @@
+
+# -----------------------------------------------------------------------------------------------------------------------
+# =======================================================================================================================
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Learn more about Boxstarter's Windows Configuration options:
+# Get-Command -Module Boxstarter.WinConfig
+# https://boxstarter.org/WinConfig
+
+# Boxstarter windows settings: show file extensions, show windows files, set hibernate options (power), 
+Set-WindowsExplorerOptions -EnableShowProtectedOSFiles -EnableShowFileExtensions -EnableShowFullPathInTitleBar -EnableShowRibbon
+Set-WindowsExplorerOptions -DisableOpenFileExplorerToQuickAccess -EnableShowRecentFilesInQuickAccess -EnableShowFrequentFoldersInQuickAccess
+Set-WindowsExplorerOptions -EnableExpandToOpenFolder
+
+#Set-TaskbarOptions -Size Small -Lock -Dock Top -Combine Always -AlwaysShowIconsOn
+#Set-TaskbarOptions -Size Large -UnLock -Dock Bottom -Combine Never -AlwaysShowIconsOff
+
+#Enable-RemoteDesktop
+
+Disable-MicrosoftUpdate
+Disable-BingSearch
+Disable-GameBarTips
+
+# -----------------------------------------------------------------------------------------------------------------------
+
+choco upgrade chocolatey -y
+choco upgrade boxstarter -y
+
+# install basic AV
+# Security / AntiVirus
+#choco install microsoftsecurityessentials -y
+choco install malwarebytes -y
+#choco install kss -y # Kaspersky Security Scan
+#choco install kvrt -y # Kaspersky Virus Removal Tool 
+#choco install bitdefenderavfree -y # BitDefender AntiVirus Free Edition
+#choco install avgantivirusfree -y # AVG AntiVirus Free
+#choco install avastfreeantivirus -y # Avast Free AntiVirus
+choco install avirafreeantivirus -y # Avira Free AntiVirus
+
+# Internet Browsers
+choco install googlechrome
+choco install chromium
+choco install firefox
+
+#cup - choco upgrade (update is deprecated)
+choco upgrade ubiquiti-unifi-controller -y # UniFi Controller is updated frequently, best to run upgrade command
+
+# Network Tools
+choco install angryip -y # angry ip scanner
+choco install nmap -y # Nmap - Zenmap GUI
+#choco install wireshark 
+choco install putty -y # PuTTY - SSH, Telnet, PSCP, PSFTP
+#choco install winscp -y # WinSCP - SCP client for windows
+choco install tightvnc -y # Tight VNC can take control of people's computers remotely
+choco install realvnc -y # For interfacing with Raspberry-Pi
+
+# Accessibility Tools
+choco install vlc -y # Video LAN Converter
+choco install 7zip -y # Unzip packages
+
+# Office Tools
+choco install adobereader -y 
+choco install libreoffice -y # includes:  Writer, Calc (spreadsheets), Impress (presentations), Draw (diagrams), Base (databases), Math (equations)
+#choco install libreoffice-help -y # help file for LibreOffice
+#choco install openoffice -y # Apache OpenOffice includes: Writer, Calc, Impress, Draw, Base, Math
+
+# File Tools
+choco install notepadplusplus -y 
+choco install keepass -y 
+choco install tortoiseHg -y # TortoiseHg
+#choco install kdiff3 -y 
+#choco install winmerge -y # WinMerge is an Open Source differencing and merging tool for Windows. WinMerge can compare both folders and files, presenting differences in a visual text format that is easy to understand and handle. | Please install with chocolatey
+#choco install windirstat -y 
+#choco install duplicatefilefinder -y # Auslogics Duplicate File Finder
+choco install hashtab -y # Adds a tab in file properties window for calculating hashes
+
+# Encryption Tools
+#choco install truecrypt -y
+#choco install veracrypt -y
+
+# Power user tools
+choco install f.lux -y # Flux screen tempurature adjustment at dusk & dawn, to help maintain circadium rythm by minimizing blue light.
+choco install procexp -y #Process Explorer
+#choco install ccleaner -y # registry cleaner.
+#choco install netstress -y # In order to test and troubleshoot networks we need tools that allow us to generate network traffic and analyze the network's throughput performance. This is true for both wired and wireless networks. 
+choco install autohotkey -y # AutoHotKey to automate keyboard input and mouse clicks
+
+# Development Tools
+choco install git -y 
+#choco install tortoisegit -y # TortoiseGit is a Windows Shell Interface to Git and based on TortoiseSVN.
+choco install poshgit -y # A set of PowerShell scripts which provide Git/PowerShell integration 
+choco install github-desktop -y # This essentially replaces https://chocolatey.org/packages/GitHub but is a different application. Your Desktop upgrade. 
+choco install posh-github -y # PowerShell cmdlet helpers for working with the GitHub API. 
+
+# -----------------------------------------------------------------------------------------------------------------------
+
+# =======================================================================================================================
+
+# Other than the Boxstarter commands that are imported into all Boxstarter Installation sessions, you will likely recognize this syntax if you are already familiar with Chocolatey. 
+
+# Boxstarter can run any Chocolatey package. The only difference as far as the script is concerned is that your script also has access to Boxstarter's commands for configuring Windows, running updates as well as logging and reboot control.
+
+# -----------------------------------------------------------------------------------------------------------------------
+
+# Update-ExecutionPolicy
+
+# The execution policy is set in a separate elevated PowerShell process. If running in the Chocolatey runner, the current window cannot be used because its execution policy has been explicitly set.
+
+# If on a 64 bit machine, the policy will be set for both 64 and 32 bit shells.
+
+# =======================================================================================================================
+
+# -----------------------------------------------------------------------------------------------------------------------
+# =======================================================================================================================
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Enable-UAC
+
