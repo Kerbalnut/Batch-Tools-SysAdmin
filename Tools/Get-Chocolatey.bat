@@ -1,8 +1,8 @@
 @ECHO OFF
 
-:: RUNAS /noprofile /user:IQ\gjames CMD.EXE
+:: RUNAS /noprofile /user:[DOMAIN]\[USERNAME] CMD.EXE
 
-:: RUNAS /noprofile /user:IQ\gjames "CMD.EXE /C ".\Get-Chocolatey.bat""
+:: RUNAS /noprofile /user:[DOMAIN]\[USERNAME] "CMD.EXE /C ".\Get-Chocolatey.bat""
 
 :: BatchGotAdmin International-Fix Code
 :: https://sites.google.com/site/eneerge/home/BatchGotAdmin
@@ -40,3 +40,5 @@ ECHO:
 ECHO End %~nx0
 ECHO: 
 PAUSE
+::GOTO :EOF
+EXIT /B & REM If you call this program from the command line and want it to return to CMD instead of closing Command Prompt, need to use EXIT /B or no EXIT command at all.

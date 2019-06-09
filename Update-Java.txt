@@ -1,0 +1,3 @@
+
+choco upgrade javaruntime -y
+choco upgrade jre8 -y

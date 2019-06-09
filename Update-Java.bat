@@ -70,7 +70,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 :: http://boxstarter.org/Learn/WebLauncher
 
 :: 1
-SET "_GistRawAddr=https://gist.githubusercontent.com/Kerbalnut/19f9225e7470e58c70fa9f06fbce7e33/raw/af9805556bc73bcc9499c484dfb8283b33b800ee/Install-WindowsUpdates.txt"
+SET "_GistRawAddr=https://gist.githubusercontent.com/Kerbalnut/515c36504ca21ddbc8ee1b2ef4be94a1/raw/ba3c126aa0bd96fbe39f26fbec060bb43d75fe14/Update-Java.txt"
 
 :: "NR" stands for "No Reboot" so the computer will not restart during Boxstarter process
 :: http://boxstarter.org/package/nr/url?%_GistRawAddr%
@@ -114,10 +114,16 @@ SET "_INSTRUCTIONS_FILE=%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"
 REM >-------------------------------------------------------------------------------
 REM >  INSTRUCTIONS: 
 REM >
-ECHO   Installs some networking utilities useful for Networking Technicians.> "%_INSTRUCTIONS_FILE%"
+ECHO   Updates Java runtime environment, currently version jre8. Old Java versions> "%_INSTRUCTIONS_FILE%"
+ECHO   are extremely vulnerable to attackers, so it is important to keep it up-to->> "%_INSTRUCTIONS_FILE%"
+ECHO   date.>> "%_INSTRUCTIONS_FILE%"
 ECHO:>> "%_INSTRUCTIONS_FILE%"
-ECHO   See BoxstartInstall-NetworkingUtilities.txt for complete list of items that>> "%_INSTRUCTIONS_FILE%"
-ECHO   will be installed.>> "%_INSTRUCTIONS_FILE%"
+ECHO   CAUTION: This script in no way uninstalls old versions of Java. To check your>> "%_INSTRUCTIONS_FILE%"
+ECHO   system for old Java versions ^& remove them, visit:>> "%_INSTRUCTIONS_FILE%"
+ECHO:>> "%_INSTRUCTIONS_FILE%"
+ECHO   https://www.java.com/en/download/uninstalltool.jsp>> "%_INSTRUCTIONS_FILE%"
+ECHO:>> "%_INSTRUCTIONS_FILE%"
+ECHO   and download ^& use the tool.>> "%_INSTRUCTIONS_FILE%"
 REM >-------------------------------------------------------------------------------
 REM >-------------------------------------------------------------------------------
 REM >  INSTRUCTIONS: 
@@ -230,8 +236,14 @@ IF %_BoxstarterSource% EQU 3 (
 ECHO   The following Chocolatey packages will be installed:
 ECHO:
 ECHO   %_ChocolateyPackages%
-ECHO:
+) ELSE IF %_BoxstarterSource% EQU 2 (
+ECHO   Boxstarter source: Text File
+ECHO   "%_LocalFileName%"
+) ELSE IF %_BoxstarterSource% EQU 1 (
+ECHO   Boxstarter source: Gist Address
+ECHO   %_GistRawAddr%
 )
+ECHO:
 ECHO -------------------------------------------------------------------------------
 PAUSE
 :: Open the text file holding the boxstarter script about to be called, so that it can be reviewed before running.
@@ -494,6 +506,6 @@ ENDLOCAL
 ECHO: 
 ECHO End %~nx0
 ECHO: 
-PAUSE
+::PAUSE
 ::GOTO :EOF
 EXIT /B & REM If you call this program from the command line and want it to return to CMD instead of closing Command Prompt, need to use EXIT /B or no EXIT command at all.

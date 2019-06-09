@@ -101,7 +101,7 @@ SET "_LocalScriptPckg=%~dpn0.txt" & REM : This script's Drive letter, folder Pat
 SET "_ChocolateyPackages=ubiquiti-unifi-controller,angryip,nmap,wireshark,notepadplusplus,keepass,ccleaner,adwcleaner,malwarebytes,windirstat"
 
 :: Choose which Boxstarter source mode to use: 
-SET "_BoxstarterSource=2" & REM : 1 = Gist address, 2 = Local file, 3 = Package list
+SET "_BoxstarterSource=3" & REM : 1 = Gist address, 2 = Local file, 3 = Package list
 
 REM -------------------------------------------------------------------------------
 
@@ -114,10 +114,11 @@ SET "_INSTRUCTIONS_FILE=%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"
 REM >-------------------------------------------------------------------------------
 REM >  INSTRUCTIONS: 
 REM >
-ECHO   Installs some networking utilities useful for Networking Technicians.> "%_INSTRUCTIONS_FILE%"
+ECHO   Write a basic explanation of what will be installed here, so users or forget-> "%_INSTRUCTIONS_FILE%"
+ECHO   ful admins can be sure of what this package does before they run it.>> "%_INSTRUCTIONS_FILE%"
 ECHO:>> "%_INSTRUCTIONS_FILE%"
-ECHO   See BoxstartInstall-NetworkingUtilities.txt for complete list of items that>> "%_INSTRUCTIONS_FILE%"
-ECHO   will be installed.>> "%_INSTRUCTIONS_FILE%"
+ECHO   The quick brown fox jumps over the lazy dog. The quick brown fox jumps over>> "%_INSTRUCTIONS_FILE%"
+ECHO   the lazy dog.>> "%_INSTRUCTIONS_FILE%"
 REM >-------------------------------------------------------------------------------
 REM >-------------------------------------------------------------------------------
 REM >  INSTRUCTIONS: 

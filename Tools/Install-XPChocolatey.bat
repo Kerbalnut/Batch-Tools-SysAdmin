@@ -256,5 +256,7 @@ powershell.exe -NoProfile -ExecutionPolicy Unrestricted -Command ". .\Chocopckg_
 ECHO.
 ECHO End program.
 ENDLOCAL
-PAUSE
 ECHO.
+PAUSE
+::GOTO :EOF
+EXIT /B & REM If you call this program from the command line and want it to return to CMD instead of closing Command Prompt, need to use EXIT /B or no EXIT command at all.

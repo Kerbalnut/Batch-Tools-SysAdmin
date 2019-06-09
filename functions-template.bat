@@ -23,7 +23,6 @@ IF %ERRORLEVEL% EQU 0 GOTO START
 
 ::GOTO START & REM <-- Leave this line in to always skip Elevation Prompt -->
 ::GOTO NOCHOICE & REM <-- Leave this line in to always Elevate to Administrator (skip choice) -->
-:: <-- Remove this block to always RunAs Administrator -->
 ECHO:
 ECHO CHOICE Loading...
 ECHO:
@@ -31,7 +30,6 @@ ECHO:
 CHOICE /M "Run as Administrator?"
 IF ERRORLEVEL 2 GOTO START & REM No.
 IF ERRORLEVEL 1 REM Yes.
-:: <-- Remove this block to always RunAs Administrator -->
 :NOCHOICE
 
 :: wait 2 seconds, in case this user is not in Administrators group. (To prevent an infinite loop of UAC admin requests on a restricted user account.)
@@ -111,47 +109,11 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 SET "_FILE_A=%UserProfile%\Documents\SpiderOak Hive\SysAdmin\Tools\Compare To\CompareTo-Parent.bat"
 
-:: Always prefer parameters passed via command line over hard-coded vars.
-IF NOT [%1]==[] (
-	SET "_FILE_A=%1"
-)
-
-IF NOT EXIST "%_FILE_A%" (
-	ECHO:
-	ECHO PARAMETER NOT FOUND
-	ECHO -------------------------------------------------------------------------------
-	ECHO ERROR: Cannot find _FILE_A
-	ECHO %_FILE_A%
-	ECHO -------------------------------------------------------------------------------
-	ECHO:
-	PAUSE
-	ECHO:
-	REM GOTO END
-)
-
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :: Param2 = File B
 
 SET "_FILE_B=%UserProfile%\Documents\SpiderOak Hive\SysAdmin\Configuring Systems\Boxstarter\Troubleshoot-BatchScript-CompareTo.bat"
-
-:: Always prefer parameters passed via command line over hard-coded vars.
-IF NOT [%2]==[] (
-	SET "_FILE_B=%2"
-)
-
-IF NOT EXIST "%_FILE_B%" (
-	ECHO:
-	ECHO PARAMETER NOT FOUND
-	ECHO -------------------------------------------------------------------------------
-	ECHO ERROR: Cannot find _FILE_B
-	ECHO %_FILE_B%
-	ECHO -------------------------------------------------------------------------------
-	ECHO:
-	PAUSE
-	ECHO:
-	REM GOTO END
-)
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -163,6 +125,12 @@ REM ----------------------------------------------------------------------------
 
 :ExternalFunctions
 :: Load External functions and programs:
+
+::Index of external functions: 
+:: 1. Banner.cmd "%_BANNER_FUNC%"
+:: 2. CompareTo-Parent.bat "%_COMPARE_FUNC%"
+:: 3. kdiff3.exe "%_KDIFF_EXE%"
+:: 4. fossil.exe "%_FOSSIL_EXE%"
 
 ::Banner.cmd
 :-------------------------------------------------------------------------------
@@ -993,9 +961,64 @@ REM ----------------------------------------------------------------------------
 
 ::ECHO DEBUGGING: Begin DefineFunctions block.
 
+::Index of functions: 
+:: 1. :SampleFunction
+:: 2. :GetTerminalWidth
+:: 3. :StrLen
+:: 4. :CheckLink
+:: 5. :GetWindowsVersion
+:: 6. :GetIfPathIsDriveRoot
+:: 7. :CreateShortcut
+:: 8. :CreateSymbolicLink
+:: 9. :CreateSymbolicDirLink
+:: 10. :GetDate
+:: 12. :ConvertTimeToSeconds
+:: 12. :ConvertSecondsToTime
+:: 13. :InitLogOriginal
+:: 14. :InitLog
+:: 15. :SplashLogoMerge
+:: 16. :SplashLogoMergeComplete
+:: 17. :SplashLogoKdiff
+
 GOTO SkipFunctions
 :: Declare Functions
 :DefineFunctions
+:-------------------------------------------------------------------------------
+:SampleFunction RequiredParam [OptionalParam]
+:: Dependences: other functions this one is dependent on.
+:: Description for SampleFunction's purpose & ability.
+:: Description of RequiredParam and OptionalParam.
+:: Outputs:
+:: "%_SAMPLE_OUTPUT_1%"
+:: "%_SAMPLE_OUTPUT_2%"
+@ECHO OFF
+::SETLOCAL
+SETLOCAL EnableDelayedExpansion
+SET "_required_param=%1"
+SET "_optional_param=%2"
+:: Also works: IF [%1]==[] (
+IF [!_required_param!]==[] (
+	ECHO ERROR in SampleFunction^! No Required Parameter.
+	ECHO:
+	PAUSE
+	ENDLOCAL
+	EXIT /B
+)
+:: Also works: IF [%2]==[] (
+IF [!_optional_param!]==[] (
+	REM https://ss64.com/nt/syntax-args.html
+	SET "_use_optional=NOPE."
+) ELSE (
+	SET "_use_optional=YUP."
+)
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Do things here.
+
+SET "_result=%_required_param%"
+
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ENDLOCAL & SET "_SAMPLE_OUTPUT_1=%_result%" & SET "_SAMPLE_OUTPUT_2=%_use_optional%"
+EXIT /B
 :-------------------------------------------------------------------------------
 :GetTerminalWidth
 ::CALL :GetTerminalWidth
@@ -1042,51 +1065,6 @@ EXIT /B
   IF "%~2" EQU "" (ECHO %len%) ELSE SET "%~2=%len%"
   EXIT /B
 )
-:-------------------------------------------------------------------------------
-:GetIfPathIsDriveRoot
-::CALL :GetIfPathIsDriveRoot "%_PATH_TO_CHECK%"
-::ECHO "%_IS_DRIVE_LETTER%"
-::ECHO "%_DRIVE_LETTER_PATH%"
-::Bugfix: If _DEST is just a drive letter e.g. G:\ robocopy will fail if it has quotes e.g. "G:\"
-:: Outputs:
-:: "%_IS_DRIVE_LETTER%" Returns if the input path is just a drive letter, e.g. "YES" or "NO"
-:: "%_DRIVE_LETTER_PATH%" Returns 3-character drive path, e.g. "G:\" or "H:\"
-@ECHO OFF
-SETLOCAL
-:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-SET "_INPUT_STRING=%~1"
-:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-:: Check if string is longer than 3 characters
-:: https://ss64.com/nt/syntax-substring.html
-:: %variable:~num_chars_to_skip,num_chars_to_keep%
-SET "_FOURTH_CHAR=%_INPUT_STRING:~3,1%"
-IF "%_FOURTH_CHAR%"=="" (
-	SET "_DRIVE_LETTER=YES"
-) ELSE (
-	SET "_DRIVE_LETTER=NO"
-)
-:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-:: If not drive letter, make it a drive letter
-IF "%_DRIVE_LETTER%"=="NO" (
-	REM Get the _INPUT_STRING drive letter
-	FOR /F %%G IN ("%_INPUT_STRING%") DO (SET _SOURCE_LETT=%%~dG)
-	REM Only works when _INPUT_STRING is not already a drive letter, such as: "G:\" or "G:" or "G" otherwise will return nothing/null
-	REM Returns e.g. "G:"
-)
-:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-IF "%_DRIVE_LETTER%"=="NO" (
-	SET "_LETTER_INPUT=%_SOURCE_LETT%"
-) ELSE IF "%_DRIVE_LETTER%"=="YES" (
-	SET "_LETTER_INPUT=%_INPUT_STRING%"
-)
-:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-:: Make _LETTER_INPUT 3-characters
-:: %variable:~num_chars_to_skip,num_chars_to_keep%
-SET "_FIRST_CHAR=%_LETTER_INPUT:~0,1%"
-SET "_DRIVE_LETTER_OUTPUT=%_FIRST_CHAR%:\"
-:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ENDLOCAL & SET "_IS_DRIVE_LETTER=%_DRIVE_LETTER%" & SET "_DRIVE_LETTER_PATH=%_DRIVE_LETTER_OUTPUT%"
-EXIT /B
 :-------------------------------------------------------------------------------
 :CheckLink IPorDNSaddress
 :: Check address for ICMP ping response packets
@@ -1183,6 +1161,51 @@ IF "%_winversion%" == "10.0" (
 ENDLOCAL & SET "_WindowsVersion=%_winversion%" & SET "_WindowsName=%_winvername%" & SET "_WindowsEasyName=%_easyname%"
 EXIT /B
 :-------------------------------------------------------------------------------
+:GetIfPathIsDriveRoot
+::CALL :GetIfPathIsDriveRoot "%_PATH_TO_CHECK%"
+::ECHO "%_IS_DRIVE_LETTER%"
+::ECHO "%_DRIVE_LETTER_PATH%"
+::Bugfix: If _DEST is just a drive letter e.g. G:\ robocopy will fail if it has quotes e.g. "G:\"
+:: Outputs:
+:: "%_IS_DRIVE_LETTER%" Returns if the input path is just a drive letter, e.g. "YES" or "NO"
+:: "%_DRIVE_LETTER_PATH%" Returns 3-character drive path, e.g. "G:\" or "H:\"
+@ECHO OFF
+SETLOCAL
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+SET "_INPUT_STRING=%~1"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Check if string is longer than 3 characters
+:: https://ss64.com/nt/syntax-substring.html
+:: %variable:~num_chars_to_skip,num_chars_to_keep%
+SET "_FOURTH_CHAR=%_INPUT_STRING:~3,1%"
+IF "%_FOURTH_CHAR%"=="" (
+	SET "_DRIVE_LETTER=YES"
+) ELSE (
+	SET "_DRIVE_LETTER=NO"
+)
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: If not drive letter, make it a drive letter
+IF "%_DRIVE_LETTER%"=="NO" (
+	REM Get the _INPUT_STRING drive letter
+	FOR /F %%G IN ("%_INPUT_STRING%") DO (SET _SOURCE_LETT=%%~dG)
+	REM Only works when _INPUT_STRING is not already a drive letter, such as: "G:\" or "G:" or "G" otherwise will return nothing/null
+	REM Returns e.g. "G:"
+)
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+IF "%_DRIVE_LETTER%"=="NO" (
+	SET "_LETTER_INPUT=%_SOURCE_LETT%"
+) ELSE IF "%_DRIVE_LETTER%"=="YES" (
+	SET "_LETTER_INPUT=%_INPUT_STRING%"
+)
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Make _LETTER_INPUT 3-characters
+:: %variable:~num_chars_to_skip,num_chars_to_keep%
+SET "_FIRST_CHAR=%_LETTER_INPUT:~0,1%"
+SET "_DRIVE_LETTER_OUTPUT=%_FIRST_CHAR%:\"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ENDLOCAL & SET "_IS_DRIVE_LETTER=%_DRIVE_LETTER%" & SET "_DRIVE_LETTER_PATH=%_DRIVE_LETTER_OUTPUT%"
+EXIT /B
+:-------------------------------------------------------------------------------
 :CreateShortcut
 :: https://superuser.com/questions/455364/how-to-create-a-shortcut-using-a-batch-script
 :: Windows does not have any native CMD or PowerShell tools to create shortcuts, but 
@@ -1273,87 +1296,90 @@ MKLINK /D "%SymblinkPath%" "%SymblinkTarget%"
 ENDLOCAL
 EXIT /B
 :-------------------------------------------------------------------------------
-:InitLogOriginal
-:: Initiate Log with a header in a subdirectory called "Logs"
-:: Dependencies are :GetWindowsVersion
+:GetDate
+:: Get an alphabetically sortable date, returned in a var, in yyyy-mm-dd format.
+:: For convienence also get a path returned of "C:\Home Path\this script_yyyy-mm-dd.log" in a var
+:: Outputs:
+:: "%_SORTABLE_DATE%" (will always be exactly 10 characters long) e.g. 2018-01-28
+:: "%_SORTABLE_TIME%" (will always be exactly 8 characters long) e.g. 21-31-39 or 01-57-25
+:: "%_FORMATTED_TIME%" (will always be exactly 11 characters long) e.g. " 9:31:39 PM"
+:: "%_SORTABLE_DATE_PATH%" e.g. "C:\Home Path\this script_yyyy-mm-dd.log"
+:: "%_SORTABLE_DATETIME_PATH%" e.g. "C:\Home Path\this script_yyyy-mm-dd_hh-mm-ss.log"
 @ECHO OFF
 SETLOCAL
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Get date in format: Dow mm/dd/yyyy (Day-of-week, month/day/year) e.g. Sun 01/28/2018
 SET "_DATE=%DATE%"
-::ECHO Current date = %_DATE%
+::ECHO "%_DATE%"
+:: Get time in format: hh:mm:ss.ms (24hour:minutes:seconds.miliseconds) e.g. " 1:57:25.57" or "21:31:39.11"
+SET "_TIME=%TIME%"
+::ECHO "%_TIME%"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: https://ss64.com/nt/syntax-substring.html
 :: Skip 4 characters and then extract everything else
 SET "_DATE_SML=%_DATE:~4%"
 :: https://ss64.com/nt/syntax-replace.html
 :: Replace the character string '/' with '-'
 SET "_DATE_STR=%_DATE_SML:/=-%"
-::ECHO Date string = %_DATE_STR%
+:: We now have the date in mm-dd-yyyy format e.g. 01-28-2018
+:: Extract year
+SET "_DATE_YEAR=%_DATE_STR:~6,4%"
+:: Extract month
+SET "_DATE_MONTH=%_DATE_STR:~0,2%"
+:: Extract day
+SET "_DATE_DAY=%_DATE_STR:~3,2%"
+:: Construct an alphabetically sortable date
+SET "_DATE_SORT=%_DATE_YEAR%-%_DATE_MONTH%-%_DATE_DAY%"
+::ECHO Sortable date = %_DATE_SORT%
+:: We now have the date in yyyy-mm-dd format e.g. 2018-01-28
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Extract only the first 8 character
+SET "_TIME_SML=%_TIME:~0,8%"
+:: Replace the character string ' ' with '0'
+SET "_TIME_STR=%_TIME_SML: =0%"
+:: Replace the character string ':' with '-'
+SET "_TIME_SORT=%_TIME_STR::=-%"
+:: We now have the time in 24-hour hh-mm-ss format e.g. 21-31-39 or 01-57-25
+::ECHO Sortable time = "%_TIME_SORT%"
+SET "_TIME_ANTE_POST=AM"
+:: Extract hours
+SET "_TIME_24HOUR=%_TIME_SORT:~0,2%"
+IF %_TIME_24HOUR% LSS 10 SET "_TIME_24HOUR=%_TIME_24HOUR:~1%"
+:: https://ss64.com/nt/if.html
+IF %_TIME_24HOUR% GEQ 12 (
+	SET "_TIME_ANTE_POST=PM"
+	REM https://ss64.com/nt/set.html
+	IF %_TIME_24HOUR% GTR 12 (
+		SET /A "_TIME_12HOUR=_TIME_24HOUR-12"
+	) ELSE (
+		SET "_TIME_12HOUR=%_TIME_24HOUR%"
+	)
+) ELSE (
+	SET "_TIME_12HOUR=%_TIME_24HOUR%"
+)
+:: If 24hr time 'hours' is 00, change to 12 (for 12:00 AM)
+IF %_TIME_24HOUR% EQU 0 SET "_TIME_12HOUR=12"
+:: Add spaces
+IF %_TIME_12HOUR% LSS 10 SET "_TIME_12HOUR= %_TIME_12HOUR%"
+:: Skip the hours and extract the rest of :mm:ss from hh:mm:ss e.g. :31:39
+SET "_TIME_COLONS=%_TIME_SML:~2%"
+SET "_TIME_AMPM=%_TIME_12HOUR%%_TIME_COLONS% %_TIME_ANTE_POST%"
+::ECHO 12-hour time with spaces = "%_TIME_AMPM%"
+:: We now have the time in 12-hour hh:mm:ss AM/PM format e.g. " 9:31:39 PM"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: https://ss64.com/nt/syntax-args.html
 :: %~f1 Expand %1 to a Fully qualified path name - C:\utils\MyFile.txt
-::SET "_HOME_PATH=%~dpn0"
-::SET "_HOME_PATH=%~dp0Logs\%~n0"
-::SET "_HOME_PATH=D:\%~n0"
-SET "_HOME_PATH=%~dp0"
+SET "_HOME_PATH=%~dpn0"
 ::ECHO Current path = %_HOME_PATH%
-SET "_LOG_PATH=%_HOME_PATH%Logs"
-::ECHO Log path = %_LOG_PATH%
-SET "_LOG_FILE=%_LOG_PATH%\%~n0_%_DATE_STR%.log"
-::ECHO Log file = %_LOG_FILE%
-IF NOT EXIST "%_LOG_PATH%" MKDIR "%_LOG_PATH%"
-ECHO:>>"%_LOG_FILE%"
-ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ->>"%_LOG_FILE%"
-ECHO.>>"%_LOG_FILE%"
-ECHO Computer name: %COMPUTERNAME%>>"%_LOG_FILE%"
-ECHO User name: %USERNAME%>>"%_LOG_FILE%"
-CALL :GetWindowsVersion>NUL
-ECHO Windows version: %_WindowsEasyName% ^(v%_WindowsVersion%^)>>"%_LOG_FILE%"
-ECHO Script name: %~nx0>>"%_LOG_FILE%"
-ECHO Date: %_DATE%>>"%_LOG_FILE%"
-ECHO Time: %TIME%>>"%_LOG_FILE%"
-ECHO.>>"%_LOG_FILE%"
-ENDLOCAL & SET "_LOGFILE=%_LOG_FILE%" & SET "_LOGPATH=%_LOG_PATH%"
+SET "_LOG_PATH=%_HOME_PATH%_%_DATE_SORT%.log"
+::ECHO Sortable log path with date = %_LOG_PATH%
+:: We now have this script's path & name with _yyyy-mm-dd.log attached e.g. "C:\Home Path\this script_2018-03-07.log"
+SET "_LOG_PATH_TIME=%_HOME_PATH%_%_DATE_SORT%_%_TIME_SORT%.log"
+::ECHO Sortable log path with date ^& time = %_LOG_PATH_TIME%
+:: We now have this script's path & name with _yyyy-mm-dd_hh-mm-ss.log attached e.g. "C:\Home Path\this script_2018-03-07_21-31-39.log"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ENDLOCAL & SET "_SORTABLE_DATE=%_DATE_SORT%" & SET "_SORTABLE_TIME=%_TIME_SORT%" & SET "_FORMATTED_TIME=%_TIME_AMPM%" & SET "_SORTABLE_DATE_PATH=%_LOG_PATH%" & SET "_SORTABLE_DATETIME_PATH=%_LOG_PATH_TIME%"
 EXIT /B
-::GOTO :EOF
-:-------------------------------------------------------------------------------
-:InitLog [LogPathAndFilename]
-:: Initiate Log with a detailed Header at the Log Path provided (Path + Name + Extension) 
-:: e.g. "C:\Home Path\this script_2018-03-07.log"
-:: If no log path is provided, will default to a subdirectory called "Logs"
-:: Dependencies are :GetDate and :GetWindowsVersion
-@ECHO OFF
-SETLOCAL EnableDelayedExpansion
-SET "_PASSED_PATH=%~1"
-::ECHO 1 = "%_PASSED_PATH%"
-::Also works: IF [%1]==[] (
-IF [!_PASSED_PATH!]==[] (
-	REM https://ss64.com/nt/syntax-args.html
-	SET "_HOME_PATH=%~dp0"
-	REM ECHO Current path = !_HOME_PATH!
-	SET "_LOG_PATH=!_HOME_PATH!Logs"
-	REM ECHO Log path = !_LOG_PATH!
-	CALL :GetDate
-	SET "_DEFAULT_PATH=!_LOG_PATH!\%~n0_%_SORTABLE_DATE%.log"
-	SET "_LOG_FILE=!_DEFAULT_PATH!"
-) ELSE (
-	SET "_LOG_FILE=%_PASSED_PATH%"
-	FOR /F "tokens=*" %%G IN ("!_LOG_FILE!") DO (SET "_LOG_PATH=%%~dpG")
-)
-IF NOT EXIST "%_LOG_PATH%" MKDIR "%_LOG_PATH%"
-::ECHO Log file = %_LOG_FILE%
-::ECHO Log path = %_LOG_PATH%
-ECHO:>>"%_LOG_FILE%"
-ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ->>"%_LOG_FILE%"
-ECHO.>>"%_LOG_FILE%"
-ECHO Computer name: %COMPUTERNAME%>>"%_LOG_FILE%"
-ECHO User name: %USERNAME%>>"%_LOG_FILE%"
-CALL :GetWindowsVersion>NUL
-ECHO Windows version: %_WindowsEasyName% ^(v%_WindowsVersion%^)>>"%_LOG_FILE%"
-ECHO Script name: %~nx0>>"%_LOG_FILE%"
-ECHO Date: %DATE%>>"%_LOG_FILE%"
-ECHO Time: %_FORMATTED_TIME%>>"%_LOG_FILE%"
-ECHO.>>"%_LOG_FILE%"
-ENDLOCAL & SET "_LOGFILE=%_LOG_FILE%" & SET "_LOGPATH=%_LOG_PATH%"
-EXIT /B
-::GOTO :EOF
 :-------------------------------------------------------------------------------
 :ConvertTimeToSeconds TimeValue [/D]
 :: Takes a given 24-hour time input like " 5:47:23.52" or "21-31-39" and converts it into seconds
@@ -1464,90 +1490,87 @@ SET "_DUR_TIME=%_DUR_HOURS%h %_DUR_MINS%m %_DUR_SECS%s"
 ENDLOCAL & SET "_TIME_FORMATTED=%_FORM_TIME%" & SET "_TIME_SORTABLE=%_SORT_TIME%" & SET "_TIME_DURATION=%_DUR_TIME%"
 EXIT /B
 :-------------------------------------------------------------------------------
-:GetDate
-:: Get an alphabetically sortable date, returned in a var, in yyyy-mm-dd format.
-:: For convienence also get a path returned of "C:\Home Path\this script_yyyy-mm-dd.log" in a var
-:: Outputs:
-:: "%_SORTABLE_DATE%" (will always be exactly 10 characters long) e.g. 2018-01-28
-:: "%_SORTABLE_TIME%" (will always be exactly 8 characters long) e.g. 21-31-39 or 01-57-25
-:: "%_FORMATTED_TIME%" (will always be exactly 11 characters long) e.g. " 9:31:39 PM"
-:: "%_SORTABLE_DATE_PATH%" e.g. "C:\Home Path\this script_yyyy-mm-dd.log"
-:: "%_SORTABLE_DATETIME_PATH%" e.g. "C:\Home Path\this script_yyyy-mm-dd_hh-mm-ss.log"
+:InitLogOriginal
+:: Initiate Log with a header in a subdirectory called "Logs"
+:: Dependencies are :GetWindowsVersion
 @ECHO OFF
 SETLOCAL
-:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-:: Get date in format: Dow mm/dd/yyyy (Day-of-week, month/day/year) e.g. Sun 01/28/2018
 SET "_DATE=%DATE%"
-::ECHO "%_DATE%"
-:: Get time in format: hh:mm:ss.ms (24hour:minutes:seconds.miliseconds) e.g. " 1:57:25.57" or "21:31:39.11"
-SET "_TIME=%TIME%"
-::ECHO "%_TIME%"
-:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+::ECHO Current date = %_DATE%
 :: https://ss64.com/nt/syntax-substring.html
 :: Skip 4 characters and then extract everything else
 SET "_DATE_SML=%_DATE:~4%"
 :: https://ss64.com/nt/syntax-replace.html
 :: Replace the character string '/' with '-'
 SET "_DATE_STR=%_DATE_SML:/=-%"
-:: We now have the date in mm-dd-yyyy format e.g. 01-28-2018
-:: Extract year
-SET "_DATE_YEAR=%_DATE_STR:~6,4%"
-:: Extract month
-SET "_DATE_MONTH=%_DATE_STR:~0,2%"
-:: Extract day
-SET "_DATE_DAY=%_DATE_STR:~3,2%"
-:: Construct an alphabetically sortable date
-SET "_DATE_SORT=%_DATE_YEAR%-%_DATE_MONTH%-%_DATE_DAY%"
-::ECHO Sortable date = %_DATE_SORT%
-:: We now have the date in yyyy-mm-dd format e.g. 2018-01-28
-:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-:: Extract only the first 8 character
-SET "_TIME_SML=%_TIME:~0,8%"
-:: Replace the character string ' ' with '0'
-SET "_TIME_STR=%_TIME_SML: =0%"
-:: Replace the character string ':' with '-'
-SET "_TIME_SORT=%_TIME_STR::=-%"
-:: We now have the time in 24-hour hh-mm-ss format e.g. 21-31-39 or 01-57-25
-::ECHO Sortable time = "%_TIME_SORT%"
-SET "_TIME_ANTE_POST=AM"
-:: Extract hours
-SET "_TIME_24HOUR=%_TIME_SORT:~0,2%"
-IF %_TIME_24HOUR% LSS 10 SET "_TIME_24HOUR=%_TIME_24HOUR:~1%"
-:: https://ss64.com/nt/if.html
-IF %_TIME_24HOUR% GEQ 12 (
-	SET "_TIME_ANTE_POST=PM"
-	REM https://ss64.com/nt/set.html
-	IF %_TIME_24HOUR% GTR 12 (
-		SET /A "_TIME_12HOUR=_TIME_24HOUR-12"
-	) ELSE (
-		SET "_TIME_12HOUR=%_TIME_24HOUR%"
-	)
-) ELSE (
-	SET "_TIME_12HOUR=%_TIME_24HOUR%"
-)
-:: If 24hr time 'hours' is 00, change to 12 (for 12:00 AM)
-IF %_TIME_24HOUR% EQU 0 SET "_TIME_12HOUR=12"
-:: Add spaces
-IF %_TIME_12HOUR% LSS 10 SET "_TIME_12HOUR= %_TIME_12HOUR%"
-:: Skip the hours and extract the rest of :mm:ss from hh:mm:ss e.g. :31:39
-SET "_TIME_COLONS=%_TIME_SML:~2%"
-SET "_TIME_AMPM=%_TIME_12HOUR%%_TIME_COLONS% %_TIME_ANTE_POST%"
-::ECHO 12-hour time with spaces = "%_TIME_AMPM%"
-:: We now have the time in 12-hour hh:mm:ss AM/PM format e.g. " 9:31:39 PM"
-:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+::ECHO Date string = %_DATE_STR%
 :: https://ss64.com/nt/syntax-args.html
 :: %~f1 Expand %1 to a Fully qualified path name - C:\utils\MyFile.txt
-SET "_HOME_PATH=%~dpn0"
+::SET "_HOME_PATH=%~dpn0"
+::SET "_HOME_PATH=%~dp0Logs\%~n0"
+::SET "_HOME_PATH=D:\%~n0"
+SET "_HOME_PATH=%~dp0"
 ::ECHO Current path = %_HOME_PATH%
-SET "_LOG_PATH=%_HOME_PATH%_%_DATE_SORT%.log"
-::ECHO Sortable log path with date = %_LOG_PATH%
-:: We now have this script's path & name with _yyyy-mm-dd.log attached e.g. "C:\Home Path\this script_2018-03-07.log"
-SET "_LOG_PATH_TIME=%_HOME_PATH%_%_DATE_SORT%_%_TIME_SORT%.log"
-::ECHO Sortable log path with date ^& time = %_LOG_PATH_TIME%
-:: We now have this script's path & name with _yyyy-mm-dd_hh-mm-ss.log attached e.g. "C:\Home Path\this script_2018-03-07_21-31-39.log"
-:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ENDLOCAL & SET "_SORTABLE_DATE=%_DATE_SORT%" & SET "_SORTABLE_TIME=%_TIME_SORT%" & SET "_FORMATTED_TIME=%_TIME_AMPM%" & SET "_SORTABLE_DATE_PATH=%_LOG_PATH%" & SET "_SORTABLE_DATETIME_PATH=%_LOG_PATH_TIME%"
+SET "_LOG_PATH=%_HOME_PATH%Logs"
+::ECHO Log path = %_LOG_PATH%
+SET "_LOG_FILE=%_LOG_PATH%\%~n0_%_DATE_STR%.log"
+::ECHO Log file = %_LOG_FILE%
+IF NOT EXIST "%_LOG_PATH%" MKDIR "%_LOG_PATH%"
+ECHO:>>"%_LOG_FILE%"
+ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ->>"%_LOG_FILE%"
+ECHO.>>"%_LOG_FILE%"
+ECHO Computer name: %COMPUTERNAME%>>"%_LOG_FILE%"
+ECHO User name: %USERNAME%>>"%_LOG_FILE%"
+CALL :GetWindowsVersion>NUL
+ECHO Windows version: %_WindowsEasyName% ^(v%_WindowsVersion%^)>>"%_LOG_FILE%"
+ECHO Script name: %~nx0>>"%_LOG_FILE%"
+ECHO Date: %_DATE%>>"%_LOG_FILE%"
+ECHO Time: %TIME%>>"%_LOG_FILE%"
+ECHO.>>"%_LOG_FILE%"
+ENDLOCAL & SET "_LOGFILE=%_LOG_FILE%" & SET "_LOGPATH=%_LOG_PATH%"
 EXIT /B
+::GOTO :EOF
+:-------------------------------------------------------------------------------
+:InitLog [LogPathAndFilename]
+:: Initiate Log with a detailed Header at the Log Path provided (Path + Name + Extension) 
+:: e.g. "C:\Home Path\this script_2018-03-07.log"
+:: If no log path is provided, will default to a subdirectory called "Logs"
+:: Dependencies are :GetDate and :GetWindowsVersion
+@ECHO OFF
+SETLOCAL EnableDelayedExpansion
+SET "_PASSED_PATH=%~1"
+::ECHO 1 = "%_PASSED_PATH%"
+::Also works: IF [%1]==[] (
+IF [!_PASSED_PATH!]==[] (
+	REM https://ss64.com/nt/syntax-args.html
+	SET "_HOME_PATH=%~dp0"
+	REM ECHO Current path = !_HOME_PATH!
+	SET "_LOG_PATH=!_HOME_PATH!Logs"
+	REM ECHO Log path = !_LOG_PATH!
+	CALL :GetDate
+	SET "_DEFAULT_PATH=!_LOG_PATH!\%~n0_%_SORTABLE_DATE%.log"
+	SET "_LOG_FILE=!_DEFAULT_PATH!"
+) ELSE (
+	SET "_LOG_FILE=%_PASSED_PATH%"
+	FOR /F "tokens=*" %%G IN ("!_LOG_FILE!") DO (SET "_LOG_PATH=%%~dpG")
+)
+IF NOT EXIST "%_LOG_PATH%" MKDIR "%_LOG_PATH%"
+::ECHO Log file = %_LOG_FILE%
+::ECHO Log path = %_LOG_PATH%
+ECHO:>>"%_LOG_FILE%"
+ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ->>"%_LOG_FILE%"
+ECHO.>>"%_LOG_FILE%"
+ECHO Computer name: %COMPUTERNAME%>>"%_LOG_FILE%"
+ECHO User name: %USERNAME%>>"%_LOG_FILE%"
+CALL :GetWindowsVersion>NUL
+ECHO Windows version: %_WindowsEasyName% ^(v%_WindowsVersion%^)>>"%_LOG_FILE%"
+ECHO Script name: %~nx0>>"%_LOG_FILE%"
+ECHO Date: %DATE%>>"%_LOG_FILE%"
+ECHO Time: %_FORMATTED_TIME%>>"%_LOG_FILE%"
+ECHO.>>"%_LOG_FILE%"
+ENDLOCAL & SET "_LOGFILE=%_LOG_FILE%" & SET "_LOGPATH=%_LOG_PATH%"
+EXIT /B
+::GOTO :EOF
 :-------------------------------------------------------------------------------
 :SplashLogoMerge
 ::CALL :SplashLogoMerge
@@ -1825,42 +1848,6 @@ ECHO \__^|  \__^| \_______^|\__^|\__^|      \__^|
 ::ENDLOCAL
 EXIT /B
 ::GOTO :EOF
-:-------------------------------------------------------------------------------
-:SampleFunction RequiredParam [OptionalParam]
-:: Dependences: other functions this one is dependent on.
-:: Description for SampleFunction's purpose & ability.
-:: Description of RequiredParam and OptionalParam.
-:: Outputs:
-:: "%_SAMPLE_OUTPUT_1%"
-:: "%_SAMPLE_OUTPUT_2%"
-@ECHO OFF
-::SETLOCAL
-SETLOCAL EnableDelayedExpansion
-SET "_required_param=%1"
-SET "_optional_param=%2"
-:: Also works: IF [%1]==[] (
-IF [!_required_param!]==[] (
-	ECHO ERROR in SampleFunction^! No Required Parameter.
-	ECHO:
-	PAUSE
-	ENDLOCAL
-	EXIT /B
-)
-:: Also works: IF [%2]==[] (
-IF [!_optional_param!]==[] (
-	REM https://ss64.com/nt/syntax-args.html
-	SET "_use_optional=NOPE."
-) ELSE (
-	SET "_use_optional=YUP."
-)
-:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-:: Do things here.
-
-SET "_result=%_required_param%"
-
-:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ENDLOCAL & SET "_SAMPLE_OUTPUT_1=%_result%" & SET "_SAMPLE_OUTPUT_2=%_use_optional%"
-EXIT /B
 :-------------------------------------------------------------------------------
 :: End functions
 :SkipFunctions

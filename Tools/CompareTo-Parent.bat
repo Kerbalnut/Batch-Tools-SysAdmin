@@ -118,7 +118,7 @@ SET "_FILE_B=%UserProfile%\Documents\SpiderOak Hive\Programming\Batch\+Function 
 
 SET "_FILE_B=%UserProfile%\Documents\SpiderOak Hive\Programming\Batch\+Function Library\initiate-boxstarter_template.bat"
 
-SET "_FILE_B=G:\Users\Grant\Documents\Flash Drive updates\Build-GeneralFlashDrive.bat"
+SET "_FILE_B=%UserProfile%\Documents\Flash Drive updates\Build-GeneralFlashDrive.bat"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -224,6 +224,12 @@ IF NOT EXIST "%_BANNER_FUNC%" (
 IF NOT EXIST "%_BANNER_FUNC%" (
 	CD ..
 	SET "_BANNER_FUNC=!CD!\Banner.cmd"
+	CD %_ORIG_DIR%
+)
+:: One directory up, into functions folder
+IF NOT EXIST "%_BANNER_FUNC%" (
+	CD ..
+	SET "_BANNER_FUNC=!CD!\functions\Banner.cmd"
 	CD %_ORIG_DIR%
 )
 :: Two directories up
@@ -590,6 +596,8 @@ ECHO:
 PAUSE
 "%_KDIFF_EXE%" "%_FILE_A%" "%_FILE_B%" -o "%_FILE_A%"
 ECHO:
+ECHO * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
+ECHO * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
 ECHO * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
 ECHO:
 ECHO Finished updating File A. ^(%_FILE_A_NAME%^)

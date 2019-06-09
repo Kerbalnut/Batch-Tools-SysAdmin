@@ -70,7 +70,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 :: http://boxstarter.org/Learn/WebLauncher
 
 :: 1
-SET "_GistRawAddr=https://gist.githubusercontent.com/Kerbalnut/19f9225e7470e58c70fa9f06fbce7e33/raw/af9805556bc73bcc9499c484dfb8283b33b800ee/Install-WindowsUpdates.txt"
+SET "_GistRawAddr=https://gist.githubusercontent.com/Kerbalnut/19f9225e7470e58c70fa9f06fbce7e33/raw/9bbecbeab49b6a7418e5faf00e00d91aba16ca33/Install-AllWindowsUpdates.txt"
 
 :: "NR" stands for "No Reboot" so the computer will not restart during Boxstarter process
 :: http://boxstarter.org/package/nr/url?%_GistRawAddr%
@@ -98,10 +98,10 @@ SET "_LocalScriptPckg=%~dpn0.txt" & REM : This script's Drive letter, folder Pat
 :: Separate multiple packages with a single comma e.g. http://boxstarter.org/package/nr/firefox,googlechrome,wincdemu
 
 :: 3
-SET "_ChocolateyPackages=ubiquiti-unifi-controller,angryip,nmap,wireshark,notepadplusplus,keepass,ccleaner,adwcleaner,malwarebytes,windirstat"
+SET "_ChocolateyPackages=adobereader,wincdemu,ccleaner,adwcleaner,windirstat,malwarebytes"
 
 :: Choose which Boxstarter source mode to use: 
-SET "_BoxstarterSource=2" & REM : 1 = Gist address, 2 = Local file, 3 = Package list
+SET "_BoxstarterSource=1" & REM : 1 = Gist address, 2 = Local file, 3 = Package list
 
 REM -------------------------------------------------------------------------------
 
@@ -114,10 +114,9 @@ SET "_INSTRUCTIONS_FILE=%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"
 REM >-------------------------------------------------------------------------------
 REM >  INSTRUCTIONS: 
 REM >
-ECHO   Installs some networking utilities useful for Networking Technicians.> "%_INSTRUCTIONS_FILE%"
-ECHO:>> "%_INSTRUCTIONS_FILE%"
-ECHO   See BoxstartInstall-NetworkingUtilities.txt for complete list of items that>> "%_INSTRUCTIONS_FILE%"
-ECHO   will be installed.>> "%_INSTRUCTIONS_FILE%"
+ECHO   Installs all "Critical" Windows Updates, rebooting as necessary, picking up> "%_INSTRUCTIONS_FILE%"
+ECHO   where it left off, until all Windows Updates are installed and no pending>> "%_INSTRUCTIONS_FILE%"
+ECHO   reboots are detected.>> "%_INSTRUCTIONS_FILE%"
 REM >-------------------------------------------------------------------------------
 REM >-------------------------------------------------------------------------------
 REM >  INSTRUCTIONS: 
@@ -367,8 +366,12 @@ IF EXIST "%ProgramFiles%\Internet Explorer\iexplore.exe" (
 		ECHO Or, copy-and-paste this Launch URL into IE yourself ^(other browsers will not
 		ECHO work properly without modification^):
 		ECHO.
+		ECHO -------------------------------------------------------------------------------
+		ECHO.
 		ECHO %_BoxstarterURL%
 		ECHO.
+		ECHO -------------------------------------------------------------------------------
+		ECHO. 
 		PAUSE
 	)
 )
