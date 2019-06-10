@@ -22,6 +22,34 @@ Use Boxstarter and Chocolatey to automatically install a suite of software packa
 
 A framework for creating organized batch scripts. Also serves as a repository for all internal and external functions, and examples of using them.
 
+Index of external functions: 
+
+1. Banner.cmd "%_BANNER_FUNC%"
+2. CompareTo-Parent.bat "%_COMPARE_FUNC%"
+3. kdiff3.exe "%_KDIFF_EXE%"
+4. fossil.exe "%_FOSSIL_EXE%"
+
+Index of functions: 
+
+1. :SampleFunction
+2. :GetTerminalWidth
+3. :StrLen
+4. :CheckLink
+5. :GetWindowsVersion
+6. :GetIfPathIsDriveRoot
+7. :CreateShortcut
+8. :CreateSymbolicLink
+9. :CreateSymbolicDirLink
+10. :GetDate
+12. :ConvertTimeToSeconds
+12. :ConvertSecondsToTime
+13. :InitLogOriginal
+14. :InitLog
+15. :SplashLogoMerge
+16. :SplashLogoMergeComplete
+17. :SplashLogoKdiff
+
+
 #### Install-AllWindowsUpdates.bat
 
 #### Update-Java.bat
