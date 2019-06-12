@@ -230,8 +230,14 @@ IF %_BoxstarterSource% EQU 3 (
 ECHO   The following Chocolatey packages will be installed:
 ECHO:
 ECHO   %_ChocolateyPackages%
-ECHO:
+) ELSE IF %_BoxstarterSource% EQU 2 (
+ECHO   Boxstarter source: Text File
+ECHO   "%_LocalFileName%"
+) ELSE IF %_BoxstarterSource% EQU 1 (
+ECHO   Boxstarter source: Gist Address
+ECHO   %_GistRawAddr%
 )
+ECHO:
 ECHO -------------------------------------------------------------------------------
 PAUSE
 :: Open the text file holding the boxstarter script about to be called, so that it can be reviewed before running.
@@ -367,8 +373,12 @@ IF EXIST "%ProgramFiles%\Internet Explorer\iexplore.exe" (
 		ECHO Or, copy-and-paste this Launch URL into IE yourself ^(other browsers will not
 		ECHO work properly without modification^):
 		ECHO.
+		ECHO -------------------------------------------------------------------------------
+		ECHO.
 		ECHO %_BoxstarterURL%
 		ECHO.
+		ECHO -------------------------------------------------------------------------------
+		ECHO. 
 		PAUSE
 	)
 )
@@ -387,11 +397,17 @@ REM ----------------------------------------------------------------------------
 
 REM -------------------------------------------------------------------------------
 
+::ECHO DEBUGGING: Begin DefineFunctions block.
+
+::Index of functions: 
+:: 1. :CheckLink
+:: 2. :GetWindowsVersion
+
 GOTO SkipFunctions
 :: Declare Functions
 :DefineFunctions
 :-------------------------------------------------------------------------------
-:CheckLink
+:CheckLink IPorDNSaddress
 :: Check address for ICMP ping response packets
 :: http://stackoverflow.com/questions/3050898/how-to-check-if-ping-responded-or-not-in-a-batch-file
 :: thanks to paxdiablo for checklink.cmd
@@ -488,6 +504,7 @@ EXIT /B
 :-------------------------------------------------------------------------------
 :: End functions
 :SkipFunctions
+
 :Footer
 :END
 ENDLOCAL

@@ -1,25 +1,47 @@
-@ECHO OFF
-::COLOR 0A
-COLOR 2
-SET "_TARGET=%~1"
-IF "%~1"=="" SET "_TARGET=1000" & REM Time in milliseconds, defaults to 1000
-SET "_TIMER=0"
-CALL :GetWindowsVersion
-:START
-IF "%_WindowsVersion%"=="10" (
-	ECHO %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM%
-) ELSE ( 
-	ECHO %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM% %RANDOM%
-)
-SET /A "_TIMER+=1"
-IF %_TIMER% GTR %_TARGET% GOTO :EOF
-GOTO START
-:END
-EXIT /B & REM If you call this program from the command line and want it to return to CMD instead of closing Command Prompt, need to use EXIT /B or no EXIT command at all.
+
+REM -------------------------------------------------------------------------------
+
+::ECHO DEBUGGING: Begin DefineFunctions block.
+
+::Index of functions: 
+:: 1. :CheckLink
+:: 2. :GetWindowsVersion
 
 GOTO SkipFunctions
 :: Declare Functions
 :DefineFunctions
+:-------------------------------------------------------------------------------
+:CheckLink IPorDNSaddress
+:: Check address for ICMP ping response packets
+:: http://stackoverflow.com/questions/3050898/how-to-check-if-ping-responded-or-not-in-a-batch-file
+:: thanks to paxdiablo for checklink.cmd
+@SETLOCAL EnableExtensions EnableDelayedExpansion
+@ECHO OFF
+SET "ipaddr=%1"
+ECHO Testing address: %ipaddr%
+SET "_loopcount=0"
+:loop
+SET "state=down"
+FOR /F "tokens=5,7" %%a IN ('PING -n 1 !ipaddr!') DO (
+    IF "x%%a"=="xReceived" IF "x%%b"=="x1," SET "state=up"
+)
+ECHO Link is !state!
+REM --> test networking hardware capability
+PING -n 6 127.0.0.1 >nul: 2>nul:
+IF "!state!"=="down" (
+	IF !_loopcount! LSS 3 (
+		SET /A "_loopcount+=1"
+		GOTO :loop
+	) ELSE (
+		ENDLOCAL & SET "_LinkState=%state%" & EXIT /B
+	)	
+) ELSE (
+	IF "!state!"=="up" (
+		ENDLOCAL & SET "_LinkState=%state%" & EXIT /B
+	)
+)
+ENDLOCAL & SET "_LinkState=%state%"
+EXIT /B
 :-------------------------------------------------------------------------------
 :GetWindowsVersion
 @ECHO OFF

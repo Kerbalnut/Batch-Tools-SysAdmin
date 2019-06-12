@@ -29,26 +29,40 @@ Index of external functions:
 3. kdiff3.exe "%_KDIFF_EXE%"
 4. fossil.exe "%_FOSSIL_EXE%"
 
+Index of Main:
+
+1. Phase 1: Evaluate Parameters
+2. Phase 2: Test :GetIfPathIsDriveRoot
+3. Phase 3: Test :GetWindowsVersion
+4. Phase 4: Test Banner.cmd (external function)
+5. Phase 5: Test :GetTerminalWidth
+6. Phase 6: Test :CheckLink
+7. Phase 7: Test :GetDate, :ConvertTimeToSeconds, and :ConvertSecondsToTime
+8. Phase 8: Test :InitLog and :InitLogOriginal
+9. Phase 9: Test :CreateShortcut, :CreateSymbolicLink, and :CreateSymbolicDirLink
+
 Index of functions: 
 
 1. :SampleFunction
-2. :GetTerminalWidth
-3. :StrLen
-4. :CheckLink
-5. :GetWindowsVersion
-6. :GetIfPathIsDriveRoot
-7. :CreateShortcut
-8. :CreateSymbolicLink
-9. :CreateSymbolicDirLink
-10. :GetDate
-12. :ConvertTimeToSeconds
-12. :ConvertSecondsToTime
-13. :InitLogOriginal
-14. :InitLog
-15. :SplashLogoMerge
-16. :SplashLogoMergeComplete
-17. :SplashLogoKdiff
-
+2. :DisplayHelp
+3. :GetTerminalWidth
+4. :StrLen
+5. :GenerateBlankSpace
+6. :FormatTextLine
+7. :CheckLink
+8. :GetWindowsVersion
+9. :GetIfPathIsDriveRoot
+10. :CreateShortcut
+11. :CreateSymbolicLink
+12. :CreateSymbolicDirLink
+13. :GetDate
+14. :ConvertTimeToSeconds
+15. :ConvertSecondsToTime
+16. :InitLogOriginal
+17. :InitLog
+18. :SplashLogoKdiff
+19. :SplashLogoMerge
+20. :SplashLogoMergeComplete
 
 #### Install-AllWindowsUpdates.bat
 

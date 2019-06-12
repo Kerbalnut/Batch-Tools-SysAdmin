@@ -379,8 +379,12 @@ IF EXIST "%ProgramFiles%\Internet Explorer\iexplore.exe" (
 		ECHO Or, copy-and-paste this Launch URL into IE yourself ^(other browsers will not
 		ECHO work properly without modification^):
 		ECHO.
+		ECHO -------------------------------------------------------------------------------
+		ECHO.
 		ECHO %_BoxstarterURL%
 		ECHO.
+		ECHO -------------------------------------------------------------------------------
+		ECHO. 
 		PAUSE
 	)
 )
@@ -399,11 +403,17 @@ REM ----------------------------------------------------------------------------
 
 REM -------------------------------------------------------------------------------
 
+::ECHO DEBUGGING: Begin DefineFunctions block.
+
+::Index of functions: 
+:: 1. :CheckLink
+:: 2. :GetWindowsVersion
+
 GOTO SkipFunctions
 :: Declare Functions
 :DefineFunctions
 :-------------------------------------------------------------------------------
-:CheckLink
+:CheckLink IPorDNSaddress
 :: Check address for ICMP ping response packets
 :: http://stackoverflow.com/questions/3050898/how-to-check-if-ping-responded-or-not-in-a-batch-file
 :: thanks to paxdiablo for checklink.cmd
@@ -500,6 +510,7 @@ EXIT /B
 :-------------------------------------------------------------------------------
 :: End functions
 :SkipFunctions
+
 :Footer
 :END
 ENDLOCAL
