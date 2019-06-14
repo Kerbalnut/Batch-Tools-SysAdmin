@@ -12,11 +12,13 @@ All code or functions gained from other sources are referenced in place where us
 
 #### BoxstarterInstall-NetworkingUtilities.bat
 
-Use Boxstarter and Chocolatey to automatically install a suite of software packages, in this case networking utilities for a technician's laptop. 
+Uses Boxstarter and Chocolatey to automatically install a suite of software packages, in this case networking utilities for a technician's laptop. 
+
+See `BoxstarterInstall-NetworkingUtilities.txt` for full list of commands.
 
 #### BoxstarterInstall-template.bat
 
-Use Boxstarter and Chocolatey to automatically install a suite of software packages. Define software packages using [Boxstarter script](https://boxstarter.org/UsingBoxstarter) and Chocolatey commands, or simply a comma-separated list of [chocolatey packages](https://chocolatey.org/packages). Boxstarter scripts can be either a .txt file (preferably with the same name as the script), or uploaded to [gist.github.com](https://gist.github.com/) and referenced via Raw URL.
+Uses Boxstarter and Chocolatey to automatically install a suite of software packages. Define software packages using [Boxstarter script](https://boxstarter.org/UsingBoxstarter) and Chocolatey commands, or simply a comma-separated list of [chocolatey packages](https://chocolatey.org/packages). Boxstarter scripts can be either a .txt file (preferably with the same name as the script), or uploaded to [gist.github.com](https://gist.github.com/) and referenced via Raw URL.
 
 #### functions-template.bat
 
@@ -45,16 +47,16 @@ Index of functions:
 
 1. :SampleFunction
 2. :DisplayHelp
-3. :GetTerminalWidth
-4. :StrLen
-5. :GenerateBlankSpace
-6. :FormatTextLine
+3. :GetTerminalWidth *
+4. :StrLen *
+5. :GenerateBlankSpace *
+6. :FormatTextLine *
 7. :CheckLink
 8. :GetWindowsVersion
 9. :GetIfPathIsDriveRoot
-10. :CreateShortcut
-11. :CreateSymbolicLink
-12. :CreateSymbolicDirLink
+10. :CreateShortcut *
+11. :CreateSymbolicLink *
+12. :CreateSymbolicDirLink *
 13. :GetDate
 14. :ConvertTimeToSeconds
 15. :ConvertSecondsToTime
@@ -64,23 +66,39 @@ Index of functions:
 19. :SplashLogoMerge
 20. :SplashLogoMergeComplete
 
+* = needs further testing.
+
 #### Install-AllWindowsUpdates.bat
+
+Uses Boxstarter script to download & install all Windows updates. Persistent through reboots. Recommend closing all applications before running.
 
 #### Update-Java.bat
 
+Uses Boxstarter to update Java Runtime Environment.
+
 ### Tools >
 
-#### Tools >CompareTo-Parent.bat
+#### Tools > CompareTo-Parent.bat
 
 Use [Kdiff3](https://chocolatey.org/packages/kdiff3) to merge the changes between 2 (text) files or folders. Supports drag-and-drop of files one-at-a-time.
 
-#### Tools >Debug-TroubleshootBatchFile.bat
+#### Tools > Debug-TroubleshootBatchFile.bat
 
 Used to troubleshoot batch files that close immediately on error, by keeping last errors open in command prompt for review. Supports drag-and-drop.
 
+#### Tools > Get-Chocolatey.bat
+
+**Recommended** tool to install Chocolatey. `Install-Chocolatey.bat` and `Install-XPChocolatey.bat` need some work.
+
+#### Tools > Install-Chocolatey.bat
+
+#### Tools > Install-XPChocolatey.bat
+
+Can be used to install Chocolatey on Windows XP. Only used once, so it is recommended to double-check each step & review before running.
+
 ### functions >
 
-#### functions >Banner.cmd
+#### functions > Banner.cmd
 
 Displays a text banner across command prompt. Up to 14 characters for Windows 8 and below command prompt width, or up to 21 characters for Windows 10 command prompt width, or PowerShell prompt width on any Windows version.
 
