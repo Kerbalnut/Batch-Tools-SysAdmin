@@ -10,6 +10,46 @@ All code or functions gained from other sources are referenced in place where us
 
 ## Contents:
 
+### Tools >
+
+#### Tools > CompareTo-Parent.bat
+
+Use [Kdiff3](https://chocolatey.org/packages/kdiff3) to merge the changes between 2 (text) files or folders. Supports drag-and-drop of files one-at-a-time.
+
+#### Tools > Debug-TroubleshootBatchFile.bat
+
+Used to troubleshoot batch files that close immediately on error, by keeping last errors open in command prompt for review. Supports drag-and-drop.
+
+#### Tools > Get-Chocolatey.bat
+
+**Recommended** tool to install Chocolatey. `Install-Chocolatey.bat` and `Install-XPChocolatey.bat` need some work.
+
+#### Tools > Install-Chocolatey.bat
+
+#### Tools > Install-XPChocolatey.bat
+
+Can be used to install Chocolatey on Windows XP. Only used once, so it is recommended to double-check each step & review before running.
+
+### functions >
+
+#### functions > Banner.cmd
+
+Displays a text banner across command prompt. Up to 14 characters for Windows 8 and below command prompt width, or up to 21 characters for Windows 10 command prompt width, or PowerShell prompt width on any Windows version.
+
+Compatible characters:
+
+- 0-9
+- Hyphen "-"
+- Period "."
+- Comma ","
+- At "@"
+- A-Z (Caps only)
+- Space " "
+
+#### functions > matrix-timer.bat
+
+Why make a WAIT boring, when you can make it fun? Show some flair the next time you need to add make the user 'wait' for something, or just for flair.
+
 #### BoxstarterInstall-NetworkingUtilities.bat
 
 Uses Boxstarter and Chocolatey to automatically install a suite of software packages, in this case networking utilities for a technician's laptop. 
@@ -66,7 +106,7 @@ Index of functions:
 19. :SplashLogoMerge
 20. :SplashLogoMergeComplete
 
-* = needs further testing.
+`*` = needs further testing.
 
 #### Install-AllWindowsUpdates.bat
 
@@ -75,44 +115,6 @@ Uses Boxstarter script to download & install all Windows updates. Persistent thr
 #### Update-Java.bat
 
 Uses Boxstarter to update Java Runtime Environment.
-
-### Tools >
-
-#### Tools > CompareTo-Parent.bat
-
-Use [Kdiff3](https://chocolatey.org/packages/kdiff3) to merge the changes between 2 (text) files or folders. Supports drag-and-drop of files one-at-a-time.
-
-#### Tools > Debug-TroubleshootBatchFile.bat
-
-Used to troubleshoot batch files that close immediately on error, by keeping last errors open in command prompt for review. Supports drag-and-drop.
-
-#### Tools > Get-Chocolatey.bat
-
-**Recommended** tool to install Chocolatey. `Install-Chocolatey.bat` and `Install-XPChocolatey.bat` need some work.
-
-#### Tools > Install-Chocolatey.bat
-
-#### Tools > Install-XPChocolatey.bat
-
-Can be used to install Chocolatey on Windows XP. Only used once, so it is recommended to double-check each step & review before running.
-
-### functions >
-
-#### functions > Banner.cmd
-
-Displays a text banner across command prompt. Up to 14 characters for Windows 8 and below command prompt width, or up to 21 characters for Windows 10 command prompt width, or PowerShell prompt width on any Windows version.
-
-Compatible characters:
-
-- 0-9
-- Hyphen "-"
-- Period "."
-- Comma ","
-- At "@"
-- A-Z (Caps only)
-- Space " "
-
-#### functions > matrix-timer.bat
 
 ---
 
@@ -137,4 +139,3 @@ There are 2 different Run-As-Administrator functions in use. **#1** uses a `cacl
 - functions-template.bat
 
 ---
-
