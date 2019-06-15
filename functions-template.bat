@@ -11,7 +11,8 @@ SETLOCAL EnableDelayedExpansion
 :: 6. :DefineFunctions
 :: 7. :Footer
 
-::ECHO DEBUGGING: Begin RunAsAdministrator block.
+REM Bugfix: Use "REM ECHO DEBUGGING: " instead of "REM ECHO DEBUGGING: " to comment-out debugging lines, in case any are within IF statements.
+REM ECHO DEBUGGING: Begin RunAsAdministrator block.
 
 :RunAsAdministrator
 :: SS64 Run with elevated permissions script (ElevateMe.vbs)
@@ -72,8 +73,8 @@ PING -n 3 127.0.0.1 > nul
 CLS
 ECHO:
 ECHO Script name ^( %~nx0 ^) & REM This script's file name and extension. https://ss64.com/nt/syntax-args.html
-ECHO Working directory: %~dp0 & REM The drive letter and path of this script's location.
-ECHO Current directory: %CD% & REM The path of the currently selected directory.
+ECHO Working directory: %~dp0 & REM The drive letter and path of this script's location. NOTE: This will always return the path this script is in.
+ECHO Current directory: %CD% & REM The path of the currently selected directory. NOTE: If this script is called from another location, this will return that selected path.
 ECHO:
 
 :: Check if we are running As Admin/Elevated
@@ -83,8 +84,8 @@ IF %ERRORLEVEL% EQU 0 (
 ) ELSE ( 
 	ECHO Elevated Permissions: NO
 	REM -------------------------------------------------------------------------------
-	REM Debugging: cannot use :: for comments within IF statement, instead use REM
-	REM Debugging: cannot use ECHO( for newlines within IF statement, instead use ECHO. or ECHO: 
+	REM Bugfix: cannot use :: for comments within IF statement, instead use REM
+	REM Bugfix: cannot use ECHO( for newlines within IF statement, instead use ECHO. or ECHO: 
 )
 ECHO:
 ECHO Input parameters [%1] [%2] [%3] ...
@@ -97,7 +98,7 @@ CLS
 
 REM -------------------------------------------------------------------------------
 
-::ECHO DEBUGGING: Begin Parameters block.
+REM ECHO DEBUGGING: Begin Parameters block.
 
 :Parameters
 
@@ -121,16 +122,106 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 REM -------------------------------------------------------------------------------
 
-::ECHO DEBUGGING: Begin ExternalFunctions block.
+REM ECHO DEBUGGING: Begin ExternalFunctions block.
 
 :ExternalFunctions
 :: Load External functions and programs:
 
 ::Index of external functions: 
-:: 1. Banner.cmd "%_BANNER_FUNC%"
-:: 2. CompareTo-Parent.bat "%_COMPARE_FUNC%"
-:: 3. kdiff3.exe "%_KDIFF_EXE%"
-:: 4. fossil.exe "%_FOSSIL_EXE%"
+:: 1. choco.exe "%_CHOCO_INSTALLED%"
+:: 2. PSCP.EXE"%_PSCP_EXE%"
+:: 3. Banner.cmd "%_BANNER_FUNC%"
+:: 4. CompareTo-Parent.bat "%_COMPARE_FUNC%"
+:: 5. kdiff3.exe "%_KDIFF_EXE%"
+:: 6. fossil.exe "%_FOSSIL_EXE%"
+
+::choco.exe
+:-------------------------------------------------------------------------------
+::IF /I "%_CHOCO_INSTALLED%"=="YES" choco upgrade javaruntime -y
+::-------------------------------------------------------------------------------
+::SET "_CHOCO_INSTALLED=YES"
+SET "_CHOCO_INSTALLED=NO"
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+::SET "_QUIET_ERRORS=NO"
+SET "_QUIET_ERRORS=YES"
+:: Test: check if fake "choc" command fails. Redirect all text & error output to NULL (supress all output)
+::choc /? >nul 2>&1 && ECHO "Choc" command exists?^!?^!
+::choc /? >nul 2>&1 || ECHO "Choc" command does NOT exist^! (TEST SUCCESS)
+:: Check if the choco help command succeeds. Redirect text output to NULL but redirect error output to temp file.
+SET "_ERROR_OUTPUT_FILE=%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"
+choco /? >nul 2>&1 && SET "_CHOCO_INSTALLED=YES" & REM ECHO choco.exe help command succeeded. & REM choco help command returned success.
+choco /? >nul 2>%_ERROR_OUTPUT_FILE% || (
+	REM SET "_CHOCO_INSTALLED=NO"
+	IF /I NOT "%_QUIET_ERRORS%"=="YES" (
+		ECHO choco.exe help command failed. & REM choco help command failed.
+		ECHO Error output text:
+		ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		TYPE "%_ERROR_OUTPUT_FILE%"
+		ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		ECHO:
+	)
+)
+DEL /Q "%_ERROR_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Check if %ChocolateyInstall% directory exists ($env:ChocolateyInstall for PowerShell)
+IF EXIST "%ChocolateyInstall%" (
+	SET "_CHOCO_INSTALLED=YES"
+	REM ECHO "ChocolateyInstall" directory exists. 
+	REM ECHO e.g. %%ChocolateyInstall%% or $env:ChocolateyInstall
+) ELSE (
+	REM SET "_CHOCO_INSTALLED=NO"
+	IF /I NOT "%_QUIET_ERRORS%"=="YES" (
+		ECHO "ChocolateyInstall" directory does NOT exist. 
+	)
+)
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:-------------------------------------------------------------------------------
+
+::PSCP.EXE
+:-------------------------------------------------------------------------------
+::"%_PSCP_EXE%" -help
+::"%_PSCP_EXE%" "%_LOCAL_FILE%" "%_REMOTE_FILE%"
+::GOTO SkipPscpFunction
+::-------------------------------------------------------------------------------
+:: Just the command
+SET "_PSCP_EXE=PSCP"
+IF NOT EXIST "%_PSCP_EXE%" (
+	SET "_PSCP_EXE=PSCP.EXE"
+)
+:: C:\ProgramData\chocolatey\bin\PSCP.EXE
+IF NOT EXIST "%_PSCP_EXE%" (
+	SET "_PSCP_EXE=%ChocolateyInstall%\bin\PSCP.EXE"
+)
+:: C:\ProgramData\chocolatey\lib\putty.portable\tools\PSCP.EXE
+IF NOT EXIST "%_PSCP_EXE%" (
+	SET "_PSCP_EXE=%ChocolateyInstall%\lib\putty.portable\tools\PSCP.EXE"
+)
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+IF NOT EXIST "%_PSCP_EXE%" (
+	ECHO:
+	ECHO EXTERNAL FUNCTION NOT FOUND
+	ECHO -------------------------------------------------------------------------------
+	ECHO ERROR: Cannot find PSCP.EXE
+	REM ECHO %_PSCP_EXE%
+	ECHO:
+	ECHO Have you installed PuTTY? ^(contains PSCP^)
+	ECHO:
+	ECHO Chocolatey ^(Run As Administrator^)
+	ECHO ^> choco install putty -y
+	ECHO:
+	ECHO https://chocolatey.org/packages/putty
+	ECHO:
+	ECHO http://www.chiark.greenend.org.uk/~sgtatham/putty/
+	ECHO -------------------------------------------------------------------------------
+	ECHO:
+	PAUSE
+	ECHO:
+	GOTO END
+)
+:: PSCP.EXE -help
+:: "%_PSCP_EXE%" -help
+:SkipPscpFunction
+:-------------------------------------------------------------------------------
 
 ::Banner.cmd
 :-------------------------------------------------------------------------------
@@ -142,8 +233,9 @@ REM ----------------------------------------------------------------------------
 :: Compatible characters: 0-9 Hyphen "-" Period "." Comma "," At "@" A-Z (Caps only) Space " "
 :: Requires SETLOCAL EnableDelayedExpansion
 ::-------------------------------------------------------------------------------
-SET "_BANNER_FOUND=YARP"
-::SET "_ORIG_DIR=%CD%"
+::SET "_BANNER_FOUND=YARP"
+SET "_BANNER_FOUND=NOPE"
+SET "_ORIG_DIR=%CD%"
 SET "_ORIG_DIR=%~dp0"
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Just the command
@@ -208,6 +300,8 @@ IF NOT EXIST "%_BANNER_FUNC%" (
 	ECHO:
 	REM GOTO END
 	GOTO SkipBannerFunc
+) ELSE (
+	SET "_BANNER_FOUND=YARP"
 )
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Script name & extention
@@ -224,7 +318,8 @@ FOR %%G IN ("%_BANNER_FUNC%") DO SET "_BANNER_FUNC_PATH=%%~dpG"
 :: Requires SETLOCAL EnableDelayedExpansion
 GOTO SkipCompareToParentFunc
 ::-------------------------------------------------------------------------------
-SET "_COMPAREFUNC_FOUND=YARP"
+::SET "_COMPAREFUNC_FOUND=YARP"
+SET "_COMPAREFUNC_FOUND=NOPE"
 ::SET "_ORIG_DIR=%CD%"
 SET "_ORIG_DIR=%~dp0"
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -281,6 +376,8 @@ IF NOT EXIST "%_COMPARE_FUNC%" (
 	ECHO:
 	REM GOTO END
 	GOTO SkipCompareToParentFunc
+) ELSE (
+	SET "_COMPAREFUNC_FOUND=YARP"
 )
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Script name & extention
@@ -334,7 +431,7 @@ IF NOT EXIST "%_KDIFF_EXE%" (
 	ECHO:
 	PAUSE
 	ECHO:
-	GOTO END
+	REM GOTO END
 )
 :: kdiff3.exe -help
 :: "%_KDIFF_EXE%" -help
@@ -378,7 +475,7 @@ IF NOT EXIST "%_FOSSIL_EXE%" (
 	ECHO:
 	PAUSE
 	ECHO:
-	GOTO END
+	REM GOTO END
 )
 :: fossil.exe help
 :: "%_FOSSIL_EXE%" help
@@ -393,7 +490,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ::ScriptMain
 :Main
 
-::ECHO DEBUGGING: Beginning Main execution block.
+REM ECHO DEBUGGING: Beginning Main execution block.
 
 ::Index of Main:
 
@@ -414,6 +511,14 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ::===============================================================================
 :: Phase 1: Evaluate Parameters
 ::===============================================================================
+
+:: Always prefer parameters passed via command line over hard-coded vars.
+SET "_CALLED_FROM_SCRIPT=DISABLED"
+IF NOT "%~1"=="" (
+	SET "_CALLED_FROM_SCRIPT=ACTIVE"
+)
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :: Activate help function
 IF NOT "%~1"=="" (
@@ -455,7 +560,17 @@ IF NOT "%~1"=="" (
 	)
 )
 
-::ECHO DEBUGGING: Finished help evaluation.
+REM ECHO DEBUGGING: Finished help evaluation.
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+:: Get _FILE_A name & extention, drive & path
+FOR %%G IN ("%_FILE_A%") DO SET "_FILE_A_NAME=%%~nxG"
+FOR %%G IN ("%_FILE_A%") DO SET "_FILE_A_PATH=%%~dpG"
+
+:: Get _FILE_B name & extention, drive & path
+FOR %%G IN ("%_FILE_B%") DO SET "_FILE_B_NAME=%%~nxG"
+FOR %%G IN ("%_FILE_B%") DO SET "_FILE_B_PATH=%%~dpG"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1016,7 +1131,7 @@ REM ----------------------------------------------------------------------------
 
 REM -------------------------------------------------------------------------------
 
-::ECHO DEBUGGING: Begin DefineFunctions block.
+REM ECHO DEBUGGING: Begin DefineFunctions block.
 
 ::Index of functions: 
 :: 1. :SampleFunction

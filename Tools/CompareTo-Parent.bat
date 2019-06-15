@@ -11,7 +11,7 @@ SETLOCAL EnableDelayedExpansion
 :: 6. :Footer
 :: 7. :DefineFunctions
 
-ECHO DEBUGGING: Begin Run-As-Administrator block.
+REM ECHO DEBUGGING: Begin Run-As-Administrator block.
 
 :RunAsAdministrator
 :: SS64 Run with elevated permissions script (ElevateMe.vbs)
@@ -144,7 +144,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 REM -------------------------------------------------------------------------------
 
-::ECHO DEBUGGING: Begin ExternalFunctions block.
+::REM ECHO DEBUGGING: Begin ExternalFunctions block.
 
 :ExternalFunctions
 :: Load External functions and programs:
@@ -297,7 +297,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ::ScriptMain
 :Main
 
-::ECHO DEBUGGING: Beginning Main execution block.
+::REM ECHO DEBUGGING: Beginning Main execution block.
 
 ::===============================================================================
 :: Phase 1: Evaluate Parameters
@@ -352,7 +352,7 @@ IF NOT "%~1"=="" (
 	)
 )
 
-::ECHO DEBUGGING: Finished help evaluation.
+::REM ECHO DEBUGGING: Finished help evaluation.
 
 REM -------------------------------------------------------------------------------
 
@@ -482,7 +482,7 @@ FOR %%G IN ("%_FILE_B%") DO SET "_FILE_B_PATH=%%~dpG"
 
 REM -------------------------------------------------------------------------------
 
-::ECHO DEBUGGING: Finished evaluating parameters. Starting Phase 2: Banner 
+::REM ECHO DEBUGGING: Finished evaluating parameters. Starting Phase 2: Banner 
 
 ::===============================================================================
 :: Phase 2: Banner
@@ -529,7 +529,7 @@ IF /I NOT "%_DISPLAY_BANNER%"=="QUIET" (
 	ECHO -------------------------------------------------------------------------------
 )
 
-::ECHO DEBUGGING: Finished showing banner. Starting Phase 3: Use Kdiff to merge ...
+::REM ECHO DEBUGGING: Finished showing banner. Starting Phase 3: Use Kdiff to merge ...
 
 ::===============================================================================
 :: Phase 3: Use Kdiff to merge both files
@@ -686,7 +686,7 @@ EXIT /B & REM If you call this program from the command line and want it to retu
 
 REM -------------------------------------------------------------------------------
 
-::ECHO DEBUGGING: Begin DefineFunctions block.
+::REM ECHO DEBUGGING: Begin DefineFunctions block.
 
 ::Index of functions: 
 :: 1. :DisplayHelp

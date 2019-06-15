@@ -396,7 +396,7 @@ REM ----------------------------------------------------------------------------
 
 REM -------------------------------------------------------------------------------
 
-::ECHO DEBUGGING: Begin DefineFunctions block.
+REM ECHO DEBUGGING: Begin DefineFunctions block.
 
 ::Index of functions: 
 :: 1. :CheckLink
