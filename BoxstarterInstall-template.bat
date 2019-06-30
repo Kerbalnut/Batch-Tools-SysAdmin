@@ -6,9 +6,10 @@ SETLOCAL EnableDelayedExpansion
 :: 1. :RunAsAdministrator
 :: 2. :Header
 :: 3. :Parameters
-:: 4. :Main
-:: 5. :DefineFunctions
-:: 6. :Footer
+:: 4. :ExternalFunctions
+:: 5. :Main
+:: 6. :DefineFunctions
+:: 7. :Footer
 
 :RunAsAdministrator
 :: BatchGotAdmin International-Fix Code
@@ -135,9 +136,63 @@ REM ----------------------------------------------------------------------------
 :: End Parameters
 
 REM -------------------------------------------------------------------------------
+
+REM ECHO DEBUGGING: Begin ExternalFunctions block.
+
+:ExternalFunctions
+:: Load External functions and programs:
+
+::Index of external functions: 
+:: 1. choco.exe "%_CHOCO_INSTALLED%"
+
+::choco.exe
+:-------------------------------------------------------------------------------
+::IF /I "%_CHOCO_INSTALLED%"=="YES" choco upgrade javaruntime -y
+::-------------------------------------------------------------------------------
+::SET "_CHOCO_INSTALLED=YES"
+SET "_CHOCO_INSTALLED=NO"
+::SET "_QUIET_ERRORS=NO"
+SET "_QUIET_ERRORS=YES"
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Test: check if fake "choc" command fails. Redirect all text & error output to NULL (supress all output)
+::choc /? >nul 2>&1 && ECHO "Choc" command exists?^!?^!
+::choc /? >nul 2>&1 || ECHO "Choc" command does NOT exist^! ^(TEST SUCCESS^)
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Check if the choco help command succeeds. Redirect text output to NULL but redirect error output to temp file.
+SET "_ERROR_OUTPUT_FILE=%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"
+choco /? >nul 2>&1 && SET "_CHOCO_INSTALLED=YES" & REM ECHO choco.exe help command succeeded. & REM choco help command returned success.
+choco /? >nul 2>%_ERROR_OUTPUT_FILE% || (
+	REM SET "_CHOCO_INSTALLED=NO"
+	IF /I NOT "%_QUIET_ERRORS%"=="YES" (
+		ECHO choco.exe help command failed. & REM choco help command failed.
+		ECHO Error output text:
+		ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		TYPE "%_ERROR_OUTPUT_FILE%"
+		ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		ECHO:
+	)
+)
+IF EXIST "%_ERROR_OUTPUT_FILE%" DEL /Q "%_ERROR_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Check if %ChocolateyInstall% directory exists ($env:ChocolateyInstall for PowerShell)
+IF EXIST "%ChocolateyInstall%" (
+	SET "_CHOCO_INSTALLED=YES"
+	REM ECHO "ChocolateyInstall" directory exists. 
+	REM ECHO e.g. %%ChocolateyInstall%% or $env:ChocolateyInstall
+) ELSE (
+	REM SET "_CHOCO_INSTALLED=NO"
+	IF /I NOT "%_QUIET_ERRORS%"=="YES" (
+		ECHO "ChocolateyInstall" directory does NOT exist. 
+	)
+)
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:-------------------------------------------------------------------------------
+
+::End ExternalFunctions
+
+REM -------------------------------------------------------------------------------
 REM ===============================================================================
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-::ScriptMain
 :Main
 
 ::===============================================================================

@@ -868,6 +868,57 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 Write-Host `n
 Write-HorizontalRuleAdv -HRtype DashedLine
 Write-Host `n
+Write-Host "Looping Choice dialog example."
+# If run from shell, will create a dialog box. If run in script, will show choice text in command line.
+# https://social.technet.microsoft.com/wiki/contents/articles/24030.powershell-demo-prompt-for-choice.aspx
+$Title = "Welcome"
+$Info = @"
+A Looping Demo Prompt for Choice
+
+P - Power
+S - Shell
+Q - Quit
+ 
+Select a choice:
+"@
+# &Power makes P a Hot Key. 
+#$Options = [System.Management.Automation.Host.ChoiceDescription[]] @("&Power", "&Shell", "&Quit")
+$ChoicePower = New-Object System.Management.Automation.Host.ChoiceDescription "&Power", "[P]ower, prints `"Power`" in green"
+$ChoiceShell = New-Object System.Management.Automation.Host.ChoiceDescription "&Shell", "[S]hell, prints `"Shell`" in green"
+$ChoiceQuit = New-Object System.Management.Automation.Host.ChoiceDescription "&Quit", "[Q]uit, prints `"Good Bye!!!`" in green"
+$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoicePower, $ChoiceShell, $ChoiceQuit)
+# default choice: 0 = first Option, 1 = second option, etc.
+[int]$defaultchoice = 1
+$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
+#help about_switch
+switch($answer)
+{
+    0 {Write-Host "Power" -ForegroundColor Green}
+    1 {Write-Host "Shell" -ForegroundColor Green}
+    2 {Write-Host "Good Bye!!!" -ForegroundColor Green}
+}
+Write-Host `n
+PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+
+
+#loop until last option is selected
+ 
+do {
+	$r = $host.ui.PromptForChoice($Title,$Caption,$coll,0)
+	$coll[$r].invoke() | Out-Host
+	if ($r -lt $coll.count-1) {
+		Read-Host "Press any key to continue"
+		cls
+	}
+} Until ($r -eq $coll.count-1)
+
+
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Write-Host `n
+Write-HorizontalRuleAdv -HRtype DashedLine
+Write-Host `n
 Write-Host "Run External Script."
 $ExternalScript = "$Home\Documents\SodaLake\PowerShell\Choice\DialogDemo.ps1"
 PowerShell.exe -NoProfile -ExecutionPolicy Bypass -Command "& '$ExternalScript'"
