@@ -156,9 +156,6 @@ There are 2 different Run-As-Administrator functions in use. **#1** uses a `cacl
 ### Stuff to Add:
 
 - Remote Access folder
-- NTP server notes
-- List-DomainControllers.bat
-- Refresh-Permissions.bat
 - Backup and Restore folder
 - File in Use folder
 
