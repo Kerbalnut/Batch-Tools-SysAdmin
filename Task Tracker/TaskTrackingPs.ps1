@@ -580,350 +580,512 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 ##Script MAIN Execution goes here
 Clear-Host # CLS
 
-Write-Host "Write-HorizontalRule Help output:"
-Write-HorizontalRule
-Get-Help Write-HorizontalRule
-Get-Help Write-HorizontalRule -Full
-Write-HorizontalRule
-Write-Verbose "Script MAIN execution. $ScriptName"
-Write-Host "Script MAIN execution." $MyInvocation.MyCommand.Name
-Write-HorizontalRule -HRtype DoubleLine
-Write-HorizontalRule -HRtype DashedLine
-Write-HorizontalRule -HRtype SingleLine
-Write-HorizontalRule -HRtype IntentionallyThrowError -Verbose
-
-Write-Host `n
-Write-Host "Write-HorizontalRuleAdv Help output:"
-Write-HorizontalRule
-Get-Help Write-HorizontalRuleAdv -Full
-Write-HorizontalRule
-
-Write-HorizontalRuleAdv -HRtype SingleLine -Verbose
-Write-HorizontalRuleAdv -HRtype DashedLine -Verbose
-Write-HorizontalRuleAdv -HRtype DoubleLine -Verbose
-Write-HorizontalRuleAdv -HRtype SingleLine -Endcaps
-Write-HorizontalRuleAdv -HRtype BlankLine -Endcaps -EndcapCharacter `|
-Write-HorizontalRuleAdv -HRtype DashedLine -Endcaps
-Write-HorizontalRuleAdv -HRtype BlankLine -Endcaps -EndcapCharacter `|
-Write-HorizontalRuleAdv -HRtype DoubleLine -Endcaps
-
-Write-HorizontalRuleAdv -HRtype SingleLine -IsVerbose
-Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
-Write-HorizontalRuleAdv -HRtype DoubleLine -IsVerbose
-Write-HorizontalRuleAdv -HRtype SingleLine -Endcaps -IsVerbose
-Write-HorizontalRuleAdv -HRtype BlankLine -Endcaps -EndcapCharacter `| -IsVerbose
-Write-HorizontalRuleAdv -HRtype DashedLine -Endcaps -IsVerbose
-Write-HorizontalRuleAdv -HRtype BlankLine -Endcaps -EndcapCharacter `| -IsVerbose
-Write-HorizontalRuleAdv -HRtype DoubleLine -Endcaps -IsVerbose
-
-Write-HorizontalRuleAdv -HRtype SingleLine -IsWarning
-Write-HorizontalRuleAdv -HRtype DashedLine -IsWarning
-Write-HorizontalRuleAdv -HRtype DoubleLine -IsWarning
-Write-HorizontalRuleAdv -HRtype SingleLine -Endcaps -IsWarning
-Write-HorizontalRuleAdv -HRtype BlankLine -Endcaps -EndcapCharacter `| -IsWarning
-Write-HorizontalRuleAdv -HRtype DashedLine -Endcaps -IsWarning
-Write-HorizontalRuleAdv -HRtype BlankLine -Endcaps -EndcapCharacter `| -IsWarning
-Write-HorizontalRuleAdv -HRtype DoubleLine -Endcaps -IsWarning
-
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-
-# =======================================================================================================================
-
-Clear-Host # CLS
-Write-Verbose `n
-Write-HorizontalRuleAdv -HRtype DoubleLine -IsVerbose
-Write-Verbose `n
-Write-Verbose "Script body."
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+# Test first function
+
+#GenerateSQL-InboxProcessingProject -UserID 0 -SelectedInboxID 10 -NewProjectName "Test new name" -NewProjectDescription "Description new test."
+#GenerateSQL-InboxProcessingProject -UserID 0 -SelectedInboxID 10 -NewProjectName "Test new name" -NewProjectDescription "Description new test." -Debug
+
 Write-Host `n
+Write-Host "End SQL function test."
 Write-HorizontalRuleAdv -HRtype DashedLine
-Write-Host `n
-Write-Host "Months in 3 letters."
-# https://www.business.com/articles/powershell-for-loop/
-# help about_For
-For ($m=1; $m -lt 13; $m++) {
-    $m
-    Get-Date -Month $m -UFormat %b
-}
-Write-Host `n
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+#PAUSE
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-Write-Host `n
-Write-HorizontalRuleAdv -HRtype DashedLine
-Write-Host `n
-Write-Host "Test CSV ForEach loop 1."
-$CSVfile = "$Home\Documents\SodaLake\PowerShell\Templates\test1.csv"
-# check if file exists
-Test-Path $CSVfile
-If (-Not (Test-Path $CSVfile)) {
-	Write-Warning "File does not exist: $CSVfile"
-}
-$CSVheaders = "col1,col2"
-$CSVarray = (Get-Content $CSVfile).split(",")
-Write-Host `n
-# https://www.business.com/articles/powershell-for-loop/
-# help about_ForEach
-ForEach ($column in $CSVarray) {
-	Write-Host "Start of loop."
-    Write-Host "Whole:     $column"
-	Write-Host "Array One: $column[0]"
-	Write-Host "Array Two: $column[1]"
-}
-Write-Host `n
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+$SelectedUserID = $defaultUserID
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+If ($RecentlyAddedInboxItem) {Clear-Variable RecentlyAddedInboxItem}
 
-Write-Host `n
-Write-HorizontalRuleAdv -HRtype DashedLine
-Write-Host `n
-Write-Host "Test CSV ForEach loop 2."
-$CSVfile = "$Home\Documents\SodaLake\PowerShell\Templates\test2.csv"
-# check if file exists
-Test-Path $CSVfile
-If (-Not (Test-Path $CSVfile)) {
-	Write-Warning "File does not exist: $CSVfile"
-}
-$CSVheaders = "col1,col2"
-$CSVarray = (Get-Content $CSVfile).split(",")
-Write-Host `n
-# https://www.business.com/articles/powershell-for-loop/
-# help about_ForEach
-ForEach ($line in $CSVarray) {
-	Write-Host "Start of loop."
-    Write-Host "Whole:     $line"
-	Write-Host "Array One: $line[0]"
-	Write-Host "Array Two: $line[1]"
-}
-Write-Host `n
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Write-Host `n
-Write-HorizontalRuleAdv -HRtype DashedLine
-Write-Host `n
-Write-Host "Test CSV ForEach loop 3."
-$CSVfile = "$Home\Documents\SodaLake\PowerShell\Templates\test3.csv"
-# check if file exists
-Test-Path $CSVfile
-If (-Not (Test-Path $CSVfile)) {
-	Write-Warning "File does not exist: $CSVfile"
-}
-$CSVheaders = "col1,col2"
-$CSVarray = (Get-Content $CSVfile).split(",")
-Write-Host `n
-# https://www.business.com/articles/powershell-for-loop/
-# help about_ForEach
-ForEach ($line in $CSVarray) {
-	Write-Host "Start of loop."
-    Write-Host "Whole:     $line"
-	Write-Host "Array One: $line[0]"
-	Write-Host "Array Two: $line[1]"
-}
-Write-Host `n
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Write-Host `n
-Write-HorizontalRuleAdv -HRtype SingleLine
-Write-Host `n
-Write-Host "Test Import-CSV ForEach loop."
-$CSVfile = "$Home\Documents\SodaLake\PowerShell\Templates\test3.csv"
-$CSVheaders = "col1,col2"
-$CSVarray = (Get-Content $CSVfile).split(",")
-$CSVimport = Import-CSV $CSVfile -Delimiter "," -Header $CSVheaders
-# check if file exists
-Test-Path $CSVfile
-If (-Not (Test-Path $CSVfile)) {
-	Write-Warning "File does not exist: $CSVfile"
-}
-Write-Host `n
-# https://www.business.com/articles/powershell-for-loop/
-# help about_ForEach
-Import-CSV -Path $CSVfile -Delimiter "," -Header $CSVheaders | ForEach {
-	Write-Host "Start of loop."
-    Write-Host "Whole:     $_"
-	Write-Host "Array One: $_[0]"
-	Write-Host "Array Two: $_[1]"
-}
-Write-Host `n
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Write-Host `n
-Write-HorizontalRuleAdv -HRtype SingleLine
-Write-Host `n
-Write-Host "Test Import-CSV ForEach loop 2."
-$CSVfile = "$Home\Documents\SodaLake\PowerShell\Templates\test4.csv"
-$CSVheaders = "col1,col2,col3"
-$CSVarray = (Get-Content $CSVfile).split(",")
-$CSVimport = Import-CSV -Path $CSVfile -Delimiter "," -Header $CSVheaders
-# check if file exists
-Test-Path $CSVfile
-If (-Not (Test-Path $CSVfile)) {
-	Write-Warning "File does not exist: $CSVfile"
-}
-Write-Host `n
-# https://www.business.com/articles/powershell-for-loop/
-# help about_ForEach
-Import-CSV -Path $CSVfile | ForEach {
-	Write-Host "Start of loop."
-    Write-Host "Whole:     $_"
-	Write-Host "Col call: $($_."header 1")"
-	Write-Host "Col call: $($_."header 2")"
-	Write-Host "Col call: $($_.H1)"
-	Write-Host "Col call: $($_."header 4")"
-}
-Write-Host `n
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Write-Host `n
-Write-HorizontalRuleAdv -HRtype DoubleLine
-Write-Host `n
-Write-Host "Perform actions from a CSV file."
-$CSVfile = "$Home\Documents\SodaLake\PowerShell\Templates\commands.csv"
-$CSVheaders = "Program,Exec Command"
-# check if file exists
-Test-Path $CSVfile
-If (-Not (Test-Path $CSVfile)) {
-	Write-Warning "File does not exist: $CSVfile"
-}
-Write-Host `n
-# https://www.business.com/articles/powershell-for-loop/
-# help about_ForEach
-# The foreach alias also supports beginning command blocks, middle command blocks, and end command blocks. The beginning and end command blocks run once, and the middle command block runs every time the Foreach loop steps through a collection or array.
-# <command> | foreach {<beginning command_block>}{<middle command_block>}{<ending command_block>}
-Import-CSV -Path $CSVfile | ForEach-Object {
-	# beginning (runs once)
-	Write-Host `n
-	Write-Host "Beginning block: ForEach"
-	Write-Host `n
-}{
-    # middle (loop)
-	Write-Host "$_"
-	
-	# https://discoposse.com/2012/01/23/csv-yeah-you-know-me-powershell-and-the-import-csv-cmdlet-part-1/
-	# https://discoposse.com/2012/01/23/csv-yeah-you-know-me-powershell-and-the-import-csv-cmdlet-part-2/
-	# https://discoposse.com/2012/12/29/csv-yeah-you-know-me-powershell-and-the-import-csv-cmdlet-part-3/
-	
-	$HostProgram = $_.Program
-	$CommandToExecute = $_."Exec Command"
-	
-	Write-Host "Host Program: $HostProgram"
-	Write-Host "Expand Var: $($_.Program)"
-	
-	Write-Host "Command to execute: $CommandToExecute"
-	Write-Host "Expand Var: $($_."Exec Command")"
-	Write-Host `n
-}{
-	# ending (runs once)
-	Write-Host "Ending block: ForEach"
-	Write-Host `n
-}
-
-Write-Host "Loop is over."
-Write-Host `n
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Write-Host `n
-Write-HorizontalRuleAdv -HRtype DashedLine
-Write-Host `n
-Write-Host "Choice dialog example."
-# If run from shell, will create a dialog box. If run in script, will show choice text in command line.
-# https://social.technet.microsoft.com/wiki/contents/articles/24030.powershell-demo-prompt-for-choice.aspx
-$Title = "Welcome"
-$Info = "Just to Demo Prompt for Choice"
-# &Power makes P a Hot Key. 
-#$Options = [System.Management.Automation.Host.ChoiceDescription[]] @("&Power", "&Shell", "&Quit")
-$ChoicePower = New-Object System.Management.Automation.Host.ChoiceDescription "&Power", "[P]ower, prints `"Power`" in green"
-$ChoiceShell = New-Object System.Management.Automation.Host.ChoiceDescription "&Shell", "[S]hell, prints `"Shell`" in green"
-$ChoiceQuit = New-Object System.Management.Automation.Host.ChoiceDescription "&Quit", "[Q]uit, prints `"Good Bye!!!`" in green"
-$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoicePower, $ChoiceShell, $ChoiceQuit)
-# default choice: 0 = first Option, 1 = second option, etc.
-[int]$defaultchoice = 1
-$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
-#help about_switch
-switch($answer)
+do
 {
-    0 {Write-Host "Power" -ForegroundColor Green}
-    1 {Write-Host "Shell" -ForegroundColor Green}
-    2 {Write-Host "Good Bye!!!" -ForegroundColor Green}
-}
-Write-Host `n
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Write-Host `n
-Write-HorizontalRuleAdv -HRtype DashedLine
-Write-Host `n
-Write-Host "Looping Choice dialog example."
-# If run from shell, will create a dialog box. If run in script, will show choice text in command line.
-# https://social.technet.microsoft.com/wiki/contents/articles/24030.powershell-demo-prompt-for-choice.aspx
-$Title = "Welcome"
-$Info = @"
-A Looping Demo Prompt for Choice
-
-P - Power
-S - Shell
-Q - Quit
- 
-Select a choice:
-"@
-# &Power makes P a Hot Key. 
-#$Options = [System.Management.Automation.Host.ChoiceDescription[]] @("&Power", "&Shell", "&Quit")
-$ChoicePower = New-Object System.Management.Automation.Host.ChoiceDescription "&Power", "[P]ower, prints `"Power`" in green"
-$ChoiceShell = New-Object System.Management.Automation.Host.ChoiceDescription "&Shell", "[S]hell, prints `"Shell`" in green"
-$ChoiceQuit = New-Object System.Management.Automation.Host.ChoiceDescription "&Quit", "[Q]uit, prints `"Good Bye!!!`" in green"
-$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoicePower, $ChoiceShell, $ChoiceQuit)
-# default choice: 0 = first Option, 1 = second option, etc.
-[int]$defaultchoice = 1
-$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
-#help about_switch
-switch($answer)
-{
-    0 {Write-Host "Power" -ForegroundColor Green}
-    1 {Write-Host "Shell" -ForegroundColor Green}
-    2 {Write-Host "Good Bye!!!" -ForegroundColor Green}
-}
-Write-Host `n
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-
-
-#loop until last option is selected
- 
-do {
-	$r = $host.ui.PromptForChoice($Title,$Caption,$coll,0)
-	$coll[$r].invoke() | Out-Host
-	if ($r -lt $coll.count-1) {
-		Read-Host "Press any key to continue"
-		cls
+	Clear-Host # CLS
+	Write-Host "Selected User ID: $SelectedUserID"
+	Write-HorizontalRuleAdv -HRtype DashedLine
+	#Write-Host `n
+	Write-Host "  Select option:" -ForegroundColor Green
+	Write-Host "    A - [A]dd to Inbox"
+	Write-Host "    P - [P]rocess Inbox"
+	Write-Host "    U - Change [U]ser ID"
+	Write-Host "    T - Project function [T]est"
+	Write-Host "    Q - [Q]uit"
+	#Write-Host `n
+	Write-HorizontalRuleAdv -HRtype DashedLine
+	#Write-Host "Choose Pipsqueak SQL command to generate."
+	# If run from shell, will create a dialog box. If run in script, will show choice text in command line.
+	# https://social.technet.microsoft.com/wiki/contents/articles/24030.powershell-demo-prompt-for-choice.aspx
+	$Title = "Pipsqueak SQL Macro tool"
+	$Info = "Choose Pipsqueak SQL command to generate."
+	# &Power makes P a Hot Key. 
+	$ChoiceAddToInbox = New-Object System.Management.Automation.Host.ChoiceDescription "&Add to Inbox", "[A]dd to new item to Inbox."
+	$ChoiceProcessInbox = New-Object System.Management.Automation.Host.ChoiceDescription "&Process Inbox", "Go to [P]rocessing Inbox Menu"
+	$ChoiceChangeUserID = New-Object System.Management.Automation.Host.ChoiceDescription "Change &User ID", "Change the selected [U]ser ID. Currently selected: $SelectedUserID"
+	$ChoiceProject = New-Object System.Management.Automation.Host.ChoiceDescription "Project &Test", "[T]est `"Process from Inbox to Projects list`" function."
+	$ChoiceQuit = New-Object System.Management.Automation.Host.ChoiceDescription "&Quit", "[Q]uit, prints `"Good Bye!!!`" in green and exits."
+	$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceAddToInbox, $ChoiceProcessInbox, $ChoiceChangeUserID, $ChoiceProject, $ChoiceQuit)
+	# default choice: 0 = first Option, 1 = second option, etc.
+	[int]$defaultchoice = 1
+	# PromptForChoice() output will always be int https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
+	$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
+	#help about_switch
+	switch ($answer)
+	{
+		0 { # Add to Inbox - $ChoiceAddToInbox
+			#GenerateSQL-AddToInbox -UserID $SelectedUserID
+			$RecentlyAddedInboxItem = GenerateSQL-AddToInbox -UserID $SelectedUserID
+			
+			Write-Host `n
+			Write-Host "End Add to Inbox SQL function."
+			Write-HorizontalRuleAdv -HRtype DashedLine
+			PAUSE
+		}
+		1 { # Process Inbox - $ChoiceProcessInbox
+			do
+			{
+				Write-Host `n
+				Clear-Host # CLS
+				Write-Host "Selected User ID: $SelectedUserID"
+				Write-HorizontalRuleAdv -Endcaps 
+				Write-Host "  Process Inbox:" -ForegroundColor Yellow
+				#Write-Host `n
+				Write-HorizontalRuleAdv -Endcaps -EndcapCharacter " "
+				#Write-Host `n
+				Write-Host "    [A] - Add to Inbox"
+				If ($RecentlyAddedInboxItem.NewID) {
+				#Write-Host "    Recently added ID:   '$RecentlyAddedInboxItem.NewID'" -ForegroundColor Yellow
+				Write-Host "    Recently added ID:   '$($RecentlyAddedInboxItem.NewID)'" -ForegroundColor Yellow
+				}
+				If ($RecentlyAddedInboxItem.NewItemName) {
+				#Write-Host "    Recently added Name: '$RecentlyAddedInboxItem.NewItemName'" -ForegroundColor Yellow
+				Write-Host "    Recently added Name: '$($RecentlyAddedInboxItem.NewItemName)'" -ForegroundColor Yellow
+				}
+				Write-Host `n
+				Write-Host "    [D] - Add Deadline to Project"
+				Write-Host `n
+				Write-Host "    [T] - Test option."
+				Write-Host `n
+				If ($CurrentlySelectedInboxID) {
+				Write-Host "    Selected Inbox ID:   '$CurrentlySelectedInboxID'" -ForegroundColor Green
+				} ELSE {
+				Write-Host "    Selected Inbox ID:   '$CurrentlySelectedInboxID'"
+				}
+				If ($RecentlyAddedInboxItem.NewID -eq $CurrentlySelectedInboxID) {
+					$CurrentlySelectedInboxName = $RecentlyAddedInboxItem.NewItemName
+				}
+				If ($CurrentlySelectedInboxName) {
+				Write-Host "    Selected Inbox Name: '$CurrentlySelectedInboxName'" -ForegroundColor Green
+				}
+				If ($CurrentlySelectedInboxDateAdded) {
+				Write-Host "    Selected Inbox Date Added: '$CurrentlySelectedInboxDateAdded'"
+				}
+				Write-Host "        [G] - Get your next unprocessed Inbox ID (FIFO)"
+				Write-Host "        [I] - Change Inbox ID"
+				Write-Host "        [N] - Lookup Inbox item Name"
+				Write-Host "        [U] - Count number of Unprocessed Inbox items remaining"
+				Write-Host `n
+				If ($CurrentlySelectedInboxID) {
+				Write-Host "    Process item as..." -ForegroundColor Yellow
+				} ELSE {
+				Write-Host "    Process item as..."
+				}
+				Write-Host "        [P] - as Project"
+				Write-Host "        [E] - as Next Action (Existing Project)"
+				Write-Host "        [C] - to Completion (Trash)"
+				Write-Host "        [W] - as Waiting For"
+				Write-Host "        [R] - as Reference"
+				Write-Host "        [S] - as Someday/Maybe"
+				Write-Host `n
+				Write-Host "    [Q] - Quit"
+				#Write-Host `n
+				Write-HorizontalRuleAdv -Endcaps 
+				$Title = "Inbox Processing"
+				$Info = "Choose Pipsqueak SQL command to generate."
+				# &Power makes P a Hot Key. 
+				$ChoiceAddToInbox = New-Object System.Management.Automation.Host.ChoiceDescription "&Add to Inbox", "[A]dd to new item to Inbox: HistoryTypeID = 0"
+				$ChoiceAddDeadlineToProject = New-Object System.Management.Automation.Host.ChoiceDescription "Add &Deadline", "Add [D]eadline to a Project: HistoryTypeID = 12, Change Project Deadline: HistoryTypeID = 13, Remove Project Deadline: HistoryTypeID = 17"
+				$ChoiceTest = New-Object System.Management.Automation.Host.ChoiceDescription "&Test", "Prints `"[T]esting 123...`" in green."
+				$ChoiceGetNextInboxID = New-Object System.Management.Automation.Host.ChoiceDescription "&Get next Inbox ID", "[G]et your next unprocessed Inbox item ID (F.irst I.n, F.irst O.ut), and select it."
+				$ChoiceChangeInboxID = New-Object System.Management.Automation.Host.ChoiceDescription "Change &Inbox ID", "Change the selected [I]nbox ID. Currently selected Inbox ID: '$CurrentlySelectedInboxID'"
+				$ChoiceGetInboxName = New-Object System.Management.Automation.Host.ChoiceDescription "Lookup Inbox &Name", "Lookup the selected Inbox item's [N]ame. Currently selected Inbox item Name: '$CurrentlySelectedInboxName'"
+				$ChoiceCountUnprocessedInboxItems = New-Object System.Management.Automation.Host.ChoiceDescription "Count &Unprocessed Items", "Count the number of remaining [U]nprocessed Inbox items."
+				$ChoiceProject = New-Object System.Management.Automation.Host.ChoiceDescription "&Project", "Process from Inbox to [P]rojects list: HistoryTypeID = 8, Add Deadline: HistoryTypeID = 12, Add Next Action during Processing: HistoryTypeID = 9"
+				$ChoiceNextActionExisting = New-Object System.Management.Automation.Host.ChoiceDescription "Next Action &Existing", "processed from Inbox and deferred to N[E]xt Actions, [E]xisting Project: HistoryTypeID = 14"
+				$ChoiceProcessedCompleted = New-Object System.Management.Automation.Host.ChoiceDescription "&Completed", "Processed to [C]ompletion (Trash): HistoryTypeID = 11"
+				$ChoiceWaitingFor = New-Object System.Management.Automation.Host.ChoiceDescription "&Waiting For", "processed from Inbox and delegated to [W]aiting For: HistoryTypeID = 7"
+				$ChoiceReference = New-Object System.Management.Automation.Host.ChoiceDescription "&Reference", "Processed to [R]eference: HistoryTypeID = 4"
+				$ChoiceSomedayMaybe = New-Object System.Management.Automation.Host.ChoiceDescription "&Someday/Maybe", "processed from Inbox to incubate in [S]omeday/Maybe: HistoryTypeID = 2"
+				$ChoiceQuit = New-Object System.Management.Automation.Host.ChoiceDescription "&Quit", "[Q]uits back to Main Menu."
+				$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceAddToInbox, $ChoiceAddDeadlineToProject, $ChoiceTest, $ChoiceGetNextInboxID, $ChoiceChangeInboxID, $ChoiceGetInboxName, $ChoiceCountUnprocessedInboxItems, $ChoiceProject, $ChoiceNextActionExisting, $ChoiceProcessedCompleted, $ChoiceWaitingFor, $ChoiceReference, $ChoiceSomedayMaybe, $ChoiceQuit)
+				# default choice: 0 = first Option, 1 = second option, 2 = third option, etc.
+				[int]$defaultchoice = 3
+				# PromptForChoice() output will always be int https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
+				$InboxProcessingAnswer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
+				#help about_switch
+				switch ($InboxProcessingAnswer)
+				{
+					0 { # $ChoiceAddToInbox - Add to Inbox
+						Write-Verbose "Choice [A] - Add to Inbox"
+						
+						#GenerateSQL-AddToInbox -UserID $SelectedUserID
+						$RecentlyAddedInboxItem = GenerateSQL-AddToInbox -UserID $SelectedUserID
+						
+						Write-Host `n
+						Write-Host "End Add to Inbox SQL function."
+						Write-HorizontalRuleAdv -HRtype DashedLine
+						PAUSE
+					} 
+					1 { # $ChoiceAddDeadlineToProject - Add Deadline to Project
+						Write-Verbose "Choice [D] - Add Deadline to Project"
+						
+						Write-Host `n
+						Write-Host "Choice [D] - Add Deadline to Project"
+						Write-Host `n
+						
+						PAUSE
+					}
+					2 { # $ChoiceTest - Test Item
+						Write-Verbose "Choice [T] - Test Item"
+						#Write-Host `n
+						Write-HorizontalRuleAdv -HRtype DoubleLine
+						Write-Host "Testing 123..." -ForegroundColor Green
+						Write-HorizontalRuleAdv -HRtype DoubleLine
+						PAUSE
+					}
+					3 { # $ChoiceGetNextInboxID - Get the selected user's next unprocessed Inbox ID
+						Write-Verbose "Choice [G] - Get the selected user's next unprocessed Inbox ID"
+						Write-Host `n
+						Write-Host "Currently selected Inbox ID: '$CurrentlySelectedInboxID'"
+						
+						#GenerateSQL-GetNextUnproccessedInboxID -UserID $SelectedUserID
+						#$CurrentlySelectedInboxID = Read-Host -Prompt "Enter Inbox ID to select" # CHOICE (Read-Host automatically adds colon : at the end of prompt)
+						
+						#$CurrentlySelectedInboxID = GenerateSQL-GetNextUnproccessedInboxID -UserID $$SelectedUserID
+						
+						$GetNextInbox = GenerateSQL-GetNextUnproccessedInboxID -UserID $SelectedUserID
+						
+						$CurrentlySelectedInboxID = $GetNextInbox.NextID
+						$CurrentlySelectedInboxName = $GetNextInbox.NextItemName
+						$CurrentlySelectedInboxDateAdded = $GetNextInbox.NextItemDateAdded
+						
+						Write-Verbose "Next Unprocessed Inbox ID: '$CurrentlySelectedInboxID'"
+						Write-Verbose "Next Unprocessed Inbox Item name: '$CurrentlySelectedInboxName'"
+						Write-Verbose "Next Unprocessed Inbox Item Date Added: '$CurrentlySelectedInboxDateAdded'"
+						#If ($VerbosePreference -ne "SilentlyContinue") {PAUSE}
+						
+						Write-Host "Newly selected Inbox ID: '$CurrentlySelectedInboxID'"
+						Write-HorizontalRuleAdv -HRtype DashedLine
+						PAUSE
+					}
+					4 { # $ChoiceChangeInboxID - Change currently selected Inbox ID
+						Write-Verbose "Choice [I] - Change currently selected Inbox ID"
+						Write-Host `n
+						Write-Host "Currently selected Inbox ID: '$CurrentlySelectedInboxID'"
+						Write-Host `n
+						$CurrentlySelectedInboxID = Read-Host -Prompt "Enter new Inbox ID to select" # CHOICE (Read-Host automatically adds colon : at the end of prompt)
+						Write-Host `n
+						Write-Host "Newly selected Inbox ID: '$CurrentlySelectedInboxID'"
+						Write-HorizontalRuleAdv -HRtype DashedLine
+						PAUSE
+					}
+					5 { # $ChoiceGetInboxName - Lookup selected Inbox ID record's Item Name
+						Write-Verbose "Choice [N] - Lookup selected Inbox ID record's Item Name"
+						Write-Host `n
+						Write-Host "Currently selected Inbox ID: '$CurrentlySelectedInboxID'"
+						Write-Host "Currently selected Inbox Item Name: '$CurrentlySelectedInboxName'"
+						Write-Host `n
+						$CurrentlySelectedInboxName = GenerateSQL-GetInboxItemName -SelectedInboxID $CurrentlySelectedInboxID
+						Write-Host `n
+						Write-Host "Newly selected Inbox Item Name: '$CurrentlySelectedInboxName'"
+						Write-HorizontalRuleAdv -HRtype DashedLine
+						PAUSE
+					}
+					6 { # $ChoiceCountUnprocessedInboxItems - Count how many Unprocessed Inbox items user has
+						Write-Verbose "Choice [U] - Count how many Unprocessed Inbox items user has"
+						
+						Write-Host `n
+						Write-Host "Choice [U] - Count how many Unprocessed Inbox items user has"
+						Write-Host `n
+						
+						PAUSE
+					}
+					7 { # $ChoiceProject - Process as Project
+						Write-Verbose "Choice [P] - Process as Project"
+						
+						#GenerateSQL-InboxProcessingProject -UserID $SelectedUserID -SelectedInboxID 10 -NewProjectName "Test new name" -NewProjectDescription "Description new test." -Debug
+						#GenerateSQL-InboxProcessingProject -UserID $SelectedUserID
+						
+						$CommandString = "GenerateSQL-InboxProcessingProject -UserID $SelectedUserID"
+						
+						# Attach Inbox ID - (required)
+						If ($CurrentlySelectedInboxID) {
+							$CommandString += " -SelectedInboxID $CurrentlySelectedInboxID"
+						} Else { 
+							Write-Host `n
+							Write-Host "Currently selected Inbox ID: '$CurrentlySelectedInboxID'"
+							Write-Host `n
+							$CurrentlySelectedInboxID = Read-Host -Prompt "Enter new Inbox ID to select" # CHOICE (Read-Host automatically adds colon : at the end of prompt)
+							Write-Host `n
+							Write-Host "Newly selected Inbox ID: '$CurrentlySelectedInboxID'" -ForegroundColor Yellow
+							Write-HorizontalRuleAdv -HRtype DashedLine
+							PAUSE
+							$CommandString += " -SelectedInboxID $CurrentlySelectedInboxID"
+						}
+						
+						# Attach Inbox Item Name - (required)
+						If ($CurrentlySelectedInboxName) {
+							$CommandString += " -SelectedInboxItemName `"$CurrentlySelectedInboxName`""
+						} Else {
+							$CurrentlySelectedInboxName = GenerateSQL-GetInboxItemName -SelectedInboxID $CurrentlySelectedInboxID
+							$CommandString += " -SelectedInboxItemName `"$CurrentlySelectedInboxName`""
+						}
+						
+						# Ask user if he wants to change the Project Name - (optional)
+						Write-Host `n
+						Write-Host "Inbox item name: "
+						Write-Host "'$CurrentlySelectedInboxName'"
+						Write-Host `n
+						Write-Host "(to keep Project name the same, just hit Enter.)"
+						$NewProjectName = Read-Host -Prompt "What should new project name be?" # CHOICE (Read-Host automatically adds colon : at the end of prompt)
+						If ($NewProjectName) {
+							Write-Host `n
+							Write-Host "New project name: " -ForegroundColor Yellow
+							Write-Host "'$NewProjectName'" -ForegroundColor Yellow
+							#Write-Host `n
+							$CommandString += " -NewProjectName `"$NewProjectName`""
+						} Else {
+							Write-Host "New project name will be same as Inbox item name." -ForegroundColor Yellow
+							Write-Host "'$CurrentlySelectedInboxName'" -ForegroundColor Yellow
+						}
+						
+						# (optional)
+						$Title = "Add Project Description?"
+						$Info = "Add Description to Project item."
+						# &Yes makes Y a Hot Key. 
+						$ChoiceYes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "[Y]es, add a Project Description."
+						$ChoiceNo = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "[N]o, only needs Project Name."
+						$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceYes, $ChoiceNo)
+						# default choice: 0 = first Option, 1 = second option, etc.
+						[int]$defaultchoice = 1
+						# PromptForChoice() output will always be int https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
+						$YesNoAnswer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
+						#help about_switch
+						switch ($YesNoAnswer)
+						{
+							0 { # Yes
+								Write-Host `n
+								$NewProjectDesc = Read-Host -Prompt "Project Description" # CHOICE (Read-Host automatically adds colon : at the end of prompt)
+								Write-Host `n
+								Write-Host "New project description: " -ForegroundColor Yellow
+								Write-Host "'$NewProjectDesc'" -ForegroundColor Yellow
+								$CommandString += " -NewProjectDescription `"$NewProjectDesc`""
+							}
+							1 { # No
+								# Do Nothing.
+							}
+						}
+						
+						# (optional)
+						$Title = "Add Next Action?"
+						$Info = "Add initial Next Action to go along with Project."
+						# &Yes makes Y a Hot Key. 
+						$ChoiceYes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "[Y]es, add a Next Action to Project at the same time."
+						$ChoiceNo = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "[N]o, only add Project."
+						$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceYes, $ChoiceNo)
+						# default choice: 0 = first Option, 1 = second option, etc.
+						[int]$defaultchoice = 1
+						# PromptForChoice() output will always be int https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
+						$YesNoAnswer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
+						#help about_switch
+						switch ($YesNoAnswer)
+						{
+							0 { # Yes
+								Write-Host `n
+								$AddlNextAction = Read-Host -Prompt "Next Action" # CHOICE (Read-Host automatically adds colon : at the end of prompt)
+								Write-Host `n
+								Write-Host "Add-on Next Action: " -ForegroundColor Yellow
+								Write-Host "'$AddlNextAction'" -ForegroundColor Yellow
+								$CommandString += " -FirstNextActionName `"$AddlNextAction`""
+							}
+							1 { # No
+								# Do Nothing.
+							}
+						}
+						
+						# (optional)
+						$Title = "Add Project Deadline?"
+						$Info = "Add deadline to go along with new project."
+						# &Yes makes Y a Hot Key. 
+						$ChoiceYes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "[Y]es, add a Deadline to the Project right now."
+						$ChoiceNo = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "[N]o, only add Project."
+						$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceYes, $ChoiceNo)
+						# default choice: 0 = first Option, 1 = second option, etc.
+						[int]$defaultchoice = 1
+						# PromptForChoice() output will always be int https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
+						$YesNoAnswer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
+						#help about_switch
+						switch ($YesNoAnswer)
+						{
+							0 { # Yes
+								Write-Host `n
+								
+								#-- Set Date/Time value to variable:
+								#-- https://stackoverflow.com/questions/12163315/correct-way-of-setting-datetime-value-to-a-variable-in-sql-server
+								#-- Based on the ISO 8601 standard, the following 3 formats in the question are valid:
+								# = '20131201'
+								# = '2013-12-01T00:00:00.000'
+								# = '2013-12-01T00:00:00'
+								#-- https://stackoverflow.com/questions/1138142/best-way-to-convert-and-validate-a-date-string
+								#-- always use ISO-8601 format which will work regardless of what current date format is set in SQL Server.
+								#-- SO-8601 format is YYYYMMDD for just dates, or YYYY-MM-DDTHH:MM:SS for date with time - so I'd write your code as:
+								
+								# https://ss64.com/ps/get-date.html
+								# PowerShell - Retrieve the current date and time in strict ISO 8601 format:
+								# PS C:\> Get-Date -format s
+								# 2018-11-26T14:43:04
+								
+								$CurrentTimeStampSQL = Get-Date -Format s
+								
+								# Bugfix: For LibreOffice Base, it doesn't want '2013-12-01T00:00:00' or '2013-12-01T00:00:00.000', it wants '2013-12-01 00:00:00' or '2013-12-01 00:00:00.000'
+								#$CurrentTimeStampSQL = $CurrentTimeStampSQL.Replace("T", " ")
+								
+								$NewDeadline = Read-Host -Prompt "Enter Deadline" # CHOICE (Read-Host automatically adds colon : at the end of prompt)
+								Write-Host `n
+								Write-Host "New Deadline: " -ForegroundColor Yellow
+								Write-Host "'$NewDeadline'" -ForegroundColor Yellow
+								$CommandString += " -NewProjectDeadline $NewDeadline"
+							}
+							1 { # No
+								# Do Nothing.
+							}
+						}
+						
+						Write-Verbose `n
+						Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
+						Write-Verbose "Assembled command string:"
+						Write-Verbose $CommandString
+						Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
+						Write-Verbose `n
+						Write-Debug "`n`nAssembled command string: `n`n$CommandString" # NOTE: Writing debug text will PAUSE script execution automatically.
+						
+						Invoke-Expression $CommandString
+						
+						Write-Host `n
+						Write-Host "End Process Inbox item to Project SQL function."
+						Write-HorizontalRuleAdv -HRtype DashedLine
+						PAUSE
+						
+					}
+					8 { # $ChoiceNextActionExisting - processed from Inbox and deferred to Next Actions (Existing Project)
+						Write-Verbose "Choice [E] - processed from Inbox and deferred to Next Actions (Existing Project)"
+						
+						Write-Host `n
+						Write-Host "Choice [E] - processed from Inbox and deferred to Next Actions (Existing Project)"
+						Write-Host `n
+						
+						PAUSE
+					}
+					9 { # $ChoiceProcessedCompleted - Processed to Completion (Trash)
+						Write-Verbose "Choice [C] - Processed to Completion (Trash)"
+						
+						Write-Host `n
+						Write-Host "Choice [C] - Processed to Completion (Trash)"
+						Write-Host `n
+						
+						PAUSE
+					}
+					10 { # $ChoiceWaitingFor - processed from Inbox and delegated to Waiting For
+						Write-Verbose "Choice [W] - processed from Inbox and delegated to Waiting For"
+						
+						Write-Host `n
+						Write-Host "Choice [W] - processed from Inbox and delegated to Waiting For"
+						Write-Host `n
+						
+						PAUSE
+					}
+					11 { # $ChoiceReference - Processed to Reference
+						Write-Verbose "Choice [R] - Processed to Reference"
+						
+						Write-Host `n
+						Write-Host "Choice [R] - Processed to Reference"
+						Write-Host `n
+						
+						PAUSE
+					}
+					12 { # $ChoiceSomedayMaybe - processed from Inbox to incubate in Someday/Maybe
+						Write-Verbose "Choice [S] - processed from Inbox to incubate in Someday/Maybe"
+						
+						Write-Host `n
+						Write-Host "Choice [S] - processed from Inbox to incubate in Someday/Maybe"
+						Write-Host `n
+						
+						PAUSE
+					}
+					13 { # $ChoiceQuit - Quit
+						Write-Verbose "Choice [Q] - Quit"
+						Write-Host "Finished Inbox Processing." -ForegroundColor Green
+						#Return
+						#Break	
+					}
+				}
+				#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+			}
+			until ($InboxProcessingAnswer -eq 13)
+		}
+		2 { # Change currently selected User ID - $ChoiceChangeUserID
+			Write-Host `n
+			Write-Host "Currently selected User ID: '$SelectedUserID'"
+			Write-Host `n
+			$SelectedUserID = Read-Host -Prompt "Enter new User ID to select" # CHOICE (Read-Host automatically adds colon : at the end of prompt)
+			Write-Host `n
+			Write-Host "Newly selected User ID: '$SelectedUserID'"
+			Write-HorizontalRuleAdv -HRtype DashedLine
+			PAUSE
+		}
+		3 { # Process as Project test - $ChoiceProject
+			GenerateSQL-InboxProcessingProject -UserID $SelectedUserID -SelectedInboxID 10 -NewProjectName "Test new name" -NewProjectDescription "Description new test."
+			#GenerateSQL-InboxProcessingProject -UserID $SelectedUserID -SelectedInboxID 10 -NewProjectName "Test new name" -NewProjectDescription "Description new test." -Debug
+			
+			Write-Host `n
+			Write-Host "End Process Inbox item to Project SQL function test."
+			Write-HorizontalRuleAdv -HRtype DashedLine
+			PAUSE
+		}
+		4 { # Quit - $ChoiceQuit
+			Write-Host "Good Bye!!!" -ForegroundColor Green
+			Return
+		}
 	}
-} Until ($r -eq $coll.count-1)
-
-
+    #PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+}
+until ($answer -eq '4') 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-Write-Host `n
-Write-HorizontalRuleAdv -HRtype DashedLine
-Write-Host `n
-Write-Host "Run External Script."
-$ExternalScript = "$Home\Documents\SodaLake\PowerShell\Choice\DialogDemo.ps1"
-PowerShell.exe -NoProfile -ExecutionPolicy Bypass -Command "& '$ExternalScript'"
-Write-Host `n
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+do
+{
+     Show-Menu
+     $input = Read-Host "Please make a selection"
+     switch ($input)
+     {
+           '1' {
+                cls
+                'You chose option #1'
+           } '2' {
+                cls
+                'You chose option #2'
+           } '3' {
+                cls
+                'You chose option #3'
+           } 'q' {
+                return
+           }
+     }
+     pause
+}
+until ($input -eq 'q') 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

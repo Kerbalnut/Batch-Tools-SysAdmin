@@ -110,11 +110,15 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 SET "_FILE_A=%UserProfile%\Documents\SpiderOak Hive\SysAdmin\Tools\Compare To\CompareTo-Parent.bat"
 
+SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-template (2).bat"
+
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :: Param2 = File B
 
 SET "_FILE_B=%UserProfile%\Documents\SpiderOak Hive\SysAdmin\Configuring Systems\Boxstarter\Troubleshoot-BatchScript-CompareTo.bat"
+
+SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-template (2).bat"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -637,6 +641,70 @@ IF /I NOT "%_FILE_B:**=%"=="%_FILE_B%" (
 	SET "_FILE_B_WILDCARD=DISABLED"
 )
 REM ECHO DEBUGGING: _FILE_B_WILDCARD = %_FILE_B_WILDCARD%
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ECHO DEBUGGING: Check if _FILE_A exists
+
+REM Bugfix: If _FILE_A contains closing parentheses ")" a command like ECHO %_FILE_A% will cause this whole IF block to fail. Enclose in double quotes like so, ECHO "%_FILE_A%" or to display it without the quotes, substitue ")" with a caret escape character "^)" into the variaable like so, SET "_FILE_A=%_FILE_A:)=^)%" & ECHO !_FILE_A!
+ECHO DEBUGGING: _FILE_A = "%_FILE_A%"
+SET "_FILE_A_NOP=%_FILE_A%"
+ECHO DEBUGGING: _FILE_A_NOP = "%_FILE_A_NOP%"
+SET "_FILE_A_NOP=%_FILE_A_NOP:)=^)%"
+ECHO DEBUGGING: _FILE_A_NOP = "%_FILE_A_NOP%"
+
+:: Check if _FILE_A exists
+IF NOT EXIST "%_FILE_A%" (
+REM IF NOT EXIST "%_FILE_A_NOP%" (
+	ECHO:
+	ECHO PARAMETER NOT FOUND
+	ECHO -------------------------------------------------------------------------------
+	ECHO ERROR: Cannot find _FILE_A
+	REM Bugfix: If _FILE_A contains closing parentheses ")" a command like ECHO %_FILE_A% will cause this whole IF block to fail. Enclose in double quotes like so, ECHO "%_FILE_A%" or to display it without the quotes, substitue ")" with a caret escape character "^)" into the variaable like so, SET "_FILE_A=%_FILE_A:)=^)%" & ECHO !_FILE_A!
+	REM This will fail: ECHO %_FILE_A%
+	ECHO "%_FILE_A%"
+	ECHO %_FILE_A_NOP%
+	ECHO -------------------------------------------------------------------------------
+	ECHO:
+	PAUSE
+	ECHO:
+	REM GOTO END
+	REM Debugging: cannot use :: for comments within IF statement, instead use REM
+)
+
+ECHO DEBUGGING: _FILE_A evaluation finished.
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ECHO DEBUGGING: Check if _FILE_B exists
+
+REM Bugfix: If _FILE_B contains closing parentheses ")" a command like ECHO %_FILE_B% will cause this whole IF block to fail. Enclose in double quotes like so, ECHO "%_FILE_B%" or to display it without the quotes, substitue ")" with a caret escape character "^)" into the variaable like so, SET "_FILE_B=%_FILE_B:)=^)%" & ECHO !_FILE_B!
+ECHO DEBUGGING: _FILE_B = "%_FILE_B%"
+SET "_FILE_B_NOP=%_FILE_B%"
+ECHO DEBUGGING: _FILE_B_NOP = "%_FILE_B_NOP%"
+SET "_FILE_B_NOP=%_FILE_B_NOP:)=^)%"
+ECHO DEBUGGING: _FILE_B_NOP = "%_FILE_B_NOP%"
+
+:: Check if _FILE_B exists
+IF NOT EXIST "%_FILE_B%" (
+REM IF NOT EXIST "%_FILE_B_NOP%" (
+	ECHO:
+	ECHO PARAMETER NOT FOUND
+	ECHO -------------------------------------------------------------------------------
+	ECHO ERROR: Cannot find _FILE_B
+	REM Bugfix: If _FILE_B contains closing parentheses ")" a command like ECHO %_FILE_B% will cause this whole IF block to fail. Enclose in double quotes like so, ECHO "%_FILE_B%" or to display it without the quotes, substitue ")" with a caret escape character "^)" into the variaable like so, SET "_FILE_B=%_FILE_B:)=^)%" & ECHO !_FILE_B!
+	REM This will fail: ECHO %_FILE_B%
+	ECHO "%_FILE_B%"
+	ECHO %_FILE_B_NOP%
+	ECHO -------------------------------------------------------------------------------
+	ECHO:
+	PAUSE
+	ECHO:
+	REM GOTO END
+	REM Debugging: cannot use :: for comments within IF statement, instead use REM
+)
+
+ECHO DEBUGGING: _FILE_B evaluation finished.
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

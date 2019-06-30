@@ -11,6 +11,7 @@ SETLOCAL EnableDelayedExpansion
 :: 6. :Footer
 :: 7. :DefineFunctions
 
+REM Bugfix: Use "REM ECHO DEBUG*ING: " instead of "::ECHO DEBUG*ING: " to comment-out debugging lines, in case any are within IF statements.
 REM ECHO DEBUGGING: Begin Run-As-Administrator block.
 
 :RunAsAdministrator
@@ -110,6 +111,10 @@ SET "_FILE_A=%UserProfile%\Documents\SpiderOak Hive\SysAdmin\Configuring Systems
 
 SET "_FILE_A=%UserProfile%\Documents\SpiderOak Hive\SysAdmin\Flash Drive\Build-GeneralFlashDrive.bat"
 
+SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-template.bat"
+
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-template (2).bat"
+
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :: Param2 = File B
@@ -119,6 +124,8 @@ SET "_FILE_B=%UserProfile%\Documents\SpiderOak Hive\Programming\Batch\+Function 
 SET "_FILE_B=%UserProfile%\Documents\SpiderOak Hive\Programming\Batch\+Function Library\initiate-boxstarter_template.bat"
 
 SET "_FILE_B=%UserProfile%\Documents\Flash Drive updates\Build-GeneralFlashDrive.bat"
+
+SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-template (2).bat"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -363,13 +370,26 @@ IF NOT "%~1"=="" (
 	SET "_PASSED_PARAMS=ACTIVE"
 )
 
+REM ECHO DEBUGGING: Check if _FILE_A exists
+
+REM Bugfix: If _FILE_A contains closing parentheses ")" a command like ECHO %_FILE_A% will cause this whole IF block to fail. Enclose in double quotes like so, ECHO "%_FILE_A%" or to display it without the quotes, substitue ")" with a caret escape character "^)" into the variaable like so, SET "_FILE_A=%_FILE_A:)=^)%" & ECHO !_FILE_A!
+REM ECHO DEBUGGING: _FILE_A = "%_FILE_A%"
+SET "_FILE_A_NOP=%_FILE_A%"
+REM ECHO DEBUGGING: _FILE_A_NOP = "%_FILE_A_NOP%"
+SET "_FILE_A_NOP=%_FILE_A_NOP:)=^)%"
+REM ECHO DEBUGGING: _FILE_A_NOP = "%_FILE_A_NOP%"
+
 :: Check if _FILE_A exists
 IF NOT EXIST "%_FILE_A%" (
+REM IF NOT EXIST "%_FILE_A_NOP%" (
 	ECHO:
 	ECHO PARAMETER NOT FOUND
 	ECHO -------------------------------------------------------------------------------
 	ECHO ERROR: Cannot find _FILE_A
-	ECHO %_FILE_A%
+	REM Bugfix: If _FILE_A contains closing parentheses ")" a command like ECHO %_FILE_A% will cause this whole IF block to fail. Enclose in double quotes like so, ECHO "%_FILE_A%" or to display it without the quotes, substitue ")" with a caret escape character "^)" into the variaable like so, SET "_FILE_A=%_FILE_A:)=^)%" & ECHO !_FILE_A!
+	REM This will fail: ECHO %_FILE_A%
+	ECHO "%_FILE_A%"
+	REM ECHO %_FILE_A_NOP%
 	ECHO -------------------------------------------------------------------------------
 	ECHO:
 	PAUSE
@@ -377,6 +397,8 @@ IF NOT EXIST "%_FILE_A%" (
 	GOTO END
 	REM Debugging: cannot use :: for comments within IF statement, instead use REM
 )
+
+REM ECHO DEBUGGING: _FILE_A evaluation finished.
 
 REM -------------------------------------------------------------------------------
 
@@ -392,6 +414,8 @@ IF NOT "%~2"=="" (
 		GOTO :ManuallyEnterFileB
 	)
 )
+
+REM ECHO DEBUGGING: _FILE_B null evaluation finished.
 
 GOTO SkipManuallyEnterFileB
 :ManuallyEnterFileB
@@ -451,16 +475,38 @@ IF NOT EXIST "%_FILE_B%" (
 	)
 )
 
+REM ECHO DEBUGGING: _FILE_B evaluation finished completely.
+
 REM -------------------------------------------------------------------------------
 
+REM Bugfix: If _FILE_A contains closing parentheses ")" a command like ECHO %_FILE_A% will cause this whole IF block to fail. Enclose in double quotes like so, ECHO "%_FILE_A%" or to display it without the quotes, substitue ")" with a caret escape character "^)" into the variaable like so, SET "_FILE_A=%_FILE_A:)=^)%" & ECHO !_FILE_A!
+REM ECHO DEBUGGING: _FILE_A = "%_FILE_A%"
+SET "_FILE_A_NOP=%_FILE_A%"
+REM ECHO DEBUGGING: _FILE_A_NOP = "%_FILE_A_NOP%"
+SET "_FILE_A_NOP=%_FILE_A_NOP:)=^)%"
+REM ECHO DEBUGGING: _FILE_A_NOP = "%_FILE_A_NOP%"
+
+REM ECHO DEBUGGING: _FILE_B = "%_FILE_B%"
+SET "_FILE_B_NOP=%_FILE_B%"
+REM ECHO DEBUGGING: _FILE_B_NOP = "%_FILE_B_NOP%"
+SET "_FILE_B_NOP=%_FILE_B_NOP:)=^)%"
+REM ECHO DEBUGGING: _FILE_B_NOP = "%_FILE_B_NOP%"
+
+REM ECHO DEBUGGING: Beginning _FILE_A and _FILE_B name compare check.
+
 ::Check if _FILE_A and _FILE_B are the same
-IF /I "%_FILE_A%"=="%_FILE_B%" (
+IF "%_FILE_A%"=="%_FILE_B%" (
 	ECHO:
 	ECHO -------------------------------------------------------------------------------
 	ECHO ERROR: _FILE_A is the same as _FILE_B
-	ECHO %_FILE_A%
+	REM Bugfix: If _FILE_A contains closing parentheses ")" a command like ECHO %_FILE_A% will cause this whole IF block to fail. Enclose in double quotes like so, ECHO "%_FILE_A%" or to display it without the quotes, substitue ")" with a caret escape character "^)" into the variaable like so, SET "_FILE_A=%_FILE_A:)=^)%" & ECHO !_FILE_A!
+	REM This will fail: ECHO %_FILE_A%
+	ECHO "%_FILE_A%"
+	REM ECHO %_FILE_A_NOP%
 	ECHO:
-	ECHO %_FILE_B%
+	REM This will fail: ECHO %_FILE_B%
+	ECHO "%_FILE_B%"
+	REM ECHO %_FILE_B_NOP%
 	ECHO:
 	ECHO -------------------------------------------------------------------------------
 	ECHO:
@@ -468,9 +514,13 @@ IF /I "%_FILE_A%"=="%_FILE_B%" (
 	ECHO:
 	GOTO END
 	REM Debugging: cannot use :: for comments within IF statement, instead use REM
+) ELSE (
+	REM ECHO DEBUGGING: File name test success. _FILE_A and _FILE_B have different names.
 )
 
 REM -------------------------------------------------------------------------------
+
+REM ECHO DEBUGGING: Getting file Name ^& eXtention, Drive letter & Path
 
 :: Get _FILE_A Name & eXtention, Drive letter & Path
 FOR %%G IN ("%_FILE_A%") DO SET "_FILE_A_NAME=%%~nxG"
