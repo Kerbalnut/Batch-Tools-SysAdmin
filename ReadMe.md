@@ -70,10 +70,12 @@ A framework for creating organized batch scripts. Also serves as a repository fo
 
 Index of external functions: 
 
-1. Banner.cmd "%_BANNER_FUNC%"
-2. CompareTo-Parent.bat "%_COMPARE_FUNC%"
+1. choco.exe "%_CHOCO_INSTALLED%"
+2. PSCP.EXE"%_PSCP_EXE%"
 3. kdiff3.exe "%_KDIFF_EXE%"
-4. fossil.exe "%_FOSSIL_EXE%"
+4. CompareTo-Parent.bat "%_COMPARE_FUNC%"
+5. Banner.cmd "%_BANNER_FUNC%"
+6. fossil.exe "%_FOSSIL_EXE%"
 
 Index of Main:
 
@@ -153,10 +155,23 @@ There are 2 different Run-As-Administrator functions in use. **#1** uses a `cacl
 5. `BoxstarterInstall-template.bat` can be modified to accept command-line arguments, so other scripts can call it to install chocolatey packages.
 6. **Run As Administrator function > BatchGotAdmin International-Fix Code** can be modified to pass parameters.
 
+Most .txt file notes and short .bat files come from a single use case. They are planned to be updated, tested, and organized under the common theme started in `functions-template.bat` as the next use case arises. That way each function evolves through necessity.
+
 ### Stuff to Add:
 
 - Remote Access folder
 - Backup and Restore folder
 - File in Use folder
+- Transferring Files folder
+- System Clean-up folder (virus removal & system tune-up utilities)
+- MS Exchange folder
+- MS Outlook folder
+- Find-and-Replace function for all files within a folder and subdirectories. Batch and PowerShell versions
+
+---
+
+## How to contribute:
+
+All contributions are welcome. This section will be updated further, but currently standard GitHub policies like Pull Requests and Issues are the way to do it.
 
 ---

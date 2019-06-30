@@ -67,7 +67,6 @@ choco install libreoffice -y # includes:  Writer, Calc (spreadsheets), Impress (
 # File Tools
 choco install notepadplusplus -y 
 choco install keepass -y 
-choco install tortoiseHg -y # TortoiseHg
 #choco install kdiff3 -y 
 #choco install winmerge -y # WinMerge is an Open Source differencing and merging tool for Windows. WinMerge can compare both folders and files, presenting differences in a visual text format that is easy to understand and handle. | Please install with chocolatey
 #choco install windirstat -y 
@@ -86,6 +85,7 @@ choco install procexp -y #Process Explorer
 choco install autohotkey -y # AutoHotKey to automate keyboard input and mouse clicks
 
 # Development Tools
+choco install tortoiseHg -y # TortoiseHg
 choco install git -y 
 #choco install tortoisegit -y # TortoiseGit is a Windows Shell Interface to Git and based on TortoiseSVN.
 choco install poshgit -y # A set of PowerShell scripts which provide Git/PowerShell integration 
