@@ -92,6 +92,12 @@ choco install poshgit -y # A set of PowerShell scripts which provide Git/PowerSh
 choco install github-desktop -y # This essentially replaces https://chocolatey.org/packages/GitHub but is a different application. Your Desktop upgrade. 
 choco install posh-github -y # PowerShell cmdlet helpers for working with the GitHub API. 
 
+# Hardware Diagnostic
+choco install cpu-z -y #system specs
+choco install speedfan -y # temp, cooling, and fan speed info
+#choco install hardware-freak -y # Hardware Freak is a free system information utility designed to present you a lot of information about the hardware found inside your PC. This tool will give you information about the CPU, BIOS, Motherboard, RAM Memory, Graphics card, Sound card, Hard Drive, External storage devices, Operating system, Optical Media, Networking, Printers, Keyboard,
+#choco install bginfo -y # BgInfo.exe
+
 # -----------------------------------------------------------------------------------------------------------------------
 
 # =======================================================================================================================

@@ -46,6 +46,10 @@ Compatible characters:
 - A-Z (Caps only)
 - Space " "
 
+#### functions > DateMath.cmd
+
+Add or subtract dates 
+
 #### functions > matrix-timer.bat
 
 Why make a WAIT boring, when you can make it fun? Show some flair the next time you need to add make the user 'wait' for something, or just for flair.
@@ -137,5 +141,22 @@ There are 2 different Run-As-Administrator functions in use. **#1** uses a `cacl
 - Tools > CompareTo-Parent.bat
 - Tools > Debug-TroubleshootBatchFile.bat
 - functions-template.bat
+
+---
+
+## Work In Progress:
+
+1. `functions-template.bat` needs some functions tested, highlighted by an asterisk `*`
+2. `Get-Chocolatey.bat` and `Install-Chocolatey.bat` need to be unified.
+3. `Install-XPChocolatey.bat` needs some work & more testing, if anybody is willing to put in the work. This will likely just become legacy code, unless anybody really needs chocolatey on Windows XP to deploy a fleet of XP machines.
+4. `BoxstarterInstall-template.bat` can be modified to have the reboot prompt overridden to yes or no via variable.
+5. `BoxstarterInstall-template.bat` can be modified to accept command-line arguments, so other scripts can call it to install chocolatey packages.
+6. **Run As Administrator function > BatchGotAdmin International-Fix Code** can be modified to pass parameters.
+
+### Stuff to Add:
+
+- Remote Access folder
+- Backup and Restore folder
+- File in Use folder
 
 ---
