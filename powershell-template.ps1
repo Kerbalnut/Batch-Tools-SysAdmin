@@ -168,15 +168,12 @@ Param (
 
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-If (-Not $LoadFunctions) {
 # Only load functions of script. Do not execute Main script block.
+If (-Not $LoadFunctions) {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #-----------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------[Initialisations]---------------------------------------------------
-
-Write-Verbose `n # New line (carriage return and newline (CRLF), `r`n)
-Write-Host `n
 
 # Script name (including extension)
 $ScriptName = $MyInvocation.MyCommand.Name
@@ -277,8 +274,8 @@ $sLogFile = Join-Path -Path $sLogPath -ChildPath $sLogName
 Write-Verbose "LogFile = $sLogFile"
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Only load functions of script. Do not execute Main script block.
 }
+# Only load functions of script. Do not execute Main script block.
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -290,9 +287,16 @@ Write-Verbose "LogFile = $sLogFile"
 # help about_Functions_Advanced_Parameters
 # Get-Verb
 
-<#
+#Index of functions:
+# 1. <FunctionName> Example Function
+# 2. Start-PSAdmin
+# 3. Get-ScriptDirectory1
+# 4. Get-ScriptDirectory2
+# 5. Get-ScriptDirectory3
+# 6. Write-HorizontalRule
+# 7. Write-HorizontalRuleAdv
 
-Function <FunctionName> {
+<# Function <FunctionName> {
   Param ()
 
   Begin {
@@ -316,15 +320,12 @@ Function <FunctionName> {
       Write-LogInfo -LogPath $sLogFile -Message ' '
     }
   }
-} # End <FunctionName> function ----------------------------------------------------------------------------------------
+} #> # End <FunctionName> function ----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
-
-#>
 
 function Start-PSAdmin {Start-Process PowerShell -Verb RunAs}
 
-function Get-ScriptDirectory1 #https://stackoverflow.com/questions/801967/how-can-i-find-the-source-path-of-an-executing-script/6985381#6985381
-{
+function Get-ScriptDirectory1 { #https://stackoverflow.com/questions/801967/how-can-i-find-the-source-path-of-an-executing-script/6985381#6985381
     Split-Path $script:MyInvocation.MyCommand.Path
 } # End Get-ScriptDirectory function -----------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
@@ -335,8 +336,7 @@ function Get-ScriptDirectory2 { #https://stackoverflow.com/questions/1183183/pat
 } # End Get-ScriptDirectory function -----------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
-function Get-ScriptDirectory3 #https://stackoverflow.com/questions/1183183/path-of-currently-executing-powershell-script#1183197
-{
+function Get-ScriptDirectory3 { #https://stackoverflow.com/questions/1183183/path-of-currently-executing-powershell-script#1183197
   $Invocation = (Get-Variable MyInvocation -Scope 1).Value
   Split-Path $Invocation.MyCommand.Path
 } # End Get-ScriptDirectory function -----------------------------------------------------------------------------------

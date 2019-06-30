@@ -117,9 +117,9 @@ SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-temp
 
 SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-template.ps1"
 
-SET "_FILE_A=\\gammafox\C$\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.bat"
+::SET "_FILE_A=\\gammafox\C$\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.bat"
 
-SET "_FILE_A=\\gammafox\C$\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.ps1"
+::SET "_FILE_A=\\gammafox\C$\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.ps1"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -138,6 +138,8 @@ SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-temp
 SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-template.bat"
 
 SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-template.ps1"
+
+SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Task Tracker\TaskTrackingPs.ps1"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -551,6 +553,9 @@ REM ECHO DEBUGGING: Finished evaluating parameters. Starting Phase 2: Banner
 
 :: kdiff banner
 
+::CALL :Wait 1
+::CALL :Wait 2 "Loading program..."
+
 :: Collect passed parameters
 IF "%_PASSED_PARAMS%"=="ACTIVE" (
 	IF "%~3"=="" (
@@ -674,6 +679,7 @@ ECHO * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ECHO * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
 ECHO * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
 ECHO * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
+CALL :Wait 1 "Updating _FILE_A..."
 ECHO:
 ECHO Finished updating File A. ^(%_FILE_A_NAME%^)
 ::ECHO:
@@ -756,6 +762,7 @@ REM ECHO DEBUGGING: Begin DefineFunctions block.
 
 ::Index of functions: 
 :: 1. :DisplayHelp
+:: 2. :Wait
 :: 2. :GetTerminalWidth
 :: 3. :StrLen
 :: 4. :GenerateBlankSpace
@@ -902,6 +909,69 @@ ECHO:
 ::ECHO                           + FANCY - for a custom banner during start ^& end.
 ::ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ECHO:
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ENDLOCAL
+EXIT /B
+:-------------------------------------------------------------------------------
+:Wait [TimeInSeconds] [WindowTitle]
+::CALL :Wait 2
+::CALL :Wait 3 "Hacking the mainframe..."
+:: Wait for a set time in seconds (integer only) using multiple methods.
+:: Dependencies are matrix-timer.bat
+@ECHO OFF
+SETLOCAL EnableDelayedExpansion
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+SET "_SECONDS_TO_WAIT=%~1"
+IF "%_SECONDS_TO_WAIT%"=="" SET "_SECONDS_TO_WAIT=2"
+SET "_WINDOW_TITLE=%~2"
+IF "%_WINDOW_TITLE%"=="" SET "_WINDOW_TITLE=Please wait..."
+::SET "_MATRIX_FOUND=YARP"
+SET "_MATRIX_FOUND=NOPE"
+SET "_ORIG_DIR=%CD%"
+SET "_ORIG_DIR=%~dp0"
+::-------------------------------------------------------------------------------
+:: Find Matrix wait function:
+:: Matrix wait function name
+SET "_MATRIX_SCRIPT=matrix-timer.bat"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Relative paths:
+:: Same directory
+IF /I NOT EXIST "%_MATRIX_FUNC%" (
+	SET "_MATRIX_FUNC=%CD%\%_MATRIX_SCRIPT%"
+)
+:: down into functions folder
+IF /I NOT EXIST "%_MATRIX_FUNC%" (
+	SET "_MATRIX_FUNC=%CD%\functions\%_MATRIX_SCRIPT%"
+)
+:: One directory up, down into functions folder
+IF /I NOT EXIST "%_MATRIX_FUNC%" (
+	CD ..
+	SET "_MATRIX_FUNC=!CD!\functions\%_MATRIX_SCRIPT%"
+	CD %_ORIG_DIR%
+)
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Absolute paths:
+:: GitHub location
+IF /I NOT EXIST "%_MATRIX_FUNC%" (
+	SET "_MATRIX_FUNC=%USERPROFILE%\Documents\GitHub\Batch-Tools-SysAdmin\functions\%_MATRIX_SCRIPT%"
+)
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+IF /I EXIST "%_MATRIX_FUNC%" SET "_MATRIX_FOUND=YARP"
+::SET "_MATRIX_FOUND=NOPE"
+::-------------------------------------------------------------------------------
+:: Wait, using matrix function, or ping method.
+IF "%_MATRIX_FOUND%"=="YARP" (
+	REM CALL "%_MATRIX_FUNC%" %_SECONDS_TO_WAIT% & REM This method does not open a new window, it allows the called script to print into our terminal window.
+	REM START "%_WINDOW_TITLE%" /WAIT "%_MATRIX_FUNC%" %_SECONDS_TO_WAIT% & REM This method automatically launches scripts with a /K to cmd.exe, so the window remains after the script has finished. And the original script asks "Terminate batch job? [Y/N]"
+	REM CMD.EXE /C "%_MATRIX_FUNC%" %_SECONDS_TO_WAIT% & REM This method does not open a new window, it allows the called script to print into our terminal window.
+	START "%_WINDOW_TITLE%" /WAIT CMD.EXE /C "%_MATRIX_FUNC%" %_SECONDS_TO_WAIT%
+) ELSE (
+	REM SET /A _SECONDS_TO_WAIT+=1
+	REM PING -n !_SECONDS_TO_WAIT! 127.0.0.1 > nul
+	SET /A _PING_SECONDS=%_SECONDS_TO_WAIT%+1
+	IF NOT %_SECONDS_TO_WAIT% GTR 1 ( SET "_POPUP_TEXT=second" ) ELSE ( SET "_POPUP_TEXT=seconds" )
+	START "%_WINDOW_TITLE%" /WAIT CMD.EXE /C ECHO %_SECONDS_TO_WAIT% !_POPUP_TEXT!... ^& PING -n !_PING_SECONDS! 127.0.0.1 ^> nul
+)
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ENDLOCAL
 EXIT /B

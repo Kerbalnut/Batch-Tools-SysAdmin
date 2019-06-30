@@ -91,7 +91,7 @@ ECHO:
 ECHO Input parameters [%1] [%2] [%3] ...
 ECHO:
 ::PAUSE
-CLS
+::CLS
 :SkipHeader
 
 :: End Header
@@ -149,8 +149,8 @@ REM ECHO DEBUGGING: Begin ExternalFunctions block.
 ::-------------------------------------------------------------------------------
 ::SET "_CHOCO_INSTALLED=YES"
 SET "_CHOCO_INSTALLED=NO"
-::SET "_QUIET_ERRORS=NO"
-SET "_QUIET_ERRORS=YES"
+SET "_QUIET_ERRORS=NO"
+::SET "_QUIET_ERRORS=YES"
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Test: check if fake "choc" command fails. Redirect all text & error output to NULL (supress all output)
 ::choc /? >nul 2>&1 && ECHO "Choc" command exists?^!?^!
@@ -159,7 +159,7 @@ SET "_QUIET_ERRORS=YES"
 :: Check if the choco help command succeeds. Redirect text output to NULL but redirect error output to temp file.
 SET "_ERROR_OUTPUT_FILE=%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"
 choco /? >nul 2>&1 && SET "_CHOCO_INSTALLED=YES" & REM ECHO choco.exe help command succeeded. & REM choco help command returned success.
-choco /? >nul 2>%_ERROR_OUTPUT_FILE% || (
+choco /? >nul 2>"%_ERROR_OUTPUT_FILE%" || (
 	REM SET "_CHOCO_INSTALLED=NO"
 	IF /I NOT "%_QUIET_ERRORS%"=="YES" (
 		ECHO choco.exe help command failed. & REM choco help command failed.
@@ -198,8 +198,8 @@ SET "_QUIET_ERRORS=NO"
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Check if the just the command succeeds (same as help function in this case). Redirect text output to NULL but redirect error output to temp file.
 SET "_ERROR_OUTPUT_FILE=%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"
-pscp >nul 2>&1 && SET "_PSCP_INSTALLED=YES" & SET "_PSCP_EXE=pscp" & REM ECHO pscp help command succeeded. & REM pscp help command returned success.
-pscp >nul 2>%_ERROR_OUTPUT_FILE% || (
+pscp -V >nul 2>&1 && SET "_PSCP_INSTALLED=YES" & SET "_PSCP_EXE=pscp" & REM ECHO pscp help command succeeded. & REM pscp help command returned success.
+pscp -V >nul 2>"%_ERROR_OUTPUT_FILE%" || (
 	REM SET "_PSCP_INSTALLED=NO"
 	IF /I NOT "%_QUIET_ERRORS%"=="YES" (
 		ECHO pscp help command failed. & REM pscp help command failed.
@@ -213,10 +213,10 @@ pscp >nul 2>%_ERROR_OUTPUT_FILE% || (
 IF EXIST "%_ERROR_OUTPUT_FILE%" DEL /Q "%_ERROR_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Check if the just the command.exe succeeds (same as help function in this case). Redirect text output to NULL but redirect error output to temp file.
-IF "%_PSCP_INSTALLED%"=="NO" (
+IF /I "%_PSCP_INSTALLED%"=="NO" (
 	SET "_ERROR_OUTPUT_FILE=%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"
-	pscp.exe >nul 2>&1 && SET "_PSCP_INSTALLED=YES" & SET "_PSCP_EXE=pscp.exe" & REM ECHO pscp.exe help command succeeded. & REM pscp.exe help command returned success.
-	pscp.exe >nul 2>%_ERROR_OUTPUT_FILE% || (
+	pscp.exe -V >nul 2>&1 && SET "_PSCP_INSTALLED=YES" & SET "_PSCP_EXE=pscp.exe" & REM ECHO pscp.exe help command succeeded. & REM pscp.exe help command returned success.
+	pscp.exe -V >nul 2>"%_ERROR_OUTPUT_FILE%" || (
 		REM SET "_PSCP_INSTALLED=NO"
 		IF /I NOT "%_QUIET_ERRORS%"=="YES" (
 			ECHO pscp.exe help command failed. & REM pscp.exe help command failed.
@@ -231,14 +231,14 @@ IF "%_PSCP_INSTALLED%"=="NO" (
 IF EXIST "%_ERROR_OUTPUT_FILE%" DEL /Q "%_ERROR_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: C:\ProgramData\chocolatey\bin\PSCP.EXE
-IF "%_PSCP_INSTALLED%"=="NO" SET "_PSCP_EXE=%ChocolateyInstall%\bin\PSCP.EXE"
-IF EXIST "%_PSCP_EXE%" SET "_PSCP_INSTALLED=YES"
+IF /I "%_PSCP_INSTALLED%"=="NO" SET "_PSCP_EXE=%ChocolateyInstall%\bin\PSCP.EXE"
+IF /I EXIST "%_PSCP_EXE%" SET "_PSCP_INSTALLED=YES"
 :: C:\ProgramData\chocolatey\lib\putty.portable\tools\PSCP.EXE
-IF "%_PSCP_INSTALLED%"=="NO" SET "_PSCP_EXE=%ChocolateyInstall%\lib\putty.portable\tools\PSCP.EXE"
-IF EXIST "%_PSCP_EXE%" SET "_PSCP_INSTALLED=YES"
+IF /I "%_PSCP_INSTALLED%"=="NO" SET "_PSCP_EXE=%ChocolateyInstall%\lib\putty.portable\tools\PSCP.EXE"
+IF /I EXIST "%_PSCP_EXE%" SET "_PSCP_INSTALLED=YES"
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-IF "%_QUIET_ERRORS%"=="NO" (
-	IF NOT EXIST "%_PSCP_EXE%" (
+IF /I "%_QUIET_ERRORS%"=="NO" (
+	IF /I "%_PSCP_INSTALLED%"=="NO" (
 		ECHO:
 		ECHO EXTERNAL FUNCTION NOT FOUND
 		ECHO -------------------------------------------------------------------------------
@@ -275,21 +275,21 @@ GOTO SkipKdiffFunction
 :: Just the command
 SET "_KDIFF_EXE=kdiff3.exe"
 :: C:\Program Files\TortoiseHg\lib\kdiff3.exe
-IF NOT EXIST "%_KDIFF_EXE%" (
+IF /I NOT EXIST "%_KDIFF_EXE%" (
 	SET "_KDIFF_EXE=%ProgramFiles%\TortoiseHg\lib\kdiff3.exe"
 )
-IF NOT EXIST "%_KDIFF_EXE%" (
+IF /I NOT EXIST "%_KDIFF_EXE%" (
 	SET "_KDIFF_EXE=%ProgramFiles(x86)%\TortoiseHg\lib\kdiff3.exe"
 )
 :: C:\Program Files\KDiff3\kdiff3.exe
-IF NOT EXIST "%_KDIFF_EXE%" (
+IF /I NOT EXIST "%_KDIFF_EXE%" (
 	SET "_KDIFF_EXE=%ProgramFiles%\KDiff3\kdiff3.exe"
 )
-IF NOT EXIST "%_KDIFF_EXE%" (
+IF /I NOT EXIST "%_KDIFF_EXE%" (
 	SET "_KDIFF_EXE=%ProgramFiles(x86)%\KDiff3\kdiff3.exe"
 )
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-IF NOT EXIST "%_KDIFF_EXE%" (
+IF /I NOT EXIST "%_KDIFF_EXE%" (
 	ECHO:
 	ECHO EXTERNAL FUNCTION NOT FOUND
 	ECHO -------------------------------------------------------------------------------
@@ -330,42 +330,42 @@ SET "_ORIG_DIR=%~dp0"
 :: Just the command
 SET "_COMPARE_FUNC=CompareTo-Parent.bat"
 :: Same directory
-IF NOT EXIST "%_COMPARE_FUNC%" (
+IF /I NOT EXIST "%_COMPARE_FUNC%" (
 	SET "_COMPARE_FUNC=%CD%\CompareTo-Parent.bat"
 )
 :: One directory down
-IF NOT EXIST "%_COMPARE_FUNC%" (
+IF /I NOT EXIST "%_COMPARE_FUNC%" (
 	SET "_COMPARE_FUNC=%CD%\Compare To\CompareTo-Parent.bat"
 )
 :: Two directories down
-IF NOT EXIST "%_COMPARE_FUNC%" (
+IF /I NOT EXIST "%_COMPARE_FUNC%" (
 	SET "_COMPARE_FUNC=%CD%\Tools\Compare To\CompareTo-Parent.bat"
 )
 :: SodaLake Flash Drive relative path
-IF NOT EXIST "%_COMPARE_FUNC%" (
+IF /I NOT EXIST "%_COMPARE_FUNC%" (
 	CD ..
 	CD ..
 	SET "_COMPARE_FUNC=!CD!\Tools\Compare To\CompareTo-Parent.bat"
 	CD %_ORIG_DIR%
 )
 :: Flash Drive Updates relative path
-IF NOT EXIST "%_COMPARE_FUNC%" (
+IF /I NOT EXIST "%_COMPARE_FUNC%" (
 	CD ..
 	SET "_COMPARE_FUNC=!CD!\SodaLake\Tools\Compare To\CompareTo-Parent.bat"
 	CD %_ORIG_DIR%
 )
 :: SpiderOak Hive location
-IF NOT EXIST "%_COMPARE_FUNC%" (
+IF /I NOT EXIST "%_COMPARE_FUNC%" (
 	REM SET "_COMPARE_FUNC=%USERPROFILE%\Documents\__\SodaLake\Tools\Compare To\CompareTo-Parent.bat"
 	SET "_COMPARE_FUNC=%USERPROFILE%\Documents\...\Tools\Compare To\CompareTo-Parent.bat"
 )
 :: Work Laptop location
-IF NOT EXIST "%_COMPARE_FUNC%" (
+IF /I NOT EXIST "%_COMPARE_FUNC%" (
 	REM SET "_COMPARE_FUNC=%USERPROFILE%\Documents\__\Tools\Compare To\CompareTo-Parent.bat"
 	SET "_COMPARE_FUNC=%USERPROFILE%\Documents\SodaLake\Tools\Compare To\CompareTo-Parent.bat"
 )
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-IF NOT EXIST "%_COMPARE_FUNC%" (
+IF /I NOT EXIST "%_COMPARE_FUNC%" (
 	SET "_COMPAREFUNC_FOUND=NOPE"
 	ECHO:
 	ECHO EXTERNAL FUNCTION NOT FOUND
@@ -410,51 +410,55 @@ SET "_ORIG_DIR=%~dp0"
 :: Just the command
 SET "_BANNER_FUNC=Banner.cmd"
 :: Same directory
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	SET "_BANNER_FUNC=%CD%\Banner.cmd"
 )
-:: One directory down
-IF NOT EXIST "%_BANNER_FUNC%" (
+:: One directory down, into functions folder
+IF /I NOT EXIST "%_BANNER_FUNC%" (
+	SET "_BANNER_FUNC=%CD%\functions\Banner.cmd"
+)
+:: One directory down, into Banner folder
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	SET "_BANNER_FUNC=%CD%\Banner\Banner.cmd"
 )
 :: One directory up
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	CD ..
 	SET "_BANNER_FUNC=!CD!\Banner.cmd"
 	CD %_ORIG_DIR%
 )
 :: One directory up, into functions folder
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	CD ..
 	SET "_BANNER_FUNC=!CD!\functions\Banner.cmd"
 	CD %_ORIG_DIR%
 )
 :: Two directories up
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	CD ..
 	CD ..
 	SET "_BANNER_FUNC=!CD!\Banner.cmd"
 	CD %_ORIG_DIR%
 )
 :: SodaLake Flash Drive relative path
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	CD ..
 	SET "_BANNER_FUNC=!CD!\Banner\Banner.cmd"
 	CD %_ORIG_DIR%
 )
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	CD ..
 	CD ..
 	SET "_BANNER_FUNC=!CD!\Batch\Banner\Banner.cmd"
 	CD %_ORIG_DIR%
 )
 :: SpiderOak Hive location
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	REM SET "_BANNER_FUNC=%USERPROFILE%\Documents\__\Banner\Banner.cmd"
 	SET "_BANNER_FUNC=%USERPROFILE%\Documents\SpiderOak Hive\Programming\Batch\+Function Library\Banner\Banner.cmd"
 )
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	SET "_BANNER_FOUND=NOPE"
 	ECHO:
 	ECHO EXTERNAL FUNCTION NOT FOUND
@@ -491,11 +495,11 @@ GOTO SkipFossilFunction
 :: Just the command
 SET "_FOSSIL_EXE=fossil"
 :: Just the command + extension
-IF NOT EXIST "%_KDIFF_EXE%" (
+IF /I NOT EXIST "%_KDIFF_EXE%" (
 	SET "_FOSSIL_EXE=fossil.exe"
 )
 :: C:\ProgramData\chocolatey\lib\fossil.portable\tools\fossil.exe
-IF NOT EXIST "%_KDIFF_EXE%" (
+IF /I NOT EXIST "%_KDIFF_EXE%" (
 	SET "_FOSSIL_EXE=%ChocolateyInstall%\lib\fossil.portable\tools\fossil.exe"
 )
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -560,7 +564,7 @@ IF NOT "%~1"=="" (
 	SET "_CALLED_FROM_SCRIPT=ACTIVE"
 )
 
-IF /I NOT "%_CALLED_FROM_SCRIPT%"=="ACTIVE" CLS
+::IF /I NOT "%_CALLED_FROM_SCRIPT%"=="ACTIVE" CLS
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1277,24 +1281,25 @@ REM ECHO DEBUGGING: Begin DefineFunctions block.
 ::Index of functions: 
 :: 1. :SampleFunction
 :: 2. :DisplayHelp
-:: 3. :GetTerminalWidth
-:: 4. :StrLen
-:: 5. :GenerateBlankSpace
-:: 6. :FormatTextLine
-:: 7. :CheckLink
-:: 8. :GetWindowsVersion
-:: 9. :GetIfPathIsDriveRoot
-:: 10. :CreateShortcut
-:: 11. :CreateSymbolicLink
-:: 12. :CreateSymbolicDirLink
-:: 13. :GetDate
-:: 14. :ConvertTimeToSeconds
-:: 15. :ConvertSecondsToTime
-:: 16. :InitLogOriginal
-:: 17. :InitLog
-:: 18. :SplashLogoKdiff
-:: 19. :SplashLogoMerge
-:: 20. :SplashLogoMergeComplete
+:: 3. :Wait
+:: 4. :GetTerminalWidth
+:: 5. :StrLen
+:: 6. :GenerateBlankSpace
+:: 7. :FormatTextLine
+:: 8. :CheckLink
+:: 9. :GetWindowsVersion
+:: 10. :GetIfPathIsDriveRoot
+:: 11. :CreateShortcut
+:: 12. :CreateSymbolicLink
+:: 13. :CreateSymbolicDirLink
+:: 14. :GetDate
+:: 15. :ConvertTimeToSeconds
+:: 16. :ConvertSecondsToTime
+:: 17. :InitLogOriginal
+:: 18. :InitLog
+:: 19. :SplashLogoKdiff
+:: 20. :SplashLogoMerge
+:: 21. :SplashLogoMergeComplete
 
 GOTO SkipFunctions
 :-------------------------------------------------------------------------------
@@ -1471,6 +1476,69 @@ ECHO:
 ::ECHO                           + FANCY - for a custom banner during start ^& end.
 ::ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ECHO:
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ENDLOCAL
+EXIT /B
+:-------------------------------------------------------------------------------
+:Wait [TimeInSeconds] [WindowTitle]
+::CALL :Wait 2
+::CALL :Wait 3 "Hacking the mainframe..."
+:: Wait for a set time in seconds (integer only) using multiple methods.
+:: Dependencies are matrix-timer.bat
+@ECHO OFF
+SETLOCAL EnableDelayedExpansion
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+SET "_SECONDS_TO_WAIT=%~1"
+IF "%_SECONDS_TO_WAIT%"=="" SET "_SECONDS_TO_WAIT=2"
+SET "_WINDOW_TITLE=%~2"
+IF "%_WINDOW_TITLE%"=="" SET "_WINDOW_TITLE=Please wait..."
+::SET "_MATRIX_FOUND=YARP"
+SET "_MATRIX_FOUND=NOPE"
+SET "_ORIG_DIR=%CD%"
+SET "_ORIG_DIR=%~dp0"
+::-------------------------------------------------------------------------------
+:: Find Matrix wait function:
+:: Matrix wait function name
+SET "_MATRIX_SCRIPT=matrix-timer.bat"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Relative paths:
+:: Same directory
+IF /I NOT EXIST "%_MATRIX_FUNC%" (
+	SET "_MATRIX_FUNC=%CD%\%_MATRIX_SCRIPT%"
+)
+:: down into functions folder
+IF /I NOT EXIST "%_MATRIX_FUNC%" (
+	SET "_MATRIX_FUNC=%CD%\functions\%_MATRIX_SCRIPT%"
+)
+:: One directory up, down into functions folder
+IF /I NOT EXIST "%_MATRIX_FUNC%" (
+	CD ..
+	SET "_MATRIX_FUNC=!CD!\functions\%_MATRIX_SCRIPT%"
+	CD %_ORIG_DIR%
+)
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Absolute paths:
+:: GitHub location
+IF /I NOT EXIST "%_MATRIX_FUNC%" (
+	SET "_MATRIX_FUNC=%USERPROFILE%\Documents\GitHub\Batch-Tools-SysAdmin\functions\%_MATRIX_SCRIPT%"
+)
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+IF /I EXIST "%_MATRIX_FUNC%" SET "_MATRIX_FOUND=YARP"
+::SET "_MATRIX_FOUND=NOPE"
+::-------------------------------------------------------------------------------
+:: Wait, using matrix function, or ping method.
+IF "%_MATRIX_FOUND%"=="YARP" (
+	REM CALL "%_MATRIX_FUNC%" %_SECONDS_TO_WAIT% & REM This method does not open a new window, it allows the called script to print into our terminal window.
+	REM START "%_WINDOW_TITLE%" /WAIT "%_MATRIX_FUNC%" %_SECONDS_TO_WAIT% & REM This method automatically launches scripts with a /K to cmd.exe, so the window remains after the script has finished. And the original script asks "Terminate batch job? [Y/N]"
+	REM CMD.EXE /C "%_MATRIX_FUNC%" %_SECONDS_TO_WAIT% & REM This method does not open a new window, it allows the called script to print into our terminal window.
+	START "%_WINDOW_TITLE%" /WAIT CMD.EXE /C "%_MATRIX_FUNC%" %_SECONDS_TO_WAIT%
+) ELSE (
+	REM SET /A _SECONDS_TO_WAIT+=1
+	REM PING -n !_SECONDS_TO_WAIT! 127.0.0.1 > nul
+	SET /A _PING_SECONDS=%_SECONDS_TO_WAIT%+1
+	IF NOT %_SECONDS_TO_WAIT% GTR 1 ( SET "_POPUP_TEXT=second" ) ELSE ( SET "_POPUP_TEXT=seconds" )
+	START "%_WINDOW_TITLE%" /WAIT CMD.EXE /C ECHO %_SECONDS_TO_WAIT% !_POPUP_TEXT!... ^& PING -n !_PING_SECONDS! 127.0.0.1 ^> nul
+)
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ENDLOCAL
 EXIT /B
