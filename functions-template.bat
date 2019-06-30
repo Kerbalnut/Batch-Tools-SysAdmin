@@ -11,7 +11,7 @@ SETLOCAL EnableDelayedExpansion
 :: 6. :DefineFunctions
 :: 7. :Footer
 
-REM Bugfix: Use "REM ECHO DEBUGGING: " instead of "REM ECHO DEBUGGING: " to comment-out debugging lines, in case any are within IF statements.
+REM Bugfix: Use "REM ECHO DEBUG*ING: " instead of "::ECHO DEBUG*ING: " to comment-out debugging lines, in case any are within IF statements.
 REM ECHO DEBUGGING: Begin RunAsAdministrator block.
 
 :RunAsAdministrator
@@ -130,9 +130,9 @@ REM ECHO DEBUGGING: Begin ExternalFunctions block.
 ::Index of external functions: 
 :: 1. choco.exe "%_CHOCO_INSTALLED%"
 :: 2. PSCP.EXE"%_PSCP_EXE%"
-:: 3. Banner.cmd "%_BANNER_FUNC%"
+:: 3. kdiff3.exe "%_KDIFF_EXE%"
 :: 4. CompareTo-Parent.bat "%_COMPARE_FUNC%"
-:: 5. kdiff3.exe "%_KDIFF_EXE%"
+:: 5. Banner.cmd "%_BANNER_FUNC%"
 :: 6. fossil.exe "%_FOSSIL_EXE%"
 
 ::choco.exe
@@ -141,12 +141,13 @@ REM ECHO DEBUGGING: Begin ExternalFunctions block.
 ::-------------------------------------------------------------------------------
 ::SET "_CHOCO_INSTALLED=YES"
 SET "_CHOCO_INSTALLED=NO"
-::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ::SET "_QUIET_ERRORS=NO"
 SET "_QUIET_ERRORS=YES"
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Test: check if fake "choc" command fails. Redirect all text & error output to NULL (supress all output)
 ::choc /? >nul 2>&1 && ECHO "Choc" command exists?^!?^!
-::choc /? >nul 2>&1 || ECHO "Choc" command does NOT exist^! (TEST SUCCESS)
+::choc /? >nul 2>&1 || ECHO "Choc" command does NOT exist^! ^(TEST SUCCESS^)
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Check if the choco help command succeeds. Redirect text output to NULL but redirect error output to temp file.
 SET "_ERROR_OUTPUT_FILE=%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"
 choco /? >nul 2>&1 && SET "_CHOCO_INSTALLED=YES" & REM ECHO choco.exe help command succeeded. & REM choco help command returned success.
@@ -161,7 +162,7 @@ choco /? >nul 2>%_ERROR_OUTPUT_FILE% || (
 		ECHO:
 	)
 )
-DEL /Q "%_ERROR_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
+IF EXIST "%_ERROR_OUTPUT_FILE%" DEL /Q "%_ERROR_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Check if %ChocolateyInstall% directory exists ($env:ChocolateyInstall for PowerShell)
 IF EXIST "%ChocolateyInstall%" (
@@ -179,48 +180,208 @@ IF EXIST "%ChocolateyInstall%" (
 
 ::PSCP.EXE
 :-------------------------------------------------------------------------------
-::"%_PSCP_EXE%" -help
-::"%_PSCP_EXE%" "%_LOCAL_FILE%" "%_REMOTE_FILE%"
+::"%_PSCP_EXE%" (help function is just the command alone)
+::IF "%_PSCP_INSTALLED%"=="YES" "%_PSCP_EXE%"
 ::GOTO SkipPscpFunction
 ::-------------------------------------------------------------------------------
-:: Just the command
-SET "_PSCP_EXE=PSCP"
-IF NOT EXIST "%_PSCP_EXE%" (
-	SET "_PSCP_EXE=PSCP.EXE"
+SET "_PSCP_INSTALLED=NO"
+SET "_QUIET_ERRORS=NO"
+::SET "_QUIET_ERRORS=YES"
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Check if the just the command succeeds (same as help function in this case). Redirect text output to NULL but redirect error output to temp file.
+SET "_ERROR_OUTPUT_FILE=%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"
+pscp >nul 2>&1 && SET "_PSCP_INSTALLED=YES" & SET "_PSCP_EXE=pscp" & REM ECHO pscp help command succeeded. & REM pscp help command returned success.
+pscp >nul 2>%_ERROR_OUTPUT_FILE% || (
+	REM SET "_PSCP_INSTALLED=NO"
+	IF /I NOT "%_QUIET_ERRORS%"=="YES" (
+		ECHO pscp help command failed. & REM pscp help command failed.
+		ECHO Error output text:
+		ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		TYPE "%_ERROR_OUTPUT_FILE%"
+		ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		ECHO:
+	)
 )
+IF EXIST "%_ERROR_OUTPUT_FILE%" DEL /Q "%_ERROR_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Check if the just the command.exe succeeds (same as help function in this case). Redirect text output to NULL but redirect error output to temp file.
+IF "%_PSCP_INSTALLED%"=="NO" (
+	SET "_ERROR_OUTPUT_FILE=%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"
+	pscp.exe >nul 2>&1 && SET "_PSCP_INSTALLED=YES" & SET "_PSCP_EXE=pscp.exe" & REM ECHO pscp.exe help command succeeded. & REM pscp.exe help command returned success.
+	pscp.exe >nul 2>%_ERROR_OUTPUT_FILE% || (
+		REM SET "_PSCP_INSTALLED=NO"
+		IF /I NOT "%_QUIET_ERRORS%"=="YES" (
+			ECHO pscp.exe help command failed. & REM pscp.exe help command failed.
+			ECHO Error output text:
+			ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+			TYPE "%_ERROR_OUTPUT_FILE%"
+			ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+			ECHO:
+		)
+	)
+)
+IF EXIST "%_ERROR_OUTPUT_FILE%" DEL /Q "%_ERROR_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: C:\ProgramData\chocolatey\bin\PSCP.EXE
-IF NOT EXIST "%_PSCP_EXE%" (
-	SET "_PSCP_EXE=%ChocolateyInstall%\bin\PSCP.EXE"
-)
+IF "%_PSCP_INSTALLED%"=="NO" SET "_PSCP_EXE=%ChocolateyInstall%\bin\PSCP.EXE"
+IF EXIST "%_PSCP_EXE%" SET "_PSCP_INSTALLED=YES"
 :: C:\ProgramData\chocolatey\lib\putty.portable\tools\PSCP.EXE
-IF NOT EXIST "%_PSCP_EXE%" (
-	SET "_PSCP_EXE=%ChocolateyInstall%\lib\putty.portable\tools\PSCP.EXE"
+IF "%_PSCP_INSTALLED%"=="NO" SET "_PSCP_EXE=%ChocolateyInstall%\lib\putty.portable\tools\PSCP.EXE"
+IF EXIST "%_PSCP_EXE%" SET "_PSCP_INSTALLED=YES"
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+IF "%_QUIET_ERRORS%"=="NO" (
+	IF NOT EXIST "%_PSCP_EXE%" (
+		ECHO:
+		ECHO EXTERNAL FUNCTION NOT FOUND
+		ECHO -------------------------------------------------------------------------------
+		ECHO ERROR: Cannot find PSCP.EXE
+		REM ECHO %_PSCP_EXE%
+		ECHO:
+		ECHO Have you installed PuTTY? ^(contains PSCP^)
+		ECHO:
+		ECHO Chocolatey ^(Run As Administrator^)
+		ECHO ^> choco install putty -y
+		ECHO:
+		ECHO https://chocolatey.org/packages/putty
+		ECHO:
+		ECHO http://www.chiark.greenend.org.uk/~sgtatham/putty/
+		ECHO -------------------------------------------------------------------------------
+		ECHO:
+		PAUSE
+		ECHO:
+		GOTO END
+	)
 )
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-IF NOT EXIST "%_PSCP_EXE%" (
+:: pscp.exe
+:: "%_PSCP_EXE%"
+:SkipPscpFunction
+:-------------------------------------------------------------------------------
+
+::kdiff3.exe
+:-------------------------------------------------------------------------------
+::"%_KDIFF_EXE%" -help
+::"%_KDIFF_EXE%" "%_FILE_A%" "%_FILE_B%"
+GOTO SkipKdiffFunction
+::-------------------------------------------------------------------------------
+:: Just the command
+SET "_KDIFF_EXE=kdiff3.exe"
+:: C:\Program Files\TortoiseHg\lib\kdiff3.exe
+IF NOT EXIST "%_KDIFF_EXE%" (
+	SET "_KDIFF_EXE=%ProgramFiles%\TortoiseHg\lib\kdiff3.exe"
+)
+IF NOT EXIST "%_KDIFF_EXE%" (
+	SET "_KDIFF_EXE=%ProgramFiles(x86)%\TortoiseHg\lib\kdiff3.exe"
+)
+:: C:\Program Files\KDiff3\kdiff3.exe
+IF NOT EXIST "%_KDIFF_EXE%" (
+	SET "_KDIFF_EXE=%ProgramFiles%\KDiff3\kdiff3.exe"
+)
+IF NOT EXIST "%_KDIFF_EXE%" (
+	SET "_KDIFF_EXE=%ProgramFiles(x86)%\KDiff3\kdiff3.exe"
+)
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+IF NOT EXIST "%_KDIFF_EXE%" (
 	ECHO:
 	ECHO EXTERNAL FUNCTION NOT FOUND
 	ECHO -------------------------------------------------------------------------------
-	ECHO ERROR: Cannot find PSCP.EXE
-	REM ECHO %_PSCP_EXE%
+	ECHO ERROR: Cannot find kdiff3.exe
+	REM ECHO %_KDIFF_EXE%
 	ECHO:
-	ECHO Have you installed PuTTY? ^(contains PSCP^)
+	ECHO Have you installed TortoiseHg or KDiff3?
 	ECHO:
 	ECHO Chocolatey ^(Run As Administrator^)
-	ECHO ^> choco install putty -y
+	ECHO ^> choco install tortoisehg -y ^(or^)
+	ECHO ^> choco install kdiff3 -y
 	ECHO:
-	ECHO https://chocolatey.org/packages/putty
+	ECHO https://chocolatey.org/packages/kdiff3
 	ECHO:
-	ECHO http://www.chiark.greenend.org.uk/~sgtatham/putty/
+	ECHO http://kdiff3.sourceforge.net/
 	ECHO -------------------------------------------------------------------------------
 	ECHO:
 	PAUSE
 	ECHO:
-	GOTO END
+	REM GOTO END
 )
-:: PSCP.EXE -help
-:: "%_PSCP_EXE%" -help
-:SkipPscpFunction
+:: kdiff3.exe -help
+:: "%_KDIFF_EXE%" -help
+:SkipKdiffFunction
+:-------------------------------------------------------------------------------
+
+::CompareTo-Parent.bat
+:-------------------------------------------------------------------------------
+::CALL "%_COMPARE_FUNC%" "%_FILE_A%" "%_FILE_B%"
+:: Requires SETLOCAL EnableDelayedExpansion
+GOTO SkipCompareToParentFunc
+::-------------------------------------------------------------------------------
+::SET "_COMPAREFUNC_FOUND=YARP"
+SET "_COMPAREFUNC_FOUND=NOPE"
+::SET "_ORIG_DIR=%CD%"
+SET "_ORIG_DIR=%~dp0"
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Just the command
+SET "_COMPARE_FUNC=CompareTo-Parent.bat"
+:: Same directory
+IF NOT EXIST "%_COMPARE_FUNC%" (
+	SET "_COMPARE_FUNC=%CD%\CompareTo-Parent.bat"
+)
+:: One directory down
+IF NOT EXIST "%_COMPARE_FUNC%" (
+	SET "_COMPARE_FUNC=%CD%\Compare To\CompareTo-Parent.bat"
+)
+:: Two directories down
+IF NOT EXIST "%_COMPARE_FUNC%" (
+	SET "_COMPARE_FUNC=%CD%\Tools\Compare To\CompareTo-Parent.bat"
+)
+:: SodaLake Flash Drive relative path
+IF NOT EXIST "%_COMPARE_FUNC%" (
+	CD ..
+	CD ..
+	SET "_COMPARE_FUNC=!CD!\Tools\Compare To\CompareTo-Parent.bat"
+	CD %_ORIG_DIR%
+)
+:: Flash Drive Updates relative path
+IF NOT EXIST "%_COMPARE_FUNC%" (
+	CD ..
+	SET "_COMPARE_FUNC=!CD!\SodaLake\Tools\Compare To\CompareTo-Parent.bat"
+	CD %_ORIG_DIR%
+)
+:: SpiderOak Hive location
+IF NOT EXIST "%_COMPARE_FUNC%" (
+	REM SET "_COMPARE_FUNC=%USERPROFILE%\Documents\__\SodaLake\Tools\Compare To\CompareTo-Parent.bat"
+	SET "_COMPARE_FUNC=%USERPROFILE%\Documents\...\Tools\Compare To\CompareTo-Parent.bat"
+)
+:: Work Laptop location
+IF NOT EXIST "%_COMPARE_FUNC%" (
+	REM SET "_COMPARE_FUNC=%USERPROFILE%\Documents\__\Tools\Compare To\CompareTo-Parent.bat"
+	SET "_COMPARE_FUNC=%USERPROFILE%\Documents\SodaLake\Tools\Compare To\CompareTo-Parent.bat"
+)
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+IF NOT EXIST "%_COMPARE_FUNC%" (
+	SET "_COMPAREFUNC_FOUND=NOPE"
+	ECHO:
+	ECHO EXTERNAL FUNCTION NOT FOUND
+	ECHO -------------------------------------------------------------------------------
+	ECHO ERROR: Cannot find CompareTo-Parent.bat
+	ECHO %_COMPARE_FUNC%
+	ECHO:
+	ECHO %UserProfile%\Documents\SpiderOak Hive\SysAdmin\Tools\Compare To\CompareTo-Parent.bat
+	ECHO -------------------------------------------------------------------------------
+	ECHO:
+	PAUSE
+	ECHO:
+	REM GOTO END
+	GOTO SkipCompareToParentFunc
+) ELSE (
+	SET "_COMPAREFUNC_FOUND=YARP"
+)
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Script name & extention
+FOR %%G IN ("%_COMPARE_FUNC%") DO SET "_COMPARE_FUNC_NAME=%%~nxG"
+
+:: Script drive & path
+FOR %%G IN ("%_COMPARE_FUNC%") DO SET "_COMPARE_FUNC_PATH=%%~dpG"
+:SkipCompareToParentFunc
 :-------------------------------------------------------------------------------
 
 ::Banner.cmd
@@ -312,132 +473,6 @@ FOR %%G IN ("%_BANNER_FUNC%") DO SET "_BANNER_FUNC_PATH=%%~dpG"
 :SkipBannerFunc
 :-------------------------------------------------------------------------------
 
-::CompareTo-Parent.bat
-:-------------------------------------------------------------------------------
-::CALL "%_COMPARE_FUNC%" "%_FILE_A%" "%_FILE_B%"
-:: Requires SETLOCAL EnableDelayedExpansion
-GOTO SkipCompareToParentFunc
-::-------------------------------------------------------------------------------
-::SET "_COMPAREFUNC_FOUND=YARP"
-SET "_COMPAREFUNC_FOUND=NOPE"
-::SET "_ORIG_DIR=%CD%"
-SET "_ORIG_DIR=%~dp0"
-::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-:: Just the command
-SET "_COMPARE_FUNC=CompareTo-Parent.bat"
-:: Same directory
-IF NOT EXIST "%_COMPARE_FUNC%" (
-	SET "_COMPARE_FUNC=%CD%\CompareTo-Parent.bat"
-)
-:: One directory down
-IF NOT EXIST "%_COMPARE_FUNC%" (
-	SET "_COMPARE_FUNC=%CD%\Compare To\CompareTo-Parent.bat"
-)
-:: Two directories down
-IF NOT EXIST "%_COMPARE_FUNC%" (
-	SET "_COMPARE_FUNC=%CD%\Tools\Compare To\CompareTo-Parent.bat"
-)
-:: SodaLake Flash Drive relative path
-IF NOT EXIST "%_COMPARE_FUNC%" (
-	CD ..
-	CD ..
-	SET "_COMPARE_FUNC=!CD!\Tools\Compare To\CompareTo-Parent.bat"
-	CD %_ORIG_DIR%
-)
-:: Flash Drive Updates relative path
-IF NOT EXIST "%_COMPARE_FUNC%" (
-	CD ..
-	SET "_COMPARE_FUNC=!CD!\SodaLake\Tools\Compare To\CompareTo-Parent.bat"
-	CD %_ORIG_DIR%
-)
-:: SpiderOak Hive location
-IF NOT EXIST "%_COMPARE_FUNC%" (
-	REM SET "_COMPARE_FUNC=%USERPROFILE%\Documents\__\SodaLake\Tools\Compare To\CompareTo-Parent.bat"
-	SET "_COMPARE_FUNC=%USERPROFILE%\Documents\...\Tools\Compare To\CompareTo-Parent.bat"
-)
-:: Work Laptop location
-IF NOT EXIST "%_COMPARE_FUNC%" (
-	REM SET "_COMPARE_FUNC=%USERPROFILE%\Documents\__\Tools\Compare To\CompareTo-Parent.bat"
-	SET "_COMPARE_FUNC=%USERPROFILE%\Documents\SodaLake\Tools\Compare To\CompareTo-Parent.bat"
-)
-::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-IF NOT EXIST "%_COMPARE_FUNC%" (
-	SET "_COMPAREFUNC_FOUND=NOPE"
-	ECHO:
-	ECHO EXTERNAL FUNCTION NOT FOUND
-	ECHO -------------------------------------------------------------------------------
-	ECHO ERROR: Cannot find CompareTo-Parent.bat
-	ECHO %_COMPARE_FUNC%
-	ECHO:
-	ECHO %UserProfile%\Documents\SpiderOak Hive\SysAdmin\Tools\Compare To\CompareTo-Parent.bat
-	ECHO -------------------------------------------------------------------------------
-	ECHO:
-	PAUSE
-	ECHO:
-	REM GOTO END
-	GOTO SkipCompareToParentFunc
-) ELSE (
-	SET "_COMPAREFUNC_FOUND=YARP"
-)
-::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-:: Script name & extention
-FOR %%G IN ("%_COMPARE_FUNC%") DO SET "_COMPARE_FUNC_NAME=%%~nxG"
-
-:: Script drive & path
-FOR %%G IN ("%_COMPARE_FUNC%") DO SET "_COMPARE_FUNC_PATH=%%~dpG"
-:SkipCompareToParentFunc
-:-------------------------------------------------------------------------------
-
-::kdiff3.exe
-:-------------------------------------------------------------------------------
-::"%_KDIFF_EXE%" -help
-::"%_KDIFF_EXE%" "%_FILE_A%" "%_FILE_B%"
-GOTO SkipKdiffFunction
-::-------------------------------------------------------------------------------
-:: Just the command
-SET "_KDIFF_EXE=kdiff3.exe"
-:: C:\Program Files\TortoiseHg\lib\kdiff3.exe
-IF NOT EXIST "%_KDIFF_EXE%" (
-	SET "_KDIFF_EXE=%ProgramFiles%\TortoiseHg\lib\kdiff3.exe"
-)
-IF NOT EXIST "%_KDIFF_EXE%" (
-	SET "_KDIFF_EXE=%ProgramFiles(x86)%\TortoiseHg\lib\kdiff3.exe"
-)
-:: C:\Program Files\KDiff3\kdiff3.exe
-IF NOT EXIST "%_KDIFF_EXE%" (
-	SET "_KDIFF_EXE=%ProgramFiles%\KDiff3\kdiff3.exe"
-)
-IF NOT EXIST "%_KDIFF_EXE%" (
-	SET "_KDIFF_EXE=%ProgramFiles(x86)%\KDiff3\kdiff3.exe"
-)
-::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-IF NOT EXIST "%_KDIFF_EXE%" (
-	ECHO:
-	ECHO EXTERNAL FUNCTION NOT FOUND
-	ECHO -------------------------------------------------------------------------------
-	ECHO ERROR: Cannot find kdiff3.exe
-	REM ECHO %_KDIFF_EXE%
-	ECHO:
-	ECHO Have you installed TortoiseHg or KDiff3?
-	ECHO:
-	ECHO Chocolatey ^(Run As Administrator^)
-	ECHO ^> choco install tortoisehg -y ^(or^)
-	ECHO ^> choco install kdiff3 -y
-	ECHO:
-	ECHO https://chocolatey.org/packages/kdiff3
-	ECHO:
-	ECHO http://kdiff3.sourceforge.net/
-	ECHO -------------------------------------------------------------------------------
-	ECHO:
-	PAUSE
-	ECHO:
-	REM GOTO END
-)
-:: kdiff3.exe -help
-:: "%_KDIFF_EXE%" -help
-:SkipKdiffFunction
-:-------------------------------------------------------------------------------
-
 ::fossil.exe
 :-------------------------------------------------------------------------------
 ::"%_FOSSIL_EXE%" help
@@ -487,7 +522,6 @@ IF NOT EXIST "%_FOSSIL_EXE%" (
 REM -------------------------------------------------------------------------------
 REM ===============================================================================
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-::ScriptMain
 :Main
 
 REM ECHO DEBUGGING: Beginning Main execution block.
@@ -517,6 +551,8 @@ SET "_CALLED_FROM_SCRIPT=DISABLED"
 IF NOT "%~1"=="" (
 	SET "_CALLED_FROM_SCRIPT=ACTIVE"
 )
+
+IF /I NOT "%_CALLED_FROM_SCRIPT%"=="ACTIVE" CLS
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -564,13 +600,43 @@ REM ECHO DEBUGGING: Finished help evaluation.
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-:: Get _FILE_A name & extention, drive & path
+:: Get _FILE_A Name & eXtention, Drive letter & Path
 FOR %%G IN ("%_FILE_A%") DO SET "_FILE_A_NAME=%%~nxG"
 FOR %%G IN ("%_FILE_A%") DO SET "_FILE_A_PATH=%%~dpG"
 
-:: Get _FILE_B name & extention, drive & path
+:: Get _FILE_B Name & eXtention, Drive letter & Path
 FOR %%G IN ("%_FILE_B%") DO SET "_FILE_B_NAME=%%~nxG"
 FOR %%G IN ("%_FILE_B%") DO SET "_FILE_B_PATH=%%~dpG"
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+:: Find if _FILE_A has a wildcard "*" in it.
+:: "%_Variable:_SearchString=_ReplacementString%"
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\*.bat"
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\CompareTo-Parent.bat"
+REM ECHO DEBUGGING: _FILE_A = "%_FILE_A%"
+IF /I NOT "%_FILE_A:**=%"=="%_FILE_A%" (
+	REM _FILE_A contains an asterisk.
+	SET "_FILE_A_WILDCARD=ENABLED"
+) ELSE (
+	REM _FILE_A does NOT contain an asterisk.
+	SET "_FILE_A_WILDCARD=DISABLED"
+)
+REM ECHO DEBUGGING: _FILE_A_WILDCARD = %_FILE_A_WILDCARD%
+
+:: Find if _FILE_B has a wildcard "*" in it.
+:: "%_Variable:_SearchString=_ReplacementString%"
+::SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\*.bat"
+::SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\CompareTo-Parent.bat"
+REM ECHO DEBUGGING: _FILE_B = "%_FILE_B%"
+IF /I NOT "%_FILE_B:**=%"=="%_FILE_B%" (
+	REM _FILE_B contains an asterisk.
+	SET "_FILE_B_WILDCARD=ENABLED"
+) ELSE (
+	REM _FILE_B does NOT contain an asterisk.
+	SET "_FILE_B_WILDCARD=DISABLED"
+)
+REM ECHO DEBUGGING: _FILE_B_WILDCARD = %_FILE_B_WILDCARD%
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1133,6 +1199,9 @@ REM ----------------------------------------------------------------------------
 
 REM ECHO DEBUGGING: Begin DefineFunctions block.
 
+:DefineFunctions
+:: Declare Functions
+
 ::Index of functions: 
 :: 1. :SampleFunction
 :: 2. :DisplayHelp
@@ -1156,8 +1225,6 @@ REM ECHO DEBUGGING: Begin DefineFunctions block.
 :: 20. :SplashLogoMergeComplete
 
 GOTO SkipFunctions
-:: Declare Functions
-:DefineFunctions
 :-------------------------------------------------------------------------------
 :SampleFunction RequiredParam [OptionalParam]
 :: Dependences: other functions this one is dependent on.
@@ -1166,9 +1233,11 @@ GOTO SkipFunctions
 :: Outputs:
 :: "%_SAMPLE_OUTPUT_1%"
 :: "%_SAMPLE_OUTPUT_2%"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 @ECHO OFF
 ::SETLOCAL
 SETLOCAL EnableDelayedExpansion
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 SET "_required_param=%1"
 SET "_optional_param=%2"
 :: Also works: IF [%1]==[] (

@@ -144,7 +144,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 REM -------------------------------------------------------------------------------
 
-::REM ECHO DEBUGGING: Begin ExternalFunctions block.
+REM ECHO DEBUGGING: Begin ExternalFunctions block.
 
 :ExternalFunctions
 :: Load External functions and programs:
@@ -297,7 +297,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ::ScriptMain
 :Main
 
-::REM ECHO DEBUGGING: Beginning Main execution block.
+REM ECHO DEBUGGING: Beginning Main execution block.
 
 ::===============================================================================
 :: Phase 1: Evaluate Parameters
@@ -352,7 +352,7 @@ IF NOT "%~1"=="" (
 	)
 )
 
-::REM ECHO DEBUGGING: Finished help evaluation.
+REM ECHO DEBUGGING: Finished help evaluation.
 
 REM -------------------------------------------------------------------------------
 
@@ -472,17 +472,17 @@ IF /I "%_FILE_A%"=="%_FILE_B%" (
 
 REM -------------------------------------------------------------------------------
 
-:: Get _FILE_A name & extention, drive & path
+:: Get _FILE_A Name & eXtention, Drive letter & Path
 FOR %%G IN ("%_FILE_A%") DO SET "_FILE_A_NAME=%%~nxG"
 FOR %%G IN ("%_FILE_A%") DO SET "_FILE_A_PATH=%%~dpG"
 
-:: Get _FILE_B name & extention, drive & path
+:: Get _FILE_B Name & eXtention, Drive letter & Path
 FOR %%G IN ("%_FILE_B%") DO SET "_FILE_B_NAME=%%~nxG"
 FOR %%G IN ("%_FILE_B%") DO SET "_FILE_B_PATH=%%~dpG"
 
 REM -------------------------------------------------------------------------------
 
-::REM ECHO DEBUGGING: Finished evaluating parameters. Starting Phase 2: Banner 
+REM ECHO DEBUGGING: Finished evaluating parameters. Starting Phase 2: Banner 
 
 ::===============================================================================
 :: Phase 2: Banner
@@ -529,7 +529,7 @@ IF /I NOT "%_DISPLAY_BANNER%"=="QUIET" (
 	ECHO -------------------------------------------------------------------------------
 )
 
-::REM ECHO DEBUGGING: Finished showing banner. Starting Phase 3: Use Kdiff to merge ...
+REM ECHO DEBUGGING: Finished showing banner. Starting Phase 3: Use Kdiff to merge ...
 
 ::===============================================================================
 :: Phase 3: Use Kdiff to merge both files
@@ -686,7 +686,7 @@ EXIT /B & REM If you call this program from the command line and want it to retu
 
 REM -------------------------------------------------------------------------------
 
-::REM ECHO DEBUGGING: Begin DefineFunctions block.
+REM ECHO DEBUGGING: Begin DefineFunctions block.
 
 ::Index of functions: 
 :: 1. :DisplayHelp
