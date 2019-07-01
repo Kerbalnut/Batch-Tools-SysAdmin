@@ -534,7 +534,7 @@ If ($LoadFunctions) {
 #-----------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------[Execution]------------------------------------------------------
 
-Start-Log -LogPath $sLogPath -LogName $sLogName -ScriptVersion $sScriptVersion
+If (!($sLogPath)) { Start-Log -LogPath $sLogPath -LogName $sLogName -ScriptVersion $sScriptVersion }
 
 # run "help about_comment_based_help" - I want to display formatted help for a function or script. Use comment-based help instead - run "help about_comment_based_help". PowerShell will format it for you.
 # https://technet.microsoft.com/en-us/library/dd819489.aspx
@@ -636,6 +636,97 @@ Write-Verbose `n
 Write-HorizontalRuleAdv -HRtype DoubleLine -IsVerbose
 Write-Verbose `n
 Write-Verbose "Script body."
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Testing Out-GridView
+#https://mcpmag.com/articles/2016/02/17/creating-a-gui-using-out-gridview.aspx
+Write-Host `n
+Write-HorizontalRuleAdv -HRtype DashedLine
+Write-Host `n
+Write-Host "a quick way to go back in your history and run the same command again."
+Get-History | Out-GridView -PassThru | Invoke-Expression 
+
+Write-Host `n
+Write-HorizontalRuleAdv -HRtype DashedLine
+Write-Host `n
+Write-Host "Looking at the cmdlet help:"
+Get-Command | Out-GridView -PassThru | Get-Help -ShowWindow 
+
+Write-Host `n
+Write-HorizontalRuleAdv -HRtype DashedLine
+Write-Host `n
+Write-Host "Looking at the about* Help Files:"
+Get-Help about* | Out-GridView -PassThru | Get-Help -ShowWindow 
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Write-Host `n
+Write-HorizontalRuleAdv -HRtype DashedLine
+Write-Host `n
+Write-Host "Menu example using Out-GridView:"
+$Menu = [ordered]@{
+	1 = 'Do something'
+	2 = 'Do this instead'
+	3 = 'Do whatever you want'
+}
+
+$Result = $Menu | Out-GridView -PassThru -Title 'Make a selection'
+
+Switch ($Result) {
+	{$Result.Name -eq 1} {Write-Host 'Do something'}
+	{$Result.Name -eq 2} {Write-Host 'Do this instead'}
+	{$Result.Name -eq 3} {Write-Host 'Do whatever you want'}   
+} 
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Write-Host `n
+Write-HorizontalRuleAdv -HRtype DashedLine
+Write-Host `n
+Write-Host "Advanced Out-GridView usage:"
+$WMI =  @{
+	Filter =  "DriveType='3' AND (Not Name LIKE  '\\\\?\\%')"
+	Class =  "Win32_Volume"
+	ErrorAction =  "Stop"
+	Property =  "Name","Label","Capacity","FreeSpace"
+	Computername =  $Env:COMPUTERNAME
+}
+
+$List = New-Object System.Collections.ArrayList
+
+Get-WmiObject @WMI  | ForEach {
+
+	$Decimal  = $_.freespace / $_.capacity
+
+	$Graph  = "$($Bar)"*($Decimal*100)
+
+	$Hash = [ordered]@{
+
+		Computername =  $Env:COMPUTERNAME
+
+		Name =  $_.Name
+
+		FreeSpace =  "$Graph"       
+
+		Percent =  $Decimal
+
+		FreeSpaceGB =  ([math]::Round(($_.Freespace/1GB),2))
+
+		CapacityGB =  ([math]::Round(($_.Capacity/1GB),2))
+
+	}
+
+	[void]$List.Add((
+
+		[pscustomobject]$Hash
+
+	))
+
+}
+
+$List | Out-GridView -Title 'Drive Space' 
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

@@ -188,7 +188,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 :ScriptHelp
 :: Skip Help lookup
-::ECHO Skipping %~n0.ps1 help command & GOTO MainMenu & REM Comment out this line to display help before loading script
+ECHO Skipping %~n0.ps1 help command & GOTO MainMenu & REM Comment out this line to display help before loading script
 
 ECHO -------------------------------------------------------------------------------
 ECHO:

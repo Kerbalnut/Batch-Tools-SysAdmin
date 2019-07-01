@@ -120,6 +120,11 @@ about_Functions_CmdletBindingAttribute
 # To run from PowerShell command line:
 # https://ss64.com/ps/syntax-run.html
 # https://ss64.com/ps/call.html
+# https://ss64.com/ps/syntax-scriptblock.html
+# When passing a variable to a scriptblock it is important to consider the variable scope.
+#    Each time the scriptblock is run; it will dynamically read the current value of the variable.
+#    When a scriptblock is run using the “&” (call) operator, updates to a variable are not reflected in the parent scope.
+#    When a scriptblock is run using the “.” (dot) operator, updates to a variable apply to the current scope.
 # help about_Scripts
 # & "C:\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.ps1"
 # & "C:\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.ps1" -Verbose -Debug
@@ -169,7 +174,7 @@ Param (
   [string]$TaskList = ".\Task-TrackingPs-tasks.csv",
   
   [Parameter(Mandatory=$false)]
-  [string]$WorkLog = ".\Task-TrackingPs-work-log.csv"
+  [string]$TimeLog = ".\Task-TrackingPs-time-log.csv"
 )
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -254,11 +259,11 @@ Write-Verbose "TaskList = $TaskList"
 #$TaskList = ".\$ScriptName-tasks.csv"
 Write-Verbose "TaskList = $TaskList"
 
-Write-Verbose "WorkLog = $WorkLog"
-#$WorkLog = ".\$MyInvocation.MyCommand.Name-work-log.csv"
-Write-Verbose "WorkLog = $WorkLog"
-#$WorkLog = ".\$ScriptName-work-log.csv"
-Write-Verbose "WorkLog = $WorkLog"
+Write-Verbose "WorkLog = $TimeLog"
+#$TimeLog = ".\$MyInvocation.MyCommand.Name-work-log.csv"
+Write-Verbose "WorkLog = $TimeLog"
+#$TimeLog = ".\$ScriptName-work-log.csv"
+Write-Verbose "WorkLog = $TimeLog"
 
 #PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
@@ -555,7 +560,7 @@ If ($LoadFunctions) {
 #-----------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------[Execution]------------------------------------------------------
 
-Start-Log -LogPath $sLogPath -LogName $sLogName -ScriptVersion $sScriptVersion
+If (!($sLogPath)) { Start-Log -LogPath $sLogPath -LogName $sLogName -ScriptVersion $sScriptVersion }
 
 # run "help about_comment_based_help" - I want to display formatted help for a function or script. Use comment-based help instead - run "help about_comment_based_help". PowerShell will format it for you.
 # https://technet.microsoft.com/en-us/library/dd819489.aspx
@@ -574,14 +579,18 @@ Write-Information -MessageData "Test infromational messages." -InformationAction
 Write-Verbose "Script Main beginning. $ScriptName"
 Write-Verbose "Debug preference = $DebugPreference"
 Write-Debug "Script Main beginning." # NOTE: Writing debug text will PAUSE script execution automatically.
-Write-Warning "Test Warning."
-Write-Error -Message "TEST ERROR. TEST ERROR. TEST ERROR. TEST ERROR." -Category InvalidData -ErrorId TEST_ID
-For ($I = 1; $I -le 100; $I++) {Write-Progress -Activity "Test in progress..." -Status "$I% Complete:" -PercentComplete $I;}
+#Write-Warning "Test Warning."
+#Write-Error -Message "TEST ERROR. TEST ERROR. TEST ERROR. TEST ERROR." -Category InvalidData -ErrorId TEST_ID
+#For ($I = 1; $I -le 100; $I++) {Write-Progress -Activity "Test in progress..." -Status "$I% Complete:" -PercentComplete $I;}
 #For ($I = 1; $I -le 1000; $I++) {Write-Progress -Activity "Test in progress..." -Status "$($I / 10)% Complete:" -PercentComplete ($I/10)}
 
 # Write-LogInfo – Writes an informational message to the log file
 # Write-LogWarning – Writes a warning message to the log file (with the format of WARNING: )
 # Write-LogError – Writes an error message to the log file (with the format of ERROR: ). In addition, optionally calls Stop-Log to end logging and terminate the calling script on fatal error.
+
+Write-LogInfo -LogPath $sLogFile -Message "-----------------------------------------------------------------------------------------------------------------------"
+Write-LogInfo -LogPath $sLogFile -Message "[TIMESTAMP]"
+
 
 Write-LogInfo -LogPath $sLogFile -Message "Test log info write."
 Write-LogWarning -LogPath $sLogFile -Message "Test log warning write."
@@ -593,7 +602,7 @@ Write-LogError -LogPath $sLogFile -Message "Test log error write."
 #Write-Host "Captured text = `"$Choice`""
 
 #Read-Host "Press ENTER key to continue . . . " # PAUSE (Read-Host automatically adds colon : at the end of prompt)
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 # -----------------------------------------------------------------------------------------------------------------------
 # =======================================================================================================================
@@ -605,20 +614,175 @@ Clear-Host # CLS
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+
+
+# Export System Environment Variables
+#[Environment]::SetEnvironmentVariable("TWILIO_ACCOUNT_SID", "your_account_sid", "User")
+[Environment]::SetEnvironmentVariable("TWILIO_ACCOUNT_SID", "AC233dffdc2d0f89ca6843bc2186f6cb84", "User")
+
+#[Environment]::SetEnvironmentVariable("TWILIO_AUTH_TOKEN", "your_auth_token", "User")
+[Environment]::SetEnvironmentVariable("TWILIO_AUTH_TOKEN", "3270a7694d0da92967f3d1411f7ff3e3", "User")
+
+# Twilio Phone number to send SMS from
+[Environment]::SetEnvironmentVariable("TWILIO_NUMBER", "+16028992009", "User")
+
+# Phone number to send SMS to
+[Environment]::SetEnvironmentVariable("TWILIO_VERIFIED_CALLERID", "+14804155032", "User")
+
+
+refreshenv
+
+& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $null	
+& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $null ; Write-Host "Not Exist?"	
+& {if (refreshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $null ; Write-Host "Not Exist?"	
+& {if (refreshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if (!($_ -eq $null)) {Write-host "not EXIST???"}	
+& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if (!($_ -eq $null)) {Write-host "not EXIST???"}	
+& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if ($_ -ne $null) {Write-host "not EXIST???"}	
+& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> | if ($_ -ne $null) {Write-host "not EXIST???"}	
+& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $errout | if ($_ -ne $null) {Write-host "not EXIST???"}	
+& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $errout ; if ($_ -ne $null) {Write-host "not EXIST???"}	
+& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if ($_ -ne $null) {Write-host "not EXIST???"} else { write-host "output $_"}	
+& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $errout	
+$errout	
+
+
+# Body of SMS Text:
+# Sent from your Twilio trial account - 
+$BodySMS = "Hello from PowerShell
+
+Hello
+
+World."
+
+
+$APIurl = "https://api.twilio.com/2010-04-01/Accounts/$sid/Messages.json"
+$APIurl = "https://api.twilio.com/2010-04-01/Accounts/"
+$APIurl = "https://api.twilio.com/2010-04-01/Accounts/"
+
+
+# Pull in Twilio account info, previously set as environment variables
+$sid = $env:TWILIO_ACCOUNT_SID
+$token = $env:TWILIO_AUTH_TOKEN
+$number = $env:TWILIO_NUMBER
+$SendToNumber = $env:TWILIO_VERIFIED_CALLERID
+
+# Twilio API endpoint and POST params
+$url = "https://api.twilio.com/2010-04-01/Accounts/$sid/Messages.json"
+$params = @{ To = $SendToNumber; From = $number; Body = $BodySMS }
+
+# Create a credential object for HTTP basic auth
+$p = $token | ConvertTo-SecureString -asPlainText -Force
+$credential = New-Object System.Management.Automation.PSCredential($sid, $p)
+
+# Set SecurityProtocol to use with Twilio API
+# Starting June 26, 2019, the Twilio REST API will only support connections that use TLS v1.2 and strong cipher suites
+# https://support.twilio.com/hc/en-us/articles/360006751753-Tips-for-Upgrading-Your-Environment-to-Support-Twilio-REST-API-s-TLS-and-Strong-Cipher-Suite-Changes
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+# Make API request, selecting JSON properties from response
+Invoke-WebRequest $url -Method Post -Credential $credential -Body $params -UseBasicParsing |
+ConvertFrom-Json | Select sid, body
+
+
+
+$Response = Invoke-WebRequest $url -Method Post -Credential $credential -Body $params -UseBasicParsing
+
+# Invoke-RestMethod
+
+Write-Host $Response
+
+$Response | ConvertFrom-Json
+
+
+# 
+{"sid": "SM7582c4576cbd49669fe0409bbc54a69c", 
+"date_created": "Mon, 01 Jul 2019 09:47:51 +0000", 
+"date_updated": "Mon, 01 Jul 2019 09:47:51 +0000", 
+"date_sent": null, 
+"account_sid": "AC233dffdc2d0f89ca6843bc2186f6cb84", 
+"to": "+14804155032", 
+"from": "+16028992009", 
+"messaging_service_sid": null, 
+"body": "Sent from your
+ Twilio trial account - Hello from PowerShell\r\n\r\nHello\r\n\r\nWorld.", 
+"status": "queued", 
+"num_segments": "1", 
+"num_media": "0", 
+"direction": "outbound-api", 
+"api_version": "2010-04-01", 
+"price": null, 
+"price_unit": "USD", 
+"error_code": null, 
+"error_message": null, 
+"uri": "/2010-04-01/Accounts/AC233dffdc2d0f89ca6843bc2186f6cb84/Messages/SM7582c4576cbd49669fe0409bbc54a69c.json", 
+"subresource_uris": {"media": "/2010-04-01/Accounts/AC233dffdc2d0f89ca6843bc2186f6cb84/Messages/SM7582c4576cbd49669fe0409bbc54a69c/Media.json"}}
+
+
+
+
+
+
+
+PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+
+
+
+
+
+# Tags: 
+# Resume;Printer;
+
+$TaskList #CSV
+# Headers:
+# ID, TaskName, TimeStamp_Added (YYYY-MM-DD_HH-MM-SS), TimeStamp_LastWorkedOn (YYYY-MM-DD_HH-MM-SS), TimeStamp_Completed (YYYY-MM-DD_HH-MM-SS), Status, Tags
+
+# TaskList_Status:
+# Active/Completed/Deleted/In-Progress
+
+$TimeLog #CSV
+# Headers:
+# TimeStamp (YYYY-MM-DD_HH-MM-SS), Date (YYYY-MM-DD), Time (HH:MM:SS AM), TimeZone (MST), Hostname, TaskList_ID, TaskList_Name, StartTime/StopTime, Pomodoro_Mode
+
+# Pomodoro_Mode:
+# Traditional - 25 min work / 5 min break
+	# Finish a task early, and enjoy the remaining 30 min as break.
+# Reverse Pomodoro - 5 min work / 25 min break
+# Custom - Choose work/ break cycle
+
+
+
+
+
 do
 {
+	
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# Build Menu
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	Clear-Host # CLS
 	Write-HorizontalRuleAdv -HRtype DashedLine
 	#Write-Host `n
 	Write-Host "  Select option:" -ForegroundColor Green
-	Write-Host "    A - [A]dd to Inbox"
-	Write-Host "    P - [P]rocess Inbox"
-	Write-Host "    U - Change [U]ser ID"
-	Write-Host "    T - Project function [T]est"
+	Write-Host "    A - [Select Task"
+	Write-Host "    A - [New Task"
+	Write-Host "    A - [Manage Tasks" # Add tags retroactively
+	Write-Host "    A - [Mark Task Complete"
+	Write-Host "    A - [Calculate Total Hours"
+	
+	Write-Host "    A - [Select Pomodoro Mode"
+	Write-Host "    A - [Start Timer"
+	
+	Write-Host "    A - [Search by Tags"
+	Write-Host "    A - [Manage Tags"
+	
+	Write-Host "    T - [T]est"
 	Write-Host "    Q - [Q]uit"
 	#Write-Host `n
 	Write-HorizontalRuleAdv -HRtype DashedLine
 	#Write-Host "Choose Pipsqueak SQL command to generate."
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# Build Choice Prompt
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	# If run from shell, will create a dialog box. If run in script, will show choice text in command line.
 	# https://social.technet.microsoft.com/wiki/contents/articles/24030.powershell-demo-prompt-for-choice.aspx
 	$Title = "Pipsqueak SQL Macro tool"
@@ -632,8 +796,14 @@ do
 	$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceAddToInbox, $ChoiceProcessInbox, $ChoiceChangeUserID, $ChoiceProject, $ChoiceQuit)
 	# default choice: 0 = first Option, 1 = second option, etc.
 	[int]$defaultchoice = 1
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# Execute Choice Prompt
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	# PromptForChoice() output will always be int https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
 	$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# Interpret answer
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	#help about_switch
 	switch ($answer)
 	{
@@ -677,7 +847,7 @@ Write-HorizontalRuleAdv -HRtype DoubleLine
 Write-Host `n
 Write-Host "End of script" $MyInvocation.MyCommand.Name
 Write-Host `n
-PAUSE
+PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 Write-Host `n
 
 #Script MAIN Execution ends here
