@@ -642,9 +642,15 @@ refreshenv
 & {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $errout | if ($_ -ne $null) {Write-host "not EXIST???"}	
 & {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $errout ; if ($_ -ne $null) {Write-host "not EXIST???"}	
 & {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if ($_ -ne $null) {Write-host "not EXIST???"} else { write-host "output $_"}	
-& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $errout	
-$errout	
+& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $errout
+Write-Host $errout
 
+
+
+PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
 # Body of SMS Text:
@@ -654,6 +660,9 @@ $BodySMS = "Hello from PowerShell
 Hello
 
 World."
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 
 
 $APIurl = "https://api.twilio.com/2010-04-01/Accounts/$sid/Messages.json"
@@ -726,6 +735,9 @@ $Response | ConvertFrom-Json
 
 PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
+# -----------------------------------------------------------------------------------------------------------------------
+
+
 
 
 
@@ -735,10 +747,10 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 $TaskList #CSV
 # Headers:
-# ID, TaskName, TimeStamp_Added (YYYY-MM-DD_HH-MM-SS), TimeStamp_LastWorkedOn (YYYY-MM-DD_HH-MM-SS), TimeStamp_Completed (YYYY-MM-DD_HH-MM-SS), Status, Tags
+# ID, TaskName, TimeStamp_Added (YYYY-MM-DD_HH-MM-SS), TimeStamp_LastWorkedOn (YYYY-MM-DD_HH-MM-SS), TimeStamp_Completed (YYYY-MM-DD_HH-MM-SS), Estimated_Time, Status, Tags
 
 # TaskList_Status:
-# Active/Completed/Deleted/In-Progress
+# Active/Completed/Deleted/In-Progress/On-Hold
 
 $TimeLog #CSV
 # Headers:
@@ -747,9 +759,13 @@ $TimeLog #CSV
 # Pomodoro_Mode:
 # Traditional - 25 min work / 5 min break
 	# Finish a task early, and enjoy the remaining 30 min as break.
+	# After 4 total hours, take a required 30min to 1 hour break.
+	# 4 hour cycle = 3 hours 20 min work / 40 min break
 # Reverse Pomodoro - 5 min work / 25 min break
 # Custom - Choose work/ break cycle
 
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
 
