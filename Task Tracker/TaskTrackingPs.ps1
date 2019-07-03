@@ -632,11 +632,11 @@ Clear-Host # CLS
 
 refreshenv
 
-& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $null	
+& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $null
 & {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $null ; Write-Host "Not Exist?"	
-& {if (refreshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $null ; Write-Host "Not Exist?"	
-& {if (refreshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if (!($_ -eq $null)) {Write-host "not EXIST???"}	
+& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $null ; Write-Host "Not Exist?"	
 & {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if (!($_ -eq $null)) {Write-host "not EXIST???"}	
+& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if (!($_ -eq $null)) {Write-host "not EXIST???"}
 & {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if ($_ -ne $null) {Write-host "not EXIST???"}	
 & {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> | if ($_ -ne $null) {Write-host "not EXIST???"}	
 & {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $errout | if ($_ -ne $null) {Write-host "not EXIST???"}	
@@ -644,6 +644,7 @@ refreshenv
 & {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if ($_ -ne $null) {Write-host "not EXIST???"} else { write-host "output $_"}	
 & {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $errout	
 $errout	
+
 
 
 # Body of SMS Text:

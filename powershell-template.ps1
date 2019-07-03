@@ -644,8 +644,10 @@ Write-Verbose "Script body."
 Write-Host `n
 Write-HorizontalRuleAdv -HRtype DashedLine
 Write-Host `n
-Write-Host "a quick way to go back in your history and run the same command again."
-Get-History | Out-GridView -PassThru | Invoke-Expression 
+Write-Host "A quick way to go back in your history and run the same command again:"
+Write-Host "Get-History | Out-GridView -PassThru | Invoke-Expression"
+PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+Get-History | Out-GridView -PassThru | Invoke-Expression
 
 Write-Host `n
 Write-HorizontalRuleAdv -HRtype DashedLine
