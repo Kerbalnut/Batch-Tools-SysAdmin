@@ -71,11 +71,12 @@ A framework for creating organized batch scripts. Also serves as a repository fo
 Index of external functions: 
 
 1. choco.exe "%_CHOCO_INSTALLED%"
-2. PSCP.EXE"%_PSCP_EXE%"
+2. PSCP.EXE "%_PSCP_EXE%"
 3. kdiff3.exe "%_KDIFF_EXE%"
-4. CompareTo-Parent.bat "%_COMPARE_FUNC%"
-5. Banner.cmd "%_BANNER_FUNC%"
-6. fossil.exe "%_FOSSIL_EXE%"
+4. gswin64c.exe (Ghostscript) "%_GSWIN64C_INSTALLED%"
+5. CompareTo-Parent.bat "%_COMPARE_FUNC%"
+6. Banner.cmd "%_BANNER_FUNC%"
+7. fossil.exe "%_FOSSIL_EXE%"
 
 Index of Main:
 
@@ -93,24 +94,29 @@ Index of functions:
 
 1. :SampleFunction
 2. :DisplayHelp
+3. :Wait
+4. :ElevateMe
+5. :GetAdmin
+6. :AddToPATH
+7. :RemoveFromPATH
 3. :GetTerminalWidth *
 4. :StrLen *
 5. :GenerateBlankSpace *
 6. :FormatTextLine *
-7. :CheckLink
-8. :GetWindowsVersion
-9. :GetIfPathIsDriveRoot
+12. :CheckLink
+13. :GetWindowsVersion
+14. :GetIfPathIsDriveRoot
 10. :CreateShortcut *
 11. :CreateSymbolicLink *
 12. :CreateSymbolicDirLink *
-13. :GetDate
-14. :ConvertTimeToSeconds
-15. :ConvertSecondsToTime
-16. :InitLogOriginal
-17. :InitLog
-18. :SplashLogoKdiff
-19. :SplashLogoMerge
-20. :SplashLogoMergeComplete
+18. :GetDate
+19. :ConvertTimeToSeconds
+20. :ConvertSecondsToTime
+21. :InitLogOriginal
+22. :InitLog
+23. :SplashLogoKdiff
+24. :SplashLogoMerge
+25. :SplashLogoMergeComplete
 
 `*` = needs further testing.
 
