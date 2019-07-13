@@ -1,15 +1,20 @@
 @ECHO OFF
 SETLOCAL
 :: CMD /K Debug-TroubleshootBatchFile.bat
-:: CMD /K Debug-TroubleshootBatchFile.bat "C:\Users\G\Documents\SpiderOak Hive\Programming\Batch\+Function Library\Functions list\functions-template.bat"
-:: CMD /K Debug-TroubleshootBatchFile.bat "C:\Users\G\Documents\SpiderOak Hive\Programming\Batch\+Function Library\Functions list\functions-template.bat" "twenty two years" "twente eight seasons"
+:: CMD /K Debug-TroubleshootBatchFile.bat "%USERPROFILE%\Documents\SpiderOak Hive\Programming\Batch\+Function Library\Functions list\functions-template.bat"
+:: CMD /K Debug-TroubleshootBatchFile.bat "%USERPROFILE%\Documents\SpiderOak Hive\Programming\Batch\+Function Library\Functions list\functions-template.bat" "Param2" "Param3"
 
-ECHO:
-ECHO Input parameters [%1] [%2] [%3]
-ECHO:
-::PAUSE
-CLS
+::Index: 
+:: 1. :RunAsAdministrator
+:: 2. :Header
+:: 3. :Parameters
+:: 4. :Main
+:: 5. :Footer
 
+REM Bugfix: Use "REM ECHO DEBUG*ING: " instead of "::ECHO DEBUG*ING: " to comment-out debugging lines, in case any are within IF statements.
+REM ECHO DEBUGGING: Begin RunAsAdministrator block.
+
+:RunAsAdministrator
 :: SS64 Run with elevated permissions script (ElevateMe.vbs)
 :: Thanks to: http://ss64.com/vb/syntax-elevate.html
 :-------------------------------------------------------------------------------
@@ -58,10 +63,15 @@ PING -n 3 127.0.0.1 > nul
 :: set the current directory to the batch file location
 ::CD /D %~dp0
 :-------------------------------------------------------------------------------
+:: End Run-As-Administrator function
+
+:Header
+::GOTO SkipHeader & REM Un-comment this line to skip Header
 CLS
+ECHO:
 ECHO Script name ^( %~nx0 ^) & REM This script's file name and extension. https://ss64.com/nt/syntax-args.html
-ECHO Working directory: %~dp0 & REM The drive letter and path of this script's location.
-REM Debugging: cannot use :: for comments within IF statement, instead use REM
+ECHO Working directory: %~dp0 & REM The drive letter and path of this script's location. NOTE: This will always return the path this script is in.
+ECHO Current directory: %CD% & REM The path of the currently selected directory. NOTE: If this script is called from another location, this will return that selected path.
 ECHO:
 
 :: Check if we are running As Admin/Elevated
@@ -70,43 +80,80 @@ IF %ERRORLEVEL% EQU 0 (
 	ECHO Elevated Permissions: YES
 ) ELSE ( 
 	ECHO Elevated Permissions: NO
+	REM -------------------------------------------------------------------------------
+	REM Bugfix: cannot use :: for comments within IF statement, instead use REM
+	REM Bugfix: cannot use ECHO( for newlines within IF statement, instead use ECHO. or ECHO: 
 )
-
 ECHO:
-ECHO -------------------------------------------------------------------------------
+ECHO Input parameters [%1] [%2] [%3] ...
+ECHO:
+::PAUSE
+::CLS
+:SkipHeader
+
+:: End Header
+
+REM -------------------------------------------------------------------------------
+
+REM ECHO DEBUGGING: Begin Parameters block.
+
+:Parameters
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+SET "_BatchPath=%~1" & REM %~1   Expand %1 removing any surrounding quotes (")
+SET "_BatchPath=.\Install-AllWindowsUpdates.bat"
+REM e.g. "%USERPROFILE%\Documents\SpiderOak Hive\Programming\Batch\+Function Library\Functions list\functions-template.bat"
+SET "_BatchPath=%USERPROFILE%\Documents\SpiderOak Hive\Programming\Batch\+Function Library\Functions list\functions-template.bat"
+REM SET "_BatchPath=%USERPROFILE%\Documents\SpiderOak Hive\SysAdmin\Flash Drive\General Flash Drive\Launch-AD_ElevatedCMD.bat"
+SET "_BatchPath=%USERPROFILE%\Documents\Hg\Resume\Portfolio Finals\Sanitize-PDF.bat"
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+:: End Parameters
+
 REM -------------------------------------------------------------------------------
 REM ===============================================================================
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:Main
 
-ECHO:
-ECHO Input parameters [%1] [%2] [%3]
+REM ECHO DEBUGGING: Beginning Main execution block.
 
-::-------------------------------------------------------------------------------
+::Index of Main:
 
-SET "_BatchPath=.\Install-AllWindowsUpdates.bat"
+::===============================================================================
+:: Phase 1: Evaluate Parameters
+:: Phase 2: Execute script
+::===============================================================================
 
-SET "InputTestScript=%~1" & REM %~1   Expand %1 removing any surrounding quotes (")
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+::===============================================================================
+:: Phase 1: Evaluate Parameters
+::===============================================================================
 
 ECHO(
-IF "%InputTestScript%"=="" (
+IF "%~1"=="" (
 	REM No input parameters were given.
 	REM Use hard-coded script location
-	REM e.g. "%USERPROFILE%\Documents\SpiderOak Hive\Programming\Batch\+Function Library\Functions list\functions-template.bat"
-	SET "DebugScript=%USERPROFILE%\Documents\SpiderOak Hive\Programming\Batch\+Function Library\Functions list\functions-template.bat"
-	REM SET "DebugScript=%USERPROFILE%\Documents\SpiderOak Hive\SysAdmin\Flash Drive\General Flash Drive\Launch-AD_ElevatedCMD.bat"
-	REM SET "DebugScript=%_BatchPath%"
+	SET "DebugScript=%_BatchPath%"
 	ECHO Script-coded locaation selected.
 	ECHO:
 ) ELSE (
 	REM Use input parameters.
-	SET "DebugScript=%InputTestScript%"
+	SET "DebugScript=%~1"
 	ECHO Commandline parameter input selected.
 	ECHO:
-	
 	REM -------------------------------------------------------------------------------
 	REM Debugging: cannot use :: for comments within IF statement, instead use REM
 	REM Debugging: cannot use ECHO( for newlines within IF statement, instead use ECHO. or ECHO: 
 )
+
+::-------------------------------------------------------------------------------
+
+::===============================================================================
+:: Phase 2: Execute script
+::===============================================================================
 
 ECHO Launching script in DEBUG mode: 
 ECHO(
@@ -136,9 +183,12 @@ ECHO ---------------------------------------------------------------------------
 
 ::-------------------------------------------------------------------------------
 
+:Footer
+:END
 ENDLOCAL
 ECHO: 
 ECHO End %~nx0
 ECHO: 
 PAUSE
-EXIT
+::GOTO :EOF
+EXIT /B & REM If you call this program from the command line and want it to return to CMD instead of closing Command Prompt, need to use EXIT /B or no EXIT command at all.

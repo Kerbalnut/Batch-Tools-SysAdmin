@@ -115,11 +115,17 @@ about_Functions_CmdletBindingAttribute
 
 # Tested with PowerShell versions:
 # 5.1
+# Get PowerShell version:
 # $PSVersionTable.PSVersion
 
 # To run from PowerShell command line:
 # https://ss64.com/ps/syntax-run.html
 # https://ss64.com/ps/call.html
+# https://ss64.com/ps/syntax-scriptblock.html
+# When passing a variable to a scriptblock it is important to consider the variable scope.
+#    Each time the scriptblock is run; it will dynamically read the current value of the variable.
+#    When a scriptblock is run using the “&” (call) operator, updates to a variable are not reflected in the parent scope.
+#    When a scriptblock is run using the “.” (dot) operator, updates to a variable apply to the current scope.
 # help about_Scripts
 # & "C:\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.ps1"
 # & "C:\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.ps1" -Verbose -Debug
@@ -182,9 +188,13 @@ Write-Verbose "$ScriptName"
 Write-Verbose `r`n # New line (carriage return and newline (CRLF), `r`n)
 
 # Script dir (home directory of script)
+Write-Verbose "Script home directory:"
 #https://stackoverflow.com/questions/801967/how-can-i-find-the-source-path-of-an-executing-script/6985381#6985381
 $ScriptDir = Split-Path $script:MyInvocation.MyCommand.Path
-Write-Verbose "Script home directory:"
+Write-Verbose "$ScriptDir"
+$ScriptDir = Split-Path -parent $MyInvocation.MyCommand.Definition # PoSh v2 compatible - thanks to https://stackoverflow.com/questions/5466329/whats-the-best-way-to-determine-the-location-of-the-current-powershell-script
+Write-Verbose "$ScriptDir"
+$ScriptDir = $PSScriptRoot # PoSh v3 compatible - This is an automatic variable set to the current file's/module's directory
 Write-Verbose "$ScriptDir"
 Write-Verbose `r`n # New line (carriage return and newline (CRLF), `r`n)
 
@@ -229,17 +239,15 @@ $MinimumRequiredVersion = 6
 # https://ss64.com/ps/get-host.html
 # https://stackoverflow.com/questions/1825585/determine-installed-powershell-version
 $PoShVersion = $PSVersionTable.PSVersion
+Write-Verbose "Minimum required PowerShell version = $MinimumRequiredVersion"
+Write-Verbose "Current PowerShell version = $($PSVersionTable.PSVersion.Major).$($PSVersionTable.PSVersion.Minor)"
 # https://ss64.com/ps/if.html
 IF ($PSVersionTable.PSVersion.Major -lt $MinimumRequiredVersion) {
     Write-Warning "This script requires at least PowerShell version $MinimumRequiredVersion. Running version $PoShVersion"
+	Write-Debug "This script requires at least PowerShell version $MinimumRequiredVersion. Running version $PoShVersion"
 }
-Write-Verbose "Minimum required PowerShell version = $MinimumRequiredVersion"
-Write-Host "Current PowerShell version =" $PSVersionTable.PSVersion.Major . $PSVersionTable.PSVersion.Minor
-Write-Host "Current PowerShell version =" $PSVersionTable.PSVersion.Major`.$PSVersionTable.PSVersion.Minor
-#Write-Host "Current PowerShell version = $PSVersionTable.PSVersion.Major . $PSVersionTable.PSVersion.Minor"
-Write-Host "Current PowerShell version =" $PSVersionTable.PSVersion.Major `b. `b$PSVersionTable.PSVersion.Minor
-Write-Host "Current PowerShell version =" $PSVersionTable.PSVersion.Major `b. `b "$PSVersionTable.PSVersion.Minor"
-Write-Host "Current PowerShell version =" $PSVersionTable.PSVersion.Major `b. `b"$PSVersionTable.PSVersion.Minor"
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #-----------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------[Modules]-------------------------------------------------------
@@ -260,11 +268,7 @@ Write-Verbose "Module import complete..."
 $sScriptVersion = '1.0'
 
 #Log File Info
-$scriptPath = Split-Path -parent $MyInvocation.MyCommand.Definition # PoSh v2 compatible - thanks to https://stackoverflow.com/questions/5466329/whats-the-best-way-to-determine-the-location-of-the-current-powershell-script
-Write-Verbose "scriptPath = $scriptPath"
-Write-Verbose "scriptPath = $PSScriptRoot" # PoSh v3 compatible - This is an automatic variable set to the current file's/module's directory
-$sLogPath = $scriptPath
-$sLogPath = $PSScriptRoot
+$sLogPath = $ScriptDir
 $yesterday = [DateTime]::Today.AddDays(-1)
 $TodaysDate = Get-Date -Format FileDate
 Write-Verbose "Date code = $TodaysDate"
@@ -547,8 +551,10 @@ If (!($sLogPath)) { Start-Log -LogPath $sLogPath -LogName $sLogName -ScriptVersi
 # Write-Output - I just need to display some text! Do you really? PowerShell works better with objects, and that's what your script should be outputting, by means of Write-Output. Let PowerShell's Format cmdlets turn those objects into text like lists and tables.
 # Write-Progress - Makes a green and yellow progress bar appear at the top part of the command window.
 
+#Write-Host "Script Main beginning." $MyInvocation.MyCommand.Name
 Write-Host "Script Main beginning." $MyInvocation.MyCommand.Name
 Write-Information -MessageData "Will only display if set defaults display infromational messages."
+#Write-Information -MessageData "Test infromational messages." -InformationAction Continue
 Write-Information -MessageData "Test infromational messages." -InformationAction Continue
 Write-Verbose "Script Main beginning. $ScriptName"
 Write-Verbose "Debug preference = $DebugPreference"
@@ -561,6 +567,10 @@ For ($I = 1; $I -le 100; $I++) {Write-Progress -Activity "Test in progress..." -
 # Write-LogInfo – Writes an informational message to the log file
 # Write-LogWarning – Writes a warning message to the log file (with the format of WARNING: )
 # Write-LogError – Writes an error message to the log file (with the format of ERROR: ). In addition, optionally calls Stop-Log to end logging and terminate the calling script on fatal error.
+
+Write-LogInfo -LogPath $sLogFile -Message "-----------------------------------------------------------------------------------------------------------------------"
+Write-LogInfo -LogPath $sLogFile -Message "[TIMESTAMP]: $($Time)"
+
 
 Write-LogInfo -LogPath $sLogFile -Message "Test log info write."
 Write-LogWarning -LogPath $sLogFile -Message "Test log warning write."
@@ -1022,7 +1032,7 @@ Write-HorizontalRuleAdv -HRtype DoubleLine
 Write-Host `n
 Write-Host "End of script" $MyInvocation.MyCommand.Name
 Write-Host `n
-PAUSE
+PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 Write-Host `n
 
 #Script MAIN Execution ends here
@@ -1041,3 +1051,4 @@ Write-Debug "End-of-script. $ScriptName"
 Write-LogInfo -LogPath $sLogFile -Message "End of script $ScriptName"
 Stop-Log -LogPath $sLogFile
 Write-Output $sLogFile
+Return

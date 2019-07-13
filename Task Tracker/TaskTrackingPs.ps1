@@ -115,6 +115,7 @@ about_Functions_CmdletBindingAttribute
 
 # Tested with PowerShell versions:
 # 5.1
+# Get PowerShell version:
 # $PSVersionTable.PSVersion
 
 # To run from PowerShell command line:
@@ -192,9 +193,13 @@ Write-Verbose "$ScriptName"
 Write-Verbose `r`n # New line (carriage return and newline (CRLF), `r`n)
 
 # Script dir (home directory of script)
+Write-Verbose "Script home directory:"
 #https://stackoverflow.com/questions/801967/how-can-i-find-the-source-path-of-an-executing-script/6985381#6985381
 $ScriptDir = Split-Path $script:MyInvocation.MyCommand.Path
-Write-Verbose "Script home directory:"
+Write-Verbose "$ScriptDir"
+$ScriptDir = Split-Path -parent $MyInvocation.MyCommand.Definition # PoSh v2 compatible - thanks to https://stackoverflow.com/questions/5466329/whats-the-best-way-to-determine-the-location-of-the-current-powershell-script
+Write-Verbose "$ScriptDir"
+$ScriptDir = $PSScriptRoot # PoSh v3 compatible - This is an automatic variable set to the current file's/module's directory
 Write-Verbose "$ScriptDir"
 Write-Verbose `r`n # New line (carriage return and newline (CRLF), `r`n)
 
@@ -205,9 +210,9 @@ Write-Verbose "$ScriptPath"
 Write-Verbose `r`n # New line (carriage return and newline (CRLF), `r`n)
 
 #Set Error Action to Silently Continue
-$ErrorActionPreference = 'SilentlyContinue'
+#$ErrorActionPreference = 'SilentlyContinue'
 #Set Error Action to Continue
-$ErrorActionPreference = 'Continue'
+#$ErrorActionPreference = 'Continue'
 
 #Set Verbose message display
 #$VerbosePreference = "SilentlyContinue"
@@ -239,17 +244,13 @@ $MinimumRequiredVersion = 6
 # https://ss64.com/ps/get-host.html
 # https://stackoverflow.com/questions/1825585/determine-installed-powershell-version
 $PoShVersion = $PSVersionTable.PSVersion
+Write-Verbose "Minimum required PowerShell version = $MinimumRequiredVersion"
+Write-Verbose "Current PowerShell version = $($PSVersionTable.PSVersion.Major).$($PSVersionTable.PSVersion.Minor)"
 # https://ss64.com/ps/if.html
 IF ($PSVersionTable.PSVersion.Major -lt $MinimumRequiredVersion) {
     Write-Warning "This script requires at least PowerShell version $MinimumRequiredVersion. Running version $PoShVersion"
+	Write-Debug "This script requires at least PowerShell version $MinimumRequiredVersion. Running version $PoShVersion"
 }
-Write-Verbose "Minimum required PowerShell version = $MinimumRequiredVersion"
-Write-Host "Current PowerShell version =" $PSVersionTable.PSVersion.Major . $PSVersionTable.PSVersion.Minor
-Write-Host "Current PowerShell version =" $PSVersionTable.PSVersion.Major`.$PSVersionTable.PSVersion.Minor
-#Write-Host "Current PowerShell version = $PSVersionTable.PSVersion.Major . $PSVersionTable.PSVersion.Minor"
-Write-Host "Current PowerShell version =" $PSVersionTable.PSVersion.Major `b. `b$PSVersionTable.PSVersion.Minor
-Write-Host "Current PowerShell version =" $PSVersionTable.PSVersion.Major `b. `b "$PSVersionTable.PSVersion.Minor"
-Write-Host "Current PowerShell version =" $PSVersionTable.PSVersion.Major `b. `b"$PSVersionTable.PSVersion.Minor"
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -286,11 +287,7 @@ Write-Verbose "Module import complete..."
 $sScriptVersion = '1.0'
 
 #Log File Info
-$scriptPath = Split-Path -parent $MyInvocation.MyCommand.Definition # PoSh v2 compatible - thanks to https://stackoverflow.com/questions/5466329/whats-the-best-way-to-determine-the-location-of-the-current-powershell-script
-Write-Verbose "scriptPath = $scriptPath"
-Write-Verbose "scriptPath = $PSScriptRoot" # PoSh v3 compatible - This is an automatic variable set to the current file's/module's directory
-$sLogPath = $scriptPath
-$sLogPath = $PSScriptRoot
+$sLogPath = $ScriptDir
 $yesterday = [DateTime]::Today.AddDays(-1)
 $TodaysDate = Get-Date -Format FileDate
 Write-Verbose "Date code = $TodaysDate"
@@ -551,6 +548,49 @@ Function Write-HorizontalRuleAdv {
 } # End Write-HorizontalRuleAdv function -------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
+
+function Read-Choice { # https://www.zerrouki.com/powershell-menus-host-ui-promptforchoice-defined-or-dynamic/
+	Param(
+		[System.String]$Message,
+		
+		[Parameter(Mandatory = $true)]
+		[ValidateNotNullOrEmpty()]
+		[System.String[]]$Choices,
+		
+		[System.Int32]$DefaultChoice = 1,
+		
+		[System.String]$Title = [string]::Empty
+	)
+	[System.Management.Automation.Host.ChoiceDescription[]]$Poss = $Choices | ForEach-Object {
+		New-Object System.Management.Automation.Host.ChoiceDescription "&$($_)", "Sets $_ as an answer."
+	}
+	$Host.UI.PromptForChoice( $Title, $Message, $Poss, $DefaultChoice )
+} # End Read-Choice function -------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+Function Select-IPAddress { # https://www.zerrouki.com/powershell-menus-host-ui-promptforchoice-defined-or-dynamic/
+	[cmdletbinding()]
+	Param(
+		[System.String]$ComputerName = 'localhost'
+	)
+	$IPs = Get-WmiObject -ComputerName $ComputerName -Class Win32_NetworkAdapterConfiguration -Filter "IPEnabled='True'" | ForEach-Object {
+		$_.IPAddress
+	} | Where-Object {
+		$_ -match "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
+	}
+	#Write-Log $IPs
+	Write-Host $IPs
+	Write-LogInfo -LogPath $sLogFile -Message "$IPs"
+	if($IPs -is [array]){
+		Write-Host "`nServer $ComputerName uses those IP addresses:`n"
+		$IPs | ForEach-Object { $Id = 0 } { Write-Host "$Id : $_"; $Id++ }
+		$IPs[(Read-Choice -Message "`nChoose IPAddress" -Choices (0..($ID-1)) -DefaultChoice 0)]
+	}else{
+		$IPs
+	}
+} # End Select-IPAddress function --------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
 If ($LoadFunctions) {
   #https://stackoverflow.com/questions/2022326/terminating-a-script-in-powershell
   # Only load functions of script. Do not execute Main script block.
@@ -573,12 +613,12 @@ If (!($sLogPath)) { Start-Log -LogPath $sLogPath -LogName $sLogName -ScriptVersi
 # Write-Output - I just need to display some text! Do you really? PowerShell works better with objects, and that's what your script should be outputting, by means of Write-Output. Let PowerShell's Format cmdlets turn those objects into text like lists and tables.
 # Write-Progress - Makes a green and yellow progress bar appear at the top part of the command window.
 
-Write-Host "Script Main beginning." $MyInvocation.MyCommand.Name
+#Write-Host "Script Main beginning." $MyInvocation.MyCommand.Name
 Write-Information -MessageData "Will only display if set defaults display infromational messages."
-Write-Information -MessageData "Test infromational messages." -InformationAction Continue
+#Write-Information -MessageData "Test infromational messages." -InformationAction Continue
 Write-Verbose "Script Main beginning. $ScriptName"
 Write-Verbose "Debug preference = $DebugPreference"
-Write-Debug "Script Main beginning." # NOTE: Writing debug text will PAUSE script execution automatically.
+#Write-Debug "Script Main beginning." # NOTE: Writing debug text will PAUSE script execution automatically.
 #Write-Warning "Test Warning."
 #Write-Error -Message "TEST ERROR. TEST ERROR. TEST ERROR. TEST ERROR." -Category InvalidData -ErrorId TEST_ID
 #For ($I = 1; $I -le 100; $I++) {Write-Progress -Activity "Test in progress..." -Status "$I% Complete:" -PercentComplete $I;}
@@ -589,7 +629,7 @@ Write-Debug "Script Main beginning." # NOTE: Writing debug text will PAUSE scrip
 # Write-LogError – Writes an error message to the log file (with the format of ERROR: ). In addition, optionally calls Stop-Log to end logging and terminate the calling script on fatal error.
 
 Write-LogInfo -LogPath $sLogFile -Message "-----------------------------------------------------------------------------------------------------------------------"
-Write-LogInfo -LogPath $sLogFile -Message "[TIMESTAMP]"
+Write-LogInfo -LogPath $sLogFile -Message "[TIMESTAMP]: $($Time)"
 
 
 Write-LogInfo -LogPath $sLogFile -Message "Test log info write."
@@ -610,11 +650,17 @@ Write-LogError -LogPath $sLogFile -Message "Test log error write."
 #
 #
 ##Script MAIN Execution goes here
-Clear-Host # CLS
+#Clear-Host # CLS
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+Write-Verbose "Test modular choice functions."
+Select-IPAddress
+Write-Verbose "End modular choice function test."
 
+PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # Export System Environment Variables
 #[Environment]::SetEnvironmentVariable("TWILIO_ACCOUNT_SID", "your_account_sid", "User")
@@ -635,15 +681,15 @@ refreshenv
 & {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $null
 & {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $null ; Write-Host "Not Exist?"	
 & {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $null ; Write-Host "Not Exist?"	
-& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if (!($_ -eq $null)) {Write-host "not EXIST???"}	
-& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if (!($_ -eq $null)) {Write-host "not EXIST???"}
-& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if ($_ -ne $null) {Write-host "not EXIST???"}	
-& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> | if ($_ -ne $null) {Write-host "not EXIST???"}	
-& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $errout | if ($_ -ne $null) {Write-host "not EXIST???"}	
-& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $errout ; if ($_ -ne $null) {Write-host "not EXIST???"}	
-& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if ($_ -ne $null) {Write-host "not EXIST???"} else { write-host "output $_"}	
-& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $errout
-Write-Host $errout
+#& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if (!($_ -eq $null)) {Write-host "not EXIST???"}	
+#& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if (!($_ -eq $null)) {Write-host "not EXIST???"}
+#& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if ($_ -ne $null) {Write-host "not EXIST???"}	
+
+#& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $errout | if ($_ -ne $null) {Write-host "not EXIST???"}	
+#& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $errout ; if ($_ -ne $null) {Write-host "not EXIST???"}	
+#& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if ($_ -ne $null) {Write-host "not EXIST???"} else { write-host "output $_"}	
+#& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $errout
+#Write-Host $errout
 
 
 
@@ -690,21 +736,21 @@ $credential = New-Object System.Management.Automation.PSCredential($sid, $p)
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 # Make API request, selecting JSON properties from response
-Invoke-WebRequest $url -Method Post -Credential $credential -Body $params -UseBasicParsing |
-ConvertFrom-Json | Select sid, body
+#Invoke-WebRequest $url -Method Post -Credential $credential -Body $params -UseBasicParsing |
+#ConvertFrom-Json | Select sid, body
 
 
 
-$Response = Invoke-WebRequest $url -Method Post -Credential $credential -Body $params -UseBasicParsing
+#$Response = Invoke-WebRequest $url -Method Post -Credential $credential -Body $params -UseBasicParsing
 
 # Invoke-RestMethod
 
-Write-Host $Response
+#Write-Host $Response
 
-$Response | ConvertFrom-Json
+#$Response | ConvertFrom-Json
 
 
-# 
+<# 
 {"sid": "SM7582c4576cbd49669fe0409bbc54a69c", 
 "date_created": "Mon, 01 Jul 2019 09:47:51 +0000", 
 "date_updated": "Mon, 01 Jul 2019 09:47:51 +0000", 
@@ -726,7 +772,7 @@ $Response | ConvertFrom-Json
 "error_message": null, 
 "uri": "/2010-04-01/Accounts/AC233dffdc2d0f89ca6843bc2186f6cb84/Messages/SM7582c4576cbd49669fe0409bbc54a69c.json", 
 "subresource_uris": {"media": "/2010-04-01/Accounts/AC233dffdc2d0f89ca6843bc2186f6cb84/Messages/SM7582c4576cbd49669fe0409bbc54a69c/Media.json"}}
-
+#>
 
 
 
@@ -742,30 +788,60 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 
 
-# Tags: 
-# Resume;Printer;
-
 $TaskList #CSV
 # Headers:
 # ID, TaskName, TimeStamp_Added (YYYY-MM-DD_HH-MM-SS), TimeStamp_LastWorkedOn (YYYY-MM-DD_HH-MM-SS), TimeStamp_Completed (YYYY-MM-DD_HH-MM-SS), Estimated_Time, Status, Tags
 
+# Tags: (Tag1;Tag2;LastTag)
+# Resume;Printer;Email
+
 # TaskList_Status:
-# Active/Completed/Deleted/In-Progress/On-Hold
+# Active
+# Completed
+# Deleted
+# In-Progress
+# On-Hold
 
 $TimeLog #CSV
 # Headers:
-# TimeStamp (YYYY-MM-DD_HH-MM-SS), Date (YYYY-MM-DD), Time (HH:MM:SS AM), TimeZone (MST), Hostname, TaskList_ID, TaskList_Name, StartTime/StopTime, Pomodoro_Mode
+# TimeStamp (YYYY-MM-DD_HH-MM-SS), Date (YYYY-MM-DD), Time (HH:MM:SS AM), TimeZone (MST), Hostname, TaskList_ID, TaskList_Name, TimeLog_Type, Pomodoro_Mode
+
+# TimeLog_Type:
+# WorkStart
+# TimeStart
+# TimeStop
+# DistractionTimeStamp
+# PAUSE
+# UN-PAUSE
+# WorkStop
 
 # Pomodoro_Mode:
-# Traditional - 25 min work / 5 min break
+# Pomodoro - 25 min work / 5 min break ( 4 hour cycle = 3 hours 20 min work / 40 min break )
 	# Finish a task early, and enjoy the remaining 30 min as break.
-	# After 4 total hours, take a required 30min to 1 hour break.
-	# 4 hour cycle = 3 hours 20 min work / 40 min break
+	# After 4 total hours, take a required 30min - 1 hour break.
+	# Log distractions when you get sidetracked, but they do not affect anything.
+	# PAUSE only when you have 
+# Easy Pomodoro - 15 min work / 5 min break ( 4 hour cycle = 3 hours work / 1 hour break )
 # Reverse Pomodoro - 5 min work / 25 min break
+# Traditional - Use PAUSE to take breaks
 # Custom - Choose work/ break cycle
 
 
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+If ($TaskList) {
+	Write-Host "Task list already exists?"
+} else {
+	Write-Host "Task list does not exist."
+}
+
+If ($TimeLog) {
+	Write-Host "Time log already exists?"
+} else {
+	Write-Host "Time log does not exist."
+}
+PAUSE
 
 
 
@@ -780,19 +856,31 @@ do
 	Write-HorizontalRuleAdv -HRtype DashedLine
 	#Write-Host `n
 	Write-Host "  Select option:" -ForegroundColor Green
-	Write-Host "    A - [Select Task"
-	Write-Host "    A - [New Task"
-	Write-Host "    A - [Manage Tasks" # Add tags retroactively
-	Write-Host "    A - [Mark Task Complete"
-	Write-Host "    A - [Calculate Total Hours"
 	
-	Write-Host "    A - [Select Pomodoro Mode"
-	Write-Host "    A - [Start Timer"
+	If ($TaskList) {
+	Write-Host "    T - Select [T]ask"
+	}
 	
-	Write-Host "    A - [Search by Tags"
-	Write-Host "    A - [Manage Tags"
+	Write-Host "    N - [N]ew Task"
 	
-	Write-Host "    T - [T]est"
+	If ($TaskList) {
+	Write-Host "    M - [M]anage Tasks" # Add tags retroactively
+	Write-Host "    C - Mark Task [C]omplete"
+	}
+	
+	If ($TimeLog) {
+	Write-Host "    H - Calculate Total [H]ours"
+	}
+	
+	Write-Host "    S - [S]tart Timer"
+	
+	Write-Host "    P - Select [P]omodoro Mode"
+	
+	#Write-Host "    F - [F]ilter by Tags"
+	
+	#Write-Host "    A - Manage Tags"
+	
+	Write-Host "    1 - Test 1"
 	Write-Host "    Q - [Q]uit"
 	#Write-Host `n
 	Write-HorizontalRuleAdv -HRtype DashedLine
@@ -802,15 +890,20 @@ do
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	# If run from shell, will create a dialog box. If run in script, will show choice text in command line.
 	# https://social.technet.microsoft.com/wiki/contents/articles/24030.powershell-demo-prompt-for-choice.aspx
-	$Title = "Pipsqueak SQL Macro tool"
-	$Info = "Choose Pipsqueak SQL command to generate."
+	$Title = "Main Menu"
+	$Info = "Choose next action."
 	# &Power makes P a Hot Key. 
-	$ChoiceAddToInbox = New-Object System.Management.Automation.Host.ChoiceDescription "&Add to Inbox", "[A]dd to new item to Inbox."
-	$ChoiceProcessInbox = New-Object System.Management.Automation.Host.ChoiceDescription "&Process Inbox", "Go to [P]rocessing Inbox Menu"
-	$ChoiceChangeUserID = New-Object System.Management.Automation.Host.ChoiceDescription "Change &User ID", "Change the selected [U]ser ID. Currently selected: $SelectedUserID"
-	$ChoiceProject = New-Object System.Management.Automation.Host.ChoiceDescription "Project &Test", "[T]est `"Process from Inbox to Projects list`" function."
+	
+	$ChoiceSelectTask = New-Object System.Management.Automation.Host.ChoiceDescription "Select &Task", "Select a [T]ask from the Task list: $TaskList"
+	$ChoiceNewTask = New-Object System.Management.Automation.Host.ChoiceDescription "&New Task", "Create a [N]ew task, and automatically select it."
+	
+	$ChoiceStartTimer = New-Object System.Management.Automation.Host.ChoiceDescription "&Start Timer", "[S]tart timer using selected Pomodoro Mode and add to Time log: $TimeLog"
+	$ChoiceSelectPomodoroMode = New-Object System.Management.Automation.Host.ChoiceDescription "&Pomodoro Mode", "Select [P]omodoro Mode."
+	
+	$ChoiceTest = New-Object System.Management.Automation.Host.ChoiceDescription "&1 Test", "[T]est option."
 	$ChoiceQuit = New-Object System.Management.Automation.Host.ChoiceDescription "&Quit", "[Q]uit, prints `"Good Bye!!!`" in green and exits."
-	$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceAddToInbox, $ChoiceProcessInbox, $ChoiceChangeUserID, $ChoiceProject, $ChoiceQuit)
+	
+	$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceSelectTask, $ChoiceNewTask, $ChoiceStartTimer, $ChoiceSelectPomodoroMode, $ChoiceTest, $ChoiceQuit)
 	# default choice: 0 = first Option, 1 = second option, etc.
 	[int]$defaultchoice = 1
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -822,34 +915,53 @@ do
 	# Interpret answer
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	#help about_switch
+	Write-Verbose "Answer = $answer"
 	switch ($answer)
 	{
-		0 { # Add to Inbox - $ChoiceAddToInbox
-			#GenerateSQL-AddToInbox -UserID $SelectedUserID
-			$RecentlyAddedInboxItem = GenerateSQL-AddToInbox -UserID $SelectedUserID
+		'T' { # Select Task - $ChoiceSelectTask
+		
+			Write-Host `n
+			Write-Host "Select Task."
+			Write-HorizontalRuleAdv -HRtype DashedLine
+			#PAUSE
+		}
+		'N' { # New Task - $ChoiceNewTask
 			
 			Write-Host `n
-			Write-Host "End Add to Inbox SQL function."
+			Write-Host "New Task."
 			Write-HorizontalRuleAdv -HRtype DashedLine
-			PAUSE
+			#PAUSE
 		}
-		1 { # Process as Project test - $ChoiceProject
-			GenerateSQL-InboxProcessingProject -UserID $SelectedUserID -SelectedInboxID 10 -NewProjectName "Test new name" -NewProjectDescription "Description new test."
-			#GenerateSQL-InboxProcessingProject -UserID $SelectedUserID -SelectedInboxID 10 -NewProjectName "Test new name" -NewProjectDescription "Description new test." -Debug
+		'S' { # Start Timer - $ChoiceStartTimer
 			
 			Write-Host `n
-			Write-Host "End Process Inbox item to Project SQL function test."
+			Write-Host "Start Timer."
 			Write-HorizontalRuleAdv -HRtype DashedLine
-			PAUSE
+			#PAUSE
 		}
-		2 { # Quit - $ChoiceQuit
+		'P' { # Select Pomodoro Mode - $ChoiceSelectPomodoroMode
+			
+			Write-Host `n
+			Write-Host "Select Pomodoro Mode."
+			Write-HorizontalRuleAdv -HRtype DashedLine
+			#PAUSE
+		}
+		1 { # Test #1 - $ChoiceTest
+			
+			Write-Host `n
+			Write-Host "Test #1."
+			Write-HorizontalRuleAdv -HRtype DashedLine
+			#PAUSE
+		}
+		'Q' { # Quit - $ChoiceQuit
 			Write-Host "Good Bye!!!" -ForegroundColor Green
 			Return
 		}
 	}
-    #PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+	Write-Verbose "End of switch choice cycle."
+    PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 }
-until ($answer -eq '2') 
+until ($answer -eq 'Q') 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -883,3 +995,4 @@ Write-Debug "End-of-script. $ScriptName"
 Write-LogInfo -LogPath $sLogFile -Message "End of script $ScriptName"
 Stop-Log -LogPath $sLogFile
 Write-Output $sLogFile
+Return

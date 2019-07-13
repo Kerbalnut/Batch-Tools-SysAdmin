@@ -121,6 +121,8 @@ SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-temp
 
 ::SET "_FILE_A=\\gammafox\C$\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.ps1"
 
+SET "_FILE_A=%UserProfile%\Documents\Resume\2 - Resume\Resume SPEC.txt"
+
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :: Param2 = File B
@@ -140,6 +142,8 @@ SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-temp
 SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-template.ps1"
 
 SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Task Tracker\TaskTrackingPs.ps1"
+
+SET "_FILE_B=%UserProfile%\Documents\Resume\2 - Resume\Resume_Text.txt"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
