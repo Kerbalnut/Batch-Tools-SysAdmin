@@ -156,12 +156,16 @@ REM ECHO DEBUGGING: Begin ExternalFunctions block.
 
 ::choco.exe
 :-------------------------------------------------------------------------------
-::IF /I "%_CHOCO_INSTALLED%"=="YES" choco upgrade javaruntime -y
+:: Outputs:
+:: "%_CHOCO_INSTALLED%" = "YES" or "NO"
+:: Example:
+::IF /I "%_CHOCO_INSTALLED%"=="YES" choco upgrade javaruntime jre8 -y
 ::-------------------------------------------------------------------------------
-::SET "_CHOCO_INSTALLED=YES"
+:: Parameters
+::SET "_QUIET_ERRORS=NO"
+SET "_QUIET_ERRORS=YES"
+::-------------------------------------------------------------------------------
 SET "_CHOCO_INSTALLED=NO"
-SET "_QUIET_ERRORS=NO"
-::SET "_QUIET_ERRORS=YES"
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Test: check if fake "choc" command fails. Redirect all text & error output to NULL (supress all output)
 ::choc /? >nul 2>&1 && ECHO "Choc" command exists?^!?^!
@@ -329,17 +333,23 @@ IF /I NOT EXIST "%_KDIFF_EXE%" (
 
 ::gswin64c.exe (Ghostscript)
 :-------------------------------------------------------------------------------
+:: Outputs:
+:: "%_GSWIN64C_INSTALLED%" = "YES" or "NO"
+:: Example:
 ::IF /I "%_GSWIN64C_INSTALLED%"=="YES" gswin64c
+:: Dependencies:
+:: choco.exe "%_CHOCO_INSTALLED%"
+:: :ElevateMe
 ::-------------------------------------------------------------------------------
 ::GOTO GSWIN64C_SKIP
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Parameters
-SET "_GSWIN64C_INSTALLED=NO"
 SET "_QUIET_ERRORS=NO"
 ::SET "_QUIET_ERRORS=YES"
 SET "_CHOCO_PKG=Ghostscript"
 SET "_AFTER_ADMIN_ELEVATION=%Temp%\temp-gswin64c-function.txt"
-::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+::-------------------------------------------------------------------------------
+SET "_GSWIN64C_INSTALLED=NO"
 REM Bugfix: Check if we have admin rights right now (even tho we may not need them), so that later functions can check the result without requiring EnableDelayedExpansion to be enabled.
 REM ECHO DEBUGGING: _GOT_ADMIN = '%_GOT_ADMIN%'
 ::https://stackoverflow.com/questions/4051883/batch-script-how-to-check-for-admin-rights
@@ -357,7 +367,7 @@ IF EXIST "%_AFTER_ADMIN_ELEVATION%" DEL /F /Q "%_AFTER_ADMIN_ELEVATION%" & REM D
 REM ECHO DEBUGGING: _CHOICES_BEFORE_ELEVATION = '%_CHOICES_BEFORE_ELEVATION%'
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Check if a Chocolatey Install was requested.
-IF /I "%_CHOICES_BEFORE_ELEVATION%"=="ChocoInstallGhostscript" (
+IF /I "%_CHOICES_BEFORE_ELEVATION%"=="ChocoInstall%_CHOCO_PKG%" (
 	REM Check if we have admin rights
 	IF "%_GOT_ADMIN%"=="YES" (
 		GOTO gswin64c_install
@@ -395,7 +405,7 @@ IF /I NOT "%_CHOCO_CMD_RESULT%"=="SUCCESS" (
 	ECHO %_CHOCO_PKG% install complete, refreshing environment variables...
 	PAUSE
 	refreshenv
-	ECHO Refresh complete^!
+	ECHO Refresh complete^^!
 	REM ECHO DEBUGGING: Continue on with rest of script from here...
 	PAUSE
 	REM GOTO GSWIN64C_SKIP
@@ -460,7 +470,7 @@ IF /I NOT "%_GSWIN64C_INSTALLED%"=="YES" (
 			ECHO Refreshing environment variables...
 			PAUSE
 			refreshenv
-			ECHO Refresh complete^!
+			ECHO Refresh complete^^!
 			REM ECHO DEBUGGING: Continue on with rest of script from here...
 			PAUSE
 			REM GOTO GSWIN64C_SKIP
@@ -506,7 +516,7 @@ IF /I NOT "%_GSWIN64C_INSTALLED%"=="YES" (
 			ECHO Refreshing environment variables...
 			PAUSE
 			refreshenv
-			ECHO Refresh complete^!
+			ECHO Refresh complete^^!
 			REM ECHO DEBUGGING: Continue on with rest of script from here...
 			PAUSE
 			REM GOTO GSWIN64C_SKIP
@@ -549,13 +559,13 @@ IF /I "%_GSWIN64C_INSTALLED%"=="NO" (
 			REM Bugfix: cannot use ECHO( for newlines within IF statement, instead use ECHO. or ECHO: 
 			REM ECHO -------------------------------------------------------------------------------
 			ECHO:
-			ECHO ChocoInstallGhostscript> "%_AFTER_ADMIN_ELEVATION%"
+			ECHO ChocoInstall%_CHOCO_PKG%> "%_AFTER_ADMIN_ELEVATION%"
 			REM PAUSE
 			GOTO ElevateMe
 		)
 	) ELSE (
 		REM Chocolatey is not installed.
-		ECHO Is Ghostscript installed? ^(contains gswin64c^)
+		ECHO Is %_CHOCO_PKG% installed? ^(contains gswin64c^)
 		ECHO:
 		ECHO This software can be installed via chocolatey:
 		ECHO:
@@ -819,14 +829,6 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 :: Phase 1: Evaluate Parameters
 ::===============================================================================
 
-:: Always prefer parameters passed via command line over hard-coded vars.
-SET "_CALLED_FROM_SCRIPT=DISABLED"
-IF NOT "%~1"=="" (
-	SET "_CALLED_FROM_SCRIPT=ACTIVE"
-)
-
-::IF /I NOT "%_CALLED_FROM_SCRIPT%"=="ACTIVE" CLS
-
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :: Activate help function
@@ -870,6 +872,16 @@ IF NOT "%~1"=="" (
 )
 
 REM ECHO DEBUGGING: Finished help evaluation.
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+:: Always prefer parameters passed via command line over hard-coded vars.
+SET "_CALLED_FROM_SCRIPT=DISABLED"
+IF NOT "%~1"=="" (
+	SET "_CALLED_FROM_SCRIPT=ACTIVE"
+)
+
+::IF /I NOT "%_CALLED_FROM_SCRIPT%"=="ACTIVE" CLS
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1868,7 +1880,7 @@ ECHO Set UAC = CreateObject^("Shell.Application"^) > "%Temp%\~ElevateMe.vbs"
 ::ECHO UAC.ShellExecute "CMD", "/C ""%_CMD_RUN%""", "", "RUNAS", 1 >> "%Temp%\~ElevateMe.vbs"
 ECHO UAC.ShellExecute "CMD", "/K ""%_CMD_RUN%""", "", "RUNAS", 1 >> "%Temp%\~ElevateMe.vbs"
 ::ECHO UAC.ShellExecute "CMD", "/K ""%_batchFile% %_Args%""", "", "RUNAS", 1 >> "%temp%\~ElevateMe.vbs"
-
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 cscript "%Temp%\~ElevateMe.vbs" 
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 EXIT /B
@@ -1896,7 +1908,7 @@ SETLOCAL
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 SET "_PATH_TO_ADD=%~1"
 IF "%_PATH_TO_ADD%"=="" (
-	ECHO ERROR in AddToPATH^! No path to add supplied.
+	ECHO ERROR in AddToPATH^^! No path to add supplied.
 	ECHO:
 	PAUSE
 	ENDLOCAL
@@ -1910,7 +1922,7 @@ FOR /F "tokens=* delims=;" %%G IN ("%PATH%") DO (
 		SET "_CONTAINS=YES"
 	)
 )
-ECHO DEBUGGING: Does PATH conatin "%_PATH_TO_ADD%"? = %_CONTAINS%
+REM ECHO DEBUGGING: Does PATH conatin "%_PATH_TO_ADD%"? = %_CONTAINS%
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Add to PATH
 IF /I "%_CONTAINS%"=="NO" SETX PATH "%PATH%;%_PATH_TO_ADD%"
@@ -1926,7 +1938,7 @@ SETLOCAL
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 SET "_PATH_TO_REMOVE=%~1"
 IF "%_PATH_TO_REMOVE%"=="" (
-	ECHO ERROR in RemoveFromPATH^! No path to remove supplied.
+	ECHO ERROR in RemoveFromPATH^^! No path to remove supplied.
 	ECHO:
 	PAUSE
 	ENDLOCAL
