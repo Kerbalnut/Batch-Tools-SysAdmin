@@ -84,6 +84,7 @@ IF %ERRORLEVEL% EQU 0 (
 	REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 	REM Bugfix: cannot use ECHO( for newlines within IF statement, instead use ECHO. or ECHO: 
 )
+
 ECHO:
 ECHO Input parameters [%1] [%2] [%3] ...
 ECHO:
@@ -101,12 +102,20 @@ REM ECHO DEBUGGING: Begin Parameters block.
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+:: Param1 = Script to Debug
+
 SET "_BatchPath=%~1" & REM %~1   Expand %1 removing any surrounding quotes (")
 SET "_BatchPath=.\Install-AllWindowsUpdates.bat"
 REM e.g. "%USERPROFILE%\Documents\SpiderOak Hive\Programming\Batch\+Function Library\Functions list\functions-template.bat"
 SET "_BatchPath=%USERPROFILE%\Documents\SpiderOak Hive\Programming\Batch\+Function Library\Functions list\functions-template.bat"
 REM SET "_BatchPath=%USERPROFILE%\Documents\SpiderOak Hive\SysAdmin\Flash Drive\General Flash Drive\Launch-AD_ElevatedCMD.bat"
 SET "_BatchPath=%USERPROFILE%\Documents\Hg\Resume\Portfolio Finals\Sanitize-PDF.bat"
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+:: Param2 = Options/Parameters to pass to Script
+
+SET "_Options="
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -142,9 +151,9 @@ IF "%~1"=="" (
 ) ELSE (
 	REM Use input parameters.
 	SET "DebugScript=%~1"
-	ECHO Commandline parameter input selected.
+	ECHO Commandline parameter input selected. ^(drag-n-drop mode^)
 	ECHO:
-	REM -------------------------------------------------------------------------------
+	REM >-------------------------------------------------------------------------------
 	REM Debugging: cannot use :: for comments within IF statement, instead use REM
 	REM Debugging: cannot use ECHO( for newlines within IF statement, instead use ECHO. or ECHO: 
 )

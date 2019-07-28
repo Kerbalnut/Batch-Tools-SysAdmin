@@ -883,6 +883,36 @@ FOR %%G IN ("%_FILE_B%") DO SET "_FILE_B_PATH=%%~dpG"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+:: Check if either path ends with a backslash "\" and remove it
+REM ECHO DEBUGGING: %%_FILE_A_PATH%% = %_FILE_A_PATH%
+:: https://ss64.com/nt/syntax-substring.html
+:: %variable:~num_chars_to_skip%
+:: %variable:~num_chars_to_skip,num_chars_to_keep%
+:: A negative number will count backwards from the end of the string.
+:: Get last character
+SET "_LAST_CHAR=%_FILE_A_PATH:~-1%"
+IF "%_LAST_CHAR%"=="\" (
+	REM Get everything except the last character
+	SET "_FILE_A_PATH=%_FILE_A_PATH:~0,-1%"
+)
+REM ECHO DEBUGGING: %%_FILE_A_PATH%% = %_FILE_A_PATH%
+
+:: Check if either path ends with a backslash "\" and remove it
+REM ECHO DEBUGGING: %%_FILE_B_PATH%% = %_FILE_B_PATH%
+:: https://ss64.com/nt/syntax-substring.html
+:: %variable:~num_chars_to_skip%
+:: %variable:~num_chars_to_skip,num_chars_to_keep%
+:: A negative number will count backwards from the end of the string.
+:: Get last character
+SET "_LAST_CHAR=%_FILE_B_PATH:~-1%"
+IF "%_LAST_CHAR%"=="\" (
+	REM Get everything except the last character
+	SET "_FILE_B_PATH=%_FILE_B_PATH:~0,-1%"
+)
+REM ECHO DEBUGGING: %%_FILE_B_PATH%% = %_FILE_B_PATH%
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 :: Find if _FILE_A has a wildcard "*" in it.
 :: "%_Variable:_SearchString=_ReplacementString%"
 ::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\*.bat"
