@@ -608,6 +608,10 @@ IF /I NOT EXIST "%_COMPARE_FUNC%" (
 IF /I NOT EXIST "%_COMPARE_FUNC%" (
 	SET "_COMPARE_FUNC=%CD%\Compare To\CompareTo-Parent.bat"
 )
+:: One directory down
+IF /I NOT EXIST "%_COMPARE_FUNC%" (
+	SET "_COMPARE_FUNC=%CD%\Tools\CompareTo-Parent.bat"
+)
 :: Two directories down
 IF /I NOT EXIST "%_COMPARE_FUNC%" (
 	SET "_COMPARE_FUNC=%CD%\Tools\Compare To\CompareTo-Parent.bat"
