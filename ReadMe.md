@@ -96,27 +96,29 @@ Index of functions:
 2. :DisplayHelp
 3. :Wait
 4. :ElevateMe
-5. :GetAdmin
-6. :AddToPATH
-7. :RemoveFromPATH
-3. :GetTerminalWidth *
-4. :StrLen *
-5. :GenerateBlankSpace *
-6. :FormatTextLine *
-12. :CheckLink
-13. :GetWindowsVersion
-14. :GetIfPathIsDriveRoot
-10. :CreateShortcut *
-11. :CreateSymbolicLink *
-12. :CreateSymbolicDirLink *
-18. :GetDate
-19. :ConvertTimeToSeconds
-20. :ConvertSecondsToTime
-21. :InitLogOriginal
-22. :InitLog
-23. :SplashLogoKdiff
-24. :SplashLogoMerge
-25. :SplashLogoMergeComplete
+5. :GetAdmin *
+6. :Download *
+7. :PSDownload *
+8. :AddToPATH
+9. :RemoveFromPATH *
+10. :GetTerminalWidth *
+11. :StrLen *
+12. :GenerateBlankSpace *
+13. :FormatTextLine *
+14. :CheckLink
+15. :GetWindowsVersion
+16. :GetIfPathIsDriveRoot
+17. :CreateShortcut *
+18. :CreateSymbolicLink *
+19. :CreateSymbolicDirLink *
+20. :GetDate
+21. :ConvertTimeToSeconds
+22. :ConvertSecondsToTime
+23. :InitLogOriginal
+24. :InitLog
+25. :SplashLogoKdiff
+26. :SplashLogoMerge
+27. :SplashLogoMergeComplete
 
 `*` = needs further testing.
 
