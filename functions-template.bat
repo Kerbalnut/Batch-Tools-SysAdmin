@@ -1587,26 +1587,28 @@ REM ECHO DEBUGGING: Begin DefineFunctions block.
 :: 3. :Wait
 :: 4. :ElevateMe
 :: 5. :GetAdmin
-:: 6. :AddToPATH
-:: 7. :RemoveFromPATH
-:: 8. :GetTerminalWidth
-:: 9. :StrLen
-:: 10. :GenerateBlankSpace
-:: 11. :FormatTextLine
-:: 12. :CheckLink
-:: 13. :GetWindowsVersion
-:: 14. :GetIfPathIsDriveRoot
-:: 15. :CreateShortcut
-:: 16. :CreateSymbolicLink
-:: 17. :CreateSymbolicDirLink
-:: 18. :GetDate
-:: 19. :ConvertTimeToSeconds
-:: 20. :ConvertSecondsToTime
-:: 21. :InitLogOriginal
-:: 22. :InitLog
-:: 23. :SplashLogoKdiff
-:: 24. :SplashLogoMerge
-:: 25. :SplashLogoMergeComplete
+:: 6. :Download
+:: 7. :PSDownload
+:: 8. :AddToPATH
+:: 9. :RemoveFromPATH
+:: 10. :GetTerminalWidth
+:: 11. :StrLen
+:: 12. :GenerateBlankSpace
+:: 13. :FormatTextLine
+:: 14. :CheckLink
+:: 15. :GetWindowsVersion
+:: 16. :GetIfPathIsDriveRoot
+:: 17. :CreateShortcut
+:: 18. :CreateSymbolicLink
+:: 19. :CreateSymbolicDirLink
+:: 20. :GetDate
+:: 21. :ConvertTimeToSeconds
+:: 22. :ConvertSecondsToTime
+:: 23. :InitLogOriginal
+:: 24. :InitLog
+:: 25. :SplashLogoKdiff
+:: 26. :SplashLogoMerge
+:: 27. :SplashLogoMergeComplete
 
 GOTO SkipFunctions
 :-------------------------------------------------------------------------------
@@ -1897,6 +1899,45 @@ ECHO Set UAC = CreateObject^("Shell.Application"^) > "%Temp%\getadmin.vbs"
 ECHO UAC.ShellExecute "%~s0", "", "", "RUNAS", 1 >> "%Temp%\getadmin.vbs"
 
 "%Temp%\getadmin.vbs"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+EXIT /B
+:-------------------------------------------------------------------------------
+:Download <URL> <FileLocation>
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Set URL="%~1"
+Set Location="%~2"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+If Exist "%~2" Del "%~2"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Bitsadmin /transfer "Download" "%~1" "%~2"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+If Exist "%~2" Start "" "%~2"
+If %ErrorLevel% GTR 0 ( 
+    Call :PSDownload "%~1" "%~2"
+)
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+EXIT /B
+:-------------------------------------------------------------------------------
+:PSDownload <URL> <FileLocation>
+Rem Function in Powershell for Downloading file
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Set PSFile=%Tmp%\PSFile.ps1
+(
+    echo $down = New-Object System.Net.WebClient; 
+    echo $url  = "%~1";
+    echo $file = "%~2";
+    echo $down.DownloadFile($url,$file^);
+    echo $exec = New-Object -com shell.application;
+    echo $exec.shellexecute($file^);
+)>%PSFile%
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+If Exist "%~2" Del "%~2"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Call :Speak "Please Wait... Downloading file "%~2" is in Progress..."
+Powershell.exe -ExecutionPolicy bypass -file %PSFile%
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+If Exist "%~2" Start "" "%~2"
+Del %PSFile%
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 EXIT /B
 :-------------------------------------------------------------------------------

@@ -6,6 +6,28 @@ These features a lot of structure, organization, and emphasis on functions, or c
 
 All code or functions gained from other sources are referenced in place where used with links.
 
+# How to use:
+
+## Quickly assemble new batch script (*.bat) automations:
+
+Need to write an 'automation.bat' script to fix a recurring problem or add some new functionality to a Windows system? Does the script need to be longer than 10 lines, or use more complicated functionality? Use **functions-template.bat** to get started quickly!
+
+Copy **functions-template.bat** to the place you need it, delete the stuff you don't need, starting with everything in `:Parameters` and `:Main` and prune everything you don't need in `:ExternalFunctions` and `:DefineFunctions`. Use existing functions to accelerate development in :Main and store parameters in :Parameters.
+
+## Get started with some unique and useful tools:
+
+Tools like **Update-Java.bat** and **Install-AllWindowsUpdates.bat** demonstrate the power of [Boxstarter](https://boxstarter.org/UsingBoxstarter) with their 2-line scripts, contained in *Update-Java.txt* and *Install-AllWindowsUpdates.txt* respectively.
+
+**BoxstarterInstall-template.bat** and **BoxstarterInstall-NetworkingUtilities.bat** are also scripts that leverage Boxstarter. All 4 of these scripts together are nearly identical, only the parameters have been changed. 
+
+As these scripts demonstrate, Boxstarter is powerful enough to set up a fresh-out-of-the-box computer with software and OS tweaks, and can be customized to your exact needs. Perfect for deploying large batches of computers quickly.
+
+`BoxstarterInstall-template.bat` is the master record for all of these types of scripts. 
+
+Any time an improvement is made to any BoxstarterInstall-* script, it should be merged with *BoxstarterInstall-template.bat* so that all scripts may benefit. Speaking of...
+
+**CompareTo-Parent.bat** (located in the tools folder) is a great tool to merge text documents, which utilizes [KDiff3](https://chocolatey.org/packages/kdiff3). Use it to merge code or lists you may have edited on a flash drive at another location, back with your source destination. This script is **Drag-n-Drop** compatible, so drag-n-drop the first file you wish to compare onto `CompareTo-Parent.bat`, a cmd window will pop up, then drag-n-drop the second file you wish to compare onto the cmd window. Press enter.
+
 ---
 
 ## Contents:
