@@ -148,11 +148,13 @@ REM ECHO DEBUGGING: Begin ExternalFunctions block.
 ::Index of external functions: 
 :: 1. choco.exe "%_CHOCO_INSTALLED%"
 :: 2. PSCP.EXE "%_PSCP_EXE%"
-:: 3. kdiff3.exe "%_KDIFF_EXE%"
-:: 4. gswin64c.exe (Ghostscript) "%_GSWIN64C_INSTALLED%"
-:: 5. CompareTo-Parent.bat "%_COMPARE_FUNC%"
-:: 6. Banner.cmd "%_BANNER_FUNC%"
-:: 7. fossil.exe "%_FOSSIL_EXE%"
+:: 3. zip.exe "%_ZIP_EXE%"
+:: 4. 7z.exe "%_7ZIP_EXE%"
+:: 5. kdiff3.exe "%_KDIFF_EXE%"
+:: 6. gswin64c.exe (Ghostscript) "%_GSWIN64C_INSTALLED%"
+:: 7. CompareTo-Parent.bat "%_COMPARE_FUNC%"
+:: 8. Banner.cmd "%_BANNER_FUNC%"
+:: 9. fossil.exe "%_FOSSIL_EXE%"
 
 ::choco.exe
 :-------------------------------------------------------------------------------
@@ -281,6 +283,33 @@ IF /I "%_QUIET_ERRORS%"=="NO" (
 :SkipPscpFunction
 :-------------------------------------------------------------------------------
 
+::zip.exe
+:-------------------------------------------------------------------------------
+::"%_ZIP_EXE%" -h
+::"%_ZIP_EXE%" "%_FILE_A%" "%_FILE_B%"
+GOTO SkipZipFunction
+::-------------------------------------------------------------------------------
+
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: zip.exe -h
+:: zip.exe -h2
+:: "%_ZIP_EXE%"
+:SkipZipFunction
+:-------------------------------------------------------------------------------
+
+::7z.exe
+:-------------------------------------------------------------------------------
+::"%_7ZIP_EXE%" -h
+::"%_7ZIP_EXE%" "%_FILE_A%" "%_FILE_B%"
+GOTO Skip7zipFunction
+::-------------------------------------------------------------------------------
+
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: 7z.exe -h
+:: "%_7ZIP_EXE%"
+:Skip7zipFunction
+:-------------------------------------------------------------------------------
+
 ::kdiff3.exe
 :-------------------------------------------------------------------------------
 ::"%_KDIFF_EXE%" -help
@@ -350,6 +379,7 @@ SET "_CHOCO_PKG=Ghostscript"
 SET "_AFTER_ADMIN_ELEVATION=%Temp%\temp-gswin64c-function.txt"
 ::-------------------------------------------------------------------------------
 SET "_GSWIN64C_INSTALLED=NO"
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 REM Bugfix: Check if we have admin rights right now (even tho we may not need them), so that later functions can check the result without requiring EnableDelayedExpansion to be enabled.
 REM ECHO DEBUGGING: _GOT_ADMIN = '%_GOT_ADMIN%'
 ::https://stackoverflow.com/questions/4051883/batch-script-how-to-check-for-admin-rights
