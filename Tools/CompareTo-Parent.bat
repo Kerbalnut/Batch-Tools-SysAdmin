@@ -121,7 +121,11 @@ SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-temp
 
 ::SET "_FILE_A=\\gammafox\C$\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.ps1"
 
-SET "_FILE_A=%UserProfile%\Documents\Resume\2 - Resume\Resume SPEC.txt"
+SET "_FILE_A=%UserProfile%\Documents\Hg\Resume\2 - Resume\Resume SPEC.txt"
+
+SET "_FILE_A=%UserProfile%\Documents\GitHub\Python-DynDNS-NameSilo\Sanitize-PDF\Sanitize-PDF.bat"
+
+SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\functions-template.bat"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -143,7 +147,11 @@ SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-temp
 
 SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Task Tracker\TaskTrackingPs.ps1"
 
-SET "_FILE_B=%UserProfile%\Documents\Resume\2 - Resume\Resume_Text.txt"
+SET "_FILE_B=%UserProfile%\Documents\Hg\Resume\2 - Resume\Resume_Text.txt"
+
+SET "_FILE_B=%UserProfile%\Documents\GitHub\Sanitize-PDF\Sanitize-PDF.bat"
+
+SET "_FILE_B=%UserProfile%\Documents\GitHub\Sanitize-PDF\Sanitize-PDF_func.bat"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
