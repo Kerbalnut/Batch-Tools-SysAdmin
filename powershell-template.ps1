@@ -113,6 +113,8 @@ about_Functions_CmdletBindingAttribute
 # 9. [Execution]
 # 10. [Footer]
 
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 # Tested with PowerShell versions:
 # 5.1
 # Get PowerShell version:
