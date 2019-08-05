@@ -1,4 +1,12 @@
 
+# Index:
+# 1. Information & Description:
+# 2. Setup & Instructions:
+# 3. Parameters:
+# 4. Functions:
+# 5. Main:
+# 6. Footer:
+
 # -------------------------------------------------------------------------------
 # Information & Description:
 
@@ -18,6 +26,7 @@
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+# You have to make your script executable before you can run it.
 # Make script executable:
 # Note that to make a file executable, you must set the eXecutable bit, and for a shell script, the Readable bit must also be set:
 #cd /home/pi/DynDNS/
@@ -588,7 +597,7 @@ df -H
 
 echo "End of script."
 echo $'\n'
-exit
+exit 0
 
 # /Footer
 # -------------------------------------------------------------------------------

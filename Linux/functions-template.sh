@@ -1,4 +1,12 @@
 
+# Index:
+# 1. Information & Description:
+# 2. Setup & Instructions:
+# 3. Parameters:
+# 4. Functions:
+# 5. Main:
+# 6. Footer:
+
 # -------------------------------------------------------------------------------
 # Information & Description:
 
@@ -191,8 +199,9 @@ factorial()
 # 5: Mount/Un-mount drives to filesystem
 #===============================================================================
 
-# https://www.shellscript.sh/
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# https://www.shellscript.sh/
 
 # Delete archive log file:
 echo "Deleting archive log file (if exists):"
@@ -242,7 +251,7 @@ rm $CURRENT_LOGFILE_PATH
 
 echo "End of script."
 echo $'\n'
-exit
+exit 0
 
 # /Footer
 # -------------------------------------------------------------------------------
