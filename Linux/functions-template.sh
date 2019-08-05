@@ -1,8 +1,3 @@
-
-# -------------------------------------------------------------------------------
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# ===============================================================================
-
 # -------------------------------------------------------------------------------
 # Information & Description:
 
@@ -93,9 +88,90 @@ CURRENT_LOGFILE_PATH="/home/pi/DynDNS/DynDNS-NameSilo-RottenEggs.log"
 #ARCHIVE_LOGFILE_PATH="/home/pi/DynDNS/DynDNS-NameSilo-RottenEggs-LastTwoWeeks.log"
 ARCHIVE_LOGFILE_PATH="/home/pi/DynDNS/DynDNS-NameSilo-RottenEggs-LastMonth.log"
 
+
 # /Parameters
 # -------------------------------------------------------------------------------
+# Functions:
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# https://www.shellscript.sh/functions.html
+
+add_a_user()
+{
+  USER=$1
+  PASSWORD=$2
+  shift; shift;
+  # Having shifted twice, the rest is now comments ...
+  COMMENTS=$@
+  echo "Adding user $USER ..."
+  echo useradd -c "$COMMENTS" $USER
+  echo passwd $USER $PASSWORD
+  echo "Added user $USER ($COMMENTS) with pass $PASSWORD"
+}
+
+adduser()
+{
+  USER=$1
+  PASSWORD=$2
+  shift; shift;
+  # Having shifted twice, the rest is now comments ...
+  COMMENTS=$@
+  useradd -c "${COMMENTS}" $USER
+  if [ "$?" -ne "0" ]; then
+    echo "Useradd failed"
+    return 1
+  fi
+  passwd $USER $PASSWORD
+  if [ "$?" -ne "0" ]; then
+    echo "Setting password failed"
+    return 2
+  fi
+  echo "Added user $USER ($COMMENTS) with pass $PASSWORD"
+}
+
+#adduser bob letmein Bob Holness from Blockbusters
+#ADDUSER_RETURN_CODE=$?
+#if [ "$ADDUSER_RETURN_CODE" -eq "1" ]; then
+#  echo "Something went wrong with useradd"
+#elif [ "$ADDUSER_RETURN_CODE" -eq "2" ]; then 
+#  echo "Something went wrong with passwd"
+#else
+#  echo "Bob Holness added to the system."
+#fi
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# https://www.shellscript.sh/functions.html
+
+factorial()
+{
+  if [ "$1" -gt "1" ]; then
+    i=`expr $1 - 1`
+    j=`factorial $i`
+    k=`expr $1 \* $j`
+    echo $k
+  else
+    echo 1
+  fi
+}
+
+#while :
+#do
+#  echo "Enter a number:"
+#  read x
+#  factorial $x
+#done    
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# /Functions
+# -------------------------------------------------------------------------------
 # Main:
+
+# -------------------------------------------------------------------------------
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# ===============================================================================
 
 # https://www.shellscript.sh/
 
@@ -133,6 +209,10 @@ echo $'\n'"Deleting current log file:"
 echo $CURRENT_LOGFILE_PATH
 rm $CURRENT_LOGFILE_PATH
 
+# ===============================================================================
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# -------------------------------------------------------------------------------
+
 # /Main
 # -------------------------------------------------------------------------------
 # Footer:
@@ -140,10 +220,6 @@ rm $CURRENT_LOGFILE_PATH
 echo "End of script."
 
 # /Footer
-# -------------------------------------------------------------------------------
-
-# ===============================================================================
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # -------------------------------------------------------------------------------
 
 
