@@ -134,10 +134,12 @@ SET /P "_SSID=Enter SSID name: "
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+IF EXIST "%_TEXT_OUTPUT_FILE%" DEL /Q "%_TEXT_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
+IF EXIST "%_ERROR_OUTPUT_FILE%" DEL /Q "%_ERROR_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
 SET "_TEXT_OUTPUT_FILE=%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"
 SET "_ERROR_OUTPUT_FILE=%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"
 netsh wlan show profile "%_SSID%" key=clear && SET "_COMMAND_EXIT=SUCCESS" || SET "_COMMAND_EXIT=FAILURE"
-ECHO DEBUGGING: %%_COMMAND_EXIT%% = %_COMMAND_EXIT%
+REM ECHO DEBUGGING: %%_COMMAND_EXIT%% = %_COMMAND_EXIT%
 REM netsh wlan show profile "%_SSID%" key=clear || (
 REM netsh wlan show profile "%_SSID%" key=clear | FIND "Key Content" || (
 REM netsh wlan show profile "%_SSID%" key=clear | FIND "Key Content" 2>"%_ERROR_OUTPUT_FILE%" || (
@@ -148,41 +150,70 @@ REM IF EXIST "%_TEXT_OUTPUT_FILE%" (
 SET "_FILE_SIZE="
 REM FOR /F %%G IN ("%_TEXT_OUTPUT_FILE%") DO SET "_FILE_SIZE=%%~zG"
 REM IF %_FILE_SIZE% GTR 0 (
+REM ECHO DEBUGGING: ErrorLevel = %ERRORLEVEL%
 IF "%_COMMAND_EXIT%"=="SUCCESS" (
 	REM If command succeeds:
-	ECHO DEBUGGING: Command succeeded^^!
+	REM ECHO DEBUGGING: Command succeeded^^!
 	REM TYPE "%_TEXT_OUTPUT_FILE%"
 	ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	TYPE "%_TEXT_OUTPUT_FILE%" | FIND "Key Content"
-	ECHO DEBUGGING: ErrorLevel = %ERRORLEVEL% 
-	ECHO DEBUGGING: ErrorLevel = !ERRORLEVEL!
-	FIND "Key Content" <"%_TEXT_OUTPUT_FILE%" 
-	ECHO DEBUGGING: ErrorLevel = %ERRORLEVEL% 
-	ECHO DEBUGGING: ErrorLevel = !ERRORLEVEL!
+	REM ECHO DEBUGGING: ErrorLevel = !ERRORLEVEL!
+	IF !ERRORLEVEL! NEQ 0 ECHO No password found.
+	
+	REM FIND "Key Content" <"%_TEXT_OUTPUT_FILE%"
+	REM ECHO DEBUGGING: ErrorLevel = !ERRORLEVEL!
+	REM IF !ERRORLEVEL! NEQ 0 ECHO No password found.
 	ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	DEL /Q "%_TEXT_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
 )
+IF EXIST "%_TEXT_OUTPUT_FILE%" DEL /Q "%_TEXT_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
 
+FOR /F "delims=" %%G IN ("%_ERROR_OUTPUT_FILE%") DO SET "_CONTENTS=%%G"
+REM ECHO DEBUGGING: "%%_CONTENTS%%" = "%_CONTENTS%"
 
+FOR /F "tokens=* delims=" %%G IN ("%_ERROR_OUTPUT_FILE%") DO SET "_CONTENTS=%%G"
+REM ECHO DEBUGGING: "%%_CONTENTS%%" = "%_CONTENTS%"
 
+FOR /F "Tokens=* Delims=" %%G IN ("%_ERROR_OUTPUT_FILE%") DO SET "_CONTENTS=!_CONTENTS!%%G"
+REM ECHO DEBUGGING: "%%_CONTENTS%%" = "%_CONTENTS%"
 
+SET /P _CONTENTS=<"%_ERROR_OUTPUT_FILE%"
+REM ECHO DEBUGGING: "%%_CONTENTS%%" = "%_CONTENTS%"
+
+:: Both will act the same with only a single line in the file, for more lines the for variant will put the last line into the variable, while set /p will use the first
+
+SET "_FILE_SIZE="
+FOR /F %%G IN ("%_ERROR_OUTPUT_FILE%") DO SET "_FILE_SIZE=%%~zG"
+REM ECHO DEBUGGING: "%%_FILE_SIZE%%" = "%_FILE_SIZE%"
 
 
 REM IF EXIST "%_ERROR_OUTPUT_FILE%" (
-SET "_FILE_SIZE="
+REM SET "_FILE_SIZE="
 REM FOR /F %%G IN ("%_ERROR_OUTPUT_FILE%") DO SET "_FILE_SIZE=%%~zG"
 REM IF %_FILE_SIZE% GTR 0 (
+
+TYPE "%_ERROR_OUTPUT_FILE%" >nul 2>&1 
+REM ECHO DEBUGGING: ErrorLevel = %ERRORLEVEL%
+TYPE "%_ERROR_OUTPUT_FILE%" >nul 2>&1 
+REM ECHO DEBUGGING: ErrorLevel = %ERRORLEVEL%
 IF "%_COMMAND_EXIT%"=="FAILURE" (
 	REM If command fails:
-	ECHO DEBUGGING: Command failed^^!
+	REM ECHO DEBUGGING: Command failed^^!
 	ECHO:
+	TYPE "%_ERROR_OUTPUT_FILE%" >nul 2>&1 
+	REM ECHO DEBUGGING: ErrorLevel = %ERRORLEVEL%
+	REM ECHO DEBUGGING: ErrorLevel = !ERRORLEVEL!
+	REM IF !ERRORLEVEL! EQU 0 (
+	REM IF NOT "%_CONTENTS%"=="" (
+	IF %_FILE_SIZE% GTR 0 (
 	ECHO Error output text:
 	ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	TYPE "%_ERROR_OUTPUT_FILE%"
-	ECHO DEBUGGING: ErrorLevel = %ERRORLEVEL% 
-	ECHO DEBUGGING: ErrorLevel = !ERRORLEVEL!
 	ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	ECHO:
+	) ELSE (
+	REM ECHO DEBUGGING: No error msg found.
+	)
 	DEL /Q "%_ERROR_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
 	PAUSE
 	GOTO Main
@@ -198,8 +229,8 @@ IF EXIST "%_ERROR_OUTPUT_FILE%" DEL /Q "%_ERROR_OUTPUT_FILE%" & REM Clean-up tem
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-ECHO:
-ECHO -------------------------------------------------------------------------------
+::ECHO:
+::ECHO -------------------------------------------------------------------------------
 
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
