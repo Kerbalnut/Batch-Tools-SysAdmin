@@ -102,6 +102,8 @@ BACKUP_DESTINATION=/disk/backup01
 BACKUP_DRIVE_NAME=root
 BACKUP_DRIVE_NAME=data01
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 BACKUP_DEST_LATEST=$BACKUP_DESTINATION/$BACKUP_DRIVE_NAME/backup_latest
 
 BACKUP_DEST_ARCHIVE=$BACKUP_DESTINATION/$BACKUP_DRIVE_NAME/backup_archive
@@ -253,7 +255,7 @@ SWITCH_OPTIONS="-avzhe"
 SWITCH_OPTIONS="-auvzhe"
 
 # Backup to local drive Options:
-SWITCH_OPTIONS="-avAEXh"
+SWITCH_OPTIONS="-avAEXh --delete"
 
 # -a, --archive               archive mode; equals -rlptgoD (no -H,-A,-X)
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -505,6 +507,10 @@ echo "rsync $RSYNC_OPTIONS"
 
 rsync $RSYNC_OPTIONS $DIR_TO_BACKUP $BACKUP_DEST_LATEST
 
+
+
+
+# ===============================================================================
 # ===============================================================================
 
 #https://serverfault.com/questions/120431/how-to-backup-a-full-centos-server

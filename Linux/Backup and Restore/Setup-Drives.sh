@@ -497,10 +497,10 @@ lsblk --output NAME,SIZE,TYPE,KNAME,LABEL,PARTLABEL,MOUNTPOINT
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #6. Create new directory to mount to
-DIR_TO_CREATE=/disk01
-[[ ! -e $DIR_TO_CREATE ]] && mkdir $DIR_TO_CREATE
-DIR_TO_CREATE=/disk02
-[[ ! -e $DIR_TO_CREATE ]] && mkdir $DIR_TO_CREATE
+#DIR_TO_CREATE=/disk01
+#[[ ! -e $DIR_TO_CREATE ]] && mkdir $DIR_TO_CREATE
+#DIR_TO_CREATE=/disk02
+#[[ ! -e $DIR_TO_CREATE ]] && mkdir $DIR_TO_CREATE
 DIR_TO_CREATE=$MOUNT_PATH
 [[ ! -e $DIR_TO_CREATE ]] && sudo mkdir -p $DIR_TO_CREATE
 
@@ -508,9 +508,9 @@ DIR_TO_CREATE=$MOUNT_PATH
 #mkdir /disk/data01
 #mkdir /disk/backup01
 
-[[ ! -e /disk ]] && mkdir /disk
-[[ ! -e /disk/data01 ]] && mkdir /disk/data01
-[[ ! -e /disk/backup01 ]] && mkdir /disk/backup01
+#[[ ! -e /disk ]] && mkdir /disk
+#[[ ! -e /disk/data01 ]] && mkdir /disk/data01
+#[[ ! -e /disk/backup01 ]] && mkdir /disk/backup01
 [[ ! -e $MOUNT_PATH ]] && sudo mkdir -p $MOUNT_PATH
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
