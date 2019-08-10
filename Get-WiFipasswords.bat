@@ -5,11 +5,8 @@ SETLOCAL EnableDelayedExpansion
 ::Index: 
 :: 1. :RunAsAdministrator
 :: 2. :Header
-:: 3. :Parameters
-:: 4. :ExternalFunctions
-:: 5. :Main
-:: 6. :DefineFunctions
-:: 7. :Footer
+:: 3. :Main
+:: 4. :Footer
 
 REM Bugfix: Use "REM ECHO DEBUG*ING: " instead of "::ECHO DEBUG*ING: " to comment-out debugging lines, in case any are within IF statements.
 REM ECHO DEBUGGING: Begin RunAsAdministrator block.
@@ -69,7 +66,7 @@ PING -n 3 127.0.0.1 > nul
 :: End Run-As-Administrator function
 
 :Header
-::GOTO SkipHeader & REM Un-comment this line to skip Header
+GOTO SkipHeader & REM Un-comment this line to skip Header
 CLS
 ECHO:
 ECHO Script name ^( %~nx0 ^) & REM This script's file name and extension. https://ss64.com/nt/syntax-args.html
@@ -107,14 +104,6 @@ ECHO:
 :: End Header
 
 REM -------------------------------------------------------------------------------
-
-REM ECHO DEBUGGING: Begin Parameters block.
-
-:Parameters
-
-::End ExternalFunctions
-
-REM -------------------------------------------------------------------------------
 REM ===============================================================================
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :Main
@@ -126,7 +115,7 @@ REM ECHO DEBUGGING: Beginning Main execution block.
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 CLS
-ECHO Get stored Wifi password from SSID:
+::ECHO Get stored Wifi password from SSID:
 
 netsh wlan show profile
 
@@ -138,23 +127,15 @@ IF EXIST "%_TEXT_OUTPUT_FILE%" DEL /Q "%_TEXT_OUTPUT_FILE%" & REM Clean-up temp 
 IF EXIST "%_ERROR_OUTPUT_FILE%" DEL /Q "%_ERROR_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
 SET "_TEXT_OUTPUT_FILE=%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"
 SET "_ERROR_OUTPUT_FILE=%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"
-netsh wlan show profile "%_SSID%" key=clear && SET "_COMMAND_EXIT=SUCCESS" || SET "_COMMAND_EXIT=FAILURE"
-REM ECHO DEBUGGING: %%_COMMAND_EXIT%% = %_COMMAND_EXIT%
-REM netsh wlan show profile "%_SSID%" key=clear || (
-REM netsh wlan show profile "%_SSID%" key=clear | FIND "Key Content" || (
-REM netsh wlan show profile "%_SSID%" key=clear | FIND "Key Content" 2>"%_ERROR_OUTPUT_FILE%" || (
-REM netsh wlan show profile "%_SSID%" key=clear 2>"%_ERROR_OUTPUT_FILE%" | FIND "Key Content" || (
+
 netsh wlan show profile "%_SSID%" key=clear >"%_TEXT_OUTPUT_FILE%" 2>"%_ERROR_OUTPUT_FILE%" 
 
-REM IF EXIST "%_TEXT_OUTPUT_FILE%" (
-SET "_FILE_SIZE="
-REM FOR /F %%G IN ("%_TEXT_OUTPUT_FILE%") DO SET "_FILE_SIZE=%%~zG"
-REM IF %_FILE_SIZE% GTR 0 (
-REM ECHO DEBUGGING: ErrorLevel = %ERRORLEVEL%
+netsh wlan show profile "%_SSID%" key=clear && SET "_COMMAND_EXIT=SUCCESS" || SET "_COMMAND_EXIT=FAILURE"
+REM ECHO DEBUGGING: %%_COMMAND_EXIT%% = %_COMMAND_EXIT%
+
 IF "%_COMMAND_EXIT%"=="SUCCESS" (
 	REM If command succeeds:
 	REM ECHO DEBUGGING: Command succeeded^^!
-	REM TYPE "%_TEXT_OUTPUT_FILE%"
 	ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	TYPE "%_TEXT_OUTPUT_FILE%" | FIND "Key Content"
 	REM ECHO DEBUGGING: ErrorLevel = !ERRORLEVEL!
@@ -167,6 +148,8 @@ IF "%_COMMAND_EXIT%"=="SUCCESS" (
 	DEL /Q "%_TEXT_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
 )
 IF EXIST "%_TEXT_OUTPUT_FILE%" DEL /Q "%_TEXT_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 FOR /F "delims=" %%G IN ("%_ERROR_OUTPUT_FILE%") DO SET "_CONTENTS=%%G"
 REM ECHO DEBUGGING: "%%_CONTENTS%%" = "%_CONTENTS%"
@@ -182,37 +165,24 @@ REM ECHO DEBUGGING: "%%_CONTENTS%%" = "%_CONTENTS%"
 
 :: Both will act the same with only a single line in the file, for more lines the for variant will put the last line into the variable, while set /p will use the first
 
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 SET "_FILE_SIZE="
 FOR /F %%G IN ("%_ERROR_OUTPUT_FILE%") DO SET "_FILE_SIZE=%%~zG"
 REM ECHO DEBUGGING: "%%_FILE_SIZE%%" = "%_FILE_SIZE%"
 
-
-REM IF EXIST "%_ERROR_OUTPUT_FILE%" (
-REM SET "_FILE_SIZE="
-REM FOR /F %%G IN ("%_ERROR_OUTPUT_FILE%") DO SET "_FILE_SIZE=%%~zG"
-REM IF %_FILE_SIZE% GTR 0 (
-
-TYPE "%_ERROR_OUTPUT_FILE%" >nul 2>&1 
-REM ECHO DEBUGGING: ErrorLevel = %ERRORLEVEL%
-TYPE "%_ERROR_OUTPUT_FILE%" >nul 2>&1 
-REM ECHO DEBUGGING: ErrorLevel = %ERRORLEVEL%
 IF "%_COMMAND_EXIT%"=="FAILURE" (
 	REM If command fails:
 	REM ECHO DEBUGGING: Command failed^^!
 	ECHO:
-	TYPE "%_ERROR_OUTPUT_FILE%" >nul 2>&1 
-	REM ECHO DEBUGGING: ErrorLevel = %ERRORLEVEL%
-	REM ECHO DEBUGGING: ErrorLevel = !ERRORLEVEL!
-	REM IF !ERRORLEVEL! EQU 0 (
-	REM IF NOT "%_CONTENTS%"=="" (
 	IF %_FILE_SIZE% GTR 0 (
-	ECHO Error output text:
-	ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	TYPE "%_ERROR_OUTPUT_FILE%"
-	ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	ECHO:
+		ECHO Error output text:
+		ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		TYPE "%_ERROR_OUTPUT_FILE%"
+		ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		ECHO:
 	) ELSE (
-	REM ECHO DEBUGGING: No error msg found.
+		REM ECHO DEBUGGING: No error msg found.
 	)
 	DEL /Q "%_ERROR_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
 	PAUSE
@@ -220,12 +190,6 @@ IF "%_COMMAND_EXIT%"=="FAILURE" (
 )
 IF EXIST "%_TEXT_OUTPUT_FILE%" DEL /Q "%_TEXT_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
 IF EXIST "%_ERROR_OUTPUT_FILE%" DEL /Q "%_ERROR_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
-
-
-
-
-
-
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
