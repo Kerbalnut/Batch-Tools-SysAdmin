@@ -112,7 +112,18 @@ REM ECHO DEBUGGING: Beginning Main execution block.
 
 ::Index of Main:
 
+::===============================================================================
+:: Phase 1: Show WLAN profiles, and get which name (SSID) to use
+:: Phase 2: Get WLAN profile Key (passowrd) for SSID
+:: Phase 3: Check if command success
+:: Phase 4: Check if command failure
+::===============================================================================
+
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+::===============================================================================
+:: Phase 1: Show WLAN profiles, and get which name to use
+::===============================================================================
 
 CLS
 ::ECHO Get stored Wifi password from SSID:
@@ -123,8 +134,13 @@ SET /P "_SSID=Enter SSID name: "
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+::===============================================================================
+:: Phase 2: Get WLAN profile Key (passowrd) for SSID
+::===============================================================================
+
 IF EXIST "%_TEXT_OUTPUT_FILE%" DEL /Q "%_TEXT_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
 IF EXIST "%_ERROR_OUTPUT_FILE%" DEL /Q "%_ERROR_OUTPUT_FILE%" & REM Clean-up temp file ASAP.
+
 SET "_TEXT_OUTPUT_FILE=%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"
 SET "_ERROR_OUTPUT_FILE=%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"
 
@@ -132,6 +148,12 @@ netsh wlan show profile "%_SSID%" key=clear >"%_TEXT_OUTPUT_FILE%" 2>"%_ERROR_OU
 
 netsh wlan show profile "%_SSID%" key=clear && SET "_COMMAND_EXIT=SUCCESS" || SET "_COMMAND_EXIT=FAILURE"
 REM ECHO DEBUGGING: %%_COMMAND_EXIT%% = %_COMMAND_EXIT%
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+::===============================================================================
+:: Phase 3: Check if command success
+::===============================================================================
 
 IF "%_COMMAND_EXIT%"=="SUCCESS" (
 	REM If command succeeds:
@@ -151,21 +173,9 @@ IF EXIST "%_TEXT_OUTPUT_FILE%" DEL /Q "%_TEXT_OUTPUT_FILE%" & REM Clean-up temp 
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-FOR /F "delims=" %%G IN ("%_ERROR_OUTPUT_FILE%") DO SET "_CONTENTS=%%G"
-REM ECHO DEBUGGING: "%%_CONTENTS%%" = "%_CONTENTS%"
-
-FOR /F "tokens=* delims=" %%G IN ("%_ERROR_OUTPUT_FILE%") DO SET "_CONTENTS=%%G"
-REM ECHO DEBUGGING: "%%_CONTENTS%%" = "%_CONTENTS%"
-
-FOR /F "Tokens=* Delims=" %%G IN ("%_ERROR_OUTPUT_FILE%") DO SET "_CONTENTS=!_CONTENTS!%%G"
-REM ECHO DEBUGGING: "%%_CONTENTS%%" = "%_CONTENTS%"
-
-SET /P _CONTENTS=<"%_ERROR_OUTPUT_FILE%"
-REM ECHO DEBUGGING: "%%_CONTENTS%%" = "%_CONTENTS%"
-
-:: Both will act the same with only a single line in the file, for more lines the for variant will put the last line into the variable, while set /p will use the first
-
-REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+::===============================================================================
+:: Phase 4: Check if command failure
+::===============================================================================
 
 SET "_FILE_SIZE="
 FOR /F %%G IN ("%_ERROR_OUTPUT_FILE%") DO SET "_FILE_SIZE=%%~zG"
