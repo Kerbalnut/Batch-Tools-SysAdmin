@@ -931,13 +931,35 @@ IF NOT "%~1"=="" (
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-:: Get _FILE_A Name & eXtention, Drive letter & Path
+:: Get _FILE_A Name & eXtention, Drive letter & Path, siZe
 FOR %%G IN ("%_FILE_A%") DO SET "_FILE_A_NAME=%%~nxG"
 FOR %%G IN ("%_FILE_A%") DO SET "_FILE_A_PATH=%%~dpG"
+FOR %%G IN ("%_FILE_A%") DO SET "_FILE_A_SIZE=%%~zG"
 
-:: Get _FILE_B Name & eXtention, Drive letter & Path
+:: Get _FILE_B Name & eXtention, Drive letter & Path, siZe
 FOR %%G IN ("%_FILE_B%") DO SET "_FILE_B_NAME=%%~nxG"
 FOR %%G IN ("%_FILE_B%") DO SET "_FILE_B_PATH=%%~dpG"
+FOR %%G IN ("%_FILE_B%") DO SET "_FILE_B_SIZE=%%~zG"
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+REM ECHO DEBUGGING: Check _FILE_A size
+
+SET "_FILE_SIZE="
+REM Bugfix: always include "tokens=*" to handle filenames with spaces.
+FOR /F "tokens=*" %%G IN ("%_FILE_A%") DO SET "_FILE_SIZE=%%~zG"
+REM or, just do:
+FOR %%G IN ("%_FILE_A%") DO SET "_FILE_SIZE=%%~zG"
+REM ECHO DEBUGGING: "%%_FILE_SIZE%%" = "%_FILE_SIZE%"
+
+REM ECHO DEBUGGING: Check _FILE_B size
+
+SET "_FILE_SIZE="
+REM Bugfix: always include "tokens=*" to handle filenames with spaces.
+FOR /F "tokens=*" %%G IN ("%_FILE_B%") DO SET "_FILE_SIZE=%%~zG"
+REM or, just do:
+FOR %%G IN ("%_FILE_B%") DO SET "_FILE_SIZE=%%~zG"
+REM ECHO DEBUGGING: "%%_FILE_SIZE%%" = "%_FILE_SIZE%"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

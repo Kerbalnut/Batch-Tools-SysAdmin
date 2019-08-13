@@ -177,8 +177,9 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 :: Phase 4: Check if command failure
 ::===============================================================================
 
+REM Bugfix: always include "tokens=*" to handle filenames with spaces.
 SET "_FILE_SIZE="
-FOR /F %%G IN ("%_ERROR_OUTPUT_FILE%") DO SET "_FILE_SIZE=%%~zG"
+FOR /F "tokens=*" %%G IN ("%_ERROR_OUTPUT_FILE%") DO SET "_FILE_SIZE=%%~zG"
 REM ECHO DEBUGGING: "%%_FILE_SIZE%%" = "%_FILE_SIZE%"
 
 IF "%_COMMAND_EXIT%"=="FAILURE" (
