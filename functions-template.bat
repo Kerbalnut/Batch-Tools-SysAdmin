@@ -935,11 +935,25 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 FOR %%G IN ("%_FILE_A%") DO SET "_FILE_A_NAME=%%~nxG"
 FOR %%G IN ("%_FILE_A%") DO SET "_FILE_A_PATH=%%~dpG"
 FOR %%G IN ("%_FILE_A%") DO SET "_FILE_A_SIZE=%%~zG"
+SET /A "_FILE_A_SIZE_KB=%_FILE_A_SIZE%/1024"
 
 :: Get _FILE_B Name & eXtention, Drive letter & Path, siZe
 FOR %%G IN ("%_FILE_B%") DO SET "_FILE_B_NAME=%%~nxG"
 FOR %%G IN ("%_FILE_B%") DO SET "_FILE_B_PATH=%%~dpG"
 FOR %%G IN ("%_FILE_B%") DO SET "_FILE_B_SIZE=%%~zG"
+SET /A "_FILE_B_SIZE_KB=%_FILE_B_SIZE%/1024"
+
+REM ECHO DEBUGGING: %%_FILE_A%% = %_FILE_A%
+REM ECHO DEBUGGING: %%_FILE_A_NAME%% = %_FILE_A_NAME%
+REM ECHO DEBUGGING: %%_FILE_A_PATH%% = %_FILE_A_PATH%
+REM ECHO DEBUGGING: %%_FILE_A_SIZE%% = %_FILE_A_SIZE% B
+REM ECHO DEBUGGING: %%_FILE_A_SIZE_KB%% = %_FILE_A_SIZE_KB% KB
+
+REM ECHO DEBUGGING: %%_FILE_B%% = %_FILE_B%
+REM ECHO DEBUGGING: %%_FILE_B_NAME%% = %_FILE_B_NAME%
+REM ECHO DEBUGGING: %%_FILE_B_PATH%% = %_FILE_B_PATH%
+REM ECHO DEBUGGING: %%_FILE_B_SIZE%% = %_FILE_B_SIZE% B
+REM ECHO DEBUGGING: %%_FILE_B_SIZE_KB%% = %_FILE_B_SIZE_KB% KB
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
