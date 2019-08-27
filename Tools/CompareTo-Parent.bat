@@ -123,11 +123,19 @@ SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-temp
 
 SET "_FILE_A=%UserProfile%\Documents\Resume\2 - Resume\Resume SPEC.txt"
 
+SET "_FILE_A=%UserProfile%\Nextcloud\Documents\Hg\Resume\2 - Resume\Resume SPEC.txt"
+
 SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Linux\Backup and Restore\Setup-Drives.sh"
 
 SET "_FILE_A=%UserProfile%\Documents\GitHub\Sanitize-PDF\Sanitize-PDF.bat"
 
 ::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\functions-template.bat"
+
+SET "_FILE_A=%UserProfile%\Nextcloud\Documents\Backups\Thunderbird Profiles\Message Filters\grant-james@hotmail.com\msgFilterRules.dat"
+
+::SET "_FILE_A=%UserProfile%\Nextcloud\Documents\Backups\Thunderbird Profiles\Message Filters\inventergrant@msn.com\msgFilterRules.dat"
+
+SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Task Tracker\Twilio-Auth.ps1"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -151,11 +159,19 @@ SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Task Tracker\Ta
 
 SET "_FILE_B=%UserProfile%\Documents\Resume\2 - Resume\Resume_Text.txt"
 
+SET "_FILE_B=%UserProfile%\Nextcloud\Documents\Hg\Resume\2 - Resume\Resume_Text.txt"
+
 SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Linux\functions-template.sh"
 
 SET "_FILE_B=%UserProfile%\Nextcloud\Documents\Hg\Resume\Portfolio Finals\Sanitize-PDF.bat"
 
 ::SET "_FILE_B=%UserProfile%\Documents\GitHub\Sanitize-PDF\Sanitize-PDF_func.bat"
+
+SET "_FILE_B=%UserProfile%\AppData\Roaming\Thunderbird\Profiles\4hlqta0q.default\ImapMail\outlook.office365.com\msgFilterRules.dat"
+
+::SET "_FILE_B=%UserProfile%\AppData\Roaming\Thunderbird\Profiles\4hlqta0q.default\ImapMail\outlook.office365-1.com\msgFilterRules.dat"
+
+SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Task Tracker\Twilio-Auth_template.ps1"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

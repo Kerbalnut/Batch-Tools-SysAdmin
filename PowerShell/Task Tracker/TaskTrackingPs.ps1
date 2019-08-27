@@ -410,7 +410,7 @@ Function Write-HorizontalRule {
     IF ($HRtype -eq "DoubleLine") {
       Write-Host =======================================================================================================================
     } ELSEIF ($HRtype -eq "DashedLine") {
-      Write-Host - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      Write-Host "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
     } ELSEIF ($HRtype -eq "SingleLine") {
       #Write-Host ------------------------------------------------------------------------------------------------------------------------ # This too long
       Write-Host -----------------------------------------------------------------------------------------------------------------------
@@ -462,7 +462,7 @@ Function Write-HorizontalRuleAdv {
   #$FunctionName = (Get-PSCallStack | Select-Object FunctionName -Skip 1 -First 1).FunctionName
   #$FunctionName = (Get-Variable MyInvocation -Scope 1).Value.MyCommand.Name
   $FunctionName = $PSCmdlet.MyInvocation.MyCommand.Name
-  Write-Verbose "Running function: $FunctionName"
+  #Write-Verbose "Running function: $FunctionName"
   
   # help about_Automatic_Variables
   # help about_If
@@ -591,6 +591,23 @@ Function Select-IPAddress { # https://www.zerrouki.com/powershell-menus-host-ui-
 } # End Select-IPAddress function --------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
+function Check-Command($cmdname)
+{
+    return [bool](Get-Command -Name $cmdname -ErrorAction SilentlyContinue)
+	
+	# How to use (for example):
+	
+	#if (Check-Command -cmdname 'Invoke-WebRequest') {
+	#	Invoke-WebRequest $link -OutFile $destination
+	#	$CommandExists = $True
+	#} else {
+	#	$webclient.DownloadFile($link, $destination)
+	#	$CommandExists = $False
+	#}
+	
+} # End Check-Command function -----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
 If ($LoadFunctions) {
   #https://stackoverflow.com/questions/2022326/terminating-a-script-in-powershell
   # Only load functions of script. Do not execute Main script block.
@@ -631,7 +648,6 @@ Write-Verbose "Debug preference = $DebugPreference"
 Write-LogInfo -LogPath $sLogFile -Message "-----------------------------------------------------------------------------------------------------------------------"
 Write-LogInfo -LogPath $sLogFile -Message "[TIMESTAMP]: $($Time)"
 
-
 Write-LogInfo -LogPath $sLogFile -Message "Test log info write."
 Write-LogWarning -LogPath $sLogFile -Message "Test log warning write."
 Write-LogError -LogPath $sLogFile -Message "Test log error write."
@@ -652,52 +668,91 @@ Write-LogError -LogPath $sLogFile -Message "Test log error write."
 ##Script MAIN Execution goes here
 #Clear-Host # CLS
 
+# =======================================================================================================================
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Test choice functions
+#https://www.zerrouki.com/powershell-menus-host-ui-promptforchoice-defined-or-dynamic/
 
 Write-Verbose "Test modular choice functions."
-Select-IPAddress
+#Select-IPAddress
 Write-Verbose "End modular choice function test."
 
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# Export System Environment Variables
+# =======================================================================================================================
+
+# Twilio send SMS function:
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Check if environment variables are already set or not, and set them if not
+
+$NewEnvVarName = ""
+$NewEnvVarValue = ""
+
+Write-Verbose "Setting environment variables: $NewEnvVarName, $NewEnvVarValue"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# -----------------------------------------------------------------------------------------------------------------------
+
+# Update System Environment Variables (add to separate file and run once, make that file private)
+
+$TwilioAuthFile = ".\Twilio-Auth.ps1"
+
 #[Environment]::SetEnvironmentVariable("TWILIO_ACCOUNT_SID", "your_account_sid", "User")
-[Environment]::SetEnvironmentVariable("TWILIO_ACCOUNT_SID", "AC233dffdc2d0f89ca6843bc2186f6cb84", "User")
+#[Environment]::SetEnvironmentVariable("TWILIO_ACCOUNT_SID", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "User")
 
 #[Environment]::SetEnvironmentVariable("TWILIO_AUTH_TOKEN", "your_auth_token", "User")
-[Environment]::SetEnvironmentVariable("TWILIO_AUTH_TOKEN", "3270a7694d0da92967f3d1411f7ff3e3", "User")
+#[Environment]::SetEnvironmentVariable("TWILIO_AUTH_TOKEN", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "User")
 
 # Twilio Phone number to send SMS from
-[Environment]::SetEnvironmentVariable("TWILIO_NUMBER", "+16028992009", "User")
+#[Environment]::SetEnvironmentVariable("TWILIO_NUMBER", "+12345678901", "User")
 
 # Phone number to send SMS to
-[Environment]::SetEnvironmentVariable("TWILIO_VERIFIED_CALLERID", "+14804155032", "User")
+#[Environment]::SetEnvironmentVariable("TWILIO_VERIFIED_CALLERID", "+12345678901", "User")
 
+# -----------------------------------------------------------------------------------------------------------------------
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-refreshenv
+# Check if 'refreshenv' command exists (command exit success, no error code)
 
-& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $null
-& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $null ; Write-Host "Not Exist?"	
-& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $null ; Write-Host "Not Exist?"	
-#& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if (!($_ -eq $null)) {Write-host "not EXIST???"}	
-#& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if (!($_ -eq $null)) {Write-host "not EXIST???"}
-#& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if ($_ -ne $null) {Write-host "not EXIST???"}	
+#help about_Automatic_Variables
+# $?   Contains the execution status of the last operation. It contains TRUE if the last operation succeeded and FALSE if it failed.
+# $LastExitCode   Contains the exit code of the last Windows-based program that was run.
 
-#& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $errout | if ($_ -ne $null) {Write-host "not EXIST???"}	
-#& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $errout ; if ($_ -ne $null) {Write-host "not EXIST???"}	
-#& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> if ($_ -ne $null) {Write-host "not EXIST???"} else { write-host "output $_"}	
-#& {if (rereshenv) {Write-Host "command exists"} else {write-host "command does NOT exist."}} 2> $errout
-#Write-Host $errout
+$CommandToCheck = "refreshenv"
 
+Write-Verbose "Check if '$CommandToCheck' command exists."
 
+if (Check-Command -cmdname $CommandToCheck) {$CommandExists = $True} else {$CommandExists = $False}
 
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+Write-Verbose "'$CommandToCheck' command exists = `"$CommandExists`""
+Write-Verbose "'$CommandToCheck' command execution status = `"$?`""
+Write-Verbose "'$CommandToCheck' command exit code = `"$LastExitCode`""
 
+#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+# Run 'refreshenv' if exists, or end & restart script if it doesn't exist.
+
+Write-Verbose "Refresh environment variables using '$CommandToCheck' command from Chocolatey (if exists) since we just updated them."
+
+if ($CommandExists -eq $True) {
+	Write-Verbose "Refresh environment variables using '$CommandToCheck' command from Chocolatey, since we just updated them."
+	Write-Verbose "Running $($CommandToCheck):"
+	refreshenv
+} else {
+	Write-Verbose "'$CommandToCheck' does not exist."
+	Write-Verbose "Must restart this script to update environment variables."
+	Return # help about_Return
+}
+
+# -----------------------------------------------------------------------------------------------------------------------
 
 # Body of SMS Text:
 # Sent from your Twilio trial account - 
@@ -707,14 +762,11 @@ Hello
 
 World."
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-
+# -----------------------------------------------------------------------------------------------------------------------
 
 $APIurl = "https://api.twilio.com/2010-04-01/Accounts/$sid/Messages.json"
 $APIurl = "https://api.twilio.com/2010-04-01/Accounts/"
 $APIurl = "https://api.twilio.com/2010-04-01/Accounts/"
-
 
 # Pull in Twilio account info, previously set as environment variables
 $sid = $env:TWILIO_ACCOUNT_SID
@@ -739,8 +791,6 @@ $credential = New-Object System.Management.Automation.PSCredential($sid, $p)
 #Invoke-WebRequest $url -Method Post -Credential $credential -Body $params -UseBasicParsing |
 #ConvertFrom-Json | Select sid, body
 
-
-
 #$Response = Invoke-WebRequest $url -Method Post -Credential $credential -Body $params -UseBasicParsing
 
 # Invoke-RestMethod
@@ -748,7 +798,6 @@ $credential = New-Object System.Management.Automation.PSCredential($sid, $p)
 #Write-Host $Response
 
 #$Response | ConvertFrom-Json
-
 
 <# 
 {"sid": "SM7582c4576cbd49669fe0409bbc54a69c", 
@@ -774,21 +823,37 @@ $credential = New-Object System.Management.Automation.PSCredential($sid, $p)
 "subresource_uris": {"media": "/2010-04-01/Accounts/AC233dffdc2d0f89ca6843bc2186f6cb84/Messages/SM7582c4576cbd49669fe0409bbc54a69c/Media.json"}}
 #>
 
+#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
+# =======================================================================================================================
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+# Check if files exist
 
+if (Test-Path $TaskList) {
+	Write-Verbose "Task list already exists: $TaskList"
+} else {
+	Write-Verbose "Task list does not exist: $TaskList"
+}
 
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+If (Test-Path $TimeLog) {
+	Write-Verbose "Time log already exists: $TimeLog"
+} else {
+	Write-Verbose "Time log does not exist: $TimeLog"
+}
 
-# -----------------------------------------------------------------------------------------------------------------------
+#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+# =======================================================================================================================
 
+# Notes Reference of data file structure
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-
-$TaskList #CSV
+#$TaskList #CSV
 # Headers:
 # ID, TaskName, TimeStamp_Added (YYYY-MM-DD_HH-MM-SS), TimeStamp_LastWorkedOn (YYYY-MM-DD_HH-MM-SS), TimeStamp_Completed (YYYY-MM-DD_HH-MM-SS), Estimated_Time, Status, Tags
 
@@ -802,7 +867,9 @@ $TaskList #CSV
 # In-Progress
 # On-Hold
 
-$TimeLog #CSV
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#$TimeLog #CSV
 # Headers:
 # TimeStamp (YYYY-MM-DD_HH-MM-SS), Date (YYYY-MM-DD), Time (HH:MM:SS AM), TimeZone (MST), Hostname, TaskList_ID, TaskList_Name, TimeLog_Type, Pomodoro_Mode
 
@@ -815,60 +882,46 @@ $TimeLog #CSV
 # UN-PAUSE
 # WorkStop
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 # Pomodoro_Mode:
 # Pomodoro - 25 min work / 5 min break ( 4 hour cycle = 3 hours 20 min work / 40 min break )
 	# Finish a task early, and enjoy the remaining 30 min as break.
 	# After 4 total hours, take a required 30min - 1 hour break.
 	# Log distractions when you get sidetracked, but they do not affect anything.
-	# PAUSE only when you have 
+	# PAUSE only when you have official Unplanned Work (such as co-worker or boss walking in with Urgent task)
 # Easy Pomodoro - 15 min work / 5 min break ( 4 hour cycle = 3 hours work / 1 hour break )
 # Reverse Pomodoro - 5 min work / 25 min break
-# Traditional - Use PAUSE to take breaks
+# Traditional - Clock runs continuously. Use PAUSE to take breaks manually.
 # Custom - Choose work/ break cycle
-
-
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-If ($TaskList) {
-	Write-Host "Task list already exists?"
-} else {
-	Write-Host "Task list does not exist."
-}
-
-If ($TimeLog) {
-	Write-Host "Time log already exists?"
-} else {
-	Write-Host "Time log does not exist."
-}
-PAUSE
-
-
-
+# -----------------------------------------------------------------------------------------------------------------------
 
 do
 {
-	
-	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# -----------------------------------------------------------------------------------------------------------------------
 	# Build Menu
-	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# -----------------------------------------------------------------------------------------------------------------------
 	Clear-Host # CLS
 	Write-HorizontalRuleAdv -HRtype DashedLine
 	#Write-Host `n
 	Write-Host "  Select option:" -ForegroundColor Green
 	
-	If ($TaskList) {
+	If (Test-Path $TaskList) {
 	Write-Host "    T - Select [T]ask"
 	}
 	
 	Write-Host "    N - [N]ew Task"
 	
-	If ($TaskList) {
+	If (Test-Path $TaskList) {
 	Write-Host "    M - [M]anage Tasks" # Add tags retroactively
+	
 	Write-Host "    C - Mark Task [C]omplete"
 	}
 	
-	If ($TimeLog) {
+	If (Test-Path $TimeLog) {
 	Write-Host "    H - Calculate Total [H]ours"
 	}
 	
@@ -885,77 +938,268 @@ do
 	#Write-Host `n
 	Write-HorizontalRuleAdv -HRtype DashedLine
 	#Write-Host "Choose Pipsqueak SQL command to generate."
-	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# -----------------------------------------------------------------------------------------------------------------------
 	# Build Choice Prompt
-	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# -----------------------------------------------------------------------------------------------------------------------
 	# If run from shell, will create a dialog box. If run in script, will show choice text in command line.
 	# https://social.technet.microsoft.com/wiki/contents/articles/24030.powershell-demo-prompt-for-choice.aspx
 	$Title = "Main Menu"
-	$Info = "Choose next action."
+	$Info = "Choose next action"
 	# &Power makes P a Hot Key. 
 	
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
 	$ChoiceSelectTask = New-Object System.Management.Automation.Host.ChoiceDescription "Select &Task", "Select a [T]ask from the Task list: $TaskList"
+	
 	$ChoiceNewTask = New-Object System.Management.Automation.Host.ChoiceDescription "&New Task", "Create a [N]ew task, and automatically select it."
 	
+	$ChoiceManageTasks = New-Object System.Management.Automation.Host.ChoiceDescription "&Manage Tasks", "Go to the `"[M]anage Tasks`" menu, to: add tags, delete tasks."
+	
+	$ChoiceMarkTaskComplete = New-Object System.Management.Automation.Host.ChoiceDescription "Mark Task &Complete", "Mark the currently selected task complete, and archive it."
+	
+	$ChoiceCalculateTotalHours = New-Object System.Management.Automation.Host.ChoiceDescription "Calculate Total &Hours", "Calculate actual hours spent on tasks vs. predicted hours."
+	
 	$ChoiceStartTimer = New-Object System.Management.Automation.Host.ChoiceDescription "&Start Timer", "[S]tart timer using selected Pomodoro Mode and add to Time log: $TimeLog"
+	
 	$ChoiceSelectPomodoroMode = New-Object System.Management.Automation.Host.ChoiceDescription "&Pomodoro Mode", "Select [P]omodoro Mode."
 	
 	$ChoiceTest = New-Object System.Management.Automation.Host.ChoiceDescription "&1 Test", "[T]est option."
 	$ChoiceQuit = New-Object System.Management.Automation.Host.ChoiceDescription "&Quit", "[Q]uit, prints `"Good Bye!!!`" in green and exits."
 	
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
 	$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceSelectTask, $ChoiceNewTask, $ChoiceStartTimer, $ChoiceSelectPomodoroMode, $ChoiceTest, $ChoiceQuit)
+	$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceSelectTask, $ChoiceNewTask, $ChoiceManageTasks, $ChoiceMarkTaskComplete, $ChoiceCalculateTotalHours, $ChoiceStartTimer, $ChoiceSelectPomodoroMode, $ChoiceTest, $ChoiceQuit)
 	# default choice: 0 = first Option, 1 = second option, etc.
 	[int]$defaultchoice = 1
-	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# -----------------------------------------------------------------------------------------------------------------------
 	# Execute Choice Prompt
-	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# -----------------------------------------------------------------------------------------------------------------------
 	# PromptForChoice() output will always be int https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
-	$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
-	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	#$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
+	$answer = Read-Host -Prompt $Info
+	# -----------------------------------------------------------------------------------------------------------------------
 	# Interpret answer
-	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# -----------------------------------------------------------------------------------------------------------------------
 	#help about_switch
+	#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
 	Write-Verbose "Answer = $answer"
 	switch ($answer)
 	{
-		'T' { # Select Task - $ChoiceSelectTask
-		
+		'T'	{ # Select Task - $ChoiceSelectTask
+			Write-Verbose "Select Task."
+			If (!(Test-Path $TaskList)) {
+				Write-Warning "`$TaskList '$TaskList' does not exist. Cannot Select Task."
+				PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+				Break #help about_Break
+			}
 			Write-Host `n
 			Write-Host "Select Task."
 			Write-HorizontalRuleAdv -HRtype DashedLine
-			#PAUSE
+			
+			Break #help about_Break
+			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 		}
 		'N' { # New Task - $ChoiceNewTask
-			
+			Write-Verbose "New Task. (`$ChoiceNewTask)"
 			Write-Host `n
-			Write-Host "New Task."
+			Write-Host "Create New Task"
 			Write-HorizontalRuleAdv -HRtype DashedLine
-			#PAUSE
+			$NewTaskName = Read-Host -Prompt "New Task Name"
+			Write-Verbose "New Task: '$NewTaskName'"
+			
+			$NewTask_Estimated_Time = Read-Host -Prompt "Estimated hours to complete"
+			Write-Verbose "Estimated hours: '$NewTask_Estimated_Time'"
+			
+			$NewTask_TimeStamp_Added = Get-Date -format o # (YYYY-MM-DD_HH-MM-SS), 
+			Write-Verbose "TimeStamp_Added: '$NewTask_TimeStamp_Added'"
+			$NewTask_TimeStamp_LastWorkedOn = "" # (YYYY-MM-DD_HH-MM-SS), 
+			Write-Verbose "TimeStamp_LastWorkedOn: '$NewTask_TimeStamp_LastWorkedOn'"
+			$NewTask_TimeStamp_Completed = "" # (YYYY-MM-DD_HH-MM-SS), 
+			Write-Verbose "TimeStamp_Completed: '$NewTask_TimeStamp_Completed'"
+			
+			# TaskList_Status:
+			$TaskList_Status = "Active"
+			#$TaskList_Status = "Completed"
+			#$TaskList_Status = "Deleted"
+			#$TaskList_Status = "In-Progress"
+			#$TaskList_Status = "On-Hold"
+			
+			$TaskList_Tags = ""
+			
+			$NewTaskEntry = "$($NewTaskName)"
+			$NewTaskEntry += ",$($NewTask_TimeStamp_Added)"
+			$NewTaskEntry += ",$($NewTask_TimeStamp_LastWorkedOn)"
+			$NewTaskEntry += ",$($NewTask_TimeStamp_Completed)"
+			$NewTaskEntry += ",$($NewTask_Estimated_Time)"
+			$NewTaskEntry += ",$($TaskList_Status)"
+			$NewTaskEntry += ",$($TaskList_Tags)"
+			
+			Write-Verbose "Adding New Task to file: '$TaskList'"
+			Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
+			PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+			
+			# Create $TaskList file if it does not exist
+			If (!(Test-Path $TaskList)) {
+				Write-Verbose "`$TaskList '$TaskList' does not exist. Creating file."
+				Write-LogInfo -LogPath $sLogFile -Message "Creating new Task List file: '$TaskList'"
+				Write-Debug "Creating Task List file: '$TaskList'"
+				$NewTaskEntry > $TaskList
+			} else {
+				Write-Verbose "`$TaskList '$TaskList' exists."
+				Write-Verbose "Appending to file . . . "
+				Write-LogInfo -LogPath $sLogFile -Message "Adding New Task to file: '$NewTaskName' '$TaskList'"
+				Write-Debug "Appending New Task to file: '$TaskList'"
+				$NewTaskEntry >> $TaskList
+			}
+			
+			Break #help about_Break
+			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+		}
+		'M' { # Manage Tasks - $ChoiceManageTasks
+			Write-Verbose "Manage Tasks."
+			Write-Host `n
+			Write-Host "Manage Tasks."
+			Write-HorizontalRuleAdv -HRtype DashedLine
+			Break #help about_Break
+			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+		}
+		'C' { # Mark Task Complete - $ChoiceMarkTaskComplete
+			Write-Verbose "Mark Task Complete."
+			Write-Host `n
+			Write-Host "Mark Task Complete."
+			Write-HorizontalRuleAdv -HRtype DashedLine
+			Break #help about_Break
+			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+		}
+		'H' { # Calculate Total Hours - $ChoiceCalculateTotalHours
+			Write-Verbose "Calculate Total Hours."
+			Write-Host `n
+			Write-Host "Calculate Total Hours."
+			Write-HorizontalRuleAdv -HRtype DashedLine
+			Break #help about_Break
+			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 		}
 		'S' { # Start Timer - $ChoiceStartTimer
-			
+			Write-Verbose "Start Timer."
 			Write-Host `n
 			Write-Host "Start Timer."
 			Write-HorizontalRuleAdv -HRtype DashedLine
-			#PAUSE
+			
+			If (!(Test-Path $TaskList)) {
+			}
+			
+			Break #help about_Break
+			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 		}
 		'P' { # Select Pomodoro Mode - $ChoiceSelectPomodoroMode
-			
+			Write-Verbose "Select Pomodoro Mode."
 			Write-Host `n
-			Write-Host "Select Pomodoro Mode."
+			Write-Host "Choose Pomodoro Mode:"
 			Write-HorizontalRuleAdv -HRtype DashedLine
-			#PAUSE
+			if ($Pomodoro_Mode) {
+			Write-Host "  Currently Selected: [$($Pomodoro_Mode)]"
+			Write-HorizontalRuleAdv -HRtype DashedLine
+			}
+			# Pomodoro_Mode:
+					  # -----------------------------------------------------------------------------------------------------------------------
+			Write-Host "  P - Classic [P]omodoro - 25 min work / 5 min break ( 4 hour cycle = 3 hours 20 min work / 40 min break )"
+			Write-Host "			- Finish a task early, and enjoy the remaining 30 min as break."
+			Write-Host "			- After 4 total hours, take a required 30min - 1 hour break."
+			Write-Host "			- Log distractions when you get sidetracked, but they do not affect anything."
+			Write-Host "			- PAUSE only when you have official Unplanned Work (such as co-worker or boss walking in with Urgent task)"
+					  # -----------------------------------------------------------------------------------------------------------------------
+			Write-Host "  E - [E]asy Pomodoro - 15 min work / 5 min break ( 4 hour cycle = 3 hours work / 1 hour break )"
+			Write-Host "  R - [R]everse Pomodoro - 5 min work / 25 min break"
+			Write-Host "  T - [T]raditional - Clock runs continuously. Use PAUSE to take breaks manually."
+			#Write-Host "  C - [C]ustom - Choose work/break cycle"
+			Write-Host "  Q - [Q]uit - Cancel Selection"
+					  # -----------------------------------------------------------------------------------------------------------------------
+			Write-HorizontalRuleAdv -HRtype DashedLine
+			$Pomodoro_Choice = Read-Host -Prompt "Choose Pomodoro mode"
+			
+			
+			#help about_switch
+			#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
+			Write-Verbose "Answer = '$Pomodoro_Choice'"
+			switch ($Pomodoro_Choice)
+			{
+				'P'	{ # P - Classic [P]omodoro
+					$Pomodoro_Mode = "Classic Pomodoro"
+					Write-Verbose "'$Pomodoro_Mode' selected."
+					Break #help about_Break
+					#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+				}
+				'E' { # E - [E]asy Pomodoro
+					$Pomodoro_Mode = "Easy Pomodoro"
+					Write-Verbose "'$Pomodoro_Mode' selected."
+					Break #help about_Break
+					#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+				}
+				'R' { # R - [R]everse Pomodoro
+					$Pomodoro_Mode = "Reverse Pomodoro"
+					Write-Verbose "'$Pomodoro_Mode' selected."
+					Break #help about_Break
+					#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+				}
+				'T' { # T - [T]raditional
+					$Pomodoro_Mode = "Traditional Clock"
+					Write-Verbose "'$Pomodoro_Mode' selected."
+					Break #help about_Break
+					#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+				}
+				'C' { # C - [C]ustom
+					$Pomodoro_Mode = "Custom Pomodoro"
+					Write-Verbose "'$Pomodoro_Mode' selected."
+					Break #help about_Break
+					#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+				}
+				'Q' { # Q - [Q]uit - Cancel Selection
+					Write-Verbose "Quit option selected."
+					Return #help about_Return
+					#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+				}
+				default { # Choice not recognized.
+					Write-Host `n
+					Write-Host "Choice `"$answer`" not recognized."
+					Write-HorizontalRuleAdv -HRtype DashedLine
+					Break #help about_Break
+					#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+				}
+				Write-Verbose "End of switch choice cycle."
+				PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+			}
+			until ($answer -eq 'Q') 
+			
+			$Pomodoro_Mode = "Classic Pomodoro"
+			$Pomodoro_Mode = "Easy Pomodoro"
+			$Pomodoro_Mode = "Reverse Pomodoro"
+			$Pomodoro_Mode = "Traditional Clock"
+			$Pomodoro_Mode = "Custom Pomodoro"
+			
+			
+			
+			Break #help about_Break
+			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 		}
 		1 { # Test #1 - $ChoiceTest
-			
+			Write-Verbose "Test #1."
 			Write-Host `n
 			Write-Host "Test #1."
 			Write-HorizontalRuleAdv -HRtype DashedLine
-			#PAUSE
+			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 		}
 		'Q' { # Quit - $ChoiceQuit
+			Write-Verbose "Quit option selected."
 			Write-Host "Good Bye!!!" -ForegroundColor Green
-			Return
+			Return #help about_Return
+			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+		}
+		default { # Choice not recognized.
+			Write-Host `n
+			Write-Host "Choice `"$answer`" not recognized."
+			Write-HorizontalRuleAdv -HRtype DashedLine
+			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 		}
 	}
 	Write-Verbose "End of switch choice cycle."
@@ -995,4 +1239,4 @@ Write-Debug "End-of-script. $ScriptName"
 Write-LogInfo -LogPath $sLogFile -Message "End of script $ScriptName"
 Stop-Log -LogPath $sLogFile
 Write-Output $sLogFile
-Return
+Return # help about_Return
