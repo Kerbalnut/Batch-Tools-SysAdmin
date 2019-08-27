@@ -1101,6 +1101,39 @@ ECHO DEBUGGING: _FILE_B evaluation finished.
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+ECHO DEBUGGING: Append string to file
+
+:: Date applied:,Fancy Date:,Company:,Position:,Attachment:,URL:
+:: Date applied:,Fancy Date:,Company:,Position:,Contact Name:,Contact Email:,Contact Phone:,Attachment:,URL:
+
+::SET "_NEW_ENTRY=%_DATE_AND_TIME%,%_FANCY_DATE%,%_COMPANY%,%_POSITION%,%1,%_URL%"
+::SET "_NEW_ENTRY=%_DATE_AND_TIME%,%_FANCY_DATE%,%_COMPANY%,%_POSITION%,%_NAME%,%_EMAIL%,%_PHONE%,%1,%_URL%"
+SET "_NEW_ENTRY=Demo Data"
+CALL :GetDate
+SET "_NEW_ENTRY=%_NEW_ENTRY%,%_SORTABLE_DATE%"
+SET "_NEW_ENTRY=%_NEW_ENTRY%,%_SORTABLE_TIME%"
+SET "_NEW_ENTRY=%_NEW_ENTRY%,%_FORMATTED_TIME%"
+REM ECHO DEBUGGING: %%_NEW_ENTRY%% = %_NEW_ENTRY%
+
+:: Add entry to CSV
+
+ECHO %_NEW_ENTRY%>>"%_FILE_A%" && SET "_COMMAND_EXIT=SUCCESS" || SET "_COMMAND_EXIT=FAILURE"
+REM ECHO DEBUGGING: %%_COMMAND_EXIT%% = %_COMMAND_EXIT%
+
+IF /I NOT "%_COMMAND_EXIT%"=="SUCCESS" (
+	ECHO Failed to add %%_NEW_ENTRY%% to CSV file. ^(%_FILE_A_NAME%^)
+	ECHO:
+	ECHO %%_NEW_ENTRY%% = %_NEW_ENTRY%
+	ECHO:
+	PAUSE
+	REM GOTO END
+) ELSE (
+	ECHO %_FILE_A_NAME% additions accepted.
+	ECHO:
+)
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 ::===============================================================================
 :: Phase 2: Test :GetIfPathIsDriveRoot
 ::===============================================================================

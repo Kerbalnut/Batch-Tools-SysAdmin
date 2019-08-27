@@ -110,6 +110,7 @@ REM e.g. "%USERPROFILE%\Documents\SpiderOak Hive\Programming\Batch\+Function Lib
 SET "_BatchPath=%USERPROFILE%\Documents\SpiderOak Hive\Programming\Batch\+Function Library\Functions list\functions-template.bat"
 REM SET "_BatchPath=%USERPROFILE%\Documents\SpiderOak Hive\SysAdmin\Flash Drive\General Flash Drive\Launch-AD_ElevatedCMD.bat"
 SET "_BatchPath=%USERPROFILE%\Documents\Hg\Resume\Portfolio Finals\Sanitize-PDF.bat"
+::SET "_BatchPath=.\Sanitize-PDF.bat"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -156,6 +157,16 @@ IF "%~1"=="" (
 	REM >-------------------------------------------------------------------------------
 	REM Debugging: cannot use :: for comments within IF statement, instead use REM
 	REM Debugging: cannot use ECHO( for newlines within IF statement, instead use ECHO. or ECHO: 
+)
+
+::-------------------------------------------------------------------------------
+
+IF NOT EXIST "%DebugScript%" (
+	ECHO:
+	ECHO "%DebugScript%" does not exist.
+	ECHO:
+	PAUSE
+	GOTO END
 )
 
 ::-------------------------------------------------------------------------------
