@@ -16,17 +16,82 @@ Copy **functions-template.bat** to the place you need it, delete the stuff you d
 
 ## Get started with some unique and useful tools:
 
-Tools like **Update-Java.bat** and **Install-AllWindowsUpdates.bat** demonstrate the power of [Boxstarter](https://boxstarter.org/UsingBoxstarter) with their 2-line scripts, contained in *Update-Java.txt* and *Install-AllWindowsUpdates.txt* respectively.
+### File & Folder merge tool
 
-**BoxstarterInstall-template.bat** and **BoxstarterInstall-NetworkingUtilities.bat** are also scripts that leverage Boxstarter. All 4 of these scripts together are nearly identical, only the parameters have been changed. 
+**CompareTo-Parent.bat** (located in the **Tools** folder) is a great for merging text documents utilizing [KDiff3](https://chocolatey.org/packages/kdiff3). There are 2 ways to use this tool:
 
-As these scripts demonstrate, Boxstarter is powerful enough to set up a fresh-out-of-the-box computer with software and OS tweaks, and can be customized to your exact needs. Perfect for deploying large batches of computers quickly.
+1. **Drag-n-Drop** compatible:
+   1. Drag-and-drop the first file onto `CompareTo-Parent.bat`, and a cmd window will pop-up asking for the second file. 
+   2. Drag-and-drop the second file onto the cmd window that just appeared. 
+   3. Press enter.
+2. Edit the file using your favorite text/script/IDE editor, and scroll down to the `:Parameters` tag. There are 2 main parameters that need to be modified:
+   1. `_FILE_A` (will always be the first file to be updated)
+   2. `_FILE_B`
 
-`BoxstarterInstall-template.bat` is the master record for all of these types of scripts. 
+>Tips:
+>
+> - Hold `Shift + Right Click` on a file, and "Copy as path" will appear in the right-click menu. (Windows Vista and higher)
+> - Use the `%UserProfile%` [automatic variable](https://ss64.com/nt/syntax-variables.html) to fill in for "%SystemDrive%\Users\\{username}" E.g. "%UserProfile%\Documents\My File.txt" = "C:\Users\\\<Username>\Documents\My File.txt"
 
-Any time an improvement is made to any BoxstarterInstall-* script, it should be merged with *BoxstarterInstall-template.bat* so that all scripts may benefit. Speaking of...
+Use it to merge code or lists you may have edited on a flash drive at another computer, back with your source destination. 
 
-**CompareTo-Parent.bat** (located in the tools folder) is a great tool to merge text documents, which utilizes [KDiff3](https://chocolatey.org/packages/kdiff3). Use it to merge code or lists you may have edited on a flash drive at another location, back with your source destination. This script is **Drag-n-Drop** compatible, so drag-n-drop the first file you wish to compare onto `CompareTo-Parent.bat`, a cmd window will pop up, then drag-n-drop the second file you wish to compare onto the cmd window. Press enter.
+E.g. If you created a flash drive "toolbox" with a collection of automation scripts like this, but ended up modifying them in order to fix some bugs, you'll probably want to update the source storage location with your new bugfixes. Use **CompareTo-Parent.bat** to do exactly that, or for frequent updates make a copy of the script and set the Parameters to the two files that need to be maintained as the same.
+
+### [Boxstarter](https://boxstarter.org/) Helper script
+
+Boxstarter is the perfect tool to set up a fresh-out-of-the-box computer with [software](https://chocolatey.org/) and [OS tweaks](https://boxstarter.org/WinConfig), customized to your exact needs. Great for deploying a fleet of computers quickly & automatically; or to help restore your computer after a serious hardware/software crash that requires re-installing the OS & restoring data files from a backup. To backup the installed software on your PC, all that's needed is a copy of your Boxstarter script on the backup drive.
+
+Tools like **Update-Java.bat** and **Install-AllWindowsUpdates.bat** are simple examples of [Boxstarter's](https://boxstarter.org/UsingBoxstarter) power with their 2-line scripts, which are [*Update-Java.txt*](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/blob/master/Update-Java.txt) and [*Install-AllWindowsUpdates.txt*](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/blob/master/Install-AllWindowsUpdates.txt) respectively.
+
+For a more detailed example, **BoxstarterInstall-NetworkingUtilities.bat** contains a list of [software & utilities](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/blob/master/BoxstarterInstall-NetworkingUtilities.txt) great for setting up a Networking Technician's on-site work laptop. This way, if the laptop is connected to an infected network, afterwards it can be completely wiped with a fresh install of Windows, have all of the software re-installed via the Boxstarter script, then data files can be restored via backup drive. Regular wiping also helps protect a client's network from any zero-day infections still unknown to you, possibly gained from being a well-traveled laptop.
+
+A full backup & restoration plan should also include the configuration of applications that were just installed by the Boxstarter script, such as importing bookmarks, setting themes, adding email accounts, etc.; and OS customizations that cannot be performed by Boxstarter, such as customizing the Taskbar, Start Menu, Desktop, etc.
+
+> Full Backup & Restore Plan: (Example)
+> 
+> - Windows Product Key, MS Office Product Key (take picture of Product Key sticker early since they get rubbed off)
+> - Windows Image ISO, DVD, Bootable USB
+> - BoxstarterInstall-script.txt
+>   - Custom Chocolatey packages (for rare software or software not listed in the Chocolatey community repository)
+> - App configurations:
+>   - Internet Browsers
+>     - Bookmarks
+>     - Add-ons/Plugins/Extensions list
+>       - NoScript Whitelist
+>     - Customize: organize toolbars
+>     - Options
+>       - General -> Startup -> Restore previous session
+>   - Email Client
+>     - Email accounts list
+>     - Message Filters/Rules
+>   - KeePass
+>     - Plugins list
+>   - Notepad++/IDE of choice
+>     - Theme: (Settings -> Style Configurator -> Select theme: "Obsidian")
+> - OS customizations:
+>   - Taskbar
+>   - Start Menu
+>   - Desktop
+> - Data Files:
+>   - %UserProfile%\\\*
+>   - %UserProfile%\Documents
+>   - %UserProfile%\Desktop
+>   - %UserProfile%\Downloads
+
+All 4 of these scripts are *Boxstarter helper scripts*, they are practically identical. The only difference is the parameters at the very top of the scripts have been changed: (Use **Tools/CompareTo-Parent.bat** to see for yourself!)
+
+- **BoxstarterInstall-template.bat**
+- **BoxstarterInstall-NetworkingUtilities.bat**
+- **Install-AllWindowsUpdates.bat**
+- **Update-Java.bat**
+
+To create your own, make a copy of **BoxstarterInstall-template.bat** and rename it to fit your project. Edit the file using your favorite text/script/IDE editor, and scroll down to the `:Parameters` tag. There are 2 main parameters that need to be modified:
+
+1. Source of the Boxstarter script to run. Choose either:
+   1. [Github-hosted Gist script](https://gist.github.com/)
+   2. Path to a locally-accessible .txt script. By default, if you name your your new project script **BoxstarterInstall-MyNewProject.bat** then `%~dpn0.txt` will point to a file named **BoxstarterInstall-MyNewProject.txt** stored in the same folder.
+   3. A comma-seperated list of [Chocolatey packages](https://chocolatey.org/packages), e.g. `adobereader,firefox,googlechrome`
+2. A multi-line variable for the **Instructions text**. Batch script cannot handle mult-line string variables, so it much be appended to a temporary `_INSTRUCTIONS_FILE`.
 
 ---
 
@@ -203,5 +268,7 @@ Most .txt file notes and short .bat files come from a single use case. They are 
 ## How to contribute:
 
 All contributions are welcome. This section will be updated further, but currently standard GitHub policies like Pull Requests and Issues are the way to do it.
+
+[Fork a Repo](https://help.github.com/en/articles/fork-a-repo)
 
 ---

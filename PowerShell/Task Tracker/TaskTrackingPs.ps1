@@ -608,6 +608,72 @@ function Check-Command($cmdname)
 } # End Check-Command function -----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
+function Create-NewTask { # New Task - $ChoiceNewTask
+	  
+	Param (
+		#Script parameters go here
+		# https://ss64.com/ps/syntax-args.html
+		[Parameter(Mandatory=$true)]
+		[string]$TaskList,
+		
+		[Parameter(Mandatory=$true)]
+		[switch]$sLogFile
+	)
+	
+	#Write-Verbose "New Task. (`$ChoiceNewTask)"
+	Write-Host `n
+	Write-Host "Create New Task"
+	Write-HorizontalRuleAdv -HRtype DashedLine
+	$NewTaskName = Read-Host -Prompt "New Task Name"
+	Write-Verbose "New Task: '$NewTaskName'"
+	
+	$NewTask_Estimated_Time = Read-Host -Prompt "Estimated hours to complete"
+	Write-Verbose "Estimated hours: '$NewTask_Estimated_Time'"
+	
+	$NewTask_TimeStamp_Added = Get-Date -format o # (YYYY-MM-DD_HH-MM-SS), 
+	Write-Verbose "TimeStamp_Added: '$NewTask_TimeStamp_Added'"
+	$NewTask_TimeStamp_LastWorkedOn = "" # (YYYY-MM-DD_HH-MM-SS), 
+	Write-Verbose "TimeStamp_LastWorkedOn: '$NewTask_TimeStamp_LastWorkedOn'"
+	$NewTask_TimeStamp_Completed = "" # (YYYY-MM-DD_HH-MM-SS), 
+	Write-Verbose "TimeStamp_Completed: '$NewTask_TimeStamp_Completed'"
+	
+	# TaskList_Status:
+	$TaskList_Status = "Active"
+	#$TaskList_Status = "Completed"
+	#$TaskList_Status = "Deleted"
+	#$TaskList_Status = "In-Progress"
+	#$TaskList_Status = "On-Hold"
+	
+	$TaskList_Tags = ""
+	
+	$NewTaskEntry = "$($NewTaskName)"
+	$NewTaskEntry += ",$($NewTask_TimeStamp_Added)"
+	$NewTaskEntry += ",$($NewTask_TimeStamp_LastWorkedOn)"
+	$NewTaskEntry += ",$($NewTask_TimeStamp_Completed)"
+	$NewTaskEntry += ",$($NewTask_Estimated_Time)"
+	$NewTaskEntry += ",$($TaskList_Status)"
+	$NewTaskEntry += ",$($TaskList_Tags)"
+	
+	Write-Verbose "Adding New Task to file: '$TaskList'"
+	Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
+	PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+	
+	# Create $TaskList file if it does not exist
+	If (!(Test-Path $TaskList)) {
+		Write-Verbose "`$TaskList '$TaskList' does not exist. Creating file."
+		Write-LogInfo -LogPath $sLogFile -Message "Creating new Task List file: '$TaskList'"
+		Write-Debug "Creating Task List file: '$TaskList'"
+		$NewTaskEntry > $TaskList
+	} else {
+		Write-Verbose "`$TaskList '$TaskList' exists."
+		Write-Verbose "Appending to file . . . "
+		Write-LogInfo -LogPath $sLogFile -Message "Adding New Task to file: '$NewTaskName' '$TaskList'"
+		Write-Debug "Appending New Task to file: '$TaskList'"
+		$NewTaskEntry >> $TaskList
+	}
+} # End Create-NewTask function ----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
 If ($LoadFunctions) {
   #https://stackoverflow.com/questions/2022326/terminating-a-script-in-powershell
   # Only load functions of script. Do not execute Main script block.
@@ -648,9 +714,9 @@ Write-Verbose "Debug preference = $DebugPreference"
 Write-LogInfo -LogPath $sLogFile -Message "-----------------------------------------------------------------------------------------------------------------------"
 Write-LogInfo -LogPath $sLogFile -Message "[TIMESTAMP]: $($Time)"
 
-Write-LogInfo -LogPath $sLogFile -Message "Test log info write."
-Write-LogWarning -LogPath $sLogFile -Message "Test log warning write."
-Write-LogError -LogPath $sLogFile -Message "Test log error write."
+#Write-LogInfo -LogPath $sLogFile -Message "Test log info write."
+#Write-LogWarning -LogPath $sLogFile -Message "Test log warning write."
+#Write-LogError -LogPath $sLogFile -Message "Test log error write."
 
 # https://ss64.com/ps/read-host.html
 #$Choice = Read-Host -Prompt "Enter text to be caputred" # CHOICE (Read-Host automatically adds colon at the end of prompt)
@@ -699,8 +765,9 @@ Write-Verbose "Setting environment variables: $NewEnvVarName, $NewEnvVarValue"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # -----------------------------------------------------------------------------------------------------------------------
 
-# Update System Environment Variables (add to separate file and run once, make that file private)
+# Update System Environment Variables from external file
 
+$TwilioAuthFile = ".\Twilio-Auth_template.ps1"
 $TwilioAuthFile = ".\Twilio-Auth.ps1"
 
 #[Environment]::SetEnvironmentVariable("TWILIO_ACCOUNT_SID", "your_account_sid", "User")
@@ -765,7 +832,6 @@ World."
 # -----------------------------------------------------------------------------------------------------------------------
 
 $APIurl = "https://api.twilio.com/2010-04-01/Accounts/$sid/Messages.json"
-$APIurl = "https://api.twilio.com/2010-04-01/Accounts/"
 $APIurl = "https://api.twilio.com/2010-04-01/Accounts/"
 
 # Pull in Twilio account info, previously set as environment variables
@@ -861,11 +927,11 @@ If (Test-Path $TimeLog) {
 # Resume;Printer;Email
 
 # TaskList_Status:
-# Active
-# Completed
-# Deleted
-# In-Progress
-# On-Hold
+#$TaskList_Status = "Active"
+#$TaskList_Status = "Completed"
+#$TaskList_Status = "Deleted"
+#$TaskList_Status = "In-Progress"
+#$TaskList_Status = "On-Hold"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -874,18 +940,18 @@ If (Test-Path $TimeLog) {
 # TimeStamp (YYYY-MM-DD_HH-MM-SS), Date (YYYY-MM-DD), Time (HH:MM:SS AM), TimeZone (MST), Hostname, TaskList_ID, TaskList_Name, TimeLog_Type, Pomodoro_Mode
 
 # TimeLog_Type:
-# WorkStart
-# TimeStart
-# TimeStop
-# DistractionTimeStamp
-# PAUSE
-# UN-PAUSE
-# WorkStop
+#$TimeLog_Type = "WorkStart"
+#$TimeLog_Type = "TimeStart"
+#$TimeLog_Type = "TimeStop"
+#$TimeLog_Type = "DistractionTimeStamp"
+#$TimeLog_Type = "PAUSE"
+#$TimeLog_Type = "UN-PAUSE"
+#$TimeLog_Type = "WorkStop"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # Pomodoro_Mode:
-# Pomodoro - 25 min work / 5 min break ( 4 hour cycle = 3 hours 20 min work / 40 min break )
+# Classic Pomodoro - 25 min work / 5 min break ( 4 hour cycle = 3 hours 20 min work / 40 min break )
 	# Finish a task early, and enjoy the remaining 30 min as break.
 	# After 4 total hours, take a required 30min - 1 hour break.
 	# Log distractions when you get sidetracked, but they do not affect anything.
@@ -893,11 +959,48 @@ If (Test-Path $TimeLog) {
 # Easy Pomodoro - 15 min work / 5 min break ( 4 hour cycle = 3 hours work / 1 hour break )
 # Reverse Pomodoro - 5 min work / 25 min break
 # Traditional - Clock runs continuously. Use PAUSE to take breaks manually.
-# Custom - Choose work/ break cycle
+# Custom - Choose work/break cycle
+
+#$Pomodoro_Mode = "Classic Pomodoro"
+#$Pomodoro_Mode = "Easy Pomodoro"
+#$Pomodoro_Mode = "Reverse Pomodoro"
+#$Pomodoro_Mode = "Traditional Clock"
+#$Pomodoro_Mode = "Custom Pomodoro"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # -----------------------------------------------------------------------------------------------------------------------
+
+do {
+	$ChoiceYesNoCancel = Read-Host -Prompt "[Y]es, [N]o, or [C]ancel? [Y\N\C]"
+	switch ($ChoiceYesNoCancel) {
+		'Y'	{ # Y - Yes
+			Write-Verbose "Yes ('$ChoiceYesNoCancel') option selected."
+			Write-Host `r`n
+		}
+		'N' { # N - No
+			Write-Verbose "No ('$ChoiceYesNoCancel') option selected."
+			Write-Host `r`n
+		}
+		'C' { # C - Cancel
+			Write-Verbose "Cancel ('$ChoiceYesNoCancel') option selected."
+			Write-Host `r`n
+		}
+		default { # Choice not recognized.
+			Write-Host `r`n
+			Write-Host "Choice `"$ChoiceYesNoCancel`" not recognized. Options must me Yes, No, or Cancel."
+			#Write-HorizontalRuleAdv -HRtype DashedLine
+			Write-Host `r`n
+			#Break #help about_Break
+			PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+			Write-Host `r`n
+			Write-HorizontalRuleAdv -HRtype DashedLine
+		}
+	}
+}
+until ($ChoiceYesNoCancel -eq 'Y' -Or $ChoiceYesNoCancel -eq 'N' -Or $ChoiceYesNoCancel -eq 'C')
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 do
 {
@@ -907,7 +1010,7 @@ do
 	Clear-Host # CLS
 	Write-HorizontalRuleAdv -HRtype DashedLine
 	#Write-Host `n
-	Write-Host "  Select option:" -ForegroundColor Green
+	Write-Host "  Select option:" -ForegroundColor Yellow
 	
 	If (Test-Path $TaskList) {
 	Write-Host "    T - Select [T]ask"
@@ -927,7 +1030,12 @@ do
 	
 	Write-Host "    S - [S]tart Timer"
 	
+	if ($Pomodoro_Mode) {
+	Write-Host "    P - Select [P]omodoro Mode               Currently Selected: '$($Pomodoro_Mode)'" -ForegroundColor Green
+	#>>>>>>>>>> -----------------------------------------------------------------------------------------------------------------------
+	} else {
 	Write-Host "    P - Select [P]omodoro Mode"
+	}
 	
 	#Write-Host "    F - [F]ilter by Tags"
 	
@@ -986,6 +1094,7 @@ do
 	Write-Verbose "Answer = $answer"
 	switch ($answer)
 	{
+		# -----------------------------------------------------------------------------------------------------------------------
 		'T'	{ # Select Task - $ChoiceSelectTask
 			Write-Verbose "Select Task."
 			If (!(Test-Path $TaskList)) {
@@ -997,11 +1106,15 @@ do
 			Write-Host "Select Task."
 			Write-HorizontalRuleAdv -HRtype DashedLine
 			
-			Break #help about_Break
-			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+			#Break #help about_Break
+			PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 		}
+		# -----------------------------------------------------------------------------------------------------------------------
 		'N' { # New Task - $ChoiceNewTask
 			Write-Verbose "New Task. (`$ChoiceNewTask)"
+			Write-Verbose "Creating New Task."
+			Create-NewTask -TaskList $TaskList -sLogFile $sLogFile
+			# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 			Write-Host `n
 			Write-Host "Create New Task"
 			Write-HorizontalRuleAdv -HRtype DashedLine
@@ -1052,158 +1165,327 @@ do
 				Write-Debug "Appending New Task to file: '$TaskList'"
 				$NewTaskEntry >> $TaskList
 			}
-			
-			Break #help about_Break
+			# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+			#Break #help about_Break
 			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 		}
+		# -----------------------------------------------------------------------------------------------------------------------
 		'M' { # Manage Tasks - $ChoiceManageTasks
 			Write-Verbose "Manage Tasks."
 			Write-Host `n
 			Write-Host "Manage Tasks."
 			Write-HorizontalRuleAdv -HRtype DashedLine
-			Break #help about_Break
-			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+			#Break #help about_Break
+			PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 		}
+		# -----------------------------------------------------------------------------------------------------------------------
 		'C' { # Mark Task Complete - $ChoiceMarkTaskComplete
 			Write-Verbose "Mark Task Complete."
 			Write-Host `n
 			Write-Host "Mark Task Complete."
 			Write-HorizontalRuleAdv -HRtype DashedLine
-			Break #help about_Break
-			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+			#Break #help about_Break
+			PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 		}
+		# -----------------------------------------------------------------------------------------------------------------------
 		'H' { # Calculate Total Hours - $ChoiceCalculateTotalHours
 			Write-Verbose "Calculate Total Hours."
 			Write-Host `n
 			Write-Host "Calculate Total Hours."
 			Write-HorizontalRuleAdv -HRtype DashedLine
-			Break #help about_Break
-			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+			#Break #help about_Break
+			PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 		}
+		# -----------------------------------------------------------------------------------------------------------------------
 		'S' { # Start Timer - $ChoiceStartTimer
 			Write-Verbose "Start Timer."
 			Write-Host `n
 			Write-Host "Start Timer."
 			Write-HorizontalRuleAdv -HRtype DashedLine
 			
+			# Check if we have a selected Task.
+			
+			# No task is selected, ask user if they'd like to select or create one.
+			
+			$SelectedTaskLine
+			$SelectedTaskName
+			
 			If (!(Test-Path $TaskList)) {
+				Write-Verbose "`$TaskList '$TaskList' does not exist."
+				do {
+					$ChoiceYesNo = Read-Host -Prompt "Create Task to associate with? [Y\N]"
+					switch ($ChoiceYesNo) {
+						'Y'	{ # Y - Yes
+							Write-Verbose "Yes ('$ChoiceYesNo') option selected."
+							Write-Verbose "Creating Task first, then Selecting it, then Starting Timer."
+							Write-Host `r`n
+							Write-Verbose "Creating New Task."
+							Create-NewTask -TaskList $TaskList -sLogFile $sLogFile
+						}
+						'N' { # N - No
+							Write-Verbose "No ('$ChoiceYesNo') option selected."
+							Write-Verbose "Proceeding with Timer without associating a Task."
+							Write-Host `r`n
+							$SelectedTaskLine = ""
+							$SelectedTaskName = ""
+						}
+						default { # Choice not recognized.
+							Write-Host `r`n
+							Write-Host "Choice `"$ChoiceYesNo`" not recognized. Options must me Yes or No."
+							#Write-HorizontalRuleAdv -HRtype DashedLine
+							Write-Host `r`n
+							#Break #help about_Break
+							PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+							Write-Host `r`n
+							Write-HorizontalRuleAdv -HRtype DashedLine
+						}
+					}
+				}
+				until ($ChoiceYesNo -eq 'Y' -Or $ChoiceYesNo -eq 'N')
+			} else {
+				Write-Verbose "`$TaskList '$TaskList' exists."
+				# Check if file has any contents.
+				If (!(Test-Path $TaskList)) {
+					Write-Verbose "`$TaskList '$TaskList' has contents."
+					do {
+						$ChoiceYesNo = Read-Host -Prompt "Select New/Existing Task to associate this Time with? [Y\N]"
+						switch ($ChoiceYesNo) {
+							'Y'	{ # Y - Yes
+								Write-Verbose "Yes ('$ChoiceYesNo') option selected."
+								Write-Host `r`n
+								do {
+									$ChoiceAnswer = Read-Host -Prompt "Select [E]xisting Task, Create [N]ew Task, or [C]ancel? [E\N\C]"
+									switch ($ChoiceAnswer) {
+										'E'	{ # E - Select Existing Task
+											Write-Verbose "Select Existing Task ('$ChoiceAnswer') option selected."
+											Write-Host `r`n
+										}
+										'N' { # N - Create New Task
+											Write-Verbose "Create New Task ('$ChoiceAnswer') option selected."
+											Write-Host `r`n
+											Write-Verbose "Creating New Task."
+											Create-NewTask -TaskList $TaskList -sLogFile $sLogFile
+										}
+										'C' { # C - Cancel
+											Write-Verbose "Cancel ('$ChoiceAnswer') option selected."
+											Write-Host `r`n
+											Break #help about_Break
+										}
+										default { # Choice not recognized.
+											Write-Host `r`n
+											Write-Host "Choice `"$ChoiceAnswer`" not recognized. Options must me Yes or No."
+											#Write-HorizontalRuleAdv -HRtype DashedLine
+											Write-Host `r`n
+											#Break #help about_Break
+											PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+											Write-Host `r`n
+											Write-HorizontalRuleAdv -HRtype DashedLine
+										}
+									}
+								}
+								until ($ChoiceAnswer -eq 'Y' -Or $ChoiceAnswer -eq 'N' -Or $ChoiceAnswer -eq 'C')
+								if ($ChoiceAnswer -eq 'C') {Break} #help about_Break
+							}
+							'N' { # N - No
+								Write-Verbose "No ('$ChoiceYesNo') option selected."
+								Write-Verbose "Proceeding with Timer without associating a Task."
+								Write-Host `r`n
+								$SelectedTaskLine = ""
+								$SelectedTaskName = ""
+							}
+							default { # Choice not recognized.
+								Write-Host `r`n
+								Write-Host "Choice `"$ChoiceYesNo`" not recognized. Options must me Yes or No."
+								#Write-HorizontalRuleAdv -HRtype DashedLine
+								Write-Host `r`n
+								#Break #help about_Break
+								PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+								Write-Host `r`n
+								Write-HorizontalRuleAdv -HRtype DashedLine
+							}
+						}
+					}
+					until ($ChoiceYesNo -eq 'Y' -Or $ChoiceYesNo -eq 'N')
+				} else {
+					Write-Verbose "`$TaskList '$TaskList' is an empty file."
+					do {
+						$ChoiceYesNo = Read-Host -Prompt "Create Task to associate with? [Y\N]"
+						switch ($ChoiceYesNo) {
+							'Y'	{ # Y - Yes
+								Write-Verbose "Yes ('$ChoiceYesNo') option selected."
+								Write-Verbose "Creating Task first, then Selecting it, then Starting Timer."
+								#Write-Host `r`n
+								Write-Verbose "Creating New Task."
+								Create-NewTask -TaskList $TaskList -sLogFile $sLogFile
+								Write-Verbose "Select Newly Created Task."
+								#Break #help about_Break
+								#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+							}
+							'N' { # N - No
+								Write-Verbose "No ('$ChoiceYesNo') option selected."
+								Write-Verbose "Proceeding with Timer without associating a Task."
+								Write-Host `r`n
+								$SelectedTaskLine = ""
+								$SelectedTaskName = ""
+								#Break #help about_Break
+								#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+							}
+							default { # Choice not recognized.
+								Write-Host `r`n
+								Write-Host "Choice `"$ChoiceYesNo`" not recognized. Options must me Yes or No."
+								#Write-HorizontalRuleAdv -HRtype DashedLine
+								Write-Host `r`n
+								#Break #help about_Break
+								PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+								Write-Host `r`n
+								Write-HorizontalRuleAdv -HRtype DashedLine
+							}
+						}
+					}
+					until ($ChoiceYesNo -eq 'Y' -Or $ChoiceYesNo -eq 'N')
+				}
 			}
 			
-			Break #help about_Break
-			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+			#$TimeLog #CSV
+			# Headers:
+			# TimeStamp (YYYY-MM-DD_HH-MM-SS), Date (YYYY-MM-DD), Time (HH:MM:SS AM), TimeZone (MST), Hostname, TaskList_ID, TaskList_Name, TimeLog_Type, Pomodoro_Mode
+			
+			# TimeLog_Type:
+			#$TimeLog_Type = "WorkStart"
+			#$TimeLog_Type = "TimeStart"
+			#$TimeLog_Type = "TimeStop"
+			#$TimeLog_Type = "DistractionTimeStamp"
+			#$TimeLog_Type = "PAUSE"
+			#$TimeLog_Type = "UN-PAUSE"
+			#$TimeLog_Type = "WorkStop"
+			
+			
+			
+			#Break #help about_Break
+			PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 		}
+		# -----------------------------------------------------------------------------------------------------------------------
 		'P' { # Select Pomodoro Mode - $ChoiceSelectPomodoroMode
 			Write-Verbose "Select Pomodoro Mode."
-			Write-Host `n
-			Write-Host "Choose Pomodoro Mode:"
-			Write-HorizontalRuleAdv -HRtype DashedLine
-			if ($Pomodoro_Mode) {
-			Write-Host "  Currently Selected: [$($Pomodoro_Mode)]"
-			Write-HorizontalRuleAdv -HRtype DashedLine
-			}
-			# Pomodoro_Mode:
-					  # -----------------------------------------------------------------------------------------------------------------------
-			Write-Host "  P - Classic [P]omodoro - 25 min work / 5 min break ( 4 hour cycle = 3 hours 20 min work / 40 min break )"
-			Write-Host "			- Finish a task early, and enjoy the remaining 30 min as break."
-			Write-Host "			- After 4 total hours, take a required 30min - 1 hour break."
-			Write-Host "			- Log distractions when you get sidetracked, but they do not affect anything."
-			Write-Host "			- PAUSE only when you have official Unplanned Work (such as co-worker or boss walking in with Urgent task)"
-					  # -----------------------------------------------------------------------------------------------------------------------
-			Write-Host "  E - [E]asy Pomodoro - 15 min work / 5 min break ( 4 hour cycle = 3 hours work / 1 hour break )"
-			Write-Host "  R - [R]everse Pomodoro - 5 min work / 25 min break"
-			Write-Host "  T - [T]raditional - Clock runs continuously. Use PAUSE to take breaks manually."
-			#Write-Host "  C - [C]ustom - Choose work/break cycle"
-			Write-Host "  Q - [Q]uit - Cancel Selection"
-					  # -----------------------------------------------------------------------------------------------------------------------
-			Write-HorizontalRuleAdv -HRtype DashedLine
-			$Pomodoro_Choice = Read-Host -Prompt "Choose Pomodoro mode"
-			
-			
-			#help about_switch
-			#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
-			Write-Verbose "Answer = '$Pomodoro_Choice'"
-			switch ($Pomodoro_Choice)
+			do
 			{
-				'P'	{ # P - Classic [P]omodoro
-					$Pomodoro_Mode = "Classic Pomodoro"
-					Write-Verbose "'$Pomodoro_Mode' selected."
-					Break #help about_Break
-					#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+				CLS
+				Write-Verbose "Start of Do loop."
+				Write-Host `r`n
+				Write-Host "Choose Pomodoro Mode:" -ForegroundColor Yellow
+				Write-HorizontalRuleAdv -HRtype DashedLine
+				if ($Pomodoro_Mode) {
+				Write-Host "  Currently Selected: '$($Pomodoro_Mode)'" -ForegroundColor Green -BackgroundColor Black
+				Write-HorizontalRuleAdv -HRtype DashedLine
 				}
-				'E' { # E - [E]asy Pomodoro
-					$Pomodoro_Mode = "Easy Pomodoro"
-					Write-Verbose "'$Pomodoro_Mode' selected."
-					Break #help about_Break
-					#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-				}
-				'R' { # R - [R]everse Pomodoro
-					$Pomodoro_Mode = "Reverse Pomodoro"
-					Write-Verbose "'$Pomodoro_Mode' selected."
-					Break #help about_Break
-					#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-				}
-				'T' { # T - [T]raditional
-					$Pomodoro_Mode = "Traditional Clock"
-					Write-Verbose "'$Pomodoro_Mode' selected."
-					Break #help about_Break
-					#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-				}
-				'C' { # C - [C]ustom
-					$Pomodoro_Mode = "Custom Pomodoro"
-					Write-Verbose "'$Pomodoro_Mode' selected."
-					Break #help about_Break
-					#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-				}
-				'Q' { # Q - [Q]uit - Cancel Selection
-					Write-Verbose "Quit option selected."
-					Return #help about_Return
-					#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-				}
-				default { # Choice not recognized.
-					Write-Host `n
-					Write-Host "Choice `"$answer`" not recognized."
-					Write-HorizontalRuleAdv -HRtype DashedLine
-					Break #help about_Break
-					#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+				# Pomodoro_Mode:
+				#>>>>>>>>>> -----------------------------------------------------------------------------------------------------------------------
+				Write-Host "  P - Classic [P]omodoro - 25 min work / 5 min break ( 4 hour cycle = 3 hours 20 min work / 40 min break )"
+				Write-Host "            - Finish a task early, and enjoy the remaining 30 min as break."
+				Write-Host "            - After 4 total hours, take a required 30min - 1 hour break."
+				Write-Host "            - Log distractions when you get sidetracked, but they do not affect anything."
+				Write-Host "            - PAUSE only when you have official Unplanned Work (such as co-worker or boss walking in with Urgent task)"
+				#>>>>>>>>>> -----------------------------------------------------------------------------------------------------------------------
+				Write-Host "  E - [E]asy Pomodoro - 15 min work / 5 min break ( 4 hour cycle = 3 hours work / 1 hour break )"
+				Write-Host "  R - [R]everse Pomodoro - 5 min work / 25 min break"
+				Write-Host "  T - [T]raditional - Clock runs continuously. Use PAUSE to take breaks manually."
+				#Write-Host "  C - [C]ustom - Choose work/break cycle"
+				Write-Host "  Q - [Q]uit - Cancel Selection"
+				#>>>>>>>>>> -----------------------------------------------------------------------------------------------------------------------
+				Write-HorizontalRuleAdv -HRtype DashedLine
+				$Pomodoro_Choice = Read-Host -Prompt "Choose Pomodoro mode"
+				
+				#$Pomodoro_Mode = "Classic Pomodoro"
+				#$Pomodoro_Mode = "Easy Pomodoro"
+				#$Pomodoro_Mode = "Reverse Pomodoro"
+				#$Pomodoro_Mode = "Traditional Clock"
+				#$Pomodoro_Mode = "Custom Pomodoro"
+				
+				#help about_switch
+				#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
+				Write-Verbose "Answer = '$Pomodoro_Choice'"
+				switch ($Pomodoro_Choice)
+				{
+					'P'	{ # P - Classic [P]omodoro
+						$Pomodoro_Mode = "Classic Pomodoro"
+						Write-Verbose "'$Pomodoro_Mode' selected."
+						#Break #help about_Break
+						#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+					}
+					'E' { # E - [E]asy Pomodoro
+						$Pomodoro_Mode = "Easy Pomodoro"
+						Write-Verbose "'$Pomodoro_Mode' selected."
+						#Break #help about_Break
+						#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+					}
+					'R' { # R - [R]everse Pomodoro
+						$Pomodoro_Mode = "Reverse Pomodoro"
+						Write-Verbose "'$Pomodoro_Mode' selected."
+						#Break #help about_Break
+						#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+					}
+					'T' { # T - [T]raditional
+						$Pomodoro_Mode = "Traditional Clock"
+						Write-Verbose "'$Pomodoro_Mode' selected."
+						#Break #help about_Break
+						#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+					}
+					'C' { # C - [C]ustom
+						$Pomodoro_Mode = "Custom Pomodoro"
+						Write-Verbose "'$Pomodoro_Mode' selected."
+						#Break #help about_Break
+						PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+					}
+					'Q' { # Q - [Q]uit - Cancel Selection
+						Write-Verbose "Quit option selected."
+						#Break #help about_Break
+						#Return #help about_Return
+						#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+					}
+					default { # Choice not recognized.
+						Write-Host `n
+						Write-Host "Choice `"$Pomodoro_Choice`" not recognized."
+						Write-HorizontalRuleAdv -HRtype DashedLine
+						#Break #help about_Break
+						PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+					}
 				}
 				Write-Verbose "End of switch choice cycle."
-				PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+				Write-Host `n
+				#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+				#CLS
 			}
-			until ($answer -eq 'Q') 
-			
-			$Pomodoro_Mode = "Classic Pomodoro"
-			$Pomodoro_Mode = "Easy Pomodoro"
-			$Pomodoro_Mode = "Reverse Pomodoro"
-			$Pomodoro_Mode = "Traditional Clock"
-			$Pomodoro_Mode = "Custom Pomodoro"
-			
-			
+			until ($Pomodoro_Choice -eq 'P' -Or $Pomodoro_Choice -eq 'E' -Or $Pomodoro_Choice -eq 'R' -Or $Pomodoro_Choice -eq 'T' -Or $Pomodoro_Choice -eq 'Q') 
 			
 			Break #help about_Break
 			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 		}
+		# -----------------------------------------------------------------------------------------------------------------------
 		1 { # Test #1 - $ChoiceTest
 			Write-Verbose "Test #1."
 			Write-Host `n
 			Write-Host "Test #1."
 			Write-HorizontalRuleAdv -HRtype DashedLine
-			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+			PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 		}
+		# -----------------------------------------------------------------------------------------------------------------------
 		'Q' { # Quit - $ChoiceQuit
 			Write-Verbose "Quit option selected."
 			Write-Host "Good Bye!!!" -ForegroundColor Green
 			Return #help about_Return
 			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 		}
+		# -----------------------------------------------------------------------------------------------------------------------
 		default { # Choice not recognized.
 			Write-Host `n
 			Write-Host "Choice `"$answer`" not recognized."
 			Write-HorizontalRuleAdv -HRtype DashedLine
-			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+			PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 		}
+		# -----------------------------------------------------------------------------------------------------------------------
 	}
 	Write-Verbose "End of switch choice cycle."
-    PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+    #PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 }
 until ($answer -eq 'Q') 
 

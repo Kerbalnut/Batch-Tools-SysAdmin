@@ -86,7 +86,10 @@ SET "_GistRawAddr=https://gist.githubusercontent.com/Kerbalnut/19f9225e7470e58c7
 
 :: 2
 :: https://ss64.com/nt/syntax-args.html
-SET "_LocalScriptPckg=%~dpn0.txt" & REM : This script's Drive letter, folder Path, & Name with a .txt extension.
+SET "_LocalScriptPckg=%~dpn0.txt" & REM %~dpn0.txt = This script's [D]rive letter, folder [P]ath, & [N]ame with a .txt extension. https://ss64.com/nt/syntax-args.html
+
+:: E.g.
+:: if you name your your new project script "BoxstarterInstall-MyNewProject.bat" then %~dpn0.txt will point to "BoxstarterInstall-MyNewProject.txt" stored in the same folder.
 
 :: Installing several packages
 :: While often install scripts may be complex and the information on this page will show you how to capture such scripts in a gist, if you simply want to install a list of chocolatey packages, you can use this URL:
