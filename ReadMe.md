@@ -49,11 +49,16 @@ A full backup & restoration plan should also include the configuration of applic
 
 > Full Backup & Restore Plan: (Example)
 > 
-> - Windows Product Key, MS Office Product Key (take picture of Product Key sticker early since they get rubbed off)
-> - Windows Image ISO, DVD, Bootable USB
+> **Note:** It is good practice to choose a new login password after every fresh install, assume the old password has been comprimised.
+> 
+> - Windows Product Key, MS Office Product Key (take a picture of Product Key stickers early on, since they tend to fade or get rubbed off)
+> - Windows Image: ISO, DVD, Bootable USB
+> - Connect to Network:
+>   - Wi-Fi password
+>   - Join Domain (if applicable)
 > - BoxstarterInstall-script.txt
 >   - Custom Chocolatey packages (for rare software or software not listed in the Chocolatey community repository)
-> - App configurations:
+> - App configuration:
 >   - Internet Browsers
 >     - Bookmarks
 >     - Add-ons/Plugins/Extensions list
@@ -77,8 +82,9 @@ A full backup & restoration plan should also include the configuration of applic
 >   - %UserProfile%\Documents
 >   - %UserProfile%\Desktop
 >   - %UserProfile%\Downloads
+>   - %UserProfile%\Pictures
 
-All 4 of these scripts are *Boxstarter helper scripts*, they are practically identical. The only difference is the parameters at the very top of the scripts have been changed: (Use **Tools/CompareTo-Parent.bat** to see for yourself!)
+All 4 of these scripts are *Boxstarter helper scripts*; they are practically identical. The only difference is the parameters at the very top of the scripts have been changed: (Use **Tools/CompareTo-Parent.bat** to see for yourself!)
 
 - **BoxstarterInstall-template.bat**
 - **BoxstarterInstall-NetworkingUtilities.bat**
