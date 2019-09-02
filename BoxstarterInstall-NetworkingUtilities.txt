@@ -25,6 +25,7 @@ Disable-GameBarTips
 
 choco upgrade chocolatey -y
 choco upgrade boxstarter -y
+#choco install boxstarter.testrunner -y # Boxstarter's Test Runner module makes it easy to automate the testing and publishing of Chocolatey packages.
 #cup - choco upgrade (update is deprecated)
 
 # AntiVirus / Security
@@ -40,9 +41,9 @@ choco install avirafreeantivirus -y # Avira Free AntiVirus
 
 # Internet Browsers
 choco install googlechrome -y
-choco install chromium -y
+#choco install chromium -y
 choco install firefox -y
-choco install edgedeflector -y # EdgeDeflector is a small helper application that intercepts URIs that force-open web links in Microsoft Edge and redirects it to the system’s default web browser. This allows you to use Windows features like the Cortana assistant and built-in help links with the browser of your choice instead of being forced to use Microsoft Edge
+#choco install edgedeflector -y # EdgeDeflector is a small helper application that intercepts URIs that force-open web links in Microsoft Edge and redirects it to the system’s default web browser. This allows you to use Windows features like the Cortana assistant and built-in help links with the browser of your choice instead of being forced to use Microsoft Edge
 
 # Network Tools
 choco install angryip -y # Angry IP Scanner - ping a range of IP addresses via ICMP or other methods
@@ -61,11 +62,11 @@ choco install 7zip -y # Compress and Unzip folders
 # Office Tools
 choco install adobereader -y 
 choco install thunderbird -y # Mozilla Thunderbird email client
+#choco install openoffice -y # Apache OpenOffice includes: Writer, Calc, Impress, Draw, Base, Math
 choco install libreoffice -y # includes:  Writer, Calc (spreadsheets), Impress (presentations), Draw (diagrams), Base (databases), Math (equations)
 #choco install libreoffice-help -y # help file for LibreOffice
 #choco install libreoffice-fresh -y # installs LibreOffice Fresh which is the stable version of LibreOffice with the most recent bleeding-edge features. This version is recommended for technology enthusiasts, early adopters or power users. For more conservative users or for deployments in enterprise or corporate environments, it is recommended to install libreoffice-still instead.
 #choco install libreoffice-still -y # LibreOffice Still is the stable version that has undergone more testing (over a longer time). This version is recommended for more conservative users. If you want the latest version, install the libreoffice package instead.
-#choco install openoffice -y # Apache OpenOffice includes: Writer, Calc, Impress, Draw, Base, Math
 
 # File Tools
 #choco install windirstat -y # Analyze largest files & folders using the most Hard Disk space visually
@@ -83,7 +84,7 @@ choco install nextcloud-client -y
 
 # Encryption Tools
 choco install keepass -y # Password Manager
-choco install truecrypt -y # Installs TrueCrypt v7.1a (released 7 February 2012) the last functional version ever released. v7.2 can only decrypt TrueCrypt containers for migrating them to other encryption software. Security audit of v7.1a = http://istruecryptauditedyet.com/ For more info type 'choco info truecrypt'.
+choco install truecrypt -y # Installs TrueCrypt v7.1a (released 7 February 2012), the last functional version ever released. v7.2 can only decrypt TrueCrypt containers for migrating them to other encryption software. Security audit of v7.1a = http://istruecryptauditedyet.com/ For more info type 'choco info truecrypt'.
 #choco install veracrypt -y
 
 # Power user tools
@@ -92,7 +93,8 @@ choco install procexp -y #Process Explorer
 choco install wumt -y # Windows Update MiniTool (wumt) is an alternative to the Windows Update. It is compatible from Windows XP to Windows 10.
 #choco install ccleaner -y # registry cleaner.
 #choco install netstress -y # In order to test and troubleshoot networks we need tools that allow us to generate network traffic and analyze the network's throughput performance. This is true for both wired and wireless networks. 
-#choco install powerbi -y # 
+#choco install powerbi -y # Create stunning reports and visualizations with Power BI Desktop.
+#choco install uninstalltool -y #
 
 # Development Tools
 choco install notepadplusplus -y 
