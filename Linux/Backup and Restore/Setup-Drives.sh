@@ -136,12 +136,12 @@ adduser()
   COMMENTS=$@
   useradd -c "${COMMENTS}" $USER
   if [ "$?" -ne "0" ]; then
-    echo "Useradd failed"
+    echo "Useradd failed."
     return 1
   fi
   passwd $USER $PASSWORD
   if [ "$?" -ne "0" ]; then
-    echo "Setting password failed"
+    echo "Setting password failed."
     return 2
   fi
   echo "Added user $USER ($COMMENTS) with pass $PASSWORD"

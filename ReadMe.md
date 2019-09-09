@@ -28,7 +28,7 @@ Copy **functions-template.bat** to the place you need it, delete the stuff you d
    1. `_FILE_A` (will always be the first file to be updated)
    2. `_FILE_B`
 
->Tips:
+>**Tips:**
 >
 > - Hold `Shift + Right Click` on a file, and "Copy as path" will appear in the right-click menu. (Windows Vista and higher)
 > - Use the `%UserProfile%` [automatic variable](https://ss64.com/nt/syntax-variables.html) to fill in for "%SystemDrive%\Users\\{username}" E.g. "%UserProfile%\Documents\My File.txt" = "C:\Users\\\<Username>\Documents\My File.txt"
@@ -45,44 +45,7 @@ Tools like **Update-Java.bat** and **Install-AllWindowsUpdates.bat** are simple 
 
 For a more detailed example, **BoxstarterInstall-NetworkingUtilities.bat** contains a list of [software & utilities](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/blob/master/BoxstarterInstall-NetworkingUtilities.txt) great for setting up a Networking Technician's on-site work laptop. This way, if the laptop is connected to an infected network, afterwards it can be completely wiped with a fresh install of Windows, have all of the software re-installed via the Boxstarter script, then data files can be restored via backup drive. Regular wiping also helps protect a client's network from any zero-day infections still unknown to you, possibly gained from being a well-traveled laptop.
 
-A full backup & restoration plan should also include the configuration of applications that were just installed by the Boxstarter script, such as importing bookmarks, setting themes, adding email accounts, etc.; and OS customizations that cannot be performed by Boxstarter, such as customizing the Taskbar, Start Menu, Desktop, etc.
-
-> Full Backup & Restore Plan: (Example)
-> 
-> **Note:** It is good practice to choose a new login password after every fresh install, assume the old password has been comprimised.
-> 
-> - Windows Product Key, MS Office Product Key (take a picture of Product Key stickers early on, since they tend to fade or get rubbed off)
-> - Windows Image: ISO, DVD, Bootable USB
-> - Connect to Network:
->   - Wi-Fi password
->   - Join Domain (if applicable)
-> - BoxstarterInstall-script.txt
->   - Custom Chocolatey packages (for rare software or software not listed in the Chocolatey community repository)
-> - App configuration:
->   - Internet Browsers
->     - Bookmarks
->     - Add-ons/Plugins/Extensions list
->       - NoScript Whitelist
->     - Customize: organize toolbars
->     - Options
->       - General -> Startup -> Restore previous session
->   - Email Client
->     - Email accounts list
->     - Message Filters/Rules
->   - KeePass
->     - Plugins list
->   - Notepad++/IDE of choice
->     - Theme: (Settings -> Style Configurator -> Select theme: "Obsidian")
-> - OS customizations:
->   - Taskbar
->   - Start Menu
->   - Desktop
-> - Data Files:
->   - %UserProfile%\\\*
->   - %UserProfile%\Documents
->   - %UserProfile%\Desktop
->   - %UserProfile%\Downloads
->   - %UserProfile%\Pictures
+A full backup & restoration plan should also include the configuration of applications that were just installed by the Boxstarter script, such as importing bookmarks, setting themes, adding email accounts, etc.; and OS customizations that cannot be performed by Boxstarter, such as customizing the Taskbar, Start Menu, Desktop, etc. For a full Windows Backup & Restoration plan example, see the [Backup and Restore](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/tree/master/Backup_and_Restore) folder.
 
 All 4 of these scripts are *Boxstarter helper scripts*; they are practically identical. The only difference is the parameters at the very top of the scripts have been changed: (Use **Tools/CompareTo-Parent.bat** to see for yourself!)
 
