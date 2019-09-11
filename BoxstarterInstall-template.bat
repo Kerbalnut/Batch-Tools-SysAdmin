@@ -105,7 +105,7 @@ SET "_LocalScriptPckg=%~dpn0.txt" & REM %~dpn0.txt = This script's [D]rive lette
 SET "_ChocolateyPackages=ubiquiti-unifi-controller,angryip,nmap,wireshark,notepadplusplus,keepass,ccleaner,adwcleaner,malwarebytes,windirstat"
 
 :: Choose which Boxstarter source mode to use: 
-SET "_BoxstarterSource=3" & REM : 1 = Gist address, 2 = Local file, 3 = Package list
+SET "_BoxstarterSource=2" & REM : 1 = Gist address, 2 = Local file, 3 = Package list
 
 REM -------------------------------------------------------------------------------
 
