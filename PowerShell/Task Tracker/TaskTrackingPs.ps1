@@ -304,11 +304,21 @@ Write-Verbose "LogFile = $sLogFile"
 #-----------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------[Functions]------------------------------------------------------
 
-# help about_Functions
-# help about_Functions_Advanced
-# help about_Functions_Advanced_Methods
-# help about_Functions_Advanced_Parameters
-# Get-Verb
+<#
+help about_Automatic_Variables
+help about_Comment_Based_Help
+help about_Functions
+help about_Functions_Advanced
+help about_Functions_Advanced_Methods
+help about_Functions_Advanced_Parameters
+help about_Functions_CmdletBindingAttribute
+help about_Functions_OutputTypeAttribute
+help about_Parameters
+help about_Profiles
+help about_Scopes
+help about_Script_Blocks
+Get-Verb
+#>
 
 #Index of functions:
 # 1. <FunctionName> Example Function
@@ -614,10 +624,10 @@ function Create-NewTask { # New Task - $ChoiceNewTask
 		#Script parameters go here
 		# https://ss64.com/ps/syntax-args.html
 		[Parameter(Mandatory=$true)]
-		[string]$TaskList,
+		[string]$TaskListPath,
 		
 		[Parameter(Mandatory=$true)]
-		[switch]$sLogFile
+		[string]$LogFilePath
 	)
 	
 	#Write-Verbose "New Task. (`$ChoiceNewTask)"
@@ -654,24 +664,146 @@ function Create-NewTask { # New Task - $ChoiceNewTask
 	$NewTaskEntry += ",$($TaskList_Status)"
 	$NewTaskEntry += ",$($TaskList_Tags)"
 	
-	Write-Verbose "Adding New Task to file: '$TaskList'"
+	Write-Verbose "Adding New Task to file: '$TaskListPath'"
 	Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
 	PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 	
-	# Create $TaskList file if it does not exist
-	If (!(Test-Path $TaskList)) {
-		Write-Verbose "`$TaskList '$TaskList' does not exist. Creating file."
-		Write-LogInfo -LogPath $sLogFile -Message "Creating new Task List file: '$TaskList'"
-		Write-Debug "Creating Task List file: '$TaskList'"
-		$NewTaskEntry > $TaskList
+	# Create $TaskListPath file if it does not exist
+	If (!(Test-Path $TaskListPath)) {
+		Write-Verbose "`$TaskListPath '$TaskListPath' does not exist. Creating file."
+		Write-LogInfo -LogPath $LogFilePath -Message "Creating new Task List file: '$TaskListPath'"
+		Write-Debug "Creating Task List file: '$TaskListPath'"
+		$NewTaskEntry > $TaskListPath
 	} else {
-		Write-Verbose "`$TaskList '$TaskList' exists."
+		Write-Verbose "`$TaskListPath '$TaskListPath' exists."
 		Write-Verbose "Appending to file . . . "
-		Write-LogInfo -LogPath $sLogFile -Message "Adding New Task to file: '$NewTaskName' '$TaskList'"
-		Write-Debug "Appending New Task to file: '$TaskList'"
-		$NewTaskEntry >> $TaskList
+		Write-LogInfo -LogPath $LogFilePath -Message "Adding New Task to file: '$NewTaskName' '$TaskListPath'"
+		Write-Debug "Appending New Task to file: '$TaskListPath'"
+		$NewTaskEntry >> $TaskListPath
 	}
 } # End Create-NewTask function ----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+function Select-PomodoroMode { # Select Pomodoro Mode - $ChoiceSelectPomodoroMode
+	# -----------------------------------------------------------------------------------------------------------------------
+	# Build Menu
+	# -----------------------------------------------------------------------------------------------------------------------
+	CLS
+	Write-Host `r`n
+	Write-Host "Choose Pomodoro Mode:" -ForegroundColor Yellow
+	Write-HorizontalRuleAdv -HRtype DashedLine
+	if ($Pomodoro_Mode) {
+	Write-Host "  Currently Selected: '$($Pomodoro_Mode)'" -ForegroundColor Green -BackgroundColor Black
+	Write-HorizontalRuleAdv -HRtype DashedLine
+	}
+	# Pomodoro_Mode:
+	#>>>>>>>>>> -----------------------------------------------------------------------------------------------------------------------
+	Write-Host "  P - Classic [P]omodoro - 25 min work / 5 min break ( 4 hour cycle = 3 hours 20 min work / 40 min break )"
+	Write-Host "            - Finish a task early, and enjoy the remaining 30 min as break."
+	Write-Host "            - After 4 total hours, take a required 30min - 1 hour break."
+	Write-Host "            - Log distractions when you get sidetracked, but they do not affect anything."
+	Write-Host "            - PAUSE only when you have official Unplanned Work (such as co-worker or boss walking in with Urgent task)"
+	#>>>>>>>>>> -----------------------------------------------------------------------------------------------------------------------
+	Write-Host "  E - [E]asy Pomodoro - 15 min work / 5 min break ( 4 hour cycle = 3 hours work / 1 hour break )"
+	Write-Host "  R - [R]everse Pomodoro - 5 min work / 25 min break"
+	Write-Host "  T - [T]raditional - Clock runs continuously. Use PAUSE to take breaks manually."
+	#Write-Host "  C - [C]ustom - Choose work/break cycle"
+	Write-Host "  Q - [Q]uit - Cancel Selection"
+	#>>>>>>>>>> -----------------------------------------------------------------------------------------------------------------------
+	Write-HorizontalRuleAdv -HRtype DashedLine
+	
+	# -----------------------------------------------------------------------------------------------------------------------
+	# Build Choice Prompt
+	# -----------------------------------------------------------------------------------------------------------------------
+	
+	# -----------------------------------------------------------------------------------------------------------------------
+	# Execute Choice Prompt
+	# -----------------------------------------------------------------------------------------------------------------------
+	#$Pomodoro_Choice = Read-Host -Prompt "Choose Pomodoro mode"
+	$global:Pomodoro_Choice = Read-Host -Prompt "Choose Pomodoro mode"
+	
+	# -----------------------------------------------------------------------------------------------------------------------
+	# Interpret answer
+	# -----------------------------------------------------------------------------------------------------------------------
+	#help about_switch
+	#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
+	Write-Verbose "Answer = '$Pomodoro_Choice'"
+	switch ($Pomodoro_Choice)
+	{
+		'P'	{ # P - Classic [P]omodoro
+			$Pomodoro_Mode = "Classic Pomodoro"
+			$global:Pomodoro_Mode = "Classic Pomodoro"
+			Write-Verbose "'$Pomodoro_Mode' selected."
+			#Break #help about_Break
+			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+		}
+		'E' { # E - [E]asy Pomodoro
+			$Pomodoro_Mode = "Easy Pomodoro"
+			$global:Pomodoro_Mode = "Easy Pomodoro"
+			Write-Verbose "'$Pomodoro_Mode' selected."
+			#Break #help about_Break
+			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+		}
+		'R' { # R - [R]everse Pomodoro
+			$Pomodoro_Mode = "Reverse Pomodoro"
+			$global:Pomodoro_Mode = "Reverse Pomodoro"
+			Write-Verbose "'$Pomodoro_Mode' selected."
+			#Break #help about_Break
+			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+		}
+		'T' { # T - [T]raditional
+			$Pomodoro_Mode = "Traditional Clock"
+			$global:Pomodoro_Mode = "Traditional Clock"
+			Write-Verbose "'$Pomodoro_Mode' selected."
+			#Break #help about_Break
+			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+		}
+		'C' { # C - [C]ustom
+			$Pomodoro_Mode = "Custom Pomodoro"
+			$global:Pomodoro_Mode = "Custom Pomodoro"
+			Write-Verbose "'$Pomodoro_Mode' selected."
+			#Break #help about_Break
+			PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+		}
+		'Q' { # Q - [Q]uit - Cancel Selection
+			Write-Verbose "Quit option selected."
+			#Break #help about_Break
+			#Return #help about_Return
+			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+		}
+		default { # Choice not recognized.
+			Write-Host `n
+			Write-Host "Choice `"$Pomodoro_Choice`" not recognized."
+			Write-HorizontalRuleAdv -HRtype DashedLine
+			#Break #help about_Break
+			PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+		}
+	}
+	Write-Verbose "End of switch choice cycle."
+	Write-Host `n
+	#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+	#CLS
+	
+	# -----------------------------------------------------------------------------------------------------------------------
+	# Return values
+	# -----------------------------------------------------------------------------------------------------------------------
+	
+	#$Pomodoro_Mode = "Classic Pomodoro"
+	#$Pomodoro_Mode = "Easy Pomodoro"
+	#$Pomodoro_Mode = "Reverse Pomodoro"
+	#$Pomodoro_Mode = "Traditional Clock"
+	#$Pomodoro_Mode = "Custom Pomodoro"
+	
+	<#
+	$Pomodoro_Choice = 'P'
+	$Pomodoro_Choice = 'E'
+	$Pomodoro_Choice = 'R'
+	$Pomodoro_Choice = 'T'
+	#$Pomodoro_Choice = 'C' # Not in use
+	$Pomodoro_Choice = 'Q'
+	#>
+	
+} # End Select-PomodoroMode function -----------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 If ($LoadFunctions) {
@@ -971,6 +1103,7 @@ If (Test-Path $TimeLog) {
 
 # -----------------------------------------------------------------------------------------------------------------------
 
+<#
 do {
 	$ChoiceYesNoCancel = Read-Host -Prompt "[Y]es, [N]o, or [C]ancel? [Y\N\C]"
 	switch ($ChoiceYesNoCancel) {
@@ -999,6 +1132,7 @@ do {
 	}
 }
 until ($ChoiceYesNoCancel -eq 'Y' -Or $ChoiceYesNoCancel -eq 'N' -Or $ChoiceYesNoCancel -eq 'C')
+#>
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1113,8 +1247,10 @@ do
 		'N' { # New Task - $ChoiceNewTask
 			Write-Verbose "New Task. (`$ChoiceNewTask)"
 			Write-Verbose "Creating New Task."
-			Create-NewTask -TaskList $TaskList -sLogFile $sLogFile
 			# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+			Create-NewTask -TaskListPath $TaskList -LogFilePath $sLogFile
+			# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+			<#
 			Write-Host `n
 			Write-Host "Create New Task"
 			Write-HorizontalRuleAdv -HRtype DashedLine
@@ -1165,6 +1301,8 @@ do
 				Write-Debug "Appending New Task to file: '$TaskList'"
 				$NewTaskEntry >> $TaskList
 			}
+			
+			#>
 			# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 			#Break #help about_Break
 			#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
@@ -1220,7 +1358,7 @@ do
 							Write-Verbose "Creating Task first, then Selecting it, then Starting Timer."
 							Write-Host `r`n
 							Write-Verbose "Creating New Task."
-							Create-NewTask -TaskList $TaskList -sLogFile $sLogFile
+							Create-NewTask -TaskListPath $TaskList -LogFilePath $sLogFile
 						}
 						'N' { # N - No
 							Write-Verbose "No ('$ChoiceYesNo') option selected."
@@ -1264,7 +1402,9 @@ do
 											Write-Verbose "Create New Task ('$ChoiceAnswer') option selected."
 											Write-Host `r`n
 											Write-Verbose "Creating New Task."
-											Create-NewTask -TaskList $TaskList -sLogFile $sLogFile
+											# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+											Create-NewTask -TaskListPath $TaskList -LogFilePath $sLogFile
+											# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 										}
 										'C' { # C - Cancel
 											Write-Verbose "Cancel ('$ChoiceAnswer') option selected."
@@ -1316,7 +1456,11 @@ do
 								Write-Verbose "Creating Task first, then Selecting it, then Starting Timer."
 								#Write-Host `r`n
 								Write-Verbose "Creating New Task."
-								Create-NewTask -TaskList $TaskList -sLogFile $sLogFile
+								Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
+								# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+								Create-NewTask -TaskListPath $TaskList -LogFilePath $sLogFile
+								# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+								Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
 								Write-Verbose "Select Newly Created Task."
 								#Break #help about_Break
 								#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
@@ -1369,8 +1513,13 @@ do
 			Write-Verbose "Select Pomodoro Mode."
 			do
 			{
-				CLS
+				#CLS
 				Write-Verbose "Start of Do loop."
+				# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+				Select-PomodoroMode
+				# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+				# -----------------------------------------------------------------------------------------------------------------------
+				<#
 				Write-Host `r`n
 				Write-Host "Choose Pomodoro Mode:" -ForegroundColor Yellow
 				Write-HorizontalRuleAdv -HRtype DashedLine
@@ -1379,19 +1528,19 @@ do
 				Write-HorizontalRuleAdv -HRtype DashedLine
 				}
 				# Pomodoro_Mode:
-				#>>>>>>>>>> -----------------------------------------------------------------------------------------------------------------------
+				>>>>>>>>>> -----------------------------------------------------------------------------------------------------------------------
 				Write-Host "  P - Classic [P]omodoro - 25 min work / 5 min break ( 4 hour cycle = 3 hours 20 min work / 40 min break )"
 				Write-Host "            - Finish a task early, and enjoy the remaining 30 min as break."
 				Write-Host "            - After 4 total hours, take a required 30min - 1 hour break."
 				Write-Host "            - Log distractions when you get sidetracked, but they do not affect anything."
 				Write-Host "            - PAUSE only when you have official Unplanned Work (such as co-worker or boss walking in with Urgent task)"
-				#>>>>>>>>>> -----------------------------------------------------------------------------------------------------------------------
+				>>>>>>>>>> -----------------------------------------------------------------------------------------------------------------------
 				Write-Host "  E - [E]asy Pomodoro - 15 min work / 5 min break ( 4 hour cycle = 3 hours work / 1 hour break )"
 				Write-Host "  R - [R]everse Pomodoro - 5 min work / 25 min break"
 				Write-Host "  T - [T]raditional - Clock runs continuously. Use PAUSE to take breaks manually."
 				#Write-Host "  C - [C]ustom - Choose work/break cycle"
 				Write-Host "  Q - [Q]uit - Cancel Selection"
-				#>>>>>>>>>> -----------------------------------------------------------------------------------------------------------------------
+				>>>>>>>>>> -----------------------------------------------------------------------------------------------------------------------
 				Write-HorizontalRuleAdv -HRtype DashedLine
 				$Pomodoro_Choice = Read-Host -Prompt "Choose Pomodoro mode"
 				
@@ -1454,6 +1603,13 @@ do
 				Write-Host `n
 				#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 				#CLS
+				#>
+				# -----------------------------------------------------------------------------------------------------------------------
+				
+				Write-Verbose "End of function."
+				Write-Verbose "`$Pomodoro_Mode = '$Pomodoro_Mode'"
+				Write-Verbose "`$Pomodoro_Choice = '$Pomodoro_Choice'"
+				#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 			}
 			until ($Pomodoro_Choice -eq 'P' -Or $Pomodoro_Choice -eq 'E' -Or $Pomodoro_Choice -eq 'R' -Or $Pomodoro_Choice -eq 'T' -Or $Pomodoro_Choice -eq 'Q') 
 			

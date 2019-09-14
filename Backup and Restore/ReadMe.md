@@ -24,12 +24,17 @@ A full backup & restoration plan should also include the configuration of applic
 - App configuration:
    - Internet Browsers
      - Bookmarks
+     - Search Engines
      - Add-ons/Plugins/Extensions list
        - NoScript Whitelist
+     - Themes: Dark mode
      - Customize: organize toolbars
      - Options
        - General -> Startup -> Restore previous session
        - General -> Tabs -> Ctrl+Tab cycles through tabs in recently used order (If turned On, Ctrl+Shift+Tab has a [different function](https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly?redirectlocale=en-US&redirectslug=Keyboard+shortcuts#w_windows-tabs))
+       - Search -> Search Bar -> Add search bar in toolbar
+       - Search -> Default Search Engine
+       - Search -> One-Click Search Engines
    - Email Client
      - Email accounts list
      - Message Filters/Rules
@@ -99,6 +104,8 @@ Unfortunately most new computers do not come with a Windows installer disk anymo
 Keeping a copy of the ISOs on your backup drive works fine, as long as you have more than one PC that can access it.
 
 However it is always more wise to verify your backup solution ASAP, before needing to use it for recovery. Making a DVD or bootable USB drive from that ISO as-soon-as-possible allows you to test and verify you have a working physical installer, before a severe failure happens.
+
+---
 
 # Complete Backup & Restoration Plan steps in order
 
@@ -186,6 +193,9 @@ However it is always more wise to verify your backup solution ASAP, before needi
         - Options Preferences
             - (Firefox) General -> Startup -> Restore previous session
             - (Firefox) General -> Tabs -> Ctrl+Tab cycles through tabs in recently used order (If turned On, Ctrl+Shift+Tab has a [different function](https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly?redirectlocale=en-US&redirectslug=Keyboard+shortcuts#w_windows-tabs))
+            - (Firefox) Search -> Search Bar -> Add search bar in toolbar
+            - (Firefox) Search -> Default Search Engine
+            - (Firefox) Search -> One-Click Search Engines
         - [Firefox: Back-up Profile](https://support.mozilla.org/en-US/kb/back-and-restore-information-firefox-profiles) (contains all your personal data, such as bookmarks, passwords, and extensions)
    - Email Client
         - Email accounts login details, credentials list
@@ -226,6 +236,8 @@ However it is always more wise to verify your backup solution ASAP, before needi
         - D:\\\*
         - E:\\\*
         - etc.
+
+---
 
 ### Scheduled Backups:
 
@@ -284,10 +296,14 @@ However it is always more wise to verify your backup solution ASAP, before needi
     - Rename & Re-organize backup archives
     - Encrypt backups
 
+---
+
 ### Maintain & Verify Backup health:
 
 - Virus scan
 - Test recovery
+
+---
 
 ### Recovery Process:
 
@@ -310,55 +326,15 @@ However it is always more wise to verify your backup solution ASAP, before needi
     7. The first boot will usually start with another wizard to set up all the remaining options for the OS. Most of these will be choices for privacy options. Obviously it's up to your personal preferences what you choose, but as a general rule it's recommended to disable as many of these options that collect your personal data, will "phone home" and distribute it back to the "mothership" at Microsoft for them to do whatever they want with it. Keep in mind the type of data Microsoft's new Privacy Policies allow them to collect includes collecting keystrokes (like a keylogger), and capturing screenshots of what you're looking at or working on.
     8. Once you've reached the desktop for the first time after the fresh install, go ahead and connect to the local network by entering Wi-Fi password or connecting a LAN/Ethernet cable.
     9. If applicable, join the computer to the domain.
-2. **Run the Boxstarter script.**
+2. **Install applications using Boxstarter script.**
     1. Copy the Boxstarter script from your backup drive to the computer.
     2. 
-    
+3. **Application Configuration.**
+4. **Firmware Updates/Hardware Tweaks.** (if applicable)
+5. **OS customizations.**
+6. **Restore data files from backup.**
 
-- Windows Installer image: ISO, DVD, Bootable USB
-- Windows Product Key, Windows Edition (Take a picture of Product Key stickers early on, since they tend to fade or get rubbed off. Even if that happens, they can still be recovered by 3rd-party software tools like ["The Magical Jelly Bean Keyfinder"](https://chocolatey.org/packages/keyfinder). Just make sure you use tools such as these [at your own risk.](https://www.virustotal.com/gui/file/35e605862069aeb3d8413cd512ae05f2831f21f1f496c9cdb90d1c3b8a3cfb97/detection))
-   - Microsoft Office Product Key(s)
-   - Other paid-for software Product Keys & Installers. E.g. Adobe Acrobat, Photoshop, etc.
-- Connect to Network:
-   - Wi-Fi password
-   - Join Domain (if applicable)
-- BoxstarterInstall-script.txt
-   - Download & Install all Windows Updates
-   - [Configure OS](https://boxstarter.org/WinConfig) (as much as possible with available Boxstarter tools)
-   - Download & Install software via [Chocolatey](https://chocolatey.org/)
-   - [Custom Chocolatey packages](https://chocolatey.org/docs/create-packages) (for rare software, or software not listed in the [Chocolatey community repository](https://chocolatey.org/packages))
-- App configuration:
-   - Internet Browsers
-     - Bookmarks
-     - Add-ons/Plugins/Extensions list
-       - NoScript Whitelist
-     - Customize: organize toolbars
-     - Options
-       - General -> Startup -> Restore previous session
-       - General -> Tabs -> Ctrl+Tab cycles through tabs in recently used order (If turned On, Ctrl+Shift+Tab has a [different function](https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly?redirectlocale=en-US&redirectslug=Keyboard+shortcuts#w_windows-tabs))
-   - Email Client
-     - Email accounts list
-     - Message Filters/Rules
-   - KeePass
-     - Plugins list
-   - Notepad++/IDE of choice
-     - Theme: (Settings -> Style Configurator -> Select theme: "Obsidian")
-- Firmware Updates/Hardware Tweaks
-   - Check if things like [TPM firmware](https://support.microsoft.com/en-us/help/4096377/windows-10-update-security-processor-tpm-firmware#firmwareupdates) or BIOS/UEFI firmware requires security updates (services like Windows Message Center, Windows Defender, or your 3rd-party Anti-Virus *should* automatically detect and notify you if necessary, but it is always wise to check for yourself).
-- OS customizations:
-   - Taskbar
-   - Start Menu
-   - Desktop
-- Data Files:
-   - %UserProfile%\\\* (C:\Users\\*{username}*\\*)
-   - %UserProfile%\Documents
-   - %UserProfile%\Desktop
-   - %UserProfile%\Downloads
-   - %UserProfile%\Pictures
-   - %AppData%\\\* (C:\Users\\*{username}*\AppData\Roaming\\\*)
-   - %LocalAppData%\\\* (C:\Users\\*{username}*\AppData\Local\\\*)
-   - %AllUsersProfile%\\\* (C:\ProgramData\\\*)
-   - D:\\\*
+---
 
 ## How to Contribute:
 
