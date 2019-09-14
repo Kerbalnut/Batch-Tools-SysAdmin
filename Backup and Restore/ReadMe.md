@@ -48,6 +48,7 @@ A full backup & restoration plan should also include the configuration of applic
    - Taskbar
    - Start Menu
    - Desktop
+   - Windows 10: Personalize -> Colors -> Choose your default app mode -> Dark
 - Data Files:
    - %UserProfile%\\\* (C:\Users\\*{username}*\\*)
    - %UserProfile%\Documents
@@ -216,9 +217,19 @@ However it is always more wise to verify your backup solution ASAP, before needi
             - Always show all icons in the notification area
     - Start Menu customizations
         - Pinned Applications
+            - Control Panel
+            - This PC
+            - User Profile shortcut
+            - Documents
+            - Downloads
+            - Command Prompt
+            - PowerShell
         - Choose which folders appear on Start
+    - Windows 10: Personalize -> Colors -> Choose your default app mode -> Dark
+        - Desktop -> Right-click -> Personalize
+        - Run: `rundll32.exe shell32.dll,Control_RunDLL desk.cpl,,2`
     - Desktop icons
-    - Power Settings
+    - Power Settings (Open using any of the following:)
         - Run `powercfg.cpl`
         - Command Prompt `%Windir%\system32\control.exe /name Microsoft.PowerOptions`
         - `Win + X` or Right-click Start Menu:
