@@ -75,6 +75,8 @@ ECHO:
 ECHO Script name ^( %~nx0 ^) & REM This script's file name and extension. https://ss64.com/nt/syntax-args.html
 ECHO Working directory: %~dp0 & REM The drive letter and path of this script's location. NOTE: This will always return the path this script is in.
 ECHO Current directory: %CD% & REM The path of the currently selected directory. NOTE: If this script is called from another location, this will return that selected path.
+:: Always use double-quotes around %CD% to prevent x
+:: https://www.robvanderwoude.com/battech_preventunquotedcdexploit.php
 ECHO:
 
 :: Check if we are running As Admin/Elevated
@@ -859,14 +861,15 @@ REM ECHO DEBUGGING: Beginning Main execution block.
 
 ::===============================================================================
 :: Phase 1: Evaluate Parameters
-:: Phase 2: Test :GetIfPathIsDriveRoot
-:: Phase 3: Test :GetWindowsVersion
-:: Phase 4: Test Banner.cmd (external function)
-:: Phase 5: Test :GetTerminalWidth
-:: Phase 6: Test :CheckLink
-:: Phase 7: Test :GetDate, :ConvertTimeToSeconds, and :ConvertSecondsToTime
-:: Phase 8: Test :InitLog and :InitLogOriginal
-:: Phase 9: Test :CreateShortcut, :CreateSymbolicLink, and :CreateSymbolicDirLink
+:: Phase 2: Test :LoCase, :UpCase, :TCase
+:: Phase 3: Test :GetIfPathIsDriveRoot
+:: Phase 4: Test :GetWindowsVersion
+:: Phase 5: Test Banner.cmd (external function)
+:: Phase 6: Test :GetTerminalWidth
+:: Phase 7: Test :CheckLink
+:: Phase 8: Test :GetDate, :ConvertTimeToSeconds, and :ConvertSecondsToTime
+:: Phase 9: Test :InitLog and :InitLogOriginal
+:: Phase 10: Test :CreateShortcut, :CreateSymbolicLink, and :CreateSymbolicDirLink
 ::===============================================================================
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1135,7 +1138,34 @@ IF /I NOT "%_COMMAND_EXIT%"=="SUCCESS" (
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ::===============================================================================
-:: Phase 2: Test :GetIfPathIsDriveRoot
+:: Phase 2: Test :LoCase, :UpCase, :TCase
+::===============================================================================
+
+SET "_TEST_STRING=hello, How aRE yoU?"
+
+ECHO:
+ECHO Test converting test string "%_TEST_STRING%" to different case . . . 
+ECHO:
+
+CALL :UpCase "%_TEST_STRING%"
+
+ECHO Uppercase:  "%_UPCASE_STRING%"
+
+CALL :LoCase "%_TEST_STRING%"
+
+ECHO Lowercase:  "%_LOCASE_STRING%"
+
+CALL :TCase "%_TEST_STRING%"
+
+ECHO Title Case: "%_TCASE_STRING%"
+
+ECHO:
+PAUSE
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+::===============================================================================
+:: Phase 3: Test :GetIfPathIsDriveRoot
 ::===============================================================================
 
 ECHO -------------------------------------------------------------------------------
@@ -1199,7 +1229,7 @@ PAUSE
 ECHO(
 
 ::===============================================================================
-:: Phase 3: Test :GetWindowsVersion
+:: Phase 4: Test :GetWindowsVersion
 ::===============================================================================
 
 ECHO -------------------------------------------------------------------------------
@@ -1224,7 +1254,7 @@ IF %_WindowsVersion% LSS 6 (
 ECHO(
 
 ::===============================================================================
-:: Phase 4: Test Banner.cmd (external function)
+:: Phase 5: Test Banner.cmd (external function)
 ::===============================================================================
 
 ECHO -------------------------------------------------------------------------------
@@ -1310,7 +1340,7 @@ ECHO Maximum string length is 21. (For PowerShell) 120 / 6 = 20
 ECHO(
 
 ::===============================================================================
-:: Phase 5: Test :GetTerminalWidth
+:: Phase 6: Test :GetTerminalWidth
 ::===============================================================================
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1365,7 +1395,7 @@ PAUSE
 ECHO(
 
 ::===============================================================================
-:: Phase 6: Test :CheckLink
+:: Phase 7: Test :CheckLink
 ::===============================================================================
 
 ECHO -------------------------------------------------------------------------------
@@ -1410,7 +1440,7 @@ IF "%_LinkState%"=="down" (
 ECHO(
 
 ::===============================================================================
-:: Phase 7: Test :GetDate, :ConvertTimeToSeconds, and :ConvertSecondsToTime
+:: Phase 8: Test :GetDate, :ConvertTimeToSeconds, and :ConvertSecondsToTime
 ::===============================================================================
 
 ECHO -------------------------------------------------------------------------------
@@ -1471,7 +1501,7 @@ ECHO Time difference = "%_TIME_DURATION%"
 ECHO(
 
 ::===============================================================================
-:: Phase 8: Test :InitLog and :InitLogOriginal
+:: Phase 9: Test :InitLog and :InitLogOriginal
 ::===============================================================================
 
 ECHO -------------------------------------------------------------------------------
@@ -1590,7 +1620,7 @@ RMDIR /S /Q "%_LOGPATH%"
 ECHO(
 
 ::===============================================================================
-:: Phase 9: Test :CreateShortcut, :CreateSymbolicLink, and :CreateSymbolicDirLink
+:: Phase 10: Test :CreateShortcut, :CreateSymbolicLink, and :CreateSymbolicDirLink
 ::===============================================================================
 
 ECHO -------------------------------------------------------------------------------
@@ -1710,20 +1740,23 @@ REM ECHO DEBUGGING: Begin DefineFunctions block.
 :: 11. :StrLen
 :: 12. :GenerateBlankSpace
 :: 13. :FormatTextLine
-:: 14. :CheckLink
-:: 15. :GetWindowsVersion
-:: 16. :GetIfPathIsDriveRoot
-:: 17. :CreateShortcut
-:: 18. :CreateSymbolicLink
-:: 19. :CreateSymbolicDirLink
-:: 20. :GetDate
-:: 21. :ConvertTimeToSeconds
-:: 22. :ConvertSecondsToTime
-:: 23. :InitLogOriginal
-:: 24. :InitLog
-:: 25. :SplashLogoKdiff
-:: 26. :SplashLogoMerge
-:: 27. :SplashLogoMergeComplete
+:: 14. :LoCase
+:: 15. :UpCase
+:: 16. :TCase
+:: 17. :CheckLink
+:: 18. :GetWindowsVersion
+:: 19. :GetIfPathIsDriveRoot
+:: 20. :CreateShortcut
+:: 21. :CreateSymbolicLink
+:: 22. :CreateSymbolicDirLink
+:: 23. :GetDate
+:: 24. :ConvertTimeToSeconds
+:: 25. :ConvertSecondsToTime
+:: 26. :InitLogOriginal
+:: 27. :InitLog
+:: 28. :SplashLogoKdiff
+:: 29. :SplashLogoMerge
+:: 30. :SplashLogoMergeComplete
 
 GOTO SkipFunctions
 :-------------------------------------------------------------------------------
@@ -2223,24 +2256,111 @@ ENDLOCAL & SET "_BLANK_SPACE=%_OUTPUT_STRING%"
 EXIT /B
 ::GOTO :EOF
 :-------------------------------------------------------------------------------
-:CheckLink IPorDNSaddress
+:LoCase InputString
+::CALL :LoCase "%_INPUT_STRING%"
+:: Thanks to:
+::https://www.robvanderwoude.com/battech_convertcase.php
+:: Outputs:
+:: "%_LOCASE_STRING%"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+@ECHO OFF
+SETLOCAL
+SET "_INPUT_STRING=%~1"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Subroutine to convert a variable VALUE to all lower case.
+:: The argument for this subroutine is the variable NAME.
+FOR %%i IN ("A=a" "B=b" "C=c" "D=d" "E=e" "F=f" "G=g" "H=h" "I=i" "J=j" "K=k" "L=l" "M=m" "N=n" "O=o" "P=p" "Q=q" "R=r" "S=s" "T=t" "U=u" "V=v" "W=w" "X=x" "Y=y" "Z=z") DO CALL SET "_INPUT_STRING=%%_INPUT_STRING:%%~i%%"
+SET "_OUTPUT_STRING=%_INPUT_STRING%"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ENDLOCAL & SET "_LOCASE_STRING=%_OUTPUT_STRING%"
+::EXIT /B
+GOTO:EOF
+:-------------------------------------------------------------------------------
+:UpCase InputString
+::CALL :UpCase "%_INPUT_STRING%"
+:: Thanks to:
+::https://www.robvanderwoude.com/battech_convertcase.php
+:: Outputs:
+:: "%_UPCASE_STRING%"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+@ECHO OFF
+SETLOCAL
+SET "_INPUT_STRING=%~1"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Subroutine to convert a variable VALUE to all UPPER CASE.
+:: The argument for this subroutine is the variable NAME.
+FOR %%i IN ("a=A" "b=B" "c=C" "d=D" "e=E" "f=F" "g=G" "h=H" "i=I" "j=J" "k=K" "l=L" "m=M" "n=N" "o=O" "p=P" "q=Q" "r=R" "s=S" "t=T" "u=U" "v=V" "w=W" "x=X" "y=Y" "z=Z") DO CALL SET "_INPUT_STRING=%%_INPUT_STRING:%%~i%%"
+SET "_OUTPUT_STRING=%_INPUT_STRING%"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ENDLOCAL & SET "_UPCASE_STRING=%_OUTPUT_STRING%"
+::EXIT /B
+GOTO:EOF
+:-------------------------------------------------------------------------------
+:TCase InputString
+::CALL :TCase "%_INPUT_STRING%"
+:: Thanks to:
+::https://www.robvanderwoude.com/battech_convertcase.php
+:: Outputs:
+:: "%_TCASE_STRING%"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+@ECHO OFF
+SETLOCAL
+SET "_INPUT_STRING=%~1"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Convert entire string to lowercase first
+FOR %%i IN ("A=a" "B=b" "C=c" "D=d" "E=e" "F=f" "G=g" "H=h" "I=i" "J=j" "K=k" "L=l" "M=m" "N=n" "O=o" "P=p" "Q=q" "R=r" "S=s" "T=t" "U=u" "V=v" "W=w" "X=x" "Y=y" "Z=z") DO CALL SET "_INPUT_STRING=%%_INPUT_STRING:%%~i%%"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Uppercase first letter
+::https://ss64.com/nt/syntax-substring.html
+:: %variable:~num_chars_to_skip,num_chars_to_keep%
+SET "_FIRST_CHAR=%_INPUT_STRING:~0,1%"
+FOR %%i IN ("a=A" "b=B" "c=C" "d=D" "e=E" "f=F" "g=G" "h=H" "i=I" "j=J" "k=K" "l=L" "m=M" "n=N" "o=O" "p=P" "q=Q" "r=R" "s=S" "t=T" "u=U" "v=V" "w=W" "x=X" "y=Y" "z=Z") DO CALL SET "_FIRST_CHAR=%%_FIRST_CHAR:%%~i%%"
+SET "_REMAINING_STRING=%_INPUT_STRING:~1%"
+SET "_INPUT_STRING=%_FIRST_CHAR%%_REMAINING_STRING%"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Convert the rest of the string into Title Case
+:: Subroutine to convert a variable VALUE to Title Case.
+:: The argument for this subroutine is the variable NAME.
+FOR %%i IN (" a= A" " b= B" " c= C" " d= D" " e= E" " f= F" " g= G" " h= H" " i= I" " j= J" " k= K" " l= L" " m= M" " n= N" " o= O" " p= P" " q= Q" " r= R" " s= S" " t= T" " u= U" " v= V" " w= W" " x= X" " y= Y" " z= Z") DO CALL SET "_INPUT_STRING=%%_INPUT_STRING:%%~i%%"
+SET "_OUTPUT_STRING=%_INPUT_STRING%"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ENDLOCAL & SET "_TCASE_STRING=%_OUTPUT_STRING%"
+::EXIT /B
+GOTO:EOF
+:-------------------------------------------------------------------------------
+:CheckLink IPorDNSaddress [QuietMode]
+::CALL :CheckLink "%_IP_ADDR_OR_DNS%"
+::CALL :CheckLink "%_IP_ADDR_OR_DNS%" quiet
 :: Check address for ICMP ping response packets
 :: http://stackoverflow.com/questions/3050898/how-to-check-if-ping-responded-or-not-in-a-batch-file
 :: thanks to paxdiablo for checklink.cmd
+:: Outputs:
+:: "%_LinkState%" Either "down" or "up"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 @SETLOCAL EnableExtensions EnableDelayedExpansion
 @ECHO OFF
-SET "ipaddr=%1"
-ECHO Testing address: %ipaddr%
+SET "ipaddr=%~1"
+SET "_QUIET=%~2"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+SET "_SILENT_MODE=OFF"
+IF /I "%_QUIET%"=="quiet" SET "_SILENT_MODE=ON"
+IF /I "%_QUIET%"=="silent" SET "_SILENT_MODE=ON"
 SET "_loopcount=0"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+IF /I "%_SILENT_MODE%"=="OFF" ECHO Testing address: %ipaddr%
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :loop
 SET "state=down"
 FOR /F "tokens=5,7" %%a IN ('PING -n 1 !ipaddr!') DO (
     IF "x%%a"=="xReceived" IF "x%%b"=="x1," SET "state=up"
 )
-ECHO Link is !state!
+IF /I "%_SILENT_MODE%"=="OFF" ECHO Link is !state!
 REM --> test networking hardware capability
 PING -n 6 127.0.0.1 >nul: 2>nul:
 IF "!state!"=="down" (
+	IF /I "%_SILENT_MODE%"=="ON" (
+		ENDLOCAL & SET "_LinkState=%state%" & EXIT /B
+	)
 	IF !_loopcount! LSS 3 (
 		SET /A "_loopcount+=1"
 		GOTO :loop
@@ -2252,6 +2372,7 @@ IF "!state!"=="down" (
 		ENDLOCAL & SET "_LinkState=%state%" & EXIT /B
 	)
 )
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ENDLOCAL & SET "_LinkState=%state%"
 EXIT /B
 :-------------------------------------------------------------------------------
