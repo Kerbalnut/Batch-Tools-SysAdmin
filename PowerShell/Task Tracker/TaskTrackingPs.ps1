@@ -938,23 +938,15 @@ Write-LogInfo -LogPath $sLogFile -Message "[TIMESTAMP]: $($Time)"
 #Clear-Host # CLS
 
 # =======================================================================================================================
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# Test choice functions
-#https://www.zerrouki.com/powershell-menus-host-ui-promptforchoice-defined-or-dynamic/
-
-Write-Verbose "Test modular choice functions."
-#Select-IPAddress
-Write-Verbose "End modular choice function test."
-
-#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+# Index:
+# Twilio send SMS function:
+# =======================================================================================================================
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # =======================================================================================================================
-
 # Twilio send SMS function:
+# =======================================================================================================================
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1095,6 +1087,8 @@ $credential = New-Object System.Management.Automation.PSCredential($sid, $p)
 #PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 # =======================================================================================================================
+# Time to get serious
+# =======================================================================================================================
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1153,150 +1147,6 @@ If (Test-Path $TimeLog) {
 #$Pomodoro_Mode = "Reverse Pomodoro"
 #$Pomodoro_Mode = "Traditional Clock"
 #$Pomodoro_Mode = "Custom Pomodoro"
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# -----------------------------------------------------------------------------------------------------------------------
-
-# User Choice Selection / Menu Demos
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-<#
-Write-Host `r`n
-Write-HorizontalRuleAdv -HRtype SingleLine -IsVerbose
-Write-Verbose "Method #1: `"Read-Host -Prompt`""
-Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
-do {
-	$ChoiceYesNoCancel = Read-Host -Prompt "[Y]es, [N]o, or [C]ancel? [Y\N\C]"
-	switch ($ChoiceYesNoCancel) {
-		'Y'	{ # Y - Yes
-			Write-Verbose "Yes ('$ChoiceYesNoCancel') option selected."
-			Write-Host `r`n
-		}
-		'N' { # N - No
-			Write-Verbose "No ('$ChoiceYesNoCancel') option selected."
-			Write-Host `r`n
-		}
-		'C' { # C - Cancel
-			Write-Verbose "Cancel ('$ChoiceYesNoCancel') option selected."
-			Write-Host `r`n
-		}
-		default { # Choice not recognized.
-			Write-Host `r`n
-			Write-Host "Choice `"$ChoiceYesNoCancel`" not recognized. Options must me Yes, No, or Cancel."
-			#Write-HorizontalRuleAdv -HRtype DashedLine
-			Write-Host `r`n
-			#Break #help about_Break
-			PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-			Write-Host `r`n
-			Write-HorizontalRuleAdv -HRtype DashedLine
-		}
-	}
-}
-until ($ChoiceYesNoCancel -eq 'Y' -Or $ChoiceYesNoCancel -eq 'N' -Or $ChoiceYesNoCancel -eq 'C')
-Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-#>
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-<#
-Write-Host `r`n
-Write-HorizontalRuleAdv -HRtype SingleLine -IsVerbose
-Write-Verbose "Method #2: `"PromptForChoice()`""
-# -----------------------------------------------------------------------------------------------------------------------
-# Build Menu
-# -----------------------------------------------------------------------------------------------------------------------
-#Clear-Host # CLS
-Write-HorizontalRuleAdv -HRtype DashedLine
-# -----------------------------------------------------------------------------------------------------------------------
-# Build Choice Prompt
-# -----------------------------------------------------------------------------------------------------------------------
-$Title = "Main Menu"
-$Info = "User choice selection example using PromptForChoice()"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# &Power makes P a Hot Key. 
-$ChoiceYes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Select [Y]es as the answer."
-$ChoiceNo = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Select [N]o as the answer."
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceYes, $ChoiceNo)
-# default choice: 0 = first Option, 1 = second option, etc.
-[int]$defaultchoice = 1
-# -----------------------------------------------------------------------------------------------------------------------
-# Execute Choice Prompt
-# -----------------------------------------------------------------------------------------------------------------------
-# PromptForChoice() output will always be integer: https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
-# If run from shell, will create a GUI dialog box. If run from script, will create choice text menu in command line.
-# https://social.technet.microsoft.com/wiki/contents/articles/24030.powershell-demo-prompt-for-choice.aspx
-$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
-# -----------------------------------------------------------------------------------------------------------------------
-# Interpret answer
-# -----------------------------------------------------------------------------------------------------------------------
-#help about_switch
-#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
-Write-Verbose "Answer = $answer"
-switch ($answer) {
-	0	{ # Y - Yes
-		Write-Verbose "Yes ('$answer') option selected."
-		Write-Host `r`n
-	}
-	1 { # N - No
-		Write-Verbose "No ('$answer') option selected."
-		Write-Host `r`n
-	}
-}
-Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-#>
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Write-Host `r`n
-Write-HorizontalRuleAdv -HRtype SingleLine -IsVerbose
-Write-Verbose "Method #3: `"Out-GridView -PassThru`""
-Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
-# -----------------------------------------------------------------------------------------------------------------------
-# Build Menu
-# -----------------------------------------------------------------------------------------------------------------------
-Write-Host `n
-Write-HorizontalRuleAdv -HRtype DashedLine
-Write-Host `n
-Write-Host "Menu example using Out-GridView:"
-# -----------------------------------------------------------------------------------------------------------------------
-# Build Choice Prompt
-# -----------------------------------------------------------------------------------------------------------------------
-$Title = "Main Menu"
-$Menu = [ordered]@{
-	1 = 'Yes'
-	2 = 'No'
-	3 = 'Cancel'
-}
-# -----------------------------------------------------------------------------------------------------------------------
-# Execute Choice Prompt
-# -----------------------------------------------------------------------------------------------------------------------
-# Using Out-GridView creates a GUI selection window with filter ability
-# and ability to select multiple options with the -PassThru switch
-$Result = $Menu | Out-GridView -PassThru -Title $Title
-# -----------------------------------------------------------------------------------------------------------------------
-# Interpret answer
-# -----------------------------------------------------------------------------------------------------------------------
-$answer = $Result.Name
-Write-Verbose "`$Result.Name = $answer"
-Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
-Switch ($answer) {
-	1 {
-		Write-Host '"Yes" was selected.'
-	}
-	2 {
-		Write-Host '"No" was selected.'
-	}
-	3 {
-		Write-Host '"Cancel" was selected.'
-	}
-}
-Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
