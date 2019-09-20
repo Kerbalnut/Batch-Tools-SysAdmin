@@ -619,7 +619,7 @@ function Check-Command($cmdname)
 #-----------------------------------------------------------------------------------------------------------------------
 
 function Create-NewTask { # New Task - $ChoiceNewTask
-	  
+	
 	Param (
 		#Script parameters go here
 		# https://ss64.com/ps/syntax-args.html
@@ -630,21 +630,55 @@ function Create-NewTask { # New Task - $ChoiceNewTask
 		[string]$LogFilePath
 	)
 	
+	#$TaskList #CSV
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	Write-Verbose "Create task list Headers: "
+	#$TaskList_Headers = "ID"
+	$TaskList_Headers = "TaskName"
+	# Get-Date -format o # 'YYYY-MM-DDThh-mm-ss.ms-TimeZone' E.g. '2019-09-16T22:03:23.9929606-07:00'
+	$TaskList_Headers += ",TimeStamp_Added (YYYY-MM-DDThh-mm-ss.ms-TimeZone)"
+	$TaskList_Headers += ",TimeStamp_LastWorkedOn (YYYY-MM-DDThh-mm-ss.ms-TimeZone)"
+	$TaskList_Headers += ",TimeStamp_Completed (YYYY-MM-DDThh-mm-ss.ms-TimeZone)"
+	$TaskList_Headers += ",Estimated_Time"
+	$TaskList_Headers += ",Status"
+	$TaskList_Headers += ",Tags"
+	
+	# Tags: (Tag1;Tag2;LastTag)
+	# $TaskList_Tags = "Resume;Printer;Email"
+	
+	<#
+	# TaskList_Status:
+	$TaskList_Status = "Active"
+	$TaskList_Status = "Completed"
+	$TaskList_Status = "Deleted"
+	$TaskList_Status = "In-Progress"
+	$TaskList_Status = "On-Hold"
+	#>
+	
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
 	#Write-Verbose "New Task. (`$ChoiceNewTask)"
-	Write-Host `n
-	Write-Host "Create New Task"
-	Write-HorizontalRuleAdv -HRtype DashedLine
-	$NewTaskName = Read-Host -Prompt "New Task Name"
+	do {
+		Write-Host `n
+		Write-Host "Create New Task"
+		Write-HorizontalRuleAdv -HRtype DashedLine
+		$NewTaskName = Read-Host -Prompt "New Task Name"
+		If ($NewTaskName -eq "") {
+			Write-Warning "New Task Name cannot be empty."
+		}
+	}
+	until ($NewTaskName -ne "")
+
 	Write-Verbose "New Task: '$NewTaskName'"
 	
 	$NewTask_Estimated_Time = Read-Host -Prompt "Estimated hours to complete"
 	Write-Verbose "Estimated hours: '$NewTask_Estimated_Time'"
 	
-	$NewTask_TimeStamp_Added = Get-Date -format o # (YYYY-MM-DD_HH-MM-SS), 
+	$NewTask_TimeStamp_Added = Get-Date -format o # (YYYY-MM-DDThh-mm-ss.ms-TimeZone) 
 	Write-Verbose "TimeStamp_Added: '$NewTask_TimeStamp_Added'"
-	$NewTask_TimeStamp_LastWorkedOn = "" # (YYYY-MM-DD_HH-MM-SS), 
+	$NewTask_TimeStamp_LastWorkedOn = "" # (YYYY-MM-DDThh-mm-ss.ms-TimeZone) 
 	Write-Verbose "TimeStamp_LastWorkedOn: '$NewTask_TimeStamp_LastWorkedOn'"
-	$NewTask_TimeStamp_Completed = "" # (YYYY-MM-DD_HH-MM-SS), 
+	$NewTask_TimeStamp_Completed = "" # (YYYY-MM-DDThh-mm-ss.ms-TimeZone) 
 	Write-Verbose "TimeStamp_Completed: '$NewTask_TimeStamp_Completed'"
 	
 	# TaskList_Status:
@@ -656,6 +690,9 @@ function Create-NewTask { # New Task - $ChoiceNewTask
 	
 	$TaskList_Tags = ""
 	
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Build New Task entry
 	$NewTaskEntry = "$($NewTaskName)"
 	$NewTaskEntry += ",$($NewTask_TimeStamp_Added)"
 	$NewTaskEntry += ",$($NewTask_TimeStamp_LastWorkedOn)"
@@ -664,23 +701,57 @@ function Create-NewTask { # New Task - $ChoiceNewTask
 	$NewTaskEntry += ",$($TaskList_Status)"
 	$NewTaskEntry += ",$($TaskList_Tags)"
 	
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
 	Write-Verbose "Adding New Task to file: '$TaskListPath'"
 	Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
-	PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+	#PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 	
 	# Create $TaskListPath file if it does not exist
 	If (!(Test-Path $TaskListPath)) {
-		Write-Verbose "`$TaskListPath '$TaskListPath' does not exist. Creating file."
+		Write-Verbose "`$TaskListPath '$TaskListPath' does not exist. Creating file . . ."
 		Write-LogInfo -LogPath $LogFilePath -Message "Creating new Task List file: '$TaskListPath'"
 		Write-Debug "Creating Task List file: '$TaskListPath'"
-		$NewTaskEntry > $TaskListPath
+		$TaskList_Headers > $TaskListPath
+		$NewTaskEntry >> $TaskListPath
 	} else {
 		Write-Verbose "`$TaskListPath '$TaskListPath' exists."
-		Write-Verbose "Appending to file . . . "
+		Write-Verbose "Appending to file . . ."
 		Write-LogInfo -LogPath $LogFilePath -Message "Adding New Task to file: '$NewTaskName' '$TaskListPath'"
 		Write-Debug "Appending New Task to file: '$TaskListPath'"
 		$NewTaskEntry >> $TaskListPath
 	}
+	
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Write-Verbose "Get line # of newly created task."
+	
+	#https://powershell-tips.blogspot.com/2011/05/display-top-n-lines-or-last-1n-lines-of.html
+	#Get-Content $TaskListPath | Select-Object -Last 1
+	#Get-Content $TaskListPath | Select-Object -Last 1 | Select-Object -Property *
+	
+	#https://stackoverflow.com/questions/50044959/get-a-line-number-on-powershell
+	
+	$LastEntry = Get-Content $TaskListPath | Select-Object -Last 1
+	$LastLine = Get-Content $TaskListPath | Select-String $LastEntry
+	$LastLineNumber = $LastLine.LineNumber
+	Write-Verbose "Last Entry = '$LastEntry'"
+	Write-Verbose "Last Line = '$LastLine'"
+	Write-Verbose "Last line of file = '$LastLineNumber'"
+	PAUSE
+	
+	# Select-String returns the line number for you. You're just looking at the wrong property. Change your code to:
+	
+	$search="Mustard"
+	$linenumber= Get-Content $TaskListPath | select-string $search
+	$linenumber.LineNumber
+	
+	
+	
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Write-Verbose "Automatically Select Newly created task."
+	
 } # End Create-NewTask function ----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
@@ -1051,22 +1122,6 @@ If (Test-Path $TimeLog) {
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-#$TaskList #CSV
-# Headers:
-# ID, TaskName, TimeStamp_Added (YYYY-MM-DD_HH-MM-SS), TimeStamp_LastWorkedOn (YYYY-MM-DD_HH-MM-SS), TimeStamp_Completed (YYYY-MM-DD_HH-MM-SS), Estimated_Time, Status, Tags
-
-# Tags: (Tag1;Tag2;LastTag)
-# Resume;Printer;Email
-
-# TaskList_Status:
-#$TaskList_Status = "Active"
-#$TaskList_Status = "Completed"
-#$TaskList_Status = "Deleted"
-#$TaskList_Status = "In-Progress"
-#$TaskList_Status = "On-Hold"
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 #$TimeLog #CSV
 # Headers:
 # TimeStamp (YYYY-MM-DD_HH-MM-SS), Date (YYYY-MM-DD), Time (HH:MM:SS AM), TimeZone (MST), Hostname, TaskList_ID, TaskList_Name, TimeLog_Type, Pomodoro_Mode
@@ -1103,7 +1158,15 @@ If (Test-Path $TimeLog) {
 
 # -----------------------------------------------------------------------------------------------------------------------
 
+# User Choice Selection / Menu Demos
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 <#
+Write-Host `r`n
+Write-HorizontalRuleAdv -HRtype SingleLine -IsVerbose
+Write-Verbose "Method #1: `"Read-Host -Prompt`""
+Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
 do {
 	$ChoiceYesNoCancel = Read-Host -Prompt "[Y]es, [N]o, or [C]ancel? [Y\N\C]"
 	switch ($ChoiceYesNoCancel) {
@@ -1132,9 +1195,112 @@ do {
 	}
 }
 until ($ChoiceYesNoCancel -eq 'Y' -Or $ChoiceYesNoCancel -eq 'N' -Or $ChoiceYesNoCancel -eq 'C')
+Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
+PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 #>
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+<#
+Write-Host `r`n
+Write-HorizontalRuleAdv -HRtype SingleLine -IsVerbose
+Write-Verbose "Method #2: `"PromptForChoice()`""
+# -----------------------------------------------------------------------------------------------------------------------
+# Build Menu
+# -----------------------------------------------------------------------------------------------------------------------
+#Clear-Host # CLS
+Write-HorizontalRuleAdv -HRtype DashedLine
+# -----------------------------------------------------------------------------------------------------------------------
+# Build Choice Prompt
+# -----------------------------------------------------------------------------------------------------------------------
+$Title = "Main Menu"
+$Info = "User choice selection example using PromptForChoice()"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# &Power makes P a Hot Key. 
+$ChoiceYes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Select [Y]es as the answer."
+$ChoiceNo = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Select [N]o as the answer."
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceYes, $ChoiceNo)
+# default choice: 0 = first Option, 1 = second option, etc.
+[int]$defaultchoice = 1
+# -----------------------------------------------------------------------------------------------------------------------
+# Execute Choice Prompt
+# -----------------------------------------------------------------------------------------------------------------------
+# PromptForChoice() output will always be integer: https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
+# If run from shell, will create a GUI dialog box. If run from script, will create choice text menu in command line.
+# https://social.technet.microsoft.com/wiki/contents/articles/24030.powershell-demo-prompt-for-choice.aspx
+$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
+# -----------------------------------------------------------------------------------------------------------------------
+# Interpret answer
+# -----------------------------------------------------------------------------------------------------------------------
+#help about_switch
+#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
+Write-Verbose "Answer = $answer"
+switch ($answer) {
+	0	{ # Y - Yes
+		Write-Verbose "Yes ('$answer') option selected."
+		Write-Host `r`n
+	}
+	1 { # N - No
+		Write-Verbose "No ('$answer') option selected."
+		Write-Host `r`n
+	}
+}
+Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
+PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+#>
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Write-Host `r`n
+Write-HorizontalRuleAdv -HRtype SingleLine -IsVerbose
+Write-Verbose "Method #3: `"Out-GridView -PassThru`""
+Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
+# -----------------------------------------------------------------------------------------------------------------------
+# Build Menu
+# -----------------------------------------------------------------------------------------------------------------------
+Write-Host `n
+Write-HorizontalRuleAdv -HRtype DashedLine
+Write-Host `n
+Write-Host "Menu example using Out-GridView:"
+# -----------------------------------------------------------------------------------------------------------------------
+# Build Choice Prompt
+# -----------------------------------------------------------------------------------------------------------------------
+$Title = "Main Menu"
+$Menu = [ordered]@{
+	1 = 'Yes'
+	2 = 'No'
+	3 = 'Cancel'
+}
+# -----------------------------------------------------------------------------------------------------------------------
+# Execute Choice Prompt
+# -----------------------------------------------------------------------------------------------------------------------
+# Using Out-GridView creates a GUI selection window with filter ability
+# and ability to select multiple options with the -PassThru switch
+$Result = $Menu | Out-GridView -PassThru -Title $Title
+# -----------------------------------------------------------------------------------------------------------------------
+# Interpret answer
+# -----------------------------------------------------------------------------------------------------------------------
+$answer = $Result.Name
+Write-Verbose "`$Result.Name = $answer"
+Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
+Switch ($answer) {
+	1 {
+		Write-Host '"Yes" was selected.'
+	}
+	2 {
+		Write-Host '"No" was selected.'
+	}
+	3 {
+		Write-Host '"Cancel" was selected.'
+	}
+}
+Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
+PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# -----------------------------------------------------------------------------------------------------------------------
 
 do
 {
@@ -1178,6 +1344,8 @@ do
 	Write-Host "    1 - Test 1"
 	Write-Host "    Q - [Q]uit"
 	#Write-Host `n
+	Write-HorizontalRuleAdv -HRtype DashedLine
+	Write-Host "Type letter choice, then press ENTER."
 	Write-HorizontalRuleAdv -HRtype DashedLine
 	#Write-Host "Choose Pipsqueak SQL command to generate."
 	# -----------------------------------------------------------------------------------------------------------------------
