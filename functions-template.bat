@@ -2611,7 +2611,7 @@ SET "_DATE_SORT=%_DATE_YEAR%-%_DATE_MONTH%-%_DATE_DAY%"
 ::ECHO Sortable date = %_DATE_SORT%
 :: We now have the date in yyyy-mm-dd format e.g. 2018-01-28
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-:: Extract only the first 8 character
+:: Extract only the first 8 character (shed the milisecond values)
 SET "_TIME_SML=%_TIME:~0,8%"
 :: Replace the character string ' ' with '0'
 SET "_TIME_STR=%_TIME_SML: =0%"

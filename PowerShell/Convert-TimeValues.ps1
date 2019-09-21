@@ -418,15 +418,19 @@ Function Write-HorizontalRule {
 #-----------------------------------------------------------------------------------------------------------------------
 
 Function Write-HorizontalRuleAdv {
+  <#
+	.SYNOPSIS
+	Write-HorizontalRuleAdv
+	
+	.DESCRIPTION
+	Write-HorizontalRuleAdv
+	
+    .PARAMETER HRtype
+    Horizontal Rule types. Accepted types are 'SingleLine', 'DoubleLine', 'DashedLine', and 'BlankLine'. 
   
-  # .DESCRIPTION
-  #  <Brief description of script>
-  
-  # .PARAMETER HRtype
-  # Horizontal Rule types. Accepted types are 'SingleLine', 'DoubleLine', 'DashedLine', and 'BlankLine'. 
-  
-  # .PARAMETER Endcaps
-  # Add a character to each end of the horizontal rule. Default is '#'. Set a different endcap character using -EndcapCharacter <single character>
+    .PARAMETER Endcaps
+    Add a character to each end of the horizontal rule. Default is '#'. Set a different endcap character using -EndcapCharacter <single character>
+  #>
   
   Param (
     #Script parameters go here
@@ -640,7 +644,7 @@ Function Log-Time {
 		
 		[Parameter(Mandatory=$false,
 		ParameterSetName='PauseStartTag')]
-		[switch]$PauseStart,
+		[string]$PauseStart,
 		
 		[Parameter(Mandatory=$false,
 		ParameterSetName='PauseStopTag')]
@@ -710,7 +714,7 @@ Function Log-Time {
 	}
 	
 	If ($PauseStart) {
-		$TimeLogTag = "Pause-Start"
+		$TimeLogTag = "Pause-Start='$PauseStart'"
 		$BeginEnd = "[Begin]"
 	}
 	

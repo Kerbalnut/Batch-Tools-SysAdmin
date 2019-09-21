@@ -49,8 +49,65 @@ do {
 }
 until ($ChoiceAMPM24hour -eq 'A' -Or $ChoiceAMPM24hour -eq 'P' -Or $ChoiceAMPM24hour -eq 2)
 
-
 $StartAMPM
+
+
+#doesn't work
+$Midnight = Get-Date -Hour 24
+
+$Midnight
+
+
+$Midnight = Get-Date -Hour 23
+
+$Midnight
+
+
+$PastMidnight = Get-Date -Hour 0
+
+$PastMidnight
+
+$PastMidnight = Get-Date -Hour 1
+
+$PastMidnight
+
+  
+
+
+:: We now have the time in 24-hour hh-mm-ss format e.g. 21-31-39 or 01-57-25
+::ECHO Sortable time = "%_TIME_SORT%"
+SET "_TIME_ANTE_POST=AM"
+:: Extract hours
+SET "_TIME_24HOUR=%_TIME_SORT:~0,2%"
+IF %_TIME_24HOUR% LSS 10 SET "_TIME_24HOUR=%_TIME_24HOUR:~1%"
+:: https://ss64.com/nt/if.html
+IF %_TIME_24HOUR% GEQ 12 (
+	SET "_TIME_ANTE_POST=PM"
+	REM https://ss64.com/nt/set.html
+	IF %_TIME_24HOUR% GTR 12 (
+		SET /A "_TIME_12HOUR=_TIME_24HOUR-12"
+	) ELSE (
+		SET "_TIME_12HOUR=%_TIME_24HOUR%"
+	)
+) ELSE (
+	SET "_TIME_12HOUR=%_TIME_24HOUR%"
+)
+:: If 24hr time 'hours' is 00, change to 12 (for 12:00 AM)
+IF %_TIME_24HOUR% EQU 0 SET "_TIME_12HOUR=12"
+:: Add spaces
+IF %_TIME_12HOUR% LSS 10 SET "_TIME_12HOUR= %_TIME_12HOUR%"
+:: Skip the hours and extract the rest of :mm:ss from hh:mm:ss e.g. :31:39
+SET "_TIME_COLONS=%_TIME_SML:~2%"
+SET "_TIME_AMPM=%_TIME_12HOUR%%_TIME_COLONS% %_TIME_ANTE_POST%"
+::ECHO 12-hour time with spaces = "%_TIME_AMPM%"
+:: We now have the time in 12-hour hh:mm:ss AM/PM format e.g. " 9:31:39 PM"
+
+
+
+
+
+
+
 
 $StartTime = Get-Date -Hour $StartHour -Minute $StartMin
 
