@@ -16,11 +16,8 @@ Function Convert-AMPMhourTo24hour {
 		.PARAMETER PM
 		Add a character to each end of the horizontal rule. Default is '#'. Set a different endcap character using -EndcapCharacter <single character>
 	#>
-	[cmdletbinding()]
+	
 	Param (
-        
-		
-        
 		#Script parameters go here
 		[Parameter(Mandatory=$true,Position=0)]
 		# Validate a positive integer (whole number) using Regular Expressions:
@@ -33,7 +30,6 @@ Function Convert-AMPMhourTo24hour {
 		#$RegEx = "(?<![-.])\b[0-9]+\b(?!\.[0-9])"
 		#[ValidatePattern("(?<![-.])\b[0-9]+\b(?!\.[0-9])")]
 		# This [ValidateScript({))] does the exact same thing as the [ValidatePattern("")] above, it just throws much nicer, customizable error messages.
-        
 		[ValidateScript({
             If ($_ -match "(?<![-.])\b[0-9]+\b(?!\.[0-9])") {
                 $True
@@ -41,12 +37,9 @@ Function Convert-AMPMhourTo24hour {
                 Throw "$_ must be a positive integer (whole number, no decimals)."
             }
         })]
-		
 		[ValidateRange(1,12)]
 		# Bugfix: To properly validate regex for integer ranges, and throw an error if a decimal value is provided, do not use [int]$var since PowerShell will automatically round the input value before performing the [ValidatePattern("")] regex comparison. Instead, declare parameter without [int] e.g. $var,
 		$Hours,
-		
-		
 		
 		
 		[Parameter(Mandatory=$true,
@@ -111,6 +104,7 @@ Write-Host "--------------------------------------------------------------------
 Write-Host "--------------------------------------------------------------------------------------------------"
 
 <#
+12.1
 11.6
 11.4
 11
@@ -120,7 +114,10 @@ Write-Host "--------------------------------------------------------------------
 09
 9
 -9
-
+.9
+0.9
+.0
+0.0
 #>
 
 #help Convert-AMPMhourTo24hour -full
@@ -151,6 +148,11 @@ Write-Host "--------------------------------------------------------------------
 
 Write-Host "Failure:"
 Convert-AMPMhourTo24hour 09.4 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 12.1 -AM
 
 Write-Host "--------------------------------------------------------------------------------------------------"
 
@@ -201,6 +203,26 @@ Write-Host "--------------------------------------------------------------------
 
 Write-Host "Failure:"
 Convert-AMPMhourTo24hour -9 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour .9 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 0.9 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour .0 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 0.0 -AM
 
 #
 
