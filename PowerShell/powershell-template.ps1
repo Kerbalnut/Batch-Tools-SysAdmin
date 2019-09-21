@@ -467,7 +467,6 @@ Function Write-HorizontalRuleAdv {
   #$FunctionName = (Get-PSCallStack | Select-Object FunctionName -Skip 1 -First 1).FunctionName
   #$FunctionName = (Get-Variable MyInvocation -Scope 1).Value.MyCommand.Name
   $FunctionName = $PSCmdlet.MyInvocation.MyCommand.Name
-  Write-Verbose "Running function: $FunctionName"
   
   # help about_Automatic_Variables
   # help about_If
@@ -583,8 +582,9 @@ Write-Verbose "Script body."
 #2. Testing Write-HorizontalRule function
 #3. Testing Out-GridView
 #4. User Choice Selection / Menu Demos
-#5. Test multi-dimensional variable methods
-#6. Test running external script
+#5. Test For loop & date formatting
+#6. Test multi-dimensional variable methods
+#7. Test running external script
 #=======================================================================================================================
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -782,6 +782,7 @@ Get-WmiObject @WMI  | ForEach {
 
 $List | Out-GridView -Title 'Drive Space' 
 
+PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -791,9 +792,12 @@ $List | Out-GridView -Title 'Drive Space'
 
 #-----------------------------------------------------------------------------------------------------------------------
 
+Write-Host `r`n
+Write-Host "4. User Choice Selection / Menu Demos"
+Write-Host `r`n
+
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-Write-Host `r`n
 Write-HorizontalRuleAdv -HRtype SingleLine -IsVerbose
 Write-Verbose 'Method #1: "Read-Host -Prompt"'
 Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
@@ -947,7 +951,7 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #=======================================================================================================================
-# Test For loop & date formatting
+#5. Test For loop & date formatting
 #=======================================================================================================================
 
 Write-Host `n
@@ -966,7 +970,7 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #=======================================================================================================================
-#5. Test multi-dimensional variable methods
+#6. Test multi-dimensional variable methods
 #=======================================================================================================================
 
 Write-Host `n
@@ -1154,7 +1158,7 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #=======================================================================================================================
-#6. Test running external script
+#7. Test running external script
 #=======================================================================================================================
 
 #-----------------------------------------------------------------------------------------------------------------------
