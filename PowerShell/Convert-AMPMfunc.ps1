@@ -2,7 +2,7 @@
 Function Convert-AMPMhourTo24hour {
 	<#
 		.SYNOPSIS
-		Convert an hour value in AM/PM format to a 24-hour value.
+		Convert an hour value in AM/PM format to the equivalent 24-hour value.
 		
 		.DESCRIPTION
 		Enter a 12-hour format value plus its AM/PM value, and this cmdlet will return the equivalent 24-hour format hour value from 0-23. Must specify either -AM or -PM switch.
@@ -16,15 +16,38 @@ Function Convert-AMPMhourTo24hour {
 		.PARAMETER PM
 		Add a character to each end of the horizontal rule. Default is '#'. Set a different endcap character using -EndcapCharacter <single character>
 	#>
-	
+	[cmdletbinding()]
 	Param (
+        
+		
+        
 		#Script parameters go here
-		# https://ss64.com/ps/syntax-args.html
 		[Parameter(Mandatory=$true,Position=0)]
-		#[ValidateRange(1,12)]
-		#[ValidateRange([int]::1,[int]::12)]
+		# Validate a positive integer (whole number) using Regular Expressions:
+		#https://stackoverflow.com/questions/16774064/regular-expression-for-whole-numbers-and-integers
+		#	(?<![-.])		# Assert that the previous character isn't a minus sign or a dot.
+		#	\b				# Anchor the match to the start of a number.
+		#	[0-9]+			# Match a number.
+		#	\b				# Anchor the match to the end of the number.
+		#	(?!\.[0-9])		# Assert that no decimal part follows.
+		#$RegEx = "(?<![-.])\b[0-9]+\b(?!\.[0-9])"
+		#[ValidatePattern("(?<![-.])\b[0-9]+\b(?!\.[0-9])")]
+		# This [ValidateScript({))] does the exact same thing as the [ValidatePattern("")] above, it just throws much nicer, customizable error messages.
+        
+		[ValidateScript({
+            If ($_ -match "(?<![-.])\b[0-9]+\b(?!\.[0-9])") {
+                $True
+            } else {
+                Throw "$_ must be a positive integer (whole number, no decimals)."
+            }
+        })]
+		
 		[ValidateRange(1,12)]
-        [int]$Hours,
+		# Bugfix: To properly validate regex for integer ranges, and throw an error if a decimal value is provided, do not use [int]$var since PowerShell will automatically round the input value before performing the [ValidatePattern("")] regex comparison. Instead, declare parameter without [int] e.g. $var,
+		$Hours,
+		
+		
+		
 		
 		[Parameter(Mandatory=$true,
 		ParameterSetName='AMtag')]
@@ -35,6 +58,9 @@ Function Convert-AMPMhourTo24hour {
 		[switch]$PM
 	)
 	
+    Write-Host "'`$Hours' = '$Hours'"
+    Write-Verbose "'`$Hours' = '$Hours'"
+    
 	<#
 	------------------------------------------------------------------------------------------------
 	12:00 AM = 00:00	*** exception: if AM hours = 12, subtract 12 for 24-hours	\
@@ -78,5 +104,107 @@ Function Convert-AMPMhourTo24hour {
 	
 } # End Convert-AMPMhourTo24hour function -------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
+
+#
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+<#
+11.6
+11.4
+11
+011
+9.6
+9.4
+09
+9
+-9
+
+#>
+
+#help Convert-AMPMhourTo24hour -full
+
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 0 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 1 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 12 -AM
+
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 09.6 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 09.4 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 11.6 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 11.4 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 11 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 011 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 9.6 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 9.4 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 009 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 09 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 9 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour -9 -AM
+
+#
+
+
+
 
 

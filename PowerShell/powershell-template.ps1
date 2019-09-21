@@ -576,12 +576,31 @@ Function Convert-AMPMhourTo24hour {
 	#>
 	
 	Param (
+        
 		#Script parameters go here
-		# https://ss64.com/ps/syntax-args.html
 		[Parameter(Mandatory=$true,Position=0)]
-		#[ValidateRange(1,12)]
-		#[ValidateRange([int]::1,[int]::12)]
-		[Int][ValidateRange(1,12)]$Hours,
+		# Validate a positive integer (whole number) using Regular Expressions:
+		#https://stackoverflow.com/questions/16774064/regular-expression-for-whole-numbers-and-integers
+		#	(?<![-.])		# Assert that the previous character isn't a minus sign or a dot.
+		#	\b				# Anchor the match to the start of a number.
+		#	[0-9]+			# Match a number.
+		#	\b				# Anchor the match to the end of the number.
+		#	(?!\.[0-9])		# Assert that no decimal part follows.
+		#$RegEx = "(?<![-.])\b[0-9]+\b(?!\.[0-9])"
+		#[ValidatePattern("(?<![-.])\b[0-9]+\b(?!\.[0-9])")]
+		# This [ValidateScript({))] does the exact same thing as the [ValidatePattern("")] above, it just throws much nicer, customizable error messages.
+        
+		[ValidateScript({
+            If ($_ -match "(?<![-.])\b[0-9]+\b(?!\.[0-9])") {
+                $True
+            } else {
+                Throw "$_ must be a positive integer (whole number, no decimals)."
+            }
+        })]
+		
+		[ValidateRange(1,12)]
+		# Bugfix: To properly validate regex for integer ranges, and throw an error if a decimal value is provided, do not use [int]$var since PowerShell will automatically round the input value before performing the [ValidatePattern("")] regex comparison. Instead, declare parameter without [int] e.g. $var,
+		$Hours,
 		
 		[Parameter(Mandatory=$true,
 		ParameterSetName='AMtag')]
