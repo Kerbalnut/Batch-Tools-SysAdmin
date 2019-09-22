@@ -177,6 +177,8 @@ SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Task
 
 SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-AMPMfunc.ps1"
 
+SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1.orig"
+
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :: Param3 = Banner options.
