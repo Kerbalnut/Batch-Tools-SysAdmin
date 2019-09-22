@@ -558,160 +558,160 @@ Function Write-HorizontalRuleAdv {
 #-----------------------------------------------------------------------------------------------------------------------
 
 Function Convert-AMPMhourTo24hour {
-	<#
-		.SYNOPSIS
-			Convert an hour value in AM/PM format to a 24-hour value.
-		
-		.DESCRIPTION
-			Enter a 12-hour format value plus its AM/PM value, and this cmdlet will return the equivalent 24-hour format hour value from 0-23. Must specify either -AM or -PM switch.
-			
-			The abbreviations AM and PM derive from Latin:
-			
-			AM = Ante meridiem: Before noon
-			PM = Post meridiem: After noon
-			
-			https://www.timeanddate.com/time/am-and-pm.html
-			
-		.PARAMETER Hours
-			The AM/PM hour value, from 1-12.
-		
-		.PARAMETER AM
-			Add a character to each end of the horizontal rule. Default is '#'. Set a different endcap character using -EndcapCharacter <single character>
-		
-		.PARAMETER PM
-			Add a character to each end of the horizontal rule. Default is '#'. Set a different endcap character using -EndcapCharacter <single character>
-		
-		.EXAMPLE
-			#1.
-			The following 3 lines will convert any PM Hour value (in this case, 4) and convert it into its 24-hour equivalent.
-			C:\PS> $AMPMhour = 4
-			C:\PS> $OutputVar = Convert-AMPMhourTo24hour $AMPMhour -PM
-			C:\PS> Write-Host "$AMPMhour PM = $OutputVar           (24-hour)"
-			In this example, the output would read:
-			"4 PM = 16           (24-hour)"
-			Because 4:00 PM is equivalent to 16:00 on a 24-hour clock.
-			
-		.EXAMPLE
-			#2.
-			
-			The following single-line script will get the current hour in AM/PM format (Get-Date -UFormat %I) and convert it to 24-hour format.
-			
-			C:\PS> Get-Date -UFormat %I | Convert-AMPMhourTo24hour -PM
-			
-			To capture this output in a variable first, then print it out:
-			
-			C:\PS> $OutputVar = (Get-Date -UFormat %I | Convert-AMPMhourTo24hour -PM)
-			C:\PS> Write-Host "`$OutputVar = $OutputVar"
-			C:\PS> Write-Host "$(Get-Date -UFormat %I) PM = $OutputVar           (24-hour)"
-			
-			For example, if the current time was 2 PM, the output would read:
-			"$OutputVar = 14"
-			"2 PM = 14           (24-hour)"
-			
-			For the same thing but with AM times, simply change the -PM switch to the -AM switch:
-			
-			C:\PS> $OutputVar = (Get-Date -UFormat %I | Convert-AMPMhourTo24hour -AM)
-			C:\PS> Write-Host "`$OutputVar = $OutputVar"
-			C:\PS> Write-Host "$(Get-Date -UFormat %I) AM = $OutputVar           (24-hour)"
-			
-			For example, if the current time was 8 PM, the output would read:
-			"$OutputVar = 8"
-			"8 AM = 8           (24-hour)"
-			
-		.EXAMPLE
-			#3.
-			
-			To get today's date, but with a different time-value, use a script block invloving Read-Host, Get-Date, and Convert-AMPMhourTo24hour, such as this:
-			
-			\> $StartHour = Read-Host -Prompt "Enter Start hour"
-			
-			\> $StartMin = Read-Host -Prompt "Enter Start minute"
-			
-			\> do {
-			\>   $ChoiceAMPM24hour = Read-Host -Prompt "[A]M, [P]M, or [2]4 hour? [A\P\2]"
-			\>   switch ($ChoiceAMPM24hour) {
-			\> 	   'A' { # A - AM time
-			\>            $AntePost = "AM"
-			\>            Write-Verbose "AM time ('$ChoiceAMPM24hour') option selected."
-			\>            $24hourFormat = Convert-AMPMhourTo24hour -Hours $StartHour -AM
-			\>     }
-			\>     'P' { # P - PM time
-			\>            $AntePost = "PM"
-			\>            Write-Verbose "PM time ('$ChoiceAMPM24hour') option selected."
-			\>            $24hourFormat = Convert-AMPMhourTo24hour -Hours $StartHour -PM
-			\>     }
-			\>     2 { # 2 - 24-hour time
-			\>            $AntePost = "(24-hour)"
-			\>            Write-Verbose "24-hour time ('$ChoiceAMPM24hour') option selected."
-			\>            $24hourFormat = $StartHour
-			\>     }
-			\>     default { # Choice not recognized.
-			\>            Write-Host `r`n
-			\>            Write-Warning "Choice `"$ChoiceAMPM24hour`" not recognized. Options must be AM, PM, or 24-hour."
-			\>            Write-Host `r`n
-			\>            #Break #help about_Break
-			\>            PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-			\>            #Clear-Host # CLS
-			\>            Write-Host `r`n
-			\>     }
-			\>   }
-			\> } until ($ChoiceAMPM24hour -eq 'A' -Or $ChoiceAMPM24hour -eq 'P' -Or $ChoiceAMPM24hour -eq 2)
-			\> Write-Verbose "12-hour time '$StartHour:$StartMin $AntePost' converted to 24-hour time ('$24hourFormat:$StartMin')"
-			
-			\> $DifferentTimeToday = Get-Date -Hour $24hourFormat -Minute $StartMin
-			
-			This script above will set a <DateTime> type variable called $DifferentTimeToday that is the same date as today, but with a time entered by manually by the user.
-			
-		.INPUTS
-			Requires a "Hours" time value as input, and selection of AM or PM. Hour value must be a positive integer (whole number, non-decimal) between 1 and 12. "Hours" value can be piped int from other commands, but a choice between -AM or -PM switch must still be made. See Examples for more info.
-		
-		.OUTPUTS
-			Returns a [int32] integer number (whole number, not decimal, not negative) between 0 and 23, according to 24-hour time formats, equivalent to the AM/PM input time (hour).
-			
-		.NOTES
-			
-			Conversion table between AM/PM hours and 24-hour time format:
-			
-			--AM/PM----24-hr--------------------------------------------------------------------------------
-			12:00 AM = 00:00	*** exception: if AM hours = 12, then 24-hours = 0			\
-			 1:00 AM = 01:00	\															 |
-			 2:00 AM = 02:00	 |															 |
-			 3:00 AM = 03:00	 |															 |
-			 4:00 AM = 04:00	 |															 |
-			 5:00 AM = 05:00	 |															 |
-			 6:00 AM = 06:00	 |------- AM time = 24-hour time							 |-------  AM
-			 7:00 AM = 07:00	 |															 |
-			 8:00 AM = 08:00	 |															 |
-			 9:00 AM = 09:00	 |															 |
-			10:00 AM = 10:00	 |															 |
-			11:00 AM = 11:00____/___________________________________________________________/_______________
-			12:00 PM = 12:00	*** exception: if PM hours = 12, then 24-hours = 12			\
-			 1:00 PM = 13:00	\															 |
-			 2:00 PM = 14:00	 |															 |
-			 3:00 PM = 15:00	 |															 |
-			 4:00 PM = 16:00	 |															 |
-			 5:00 PM = 17:00	 |															 |
-			 6:00 PM = 18:00	 |------- PM hours + 12 = 24-hours							 |-------  PM
-			 7:00 PM = 19:00	 |															 |
-			 8:00 PM = 20:00	 |															 |
-			 9:00 PM = 21:00	 |															 |
-			10:00 PM = 22:00	 |															 |
-			11:00 PM = 23:00	/															/
-			------------------------------------------------------------------------------------------------
-			
-		.LINK
-			https://www.lsoft.com/manuals/maestro/4.0/htmlhelp/interface%20user/TimeConversionTable.html
-		
-		.LINK
-			https://stackoverflow.com/questions/16774064/regular-expression-for-whole-numbers-and-integers
-		
-		.LINK
-			https://www.gngrninja.com/script-ninja/2016/5/15/powershell-getting-started-part-8-accepting-pipeline-input
-		
-		.LINK
-			https://www.timeanddate.com/time/am-and-pm.html
-		
-	#>
+<#
+.SYNOPSIS
+Convert an hour value in AM/PM format to a 24-hour value.
+
+.DESCRIPTION
+Enter a 12-hour format value plus its AM/PM value, and this cmdlet will return the equivalent 24-hour format hour value from 0-23. Must specify either -AM or -PM switch.
+
+The abbreviations AM and PM derive from Latin:
+
+AM = Ante meridiem: Before noon
+PM = Post meridiem: After noon
+
+https://www.timeanddate.com/time/am-and-pm.html
+
+.PARAMETER Hours
+The AM/PM hour value, from 1-12.
+
+.PARAMETER AM
+Add a character to each end of the horizontal rule. Default is '#'. Set a different endcap character using -EndcapCharacter <single character>
+
+.PARAMETER PM
+Add a character to each end of the horizontal rule. Default is '#'. Set a different endcap character using -EndcapCharacter <single character>
+
+.EXAMPLE
+#1.
+The following 3 lines will convert any PM Hour value (in this case, 4) and convert it into its 24-hour equivalent.
+C:\PS> $AMPMhour = 4
+C:\PS> $OutputVar = Convert-AMPMhourTo24hour $AMPMhour -PM
+C:\PS> Write-Host "$AMPMhour PM = $OutputVar           (24-hour)"
+In this example, the output would read:
+"4 PM = 16           (24-hour)"
+Because 4:00 PM is equivalent to 16:00 on a 24-hour clock.
+
+.EXAMPLE
+#2.
+
+The following single-line script will get the current hour in AM/PM format (Get-Date -UFormat %I) and convert it to 24-hour format.
+
+C:\PS> Get-Date -UFormat %I | Convert-AMPMhourTo24hour -PM
+
+To capture this output in a variable first, then print it out:
+
+C:\PS> $OutputVar = (Get-Date -UFormat %I | Convert-AMPMhourTo24hour -PM)
+C:\PS> Write-Host "`$OutputVar = $OutputVar"
+C:\PS> Write-Host "$(Get-Date -UFormat %I) PM = $OutputVar           (24-hour)"
+
+For example, if the current time was 2 PM, the output would read:
+"$OutputVar = 14"
+"2 PM = 14           (24-hour)"
+
+For the same thing but with AM times, simply change the -PM switch to the -AM switch:
+
+C:\PS> $OutputVar = (Get-Date -UFormat %I | Convert-AMPMhourTo24hour -AM)
+C:\PS> Write-Host "`$OutputVar = $OutputVar"
+C:\PS> Write-Host "$(Get-Date -UFormat %I) AM = $OutputVar           (24-hour)"
+
+For example, if the current time was 8 PM, the output would read:
+"$OutputVar = 8"
+"8 AM = 8           (24-hour)"
+
+.EXAMPLE
+#3.
+
+To get today's date, but with a different time-value, use a script block invloving Read-Host, Get-Date, and Convert-AMPMhourTo24hour, such as this:
+
+\> $StartHour = Read-Host -Prompt "Enter Start hour"
+
+\> $StartMin = Read-Host -Prompt "Enter Start minute"
+
+\> do {
+\>   $ChoiceAMPM24hour = Read-Host -Prompt "[A]M, [P]M, or [2]4 hour? [A\P\2]"
+\>   switch ($ChoiceAMPM24hour) {
+\> 	   'A' { # A - AM time
+\>            $AntePost = "AM"
+\>            Write-Verbose "AM time ('$ChoiceAMPM24hour') option selected."
+\>            $24hourFormat = Convert-AMPMhourTo24hour -Hours $StartHour -AM
+\>     }
+\>     'P' { # P - PM time
+\>            $AntePost = "PM"
+\>            Write-Verbose "PM time ('$ChoiceAMPM24hour') option selected."
+\>            $24hourFormat = Convert-AMPMhourTo24hour -Hours $StartHour -PM
+\>     }
+\>     2 { # 2 - 24-hour time
+\>            $AntePost = "(24-hour)"
+\>            Write-Verbose "24-hour time ('$ChoiceAMPM24hour') option selected."
+\>            $24hourFormat = $StartHour
+\>     }
+\>     default { # Choice not recognized.
+\>            Write-Host `r`n
+\>            Write-Warning "Choice `"$ChoiceAMPM24hour`" not recognized. Options must be AM, PM, or 24-hour."
+\>            Write-Host `r`n
+\>            #Break #help about_Break
+\>            PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+\>            #Clear-Host # CLS
+\>            Write-Host `r`n
+\>     }
+\>   }
+\> } until ($ChoiceAMPM24hour -eq 'A' -Or $ChoiceAMPM24hour -eq 'P' -Or $ChoiceAMPM24hour -eq 2)
+\> Write-Verbose "12-hour time '$StartHour:$StartMin $AntePost' converted to 24-hour time ('$24hourFormat:$StartMin')"
+
+\> $DifferentTimeToday = Get-Date -Hour $24hourFormat -Minute $StartMin
+
+This script above will set a <DateTime> type variable called $DifferentTimeToday that is the same date as today, but with a time entered by manually by the user.
+
+.INPUTS
+Requires a "Hours" time value as input, and selection of AM or PM. Hour value must be a positive integer (whole number, non-decimal) between 1 and 12. "Hours" value can be piped int from other commands, but a choice between -AM or -PM switch must still be made. See Examples for more info.
+
+.OUTPUTS
+Returns a [int32] integer number (whole number, not decimal, not negative) between 0 and 23, according to 24-hour time formats, equivalent to the AM/PM input time (hour).
+
+.NOTES
+
+Conversion table between AM/PM hours and 24-hour time format:
+
+--AM/PM----24-hr--------------------------------------------------------------------------------
+12:00 AM = 00:00	*** exception: if AM hours = 12, then 24-hours = 0			\
+ 1:00 AM = 01:00	\															 |
+ 2:00 AM = 02:00	 |															 |
+ 3:00 AM = 03:00	 |															 |
+ 4:00 AM = 04:00	 |															 |
+ 5:00 AM = 05:00	 |															 |
+ 6:00 AM = 06:00	 |------- AM time = 24-hour time							 |-------  AM
+ 7:00 AM = 07:00	 |															 |
+ 8:00 AM = 08:00	 |															 |
+ 9:00 AM = 09:00	 |															 |
+10:00 AM = 10:00	 |															 |
+11:00 AM = 11:00____/___________________________________________________________/_______________
+12:00 PM = 12:00	*** exception: if PM hours = 12, then 24-hours = 12			\
+ 1:00 PM = 13:00	\															 |
+ 2:00 PM = 14:00	 |															 |
+ 3:00 PM = 15:00	 |															 |
+ 4:00 PM = 16:00	 |															 |
+ 5:00 PM = 17:00	 |															 |
+ 6:00 PM = 18:00	 |------- PM hours + 12 = 24-hours							 |-------  PM
+ 7:00 PM = 19:00	 |															 |
+ 8:00 PM = 20:00	 |															 |
+ 9:00 PM = 21:00	 |															 |
+10:00 PM = 22:00	 |															 |
+11:00 PM = 23:00	/															/
+------------------------------------------------------------------------------------------------
+
+.LINK
+https://www.lsoft.com/manuals/maestro/4.0/htmlhelp/interface%20user/TimeConversionTable.html
+
+.LINK
+https://stackoverflow.com/questions/16774064/regular-expression-for-whole-numbers-and-integers
+
+.LINK
+https://www.gngrninja.com/script-ninja/2016/5/15/powershell-getting-started-part-8-accepting-pipeline-input
+
+.LINK
+https://www.timeanddate.com/time/am-and-pm.html
+
+#>
 	
 	Param (
 		#Script parameters go here
