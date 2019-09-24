@@ -522,6 +522,8 @@ Function Write-HorizontalRuleAdv {
 	
   #>
   
+  #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  
   Param (
     #Script parameters go here
     # https://ss64.com/ps/syntax-args.html
@@ -558,6 +560,8 @@ Function Write-HorizontalRuleAdv {
     [Parameter(Mandatory=$false)]
     [switch]$MaxLineLength = $false
   )
+  
+  #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
   # Function name:
   # https://stackoverflow.com/questions/3689543/is-there-a-way-to-retrieve-a-powershell-function-name-from-within-a-function#3690830
@@ -645,7 +649,9 @@ Function Write-HorizontalRuleAdv {
   } ELSE {
     Write-Host $HRoutput
   }
-
+  
+  #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  
 } # End Write-HorizontalRuleAdv function -------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
@@ -828,6 +834,8 @@ https://www.gngrninja.com/script-ninja/2016/5/15/powershell-getting-started-part
 
 #>
 	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
 	Param (
 		#Script parameters go here
 		[Parameter(Mandatory=$true,Position=0,
@@ -863,6 +871,8 @@ https://www.gngrninja.com/script-ninja/2016/5/15/powershell-getting-started-part
 		ParameterSetName='PMtag')]
 		[switch]$PM
 	)
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	#-----------------------------------------------------------------------------------------------------------------------
 	# Convert AM hours
@@ -934,7 +944,7 @@ Function PromptForChoice-YesNoSectionSkip {
 	#-----------------------------------------------------------------------------------------------------------------------
 	#help about_switch
 	#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
-	Write-Verbose "Answer = $answer"
+	#Write-Verbose "Answer = $answer"
 	switch ($answer) {
 		0	{ # Y - Yes
 			Write-Verbose "Yes ('$answer') option selected."
@@ -952,11 +962,6 @@ Function PromptForChoice-YesNoSectionSkip {
 
 } # End PromptForChoice-YesNoSectionSkip function ----------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Once [Functions] block has finished running, exit the script if -LoadFunctions switch is on.
@@ -1002,38 +1007,7 @@ Write-Verbose "Script body."
 
 $SectionName = "#1. Test different methods of writing output"
 
-#-----------------------------------------------------------------------------------------------------------------------
-# Build Choice Prompt
-#-----------------------------------------------------------------------------------------------------------------------
-$Title = "Skip this section?"
-$Info = "$SectionName"
-$ChoiceYes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "[Y]es, skip this section."
-$ChoiceNo = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "[N]o, do not skip this section"
-$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceYes, $ChoiceNo)
-# default choice: 0 = first Option, 1 = second option, etc.
-[int]$defaultchoice = 0
-#-----------------------------------------------------------------------------------------------------------------------
-# Execute Choice Prompt
-#-----------------------------------------------------------------------------------------------------------------------
-# PromptForChoice() output will always be integer: https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
-$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
-#$answer = $host.UI.PromptForChoice($Title, "", $Options, $defaultchoice)
-#-----------------------------------------------------------------------------------------------------------------------
-# Interpret answer
-#-----------------------------------------------------------------------------------------------------------------------
-#help about_switch
-#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
-Write-Verbose "Answer = $answer"
-switch ($answer) {
-	0	{ # Y - Yes
-		Write-Verbose "Yes ('$answer') option selected."
-		$ChoiceSkipWriteOutput = 'Y'
-	}
-	1 { # N - No
-		Write-Verbose "No ('$answer') option selected."
-		$ChoiceSkipWriteOutput = 'N'
-	}
-}
+$ChoiceSkipWriteOutput = PromptForChoice-YesNoSectionSkip $SectionName
 
 If ($ChoiceSkipWriteOutput -eq 'N') {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1090,38 +1064,7 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 $SectionName = "#2. Testing Write-HorizontalRule function"
 
-#-----------------------------------------------------------------------------------------------------------------------
-# Build Choice Prompt
-#-----------------------------------------------------------------------------------------------------------------------
-$Title = "Skip this section?"
-$Info = "$SectionName"
-$ChoiceYes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "[Y]es, skip this section."
-$ChoiceNo = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "[N]o, do not skip this section"
-$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceYes, $ChoiceNo)
-# default choice: 0 = first Option, 1 = second option, etc.
-[int]$defaultchoice = 0
-#-----------------------------------------------------------------------------------------------------------------------
-# Execute Choice Prompt
-#-----------------------------------------------------------------------------------------------------------------------
-# PromptForChoice() output will always be integer: https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
-$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
-#$answer = $host.UI.PromptForChoice($Title, "", $Options, $defaultchoice)
-#-----------------------------------------------------------------------------------------------------------------------
-# Interpret answer
-#-----------------------------------------------------------------------------------------------------------------------
-#help about_switch
-#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
-Write-Verbose "Answer = $answer"
-switch ($answer) {
-	0	{ # Y - Yes
-		Write-Verbose "Yes ('$answer') option selected."
-		$ChoiceSkipHR = 'Y'
-	}
-	1 { # N - No
-		Write-Verbose "No ('$answer') option selected."
-		$ChoiceSkipHR = 'N'
-	}
-}
+$ChoiceSkipHR = PromptForChoice-YesNoSectionSkip $SectionName
 
 If ($ChoiceSkipHR -eq 'N') {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1184,38 +1127,7 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 $SectionName = "#3. Testing Convert-AMPMhourTo24hour"
 
-#-----------------------------------------------------------------------------------------------------------------------
-# Build Choice Prompt
-#-----------------------------------------------------------------------------------------------------------------------
-$Title = "Skip this section?"
-$Info = "$SectionName"
-$ChoiceYes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "[Y]es, skip this section."
-$ChoiceNo = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "[N]o, do not skip this section"
-$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceYes, $ChoiceNo)
-# default choice: 0 = first Option, 1 = second option, etc.
-[int]$defaultchoice = 0
-#-----------------------------------------------------------------------------------------------------------------------
-# Execute Choice Prompt
-#-----------------------------------------------------------------------------------------------------------------------
-# PromptForChoice() output will always be integer: https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
-$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
-#$answer = $host.UI.PromptForChoice($Title, "", $Options, $defaultchoice)
-#-----------------------------------------------------------------------------------------------------------------------
-# Interpret answer
-#-----------------------------------------------------------------------------------------------------------------------
-#help about_switch
-#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
-Write-Verbose "Answer = $answer"
-switch ($answer) {
-	0	{ # Y - Yes
-		Write-Verbose "Yes ('$answer') option selected."
-		$ChoiceSkipConvertAMPM = 'Y'
-	}
-	1 { # N - No
-		Write-Verbose "No ('$answer') option selected."
-		$ChoiceSkipConvertAMPM = 'N'
-	}
-}
+$ChoiceSkipConvertAMPM = PromptForChoice-YesNoSectionSkip $SectionName
 
 If ($ChoiceSkipConvertAMPM -eq 'N') {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1445,38 +1357,7 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 $SectionName = "#4. Testing Out-GridView"
 
-#-----------------------------------------------------------------------------------------------------------------------
-# Build Choice Prompt
-#-----------------------------------------------------------------------------------------------------------------------
-$Title = "Skip this section?"
-$Info = "$SectionName"
-$ChoiceYes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "[Y]es, skip this section."
-$ChoiceNo = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "[N]o, do not skip this section"
-$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceYes, $ChoiceNo)
-# default choice: 0 = first Option, 1 = second option, etc.
-[int]$defaultchoice = 0
-#-----------------------------------------------------------------------------------------------------------------------
-# Execute Choice Prompt
-#-----------------------------------------------------------------------------------------------------------------------
-# PromptForChoice() output will always be integer: https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
-$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
-#$answer = $host.UI.PromptForChoice($Title, "", $Options, $defaultchoice)
-#-----------------------------------------------------------------------------------------------------------------------
-# Interpret answer
-#-----------------------------------------------------------------------------------------------------------------------
-#help about_switch
-#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
-Write-Verbose "Answer = $answer"
-switch ($answer) {
-	0	{ # Y - Yes
-		Write-Verbose "Yes ('$answer') option selected."
-		$ChoiceSkipOutGridView = 'Y'
-	}
-	1 { # N - No
-		Write-Verbose "No ('$answer') option selected."
-		$ChoiceSkipOutGridView = 'N'
-	}
-}
+$ChoiceSkipOutGridView = PromptForChoice-YesNoSectionSkip $SectionName
 
 If ($ChoiceSkipOutGridView -eq 'N') {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1585,40 +1466,9 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 $SectionName = "#5. User Choice Selection / Menu Demos"
 
-#-----------------------------------------------------------------------------------------------------------------------
-# Build Choice Prompt
-#-----------------------------------------------------------------------------------------------------------------------
-$Title = "Skip this section?"
-$Info = "$SectionName"
-$ChoiceYes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "[Y]es, skip this section."
-$ChoiceNo = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "[N]o, do not skip this section"
-$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceYes, $ChoiceNo)
-# default choice: 0 = first Option, 1 = second option, etc.
-[int]$defaultchoice = 0
-#-----------------------------------------------------------------------------------------------------------------------
-# Execute Choice Prompt
-#-----------------------------------------------------------------------------------------------------------------------
-# PromptForChoice() output will always be integer: https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
-$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
-#$answer = $host.UI.PromptForChoice($Title, "", $Options, $defaultchoice)
-#-----------------------------------------------------------------------------------------------------------------------
-# Interpret answer
-#-----------------------------------------------------------------------------------------------------------------------
-#help about_switch
-#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
-Write-Verbose "Answer = $answer"
-switch ($answer) {
-	0	{ # Y - Yes
-		Write-Verbose "Yes ('$answer') option selected."
-		$ChoiceSkipMenuChoice = 'Y'
-	}
-	1 { # N - No
-		Write-Verbose "No ('$answer') option selected."
-		$ChoiceSkipMenuChoice = 'N'
-	}
-}
+$ChoiceSkipOutGridView = PromptForChoice-YesNoSectionSkip $SectionName
 
-If ($ChoiceSkipMenuChoice -eq 'N') {
+If ($ChoiceSkipOutGridView -eq 'N') {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -1792,6 +1642,13 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 #6. Test For loop & date formatting
 #=======================================================================================================================
 
+$SectionName = "#6. Test For loop & date formatting"
+
+$ChoiceSkipLoopDate = PromptForChoice-YesNoSectionSkip $SectionName
+
+If ($ChoiceSkipLoopDate -eq 'N') {
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 Write-Host `n
 Write-HorizontalRuleAdv -HRtype DashedLine
 Write-Host `n
@@ -1806,10 +1663,20 @@ Write-Host `n
 PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #=======================================================================================================================
 #7. Test multi-dimensional variable methods
 #=======================================================================================================================
+
+$SectionName = "#7. Test multi-dimensional variable methods"
+
+$ChoiceSkipArrayVar = PromptForChoice-YesNoSectionSkip $SectionName
+
+If ($ChoiceSkipArrayVar -eq 'N') {
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Write-Host `n
 Write-HorizontalRuleAdv -HRtype DashedLine
@@ -1994,10 +1861,20 @@ Write-Host `n
 PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #=======================================================================================================================
 #8. Test running external script
 #=======================================================================================================================
+
+$SectionName = "#8. Test running external script"
+
+$ChoiceSkipExternalScript = PromptForChoice-YesNoSectionSkip $SectionName
+
+If ($ChoiceSkipExternalScript -eq 'N') {
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #-----------------------------------------------------------------------------------------------------------------------
 
@@ -2011,12 +1888,16 @@ Write-Host `n
 PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#=======================================================================================================================
+#0. End of Main.
+#=======================================================================================================================
 
 Write-Host `n
 Write-Verbose "/Script body."
-
-#=======================================================================================================================
-
 Write-HorizontalRuleAdv -HRtype DoubleLine
 Write-Host `n
 Write-Host "End of script" $MyInvocation.MyCommand.Name
