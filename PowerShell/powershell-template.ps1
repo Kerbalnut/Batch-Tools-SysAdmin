@@ -924,11 +924,12 @@ Write-Verbose "Script body."
 #Index:
 #1. Test different methods of writing output
 #2. Testing Write-HorizontalRule function
-#3. Testing Out-GridView
-#4. User Choice Selection / Menu Demos
-#5. Test For loop & date formatting
-#6. Test multi-dimensional variable methods
-#7. Test running external script
+#3. Testing Convert-AMPMhourTo24hour
+#4. Testing Out-GridView
+#5. User Choice Selection / Menu Demos
+#6. Test For loop & date formatting
+#7. Test multi-dimensional variable methods
+#8. Test running external script
 #=======================================================================================================================
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -937,6 +938,74 @@ Write-Verbose "Script body."
 #1. Test different methods of writing output
 #=======================================================================================================================
 
+do {
+	$ChoiceSkipWriteOutput = Read-Host -Prompt "Skip, [Y]es or [N]o? [Y\N]"
+	switch ($ChoiceSkipWriteOutput) {
+		'Y'	{ # Y - Yes
+			Write-Verbose "Yes ('$ChoiceSkipWriteOutput') option selected."
+			Write-Host `r`n
+		}
+		'N' { # N - No
+			Write-Verbose "No ('$ChoiceSkipWriteOutput') option selected."
+			Write-Host `r`n
+		}
+		}
+		default { # Choice not recognized.
+			Write-Host `r`n
+			Write-Host "Choice `"$ChoiceSkipWriteOutput`" not recognized. Options must be Yes, No, or Cancel."
+			#Write-HorizontalRuleAdv -HRtype DashedLine
+			Write-Host `r`n
+			#Break #help about_Break
+			PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+			Write-Host `r`n
+			Write-HorizontalRuleAdv -HRtype DashedLine
+		}
+	}
+}
+until ($ChoiceSkipWriteOutput -eq 'Y' -Or $ChoiceSkipWriteOutput -eq 'N' -Or $ChoiceSkipWriteOutput -eq 'C')
+Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
+PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+
+#-----------------------------------------------------------------------------------------------------------------------
+# Build Choice Prompt
+#-----------------------------------------------------------------------------------------------------------------------
+$Title = "Skip Output write tests?"
+$Info = 'User choice selection example using "PromptForChoice()"'
+$ChoiceYes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "[Y]es, skip this section."
+$ChoiceNo = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "[N]o, do not skip this section"
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceYes, $ChoiceNo)
+# default choice: 0 = first Option, 1 = second option, etc.
+[int]$defaultchoice = 0
+#-----------------------------------------------------------------------------------------------------------------------
+# Execute Choice Prompt
+#-----------------------------------------------------------------------------------------------------------------------
+# PromptForChoice() output will always be integer: https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
+#$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
+$answer = $host.UI.PromptForChoice($Title, "", $Options, $defaultchoice)
+#-----------------------------------------------------------------------------------------------------------------------
+# Interpret answer
+#-----------------------------------------------------------------------------------------------------------------------
+#help about_switch
+#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
+Write-Verbose "Answer = $answer"
+switch ($answer) {
+	0	{ # Y - Yes
+		Write-Verbose "Yes ('$answer') option selected."
+		$ChoiceSkipWriteOutput = 'Y'
+	}
+	1 { # N - No
+		Write-Verbose "No ('$answer') option selected."
+		$ChoiceSkipWriteOutput = 'N'
+	}
+}
+PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+
+
+
+
+If ($ChoiceSkipWriteOutput -eq 'Y') {
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # run "help about_comment_based_help" - I want to display formatted help for a function or script. Use comment-based help instead - run "help about_comment_based_help". PowerShell will format it for you.
 # https://technet.microsoft.com/en-us/library/dd819489.aspx
@@ -960,7 +1029,6 @@ Write-Error -Message "TEST ERROR. TEST ERROR. TEST ERROR. TEST ERROR." -Category
 For ($I = 1; $I -le 100; $I++) {Write-Progress -Activity "Test in progress..." -Status "$I% Complete:" -PercentComplete $I;}
 #For ($I = 1; $I -le 1000; $I++) {Write-Progress -Activity "Test in progress..." -Status "$($I / 10)% Complete:" -PercentComplete ($I/10)}
 
-
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #1. Test different methods of writing output thru Logging Module
@@ -979,6 +1047,9 @@ Write-LogError -LogPath $sLogFile -Message "Test log error write."
 
 #Read-Host "Press ENTER key to continue . . . " # PAUSE (Read-Host automatically adds colon : at the end of prompt)
 PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+}
 
 #=======================================================================================================================
 #2. Testing Write-HorizontalRule function
@@ -1034,7 +1105,225 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #=======================================================================================================================
-#3. Testing Out-GridView
+#3. Testing Convert-AMPMhourTo24hour
+#=======================================================================================================================
+
+#
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+#
+
+<#
+12.1
+11.6
+11.4
+11
+011
+9.6
+9.4
+09
+9
+-9
+.9
+0.9
+.0
+0.0
+#>
+
+#
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+#
+
+help Convert-AMPMhourTo24hour
+
+#
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+#
+
+Write-Host "help Convert-AMPMhourTo24hour -full"
+Write-Warning "Executing `"help Convert-AMPMhourTo24hour -full`" from a script environment during run will not display any of the extra information from the -Full switch. The command must be executed from the command line to get entire help content."
+
+#
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+#
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 0 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 1 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 12 -AM
+
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 09.6 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 09.4 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 12.1 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 11.6 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 11.4 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 11 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 011 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 9.6 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 9.4 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 009 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 09 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 9 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour -9 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour .9 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 0.9 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour .0 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 0.0 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+#
+
+Write-Host `r`n
+
+Write-Host "Example #1:"
+
+$AMPMhour = 4
+
+$OutputVar = Convert-AMPMhourTo24hour $AMPMhour -PM
+
+Write-Host "$AMPMhour PM = $OutputVar           (24-hour)"
+
+Write-Host `r`n
+
+#
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+#
+
+Write-Host `r`n
+
+Write-Host "Example #2:"
+
+Get-Date -UFormat %I | Convert-AMPMhourTo24hour -PM
+
+$NowHour = Get-Date -UFormat %I
+Write-Host "`$NowHour = $NowHour"
+
+$OutputVar = (Get-Date -UFormat %I | Convert-AMPMhourTo24hour -PM)
+Write-Host "`$OutputVar = $OutputVar"
+
+Write-Host "$NowHour PM = $OutputVar           (24-hour)"
+Write-Host "$(Get-Date -UFormat %I) PM = $OutputVar           (24-hour)"
+
+Write-Host `r`n
+
+#
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+#
+
+Write-Host `r`n
+
+Write-Host "Example #3:"
+
+Get-Random -Minimum 1 -Maximum 12 | Convert-AMPMhourTo24hour -PM
+
+Get-Random -Minimum 1 -Maximum 12 | Tee-Object -Variable Randomvar | Convert-AMPMhourTo24hour -PM
+Write-Host "`$Randomvar = $Randomvar"
+
+$OutputVar = (Get-Random -Minimum 1 -Maximum 12 | Tee-Object -Variable Randomvar | Convert-AMPMhourTo24hour -PM)
+Write-Host "$Randomvar PM = $OutputVar           (24-hour)"
+
+Write-Host `r`n
+
+#
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+#
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#=======================================================================================================================
+#4. Testing Out-GridView
 #=======================================================================================================================
 
 #https://mcpmag.com/articles/2016/02/17/creating-a-gui-using-out-gridview.aspx
@@ -1131,7 +1420,7 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #=======================================================================================================================
-#4. User Choice Selection / Menu Demos
+#5. User Choice Selection / Menu Demos
 #=======================================================================================================================
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -1295,7 +1584,7 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #=======================================================================================================================
-#5. Test For loop & date formatting
+#6. Test For loop & date formatting
 #=======================================================================================================================
 
 Write-Host `n
@@ -1314,7 +1603,7 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #=======================================================================================================================
-#6. Test multi-dimensional variable methods
+#7. Test multi-dimensional variable methods
 #=======================================================================================================================
 
 Write-Host `n
@@ -1502,7 +1791,7 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #=======================================================================================================================
-#7. Test running external script
+#8. Test running external script
 #=======================================================================================================================
 
 #-----------------------------------------------------------------------------------------------------------------------
