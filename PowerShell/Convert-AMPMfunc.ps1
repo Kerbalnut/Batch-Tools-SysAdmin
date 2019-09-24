@@ -147,16 +147,34 @@ Conversion table between AM/PM hours and 24-hour time format:
 ------------------------------------------------------------------------------------------------
 
 .LINK
+about_Comment_Based_Help
+
+.LINK
 https://www.lsoft.com/manuals/maestro/4.0/htmlhelp/interface%20user/TimeConversionTable.html
+
+.LINK
+https://www.timeanddate.com/time/am-and-pm.html
+
+.LINK
+about_Functions_Advanced_Parameters
+
+.LINK
+https://docs.microsoft.com/en-us/powershell/developer/cmdlet/validating-parameter-input
+
+.LINK
+https://social.technet.microsoft.com/wiki/contents/articles/15994.powershell-advanced-function-parameter-attributes.aspx
+
+.LINK
+https://www.petri.com/validating-powershell-input-using-parameter-validation-attributes
+
+.LINK
+https://docs.microsoft.com/en-us/powershell/developer/cmdlet/validating-parameter-input
 
 .LINK
 https://stackoverflow.com/questions/16774064/regular-expression-for-whole-numbers-and-integers
 
 .LINK
 https://www.gngrninja.com/script-ninja/2016/5/15/powershell-getting-started-part-8-accepting-pipeline-input
-
-.LINK
-https://www.timeanddate.com/time/am-and-pm.html
 
 #>
 	
@@ -184,7 +202,7 @@ https://www.timeanddate.com/time/am-and-pm.html
         })]
 		#-----------------------------------------------------------------------------------------------------------------------
 		[ValidateRange(1,12)]
-		# Bugfix: For the [ValidatePattern("")] or [ValidateScript({})] regex validation checks to work e.g. for integer validation (throw an error if a decimal value is provided) do not use define the var-type e.g. [int]$var since PowerShell will automatically round the input value before performing the [ValidatePattern("")] regex comparison. Instead, declare parameter without [int] e.g. $var,
+		# Bugfix: For the [ValidatePattern("")] or [ValidateScript({})] regex validation checks to work e.g. for strict integer validation (throw an error if a non-integer value is provided) do not define the var-type e.g. [int]$var since PowerShell will automatically round the input value to an integer BEFORE performing the regex comparisons. Instead, declare parameter without [int] defining the var-type e.g. $var,
 		$Hours,
 		
 		[Parameter(Mandatory=$true,
@@ -223,8 +241,6 @@ https://www.timeanddate.com/time/am-and-pm.html
 	#-----------------------------------------------------------------------------------------------------------------------
 	# Write out result of function
 	#-----------------------------------------------------------------------------------------------------------------------
-	
-	#$24hour
 	
 	Return $24hour
 	

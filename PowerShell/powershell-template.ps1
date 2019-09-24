@@ -127,26 +127,27 @@ about_Functions_CmdletBindingAttribute
 
 # To run from PowerShell command line:
 # https://ss64.com/ps/syntax-run.html
-# https://ss64.com/ps/call.html
 # https://ss64.com/ps/syntax-scriptblock.html
 # When passing a variable to a scriptblock it is important to consider the variable scope.
 #    Each time the scriptblock is run; it will dynamically read the current value of the variable.
-#    When a scriptblock is run using the ?&? (call) operator, updates to a variable are not reflected in the parent scope.
 #    When a scriptblock is run using the ?.? (dot) operator, updates to a variable apply to the current scope.
+#    When a scriptblock is run using the ?&? (call) operator, updates to a variable are not reflected in the parent scope.
 # help about_Scripts
-# & "C:\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.ps1"
-# & "C:\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.ps1" -Verbose -Debug
-# & "C:\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.ps1" -Verbose -Debug -LaunchedInCmd
-# & "C:\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.ps1" -LoadFunctions
+# 'Dot-sourcing:'
+# . "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1"
+# . "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1" -Verbose -Debug
+# . "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1" -Verbose -Debug -LaunchedInCmd
+# . "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1" -LoadFunctions
 # https://ss64.com/ps/source.html
-# . "C:\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.ps1"
-# . "C:\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.ps1" -Verbose -Debug
-# . "C:\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.ps1" -Verbose -Debug -LaunchedInCmd
-# . "C:\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.ps1" -LoadFunctions
+# Using the 'call' operator (&):
+# & "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1"
+# & "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1" -Verbose -Debug
+# & "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1" -Verbose -Debug -LaunchedInCmd
+# https://ss64.com/ps/call.html
 
 # To run help:
-# Get-Help "C:\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.ps1"
-# Get-Help "C:\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.ps1" -Full
+# Get-Help "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1"
+# Get-Help "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1" -Full
 # Example help file:
 # Get-Help Get-ChildItem
 # Get-Help Get-ChildItem -Full
@@ -432,25 +433,111 @@ Function Write-HorizontalRule {
 Function Write-HorizontalRuleAdv {
   <#
 	.SYNOPSIS
-	Write-HorizontalRuleAdv
+	Writes a horizontal rule across the the console. 
 	
 	.DESCRIPTION
-	Write-HorizontalRuleAdv
+	Writes either a horzintal rule of different types:
 	
-    .PARAMETER HRtype
-    Horizontal Rule types. Accepted types are 'SingleLine', 'DoubleLine', 'DashedLine', and 'BlankLine'. 
-  
-    .PARAMETER Endcaps
-    Add a character to each end of the horizontal rule. Default is '#'. Set a different endcap character using -EndcapCharacter <single character>
+	SingleLine "-----" (default)
+	DoubleLine "====="
+	DashedLine "- - -"
+	BlankLine  "     "
+	
+	Using different output types:
+	
+	using Write-Host (default)
+	"--------------"
+	
+	using Write-Warning
+	"WARNING: -----"
+	
+	using Write-Verbose
+	"VERBOSE: -----"
+	
+	.PARAMETER HRtype
+	Horizontal Rule types. Accepted types are 'SingleLine', 'DoubleLine', 'DashedLine', and 'BlankLine'. Defaults to 'SingleLine'.
+	
+	.PARAMETER SingleLine
+	Set horizontal rule type as 'SingleLine'. If no other horizontal rule type is selected, will default to this.
+	
+	.PARAMETER DoubleLine
+	Set horizontal rule type as 'DoubleLine'
+	
+	.PARAMETER DashedLine
+	Set horizontal rule type as 'DashedLine'
+	
+	.PARAMETER BlankLine
+	Set horizontal rule type as 'BlankLine'
+	
+	.PARAMETER Endcaps
+	Add a character to each end of the horizontal rule. Default is '#'. Set a different endcap character using -EndcapCharacter <single character>
+	
+	.PARAMETER EndcapCharacter
+	Define which character is used as the end-cap using -EndcapCharacter "<SINGLE_CHARACTER>". Only works if the -Endcaps switch is also enabled. Default is '#'. 
+	
+	.PARAMETER IsWarning
+	Prints the output as a warning (using Write-Warning).
+	
+	.PARAMETER IsVerbose
+	Prints the output as a verbose message (using Write-Verbose). Will only be displayed if $VerbosePreference = "Continue"
+	
+	.INPUTS
+	If run without any input parameters, will default to a SingleLine "-----" ouput using Write-Host.
+	
+	.OUTPUTS
+	Outputs a horizontal rule across the console of the selected type.
+	
+	.NOTES
+	Command Prompt character width: 79
+	PowerShell window character width: 119
+	
+	WARNING: 
+	VERBOSE: 
+	123456789
+	
+	.LINK
+	about_Comment_Based_Help
+	
+	.LINK
+	about_Functions_Advanced_Parameters
+	
+	.LINK
+	https://docs.microsoft.com/en-us/powershell/developer/cmdlet/validating-parameter-input
+	
+	.LINK
+	https://social.technet.microsoft.com/wiki/contents/articles/15994.powershell-advanced-function-parameter-attributes.aspx
+	
+	.LINK
+	help about_Automatic_Variables
+	
+	.LINK
+	help about_If
+	
+	.LINK
+	help about_Comparison_Operators
+	
   #>
   
   Param (
     #Script parameters go here
     # https://ss64.com/ps/syntax-args.html
-    [Parameter(Mandatory=$false,Position=0)]
+    [Parameter(Mandatory=$false,Position=0,
+	ParameterSetName='DefineString')]
     [ValidateSet("SingleLine", "DoubleLine", "DashedLine", "BlankLine")]
     [string]$HRtype = 'SingleLine',
     
+	[Parameter(ParameterSetName='SingleLine')]
+	[switch]$SingleLine,
+	
+	[Parameter(ParameterSetName='DoubleLine')]
+	[switch]$DoubleLine,
+	
+	[Parameter(ParameterSetName='DashedLine')]
+	[switch]$DashedLine,
+	
+	[Parameter(ParameterSetName='BlankLine')]
+	[switch]$BlankLine,
+	
     [Parameter(Mandatory=$false)]
     [switch]$Endcaps = $false,
 
@@ -705,16 +792,34 @@ Conversion table between AM/PM hours and 24-hour time format:
 ------------------------------------------------------------------------------------------------
 
 .LINK
+about_Comment_Based_Help
+
+.LINK
 https://www.lsoft.com/manuals/maestro/4.0/htmlhelp/interface%20user/TimeConversionTable.html
+
+.LINK
+https://www.timeanddate.com/time/am-and-pm.html
+
+.LINK
+about_Functions_Advanced_Parameters
+
+.LINK
+https://docs.microsoft.com/en-us/powershell/developer/cmdlet/validating-parameter-input
+
+.LINK
+https://social.technet.microsoft.com/wiki/contents/articles/15994.powershell-advanced-function-parameter-attributes.aspx
+
+.LINK
+https://www.petri.com/validating-powershell-input-using-parameter-validation-attributes
+
+.LINK
+https://docs.microsoft.com/en-us/powershell/developer/cmdlet/validating-parameter-input
 
 .LINK
 https://stackoverflow.com/questions/16774064/regular-expression-for-whole-numbers-and-integers
 
 .LINK
 https://www.gngrninja.com/script-ninja/2016/5/15/powershell-getting-started-part-8-accepting-pipeline-input
-
-.LINK
-https://www.timeanddate.com/time/am-and-pm.html
 
 #>
 	
@@ -742,7 +847,7 @@ https://www.timeanddate.com/time/am-and-pm.html
         })]
 		#-----------------------------------------------------------------------------------------------------------------------
 		[ValidateRange(1,12)]
-		# Bugfix: For the [ValidatePattern("")] or [ValidateScript({})] regex validation checks to work e.g. for integer validation (throw an error if a decimal value is provided) do not use define the var-type e.g. [int]$var since PowerShell will automatically round the input value before performing the [ValidatePattern("")] regex comparison. Instead, declare parameter without [int] e.g. $var,
+		# Bugfix: For the [ValidatePattern("")] or [ValidateScript({})] regex validation checks to work e.g. for strict integer validation (throw an error if a non-integer value is provided) do not define the var-type e.g. [int]$var since PowerShell will automatically round the input value to an integer BEFORE performing the regex comparisons. Instead, declare parameter without [int] defining the var-type e.g. $var,
 		$Hours,
 		
 		[Parameter(Mandatory=$true,
@@ -781,8 +886,6 @@ https://www.timeanddate.com/time/am-and-pm.html
 	#-----------------------------------------------------------------------------------------------------------------------
 	# Write out result of function
 	#-----------------------------------------------------------------------------------------------------------------------
-	
-	#$24hour
 	
 	Return $24hour
 	
