@@ -699,8 +699,6 @@ Function ReadPrompt-AMPM24 {
 } # End ReadPrompt-AMPM24 function -------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
-
-
 Function Convert-AMPMhourTo24hour {
 <#
 .SYNOPSIS
@@ -911,11 +909,11 @@ https://www.gngrninja.com/script-ninja/2016/5/15/powershell-getting-started-part
 		
 		[Parameter(Mandatory=$true,
 		ParameterSetName='AMtag')]
-		[switch]$AM,
+		[switch]$AM = $false,
 		
 		[Parameter(Mandatory=$true,
 		ParameterSetName='PMtag')]
-		[switch]$PM
+		[switch]$PM = $false
 	)
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -925,7 +923,9 @@ https://www.gngrninja.com/script-ninja/2016/5/15/powershell-getting-started-part
 	#-----------------------------------------------------------------------------------------------------------------------
 	
 	If ($AM) {
-		If ($AM -eq 12) {
+		Write-Verbose "AM hours selected."
+		If ($Hours -eq 12) {
+			Write-Verbose "Exception: hour equals 12"
 			$24hour = 0
 		} else {
 			$24hour = $Hours
@@ -937,7 +937,9 @@ https://www.gngrninja.com/script-ninja/2016/5/15/powershell-getting-started-part
 	#-----------------------------------------------------------------------------------------------------------------------
 	
 	If ($PM) {
-		If ($PM -eq 12) {
+		Write-Verbose "PM hours selected."
+		If ($Hours -eq 12) {
+			Write-Verbose "Exception: hour equals 12"
 			$24hour = 12
 		} else {
 			$24hour = [Int]$Hours + 12
@@ -947,6 +949,8 @@ https://www.gngrninja.com/script-ninja/2016/5/15/powershell-getting-started-part
 	#-----------------------------------------------------------------------------------------------------------------------
 	# Write out result of function
 	#-----------------------------------------------------------------------------------------------------------------------
+	
+	Write-Verbose "24-hour format Result = $24hour"
 	
 	Return $24hour
 	
