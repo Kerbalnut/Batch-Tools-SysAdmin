@@ -985,7 +985,7 @@ Clear-Host # CLS
 Write-Verbose `n
 Write-HorizontalRuleAdv -HRtype DoubleLine -IsVerbose
 Write-Verbose `n
-Write-Verbose "Script body."
+Write-Verbose "Script Main beginning. $ScriptName"
 
 #=======================================================================================================================
 #Index:
@@ -1007,9 +1007,9 @@ Write-Verbose "Script body."
 
 $SectionName = "#1. Test different methods of writing output"
 
-$ChoiceSkipWriteOutput = PromptForChoice-YesNoSectionSkip $SectionName
+$ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
 
-If ($ChoiceSkipWriteOutput -eq 'N') {
+If ($ChoiceSkip -eq 'N') {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # run "help about_comment_based_help" - I want to display formatted help for a function or script. Use comment-based help instead - run "help about_comment_based_help". PowerShell will format it for you.
@@ -1026,7 +1026,7 @@ If ($ChoiceSkipWriteOutput -eq 'N') {
 Write-Host "Script Main beginning." $MyInvocation.MyCommand.Name
 Write-Information -MessageData "Will only display if set defaults display infromational messages."
 Write-Information -MessageData "Test informational messages." -InformationAction Continue
-Write-Verbose "Script Main beginning. $ScriptName"
+Write-Verbose "Script body."
 Write-Verbose "Debug preference = $DebugPreference"
 Write-Debug "Script Main beginning." # NOTE: Writing debug text will PAUSE script execution automatically.
 Write-Warning "Test Warning."
@@ -1036,7 +1036,7 @@ For ($I = 1; $I -le 100; $I++) {Write-Progress -Activity "Test in progress..." -
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-#1. Test different methods of writing output thru Logging Module
+#2. Test different methods of writing output thru Logging Module
 #-----------------------------------------------------------------------------------------------------------------------
 
 # Write-LogInfo ? Writes an informational message to the log file
@@ -1054,6 +1054,77 @@ Write-LogError -LogPath $sLogFile -Message "Test log error write."
 PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#2. Test Write-Host colors output
+#-----------------------------------------------------------------------------------------------------------------------
+
+<#
+help Write-Host -Full
+
+-BackgroundColor <ConsoleColor>
+
+- Black
+- DarkBlue
+- DarkGreen
+- DarkCyan
+- DarkRed
+- DarkMagenta
+- DarkYellow
+- Gray
+- DarkGray
+- Blue
+- Green
+- Cyan
+- Red
+- Magenta
+- Yellow
+- White
+
+-ForegroundColor <ConsoleColor>
+
+- Black
+- DarkBlue
+- DarkGreen
+- DarkCyan
+- DarkRed
+- DarkMagenta
+- DarkYellow
+- Gray
+- DarkGray
+- Blue
+- Green
+- Cyan
+- Red
+- Magenta
+- Yellow
+- White
+#>
+
+$TestText = "The quick brown fox jumped over the lazy dog."
+
+Write-Verbose `n
+Write-HorizontalRuleAdv -HRtype SingleLine
+
+Write-Host $TestText -ForegroundColor White -BackgroundColor Black
+Write-Host $TestText -ForegroundColor Yellow -BackgroundColor Black
+Write-Host $TestText -ForegroundColor Magenta -BackgroundColor Black
+Write-Host $TestText -ForegroundColor Red -BackgroundColor Black
+Write-Host $TestText -ForegroundColor Cyan -BackgroundColor Black
+Write-Host $TestText -ForegroundColor Green -BackgroundColor Black
+Write-Host $TestText -ForegroundColor Blue -BackgroundColor DarkRed
+Write-Host $TestText -ForegroundColor DarkGray -BackgroundColor Cyan
+Write-Host $TestText -ForegroundColor Gray -BackgroundColor Black
+Write-Host $TestText -ForegroundColor DarkYellow -BackgroundColor Black
+Write-Host $TestText -ForegroundColor DarkMagenta -BackgroundColor White
+Write-Host $TestText -ForegroundColor DarkRed -BackgroundColor Black
+Write-Host $TestText -ForegroundColor DarkCyan -BackgroundColor Red
+Write-Host $TestText -ForegroundColor DarkGreen -BackgroundColor Black
+Write-Host $TestText -ForegroundColor DarkBlue -BackgroundColor DarkMagenta
+Write-Host $TestText -ForegroundColor Black -BackgroundColor White
+
+Write-HorizontalRuleAdv -HRtype SingleLine
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1064,9 +1135,9 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 $SectionName = "#2. Testing Write-HorizontalRule function"
 
-$ChoiceSkipHR = PromptForChoice-YesNoSectionSkip $SectionName
+$ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
 
-If ($ChoiceSkipHR -eq 'N') {
+If ($ChoiceSkip -eq 'N') {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Write-Host "Write-HorizontalRule Help output:"
@@ -1127,9 +1198,9 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 $SectionName = "#3. Testing Convert-AMPMhourTo24hour"
 
-$ChoiceSkipConvertAMPM = PromptForChoice-YesNoSectionSkip $SectionName
+$ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
 
-If ($ChoiceSkipConvertAMPM -eq 'N') {
+If ($ChoiceSkip -eq 'N') {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #
@@ -1357,9 +1428,9 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 $SectionName = "#4. Testing Out-GridView"
 
-$ChoiceSkipOutGridView = PromptForChoice-YesNoSectionSkip $SectionName
+$ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
 
-If ($ChoiceSkipOutGridView -eq 'N') {
+If ($ChoiceSkip -eq 'N') {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #https://mcpmag.com/articles/2016/02/17/creating-a-gui-using-out-gridview.aspx
@@ -1466,35 +1537,38 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 $SectionName = "#5. User Choice Selection / Menu Demos"
 
-$ChoiceSkipOutGridView = PromptForChoice-YesNoSectionSkip $SectionName
+$ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
 
-If ($ChoiceSkipOutGridView -eq 'N') {
+If ($ChoiceSkip -eq 'N') {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #-----------------------------------------------------------------------------------------------------------------------
 
 Write-Host `r`n
-Write-Host "4. User Choice Selection / Menu Demos"
+Write-Host "User Choice Selection / Menu Demos"
 Write-Host `r`n
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-Write-HorizontalRuleAdv -HRtype SingleLine -IsVerbose
-Write-Verbose 'Method #1: "Read-Host -Prompt"'
-Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
+Write-HorizontalRuleAdv -HRtype SingleLine
+Write-Host 'Method #1: "Read-Host -Prompt"'
+Write-HorizontalRuleAdv -HRtype DashedLine
 do {
 	$ChoiceYesNoCancel = Read-Host -Prompt "[Y]es, [N]o, or [C]ancel? [Y\N\C]"
 	switch ($ChoiceYesNoCancel) {
 		'Y'	{ # Y - Yes
 			Write-Verbose "Yes ('$ChoiceYesNoCancel') option selected."
+			Write-Host "Yes ('$ChoiceYesNoCancel') option selected."
 			Write-Host `r`n
 		}
 		'N' { # N - No
 			Write-Verbose "No ('$ChoiceYesNoCancel') option selected."
+			Write-Host "No ('$ChoiceYesNoCancel') option selected."
 			Write-Host `r`n
 		}
 		'C' { # C - Cancel
 			Write-Verbose "Cancel ('$ChoiceYesNoCancel') option selected."
+			Write-Host "Cancel ('$ChoiceYesNoCancel') option selected."
 			Write-Host `r`n
 		}
 		default { # Choice not recognized.
@@ -1510,14 +1584,14 @@ do {
 	}
 }
 until ($ChoiceYesNoCancel -eq 'Y' -Or $ChoiceYesNoCancel -eq 'N' -Or $ChoiceYesNoCancel -eq 'C')
-Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
+Write-HorizontalRuleAdv -HRtype DashedLine
 PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Write-Host `r`n
-Write-HorizontalRuleAdv -HRtype SingleLine -IsVerbose
-Write-Verbose 'Method #2: "PromptForChoice()"'
+Write-HorizontalRuleAdv -HRtype SingleLine
+Write-Host 'Method #2: "PromptForChoice()"'
 #-----------------------------------------------------------------------------------------------------------------------
 # Build Menu
 #-----------------------------------------------------------------------------------------------------------------------
@@ -1568,7 +1642,7 @@ switch ($answer) {
 	}
 	1 { # N - No
 		Write-Verbose "No ('$answer') option selected."
-		Write-Host "No gracias." -ForegroundColor Green
+		Write-Host "No gracias." -ForegroundColor Orange
 		Write-Host `r`n
 	}
 	2 {
@@ -1584,9 +1658,9 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Write-Host `r`n
-Write-HorizontalRuleAdv -HRtype SingleLine -IsVerbose
-Write-Verbose 'Method #3: "Out-GridView -PassThru"'
-Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
+Write-HorizontalRuleAdv -HRtype SingleLine
+Write-Host 'Method #3: "Out-GridView -PassThru"'
+Write-HorizontalRuleAdv -HRtype DashedLine
 #-----------------------------------------------------------------------------------------------------------------------
 # Build Menu
 #-----------------------------------------------------------------------------------------------------------------------
@@ -1626,11 +1700,7 @@ Switch ($answer) {
 		Write-Host '"Cancel" was selected.'
 	}
 }
-Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+Write-HorizontalRuleAdv -HRtype DashedLine
 PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1644,9 +1714,9 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 $SectionName = "#6. Test For loop & date formatting"
 
-$ChoiceSkipLoopDate = PromptForChoice-YesNoSectionSkip $SectionName
+$ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
 
-If ($ChoiceSkipLoopDate -eq 'N') {
+If ($ChoiceSkip -eq 'N') {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Write-Host `n
@@ -1673,9 +1743,9 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 $SectionName = "#7. Test multi-dimensional variable methods"
 
-$ChoiceSkipArrayVar = PromptForChoice-YesNoSectionSkip $SectionName
+$ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
 
-If ($ChoiceSkipArrayVar -eq 'N') {
+If ($ChoiceSkip -eq 'N') {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Write-Host `n
@@ -1871,9 +1941,9 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 $SectionName = "#8. Test running external script"
 
-$ChoiceSkipExternalScript = PromptForChoice-YesNoSectionSkip $SectionName
+$ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
 
-If ($ChoiceSkipExternalScript -eq 'N') {
+If ($ChoiceSkip -eq 'N') {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #-----------------------------------------------------------------------------------------------------------------------
