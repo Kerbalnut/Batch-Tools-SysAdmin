@@ -137,6 +137,7 @@ about_Functions_CmdletBindingAttribute
 #    When a scriptblock is run using the ?.? (dot) operator, updates to a variable apply to the current scope.
 #    When a scriptblock is run using the ?&? (call) operator, updates to a variable are not reflected in the parent scope.
 # help about_Scripts
+# %USERPROFILE% = $env:UserProfile = $Home
 # 'Dot-sourcing:'
 # . "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1"
 # . "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1" -Verbose -Debug

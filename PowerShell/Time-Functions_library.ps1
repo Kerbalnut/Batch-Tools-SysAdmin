@@ -5,6 +5,104 @@
 
 #
 
+Function Convert-TimeZone {
+
+<#
+.SYNOPSIS
+Convert-TimeZone function converts times from one time zone to the same time in another time zone.
+
+.DESCRIPTION
+ Thanks to:
+ https://blogs.msdn.microsoft.com/rslaten/2014/08/04/converting-times-from-one-time-zone-to-another-time-zone-in-powershell/
+
+.PARAMETER Time
+Horizontal Rule types. Accepted types are 'SingleLine', 'DoubleLine', 'DashedLine', and 'BlankLine'. Defaults to 'SingleLine'.
+
+.PARAMETER FromTimeZone
+From
+
+.PARAMETER ToTimeZone
+To
+
+.LINK
+https://blogs.msdn.microsoft.com/rslaten/2014/08/04/converting-times-from-one-time-zone-to-another-time-zone-in-powershell/
+
+.LINK
+Get-TimeZone
+
+#>
+
+
+#------------------------------------------------------------------------------------------------------------------------------
+
+param(
+  [Parameter(Mandatory=$false)]
+  $Time,
+  [Parameter(Mandatory=$false)]
+  $FromTimeZone,
+  [Parameter(Mandatory=$false)]
+  $ToTimeZone
+)
+
+function ConvertTime
+{
+  param($time, $fromTimeZone, $toTimeZone)
+
+  $oFromTimeZone = [System.TimeZoneInfo]::FindSystemTimeZoneById($fromTimeZone)
+  $oToTimeZone = [System.TimeZoneInfo]::FindSystemTimeZoneById($toTimeZone)
+  $utc = [System.TimeZoneInfo]::ConvertTimeToUtc($time, $oFromTimeZone)
+  $newTime = [System.TimeZoneInfo]::ConvertTime($utc, $oToTimeZone)
+
+  return $newTime
+}
+
+function ConvertUTC
+{
+  param($time, $fromTimeZone)
+
+  $oFromTimeZone = [System.TimeZoneInfo]::FindSystemTimeZoneById($fromTimeZone)
+  $utc = [System.TimeZoneInfo]::ConvertTimeToUtc($time, $oFromTimeZone)
+  return $utc
+}
+
+if ($toTimeZone)
+{
+  
+  [datetime]$time = $time
+  $toUTC = ConvertUTC -time $time -fromTimeZone $fromTimeZone
+  $toNewTimeZone = ConvertTime -time $time -fromTimeZone $fromTimeZone -toTimeZone $toTimeZone
+  Write-Host ("Original Time ({0}): {1}" -f $fromTimeZone, $time)
+  Write-Host ("UTC Time: {0}" -f $toUTC)
+  Write-Host ("{0}: {1}" -f $toTimeZone, $toNewTimeZone)
+}
+else
+{
+  if (!($time)) 
+  {
+    $fromTimeZone = (([System.TimeZoneInfo]::Local).Id).ToString()
+    $time = [DateTime]::SpecifyKind((Get-Date), [DateTimeKind]::Unspecified)
+  }
+  else { [datetime]$time = $time }
+  Write-Host ("Original Time - {0}: {1}" -f $fromTimeZone, $time)
+  $toUTC = ConvertUTC -time $time -fromTimeZone $fromTimeZone
+  $times = @()
+  foreach ($timeZone in ([system.timezoneinfo]::GetSystemTimeZones()))
+  {
+   $times += (New-Object psobject -Property @{'Name' = $timeZone.DisplayName; 'ID' = $timeZone.id; 'Time' = (ConvertTime -time $time -fromTimeZone $fromTimeZone -toTimeZone $timeZone.id); 'DST' = $timeZone.SupportsDaylightSavingTime})
+  }
+  $times | Sort-Object Time | Format-Table -Property * -AutoSize
+}
+
+#------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+}
+
+#
+
 $TodayDay = Get-Date -UFormat %d
 
 $TodayDay = Get-Date
