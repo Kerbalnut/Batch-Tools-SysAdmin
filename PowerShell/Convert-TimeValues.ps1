@@ -304,72 +304,9 @@ Write-Verbose "LogFile = $sLogFile"
 # Get-Verb
 
 #Index of functions:
-# 1. <FunctionName> Example Function
-# 2. Start-PSAdmin
-# 3. Get-ScriptDirectory1
-# 4. Get-ScriptDirectory2
-# 5. Get-ScriptDirectory3
 # 6. Write-HorizontalRule
 # 7. Write-HorizontalRuleAdv
 
-<# Function <FunctionName> {
-  Param ()
-
-  Begin {
-    Write-LogInfo -LogPath $sLogFile -Message '<description of what is going on>...'
-  }
-
-  Process {
-    Try {
-      <code goes here>
-    }
-
-    Catch {
-      Write-LogError -LogPath $sLogFile -Message $_.Exception -ExitGracefully
-      Break
-    }
-  }
-
-  End {
-    If ($?) {
-      Write-LogInfo -LogPath $sLogFile -Message 'Completed Successfully.'
-      Write-LogInfo -LogPath $sLogFile -Message ' '
-    }
-  }
-} #> # End <FunctionName> function ----------------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------------------------------------
-
-function Start-PSAdmin {Start-Process PowerShell -Verb RunAs}
-
-function Get-ScriptDirectory1 { #https://stackoverflow.com/questions/801967/how-can-i-find-the-source-path-of-an-executing-script/6985381#6985381
-    Split-Path $script:MyInvocation.MyCommand.Path
-} # End Get-ScriptDirectory function -----------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------------------------------------
-
-function Get-ScriptDirectory2 { #https://stackoverflow.com/questions/1183183/path-of-currently-executing-powershell-script#1183197
-    # For PowerShell 3.0 users - following works for both modules and script files:
-    Split-Path -parent $PSCommandPath
-} # End Get-ScriptDirectory function -----------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------------------------------------
-
-function Get-ScriptDirectory3 { #https://stackoverflow.com/questions/1183183/path-of-currently-executing-powershell-script#1183197
-  $Invocation = (Get-Variable MyInvocation -Scope 1).Value
-  Split-Path $Invocation.MyCommand.Path
-} # End Get-ScriptDirectory function -----------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------------------------------------------------
-#.SYNOPSIS
-# <Overview of script>
-
-#.DESCRIPTION
-# <Brief description of script>
-
-#.PARAMETER HRtype
-# Horizontal Rule types. Accepted types are 'SingleLine', 'DoubleLine', 'DashedLine', and 'BlankLine'. 
-
-#.NOTES
-# <Notes Here>
 Function Write-HorizontalRule {
   Param (
     #Script parameters go here
@@ -544,6 +481,7 @@ Function Write-HorizontalRuleAdv {
 
 } # End Write-HorizontalRuleAdv function -------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
+
 
 
 Function Log-Time {
@@ -776,11 +714,15 @@ Function Total-TimestampArray {
 #-----------------------------------------------------------------------------------------------------------------------
 
 
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Once [Functions] block has finished running, exit the script if -LoadFunctions switch is on.
 If ($LoadFunctions) {
   #https://stackoverflow.com/questions/2022326/terminating-a-script-in-powershell
   # Only load functions of script. Do not execute Main script block.
   Return
 }
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #-----------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------[Execution]------------------------------------------------------

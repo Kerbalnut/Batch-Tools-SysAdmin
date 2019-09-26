@@ -75,8 +75,8 @@ about_Functions_CmdletBindingAttribute
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-#1.
-
+#1. PSLogging module
+<#
 # To insatll PSLogging module:
 # https://docs.microsoft.com/en-us/powershell/developer/module/installing-a-powershell-module
 # PowerShell v4:
@@ -104,6 +104,7 @@ about_Functions_CmdletBindingAttribute
 # 	Find-Module -Name "PSLogging*" | Install-Module -Scope AllUsers 
 # Accepted values: CurrentUser, AllUsers
 # 	Update-Module PSLogging -Force
+#>
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -124,6 +125,8 @@ about_Functions_CmdletBindingAttribute
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+# Run this script:
+<#
 # Tested with PowerShell versions:
 # 5.1
 # Get PowerShell version:
@@ -162,6 +165,7 @@ about_Functions_CmdletBindingAttribute
 # Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
 # Set-ExecutionPolicy -ExecutionPolicy Bypass
 # Set-ExecutionPolicy $oldExecutionPolicy
+#>
 
 #-----------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------[Script Parameters]--------------------------------------------------
@@ -376,18 +380,6 @@ function Get-ScriptDirectory3 { #https://stackoverflow.com/questions/1183183/pat
 } # End Get-ScriptDirectory function -----------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------------------------------------------------
-#.SYNOPSIS
-# <Overview of script>
-
-#.DESCRIPTION
-# <Brief description of script>
-
-#.PARAMETER HRtype
-# Horizontal Rule types. Accepted types are 'SingleLine', 'DoubleLine', 'DashedLine', and 'BlankLine'. 
-
-#.NOTES
-# <Notes Here>
 Function Write-HorizontalRule {
   Param (
     #Script parameters go here
@@ -655,8 +647,6 @@ Function Write-HorizontalRuleAdv {
   
 } # End Write-HorizontalRuleAdv function -------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
-
-
 
 Function ReadPrompt-AMPM24 {
 	
@@ -1026,18 +1016,6 @@ If ($LoadFunctions) {
 #-----------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------[Execution]------------------------------------------------------
 
-#-----------------------------------------------------------------------------------------------------------------------
-#=======================================================================================================================
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#
-#
-##Script MAIN Execution goes here
-Clear-Host # CLS
-Write-Verbose `n
-Write-HorizontalRuleAdv -HRtype DoubleLine -IsVerbose
-Write-Verbose `n
-Write-Verbose "Script Main beginning. $ScriptName"
-
 #=======================================================================================================================
 #Index:
 #1. Test different methods of writing output
@@ -1049,6 +1027,18 @@ Write-Verbose "Script Main beginning. $ScriptName"
 #7. Test multi-dimensional variable methods
 #8. Test running external script
 #=======================================================================================================================
+
+#-----------------------------------------------------------------------------------------------------------------------
+#=======================================================================================================================
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#
+#
+##Script MAIN Execution goes here
+Clear-Host # CLS
+Write-Verbose `n
+Write-HorizontalRuleAdv -HRtype DoubleLine -IsVerbose
+Write-Verbose `n
+Write-Verbose "Script Main beginning. $ScriptName"
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -2013,19 +2003,9 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-#=======================================================================================================================
-#0. End of Main.
-#=======================================================================================================================
-
 Write-Host `n
 Write-Verbose "/Script body."
 Write-HorizontalRuleAdv -HRtype DoubleLine
-Write-Host `n
-Write-Host "End of script" $MyInvocation.MyCommand.Name
-Write-Host `n
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-Write-Host `n
-
 #Script MAIN Execution ends here
 #
 #
@@ -2036,6 +2016,12 @@ Write-Host `n
 
 #-----------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------[Footer]---------------------------------------------------------
+
+Write-Host `n
+Write-Host "End of script" $MyInvocation.MyCommand.Name
+Write-Host `n
+PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+Write-Host `n
 
 Write-Verbose "Script Main end. $ScriptName"
 Write-Debug "End-of-script. $ScriptName"

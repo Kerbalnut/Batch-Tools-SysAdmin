@@ -5,6 +5,8 @@
 
 #
 
+#=======================================================================================================================
+
 Function Convert-TimeZone {
 
 <#
@@ -32,8 +34,7 @@ Get-TimeZone
 
 #>
 
-
-#------------------------------------------------------------------------------------------------------------------------------
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 param(
   [Parameter(Mandatory=$false)]
@@ -44,62 +45,66 @@ param(
   $ToTimeZone
 )
 
+#------------------------------------------------------------------------------------------------------------------------------
+
 function ConvertTime
 {
-  param($time, $fromTimeZone, $toTimeZone)
+  param($time, $FromTimeZone, $ToTimeZone)
 
-  $oFromTimeZone = [System.TimeZoneInfo]::FindSystemTimeZoneById($fromTimeZone)
-  $oToTimeZone = [System.TimeZoneInfo]::FindSystemTimeZoneById($toTimeZone)
+  $oFromTimeZone = [System.TimeZoneInfo]::FindSystemTimeZoneById($FromTimeZone)
+  $oToTimeZone = [System.TimeZoneInfo]::FindSystemTimeZoneById($ToTimeZone)
   $utc = [System.TimeZoneInfo]::ConvertTimeToUtc($time, $oFromTimeZone)
   $newTime = [System.TimeZoneInfo]::ConvertTime($utc, $oToTimeZone)
 
   return $newTime
 }
 
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 function ConvertUTC
 {
-  param($time, $fromTimeZone)
+  param($time, $FromTimeZone)
 
-  $oFromTimeZone = [System.TimeZoneInfo]::FindSystemTimeZoneById($fromTimeZone)
+  $oFromTimeZone = [System.TimeZoneInfo]::FindSystemTimeZoneById($FromTimeZone)
   $utc = [System.TimeZoneInfo]::ConvertTimeToUtc($time, $oFromTimeZone)
   return $utc
 }
 
-if ($toTimeZone)
+#------------------------------------------------------------------------------------------------------------------------------
+
+if ($ToTimeZone)
 {
   
   [datetime]$time = $time
-  $toUTC = ConvertUTC -time $time -fromTimeZone $fromTimeZone
-  $toNewTimeZone = ConvertTime -time $time -fromTimeZone $fromTimeZone -toTimeZone $toTimeZone
-  Write-Host ("Original Time ({0}): {1}" -f $fromTimeZone, $time)
+  $toUTC = ConvertUTC -time $time -FromTimeZone $FromTimeZone
+  $toNewTimeZone = ConvertTime -time $time -FromTimeZone $FromTimeZone -ToTimeZone $ToTimeZone
+  Write-Host ("Original Time ({0}): {1}" -f $FromTimeZone, $time)
   Write-Host ("UTC Time: {0}" -f $toUTC)
-  Write-Host ("{0}: {1}" -f $toTimeZone, $toNewTimeZone)
+  Write-Host ("{0}: {1}" -f $ToTimeZone, $toNewTimeZone)
 }
 else
 {
   if (!($time)) 
   {
-    $fromTimeZone = (([System.TimeZoneInfo]::Local).Id).ToString()
+    $FromTimeZone = (([System.TimeZoneInfo]::Local).Id).ToString()
     $time = [DateTime]::SpecifyKind((Get-Date), [DateTimeKind]::Unspecified)
   }
   else { [datetime]$time = $time }
-  Write-Host ("Original Time - {0}: {1}" -f $fromTimeZone, $time)
-  $toUTC = ConvertUTC -time $time -fromTimeZone $fromTimeZone
+  Write-Host ("Original Time - {0}: {1}" -f $FromTimeZone, $time)
+  $toUTC = ConvertUTC -time $time -FromTimeZone $FromTimeZone
   $times = @()
   foreach ($timeZone in ([system.timezoneinfo]::GetSystemTimeZones()))
   {
-   $times += (New-Object psobject -Property @{'Name' = $timeZone.DisplayName; 'ID' = $timeZone.id; 'Time' = (ConvertTime -time $time -fromTimeZone $fromTimeZone -toTimeZone $timeZone.id); 'DST' = $timeZone.SupportsDaylightSavingTime})
+   $times += (New-Object psobject -Property @{'Name' = $timeZone.DisplayName; 'ID' = $timeZone.id; 'Time' = (ConvertTime -time $time -FromTimeZone $FromTimeZone -ToTimeZone $timeZone.id); 'DST' = $timeZone.SupportsDaylightSavingTime})
   }
   $times | Sort-Object Time | Format-Table -Property * -AutoSize
 }
 
 #------------------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
 }
+
+#=======================================================================================================================
 
 #
 
