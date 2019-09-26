@@ -111,17 +111,17 @@ about_Functions_CmdletBindingAttribute
 #-----------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------[Header]--------------------------------------------------------
 
-#Index:
-#1. <# .HELP #>
-#2. #Requires
-#3. [Header]
-#4. [Script Parameters]
-#5. [Initializations]
-#6. [Modules]
-#7. [Declarations]
-#8. [Functions]
-#9. [Execution]
-#10. [Footer]
+# Index:
+# 1. <# .HELP #>
+# 2. #Requires
+# 3. [Header]
+# 4. [Script Parameters]
+# 5. [Initializations]
+# 6. [Modules]
+# 7. [Declarations]
+# 8. [Functions]
+# 9. [Execution]
+# 10. [Footer]
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -322,16 +322,17 @@ If (!($sLogPath)) { Start-Log -LogPath $sLogPath -LogName $sLogName -ScriptVersi
 # Get-Verb
 
 #Index of functions:
-#1. <FunctionName> Example Function
-#2. Start-PSAdmin
-#3. Get-ScriptDirectory1
-#4. Get-ScriptDirectory2
-#5. Get-ScriptDirectory3
-#6. Write-HorizontalRule
-#7. Write-HorizontalRuleAdv
-#8. PromptForChoice-YesNoSectionSkip
-#9. ReadPrompt-AMPM24
-#10. Convert-AMPMhourTo24hour
+# 1. <FunctionName> Example Function
+# 2. Start-PSAdmin
+# 3. Get-ScriptDirectory1
+# 4. Get-ScriptDirectory2
+# 5. Get-ScriptDirectory3
+# 6. Write-HorizontalRule
+# 7. Write-HorizontalRuleAdv
+# 8. PromptForChoice-YesNoSectionSkip
+# 9. ReadPrompt-AMPM24
+# 10. ReadPrompt-Hour
+# 11. Convert-AMPMhourTo24hour
 
 #-----------------------------------------------------------------------------------------------------------------------
 <# Function <FunctionName> {
