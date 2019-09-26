@@ -46,3 +46,5 @@ Network Trash Folder
 Temporary Items
 .apdisk
 PowerShell/Task Tracker/Twilio-Auth.ps1
+*.orig
+*.log
