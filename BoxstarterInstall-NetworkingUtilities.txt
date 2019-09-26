@@ -113,6 +113,7 @@ choco install github-desktop -y # This essentially replaces https://chocolatey.o
 #choco install git-lfs -y # Git Large File Storage (LFS) replaces large files such as audio samples, videos, datasets, and graphics with text pointers inside Git, while storing the file contents on a remote server like GitHub.com or GitHub Enterprise.
 #choco install smartgit -y # Git client with support for GitHub Pull Requests+Comments, SVN and Mercurial.
 choco install autohotkey -y # AutoHotKey to automate keyboard input and mouse clicks
+choco install scite4autohotkey -y # AutoHotKey IDE/Script Editor
 #choco install jenkins -y # Jenkins is an open source automation server which enables developers around the world to reliably build, test, and deploy their software.
 
 # Hardware Diagnostic

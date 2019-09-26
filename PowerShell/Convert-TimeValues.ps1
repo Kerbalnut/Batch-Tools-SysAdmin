@@ -322,13 +322,8 @@ If (!($sLogPath)) { Start-Log -LogPath $sLogPath -LogName $sLogName -ScriptVersi
 # Get-Verb
 
 #Index of functions:
-# 1. <FunctionName> Example Function
-# 2. Start-PSAdmin
-# 3. Get-ScriptDirectory1
-# 4. Get-ScriptDirectory2
-# 5. Get-ScriptDirectory3
-# 6. Write-HorizontalRule
-# 7. Write-HorizontalRuleAdv
+#1. Write-HorizontalRule
+#2. Write-HorizontalRuleAdv
 
 Function Write-HorizontalRule {
   Param (
@@ -845,14 +840,11 @@ If ($LoadFunctions) {
 
 #=======================================================================================================================
 #Index:
-#1. Test different methods of writing output
-#2. Testing Write-HorizontalRule function
-#3. Testing Convert-AMPMhourTo24hour
-#4. Testing Out-GridView
-#5. User Choice Selection / Menu Demos
-#6. Test For loop & date formatting
-#7. Test multi-dimensional variable methods
-#8. Test running external script
+#1. Testing Convert-AMPMhourTo24hour
+#2. User Choice Selection / Menu Demos
+#3. Test For loop & date formatting
+#4. Test multi-dimensional variable methods
+#5. Test running external script
 #=======================================================================================================================
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -870,201 +862,10 @@ Write-Verbose "Script Main beginning. $ScriptName"
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #=======================================================================================================================
-#1. Test different methods of writing output
+#1. Testing Convert-AMPMhourTo24hour
 #=======================================================================================================================
 
-$SectionName = "#1. Test different methods of writing output"
-
-$ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
-
-If ($ChoiceSkip -eq 'N') {
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# run "help about_comment_based_help" - I want to display formatted help for a function or script. Use comment-based help instead - run "help about_comment_based_help". PowerShell will format it for you.
-# https://technet.microsoft.com/en-us/library/dd819489.aspx
-# Write-Host - You almost never need to do it. 
-# Write-Information - Only works if $ErrorActionPreference = 'Continue' Does not work if = 'SilentlyContinue' Prints grey text. Can be overridden with -InformationAction Continue
-# Write-Verbose - Writes yellow VERBOSE: messages (9 chars). Can be turned on/off by running script with -Verbose parameter.
-# Write-Debug - Pauses script execution every time it's called. Can be turned on/off by running script with -Debug parameter.
-# Write-Warning - Writes yellow WARNING: messages (9 chars), regardless of -Verbose or -Debug switches.
-# Write-Error - Only works if $ErrorActionPreference = 'Continue' Does not work if = 'SilentlyContinue' Prints in red text, "Entire Script path: Error message." E.g. C:\Users\G\Documents\SpiderOak Hive\Consulting\2018-04-06 SodaLakeNetworking\Manage-SodaLakeData.ps1 : TEST ERROR.
-# Write-Output - I just need to display some text! Do you really? PowerShell works better with objects, and that's what your script should be outputting, by means of Write-Output. Let PowerShell's Format cmdlets turn those objects into text like lists and tables.
-# Write-Progress - Makes a green and yellow progress bar appear at the top part of the command window.
-
-Write-Host "Script Main beginning." $MyInvocation.MyCommand.Name
-Write-Information -MessageData "Will only display if set defaults display infromational messages."
-Write-Information -MessageData "Test informational messages." -InformationAction Continue
-Write-Verbose "Script body."
-Write-Verbose "Debug preference = $DebugPreference"
-Write-Debug "Script Main beginning." # NOTE: Writing debug text will PAUSE script execution automatically.
-Write-Warning "Test Warning."
-Write-Error -Message "TEST ERROR. TEST ERROR. TEST ERROR. TEST ERROR." -Category InvalidData -ErrorId TEST_ID
-For ($I = 1; $I -le 100; $I++) {Write-Progress -Activity "Test in progress..." -Status "$I% Complete:" -PercentComplete $I;}
-#For ($I = 1; $I -le 1000; $I++) {Write-Progress -Activity "Test in progress..." -Status "$($I / 10)% Complete:" -PercentComplete ($I/10)}
-
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-#2. Test different methods of writing output thru Logging Module
-#-----------------------------------------------------------------------------------------------------------------------
-
-# Write-LogInfo ? Writes an informational message to the log file
-# Write-LogWarning ? Writes a warning message to the log file (with the format of WARNING: )
-# Write-LogError ? Writes an error message to the log file (with the format of ERROR: ). In addition, optionally calls Stop-Log to end logging and terminate the calling script on fatal error.
-
-Write-LogInfo -LogPath $sLogFile -Message "-----------------------------------------------------------------------------------------------------------------------"
-Write-LogInfo -LogPath $sLogFile -Message "[TIMESTAMP]: $($Time)"
-
-Write-LogInfo -LogPath $sLogFile -Message "Test log info write."
-Write-LogWarning -LogPath $sLogFile -Message "Test log warning write."
-Write-LogError -LogPath $sLogFile -Message "Test log error write."
-
-#Read-Host "Press ENTER key to continue . . . " # PAUSE (Read-Host automatically adds colon : at the end of prompt)
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-#2. Test Write-Host colors output
-#-----------------------------------------------------------------------------------------------------------------------
-
-<#
-help Write-Host -Full
-
--BackgroundColor <ConsoleColor>
-
-- Black
-- DarkBlue
-- DarkGreen
-- DarkCyan
-- DarkRed
-- DarkMagenta
-- DarkYellow
-- Gray
-- DarkGray
-- Blue
-- Green
-- Cyan
-- Red
-- Magenta
-- Yellow
-- White
-
--ForegroundColor <ConsoleColor>
-
-- Black
-- DarkBlue
-- DarkGreen
-- DarkCyan
-- DarkRed
-- DarkMagenta
-- DarkYellow
-- Gray
-- DarkGray
-- Blue
-- Green
-- Cyan
-- Red
-- Magenta
-- Yellow
-- White
-#>
-
-$TestText = "The quick brown fox jumped over the lazy dog."
-
-Write-Verbose `n
-Write-HorizontalRuleAdv -HRtype SingleLine
-
-Write-Host $TestText -ForegroundColor White -BackgroundColor Black
-Write-Host $TestText -ForegroundColor Yellow -BackgroundColor Black
-Write-Host $TestText -ForegroundColor Magenta -BackgroundColor Black
-Write-Host $TestText -ForegroundColor Red -BackgroundColor Black
-Write-Host $TestText -ForegroundColor Cyan -BackgroundColor Black
-Write-Host $TestText -ForegroundColor Green -BackgroundColor Black
-Write-Host $TestText -ForegroundColor Blue -BackgroundColor DarkRed
-Write-Host $TestText -ForegroundColor DarkGray -BackgroundColor Cyan
-Write-Host $TestText -ForegroundColor Gray -BackgroundColor Black
-Write-Host $TestText -ForegroundColor DarkYellow -BackgroundColor Black
-Write-Host $TestText -ForegroundColor DarkMagenta -BackgroundColor White
-Write-Host $TestText -ForegroundColor DarkRed -BackgroundColor Black
-Write-Host $TestText -ForegroundColor DarkCyan -BackgroundColor Red
-Write-Host $TestText -ForegroundColor DarkGreen -BackgroundColor Black
-Write-Host $TestText -ForegroundColor DarkBlue -BackgroundColor DarkMagenta
-Write-Host $TestText -ForegroundColor Black -BackgroundColor White
-
-Write-HorizontalRuleAdv -HRtype SingleLine
-
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-}
-
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-#=======================================================================================================================
-#2. Testing Write-HorizontalRule function
-#=======================================================================================================================
-
-$SectionName = "#2. Testing Write-HorizontalRule function"
-
-$ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
-
-If ($ChoiceSkip -eq 'N') {
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Write-Host "Write-HorizontalRule Help output:"
-Write-HorizontalRule
-Get-Help Write-HorizontalRule
-Get-Help Write-HorizontalRule -Full
-Write-HorizontalRule
-Write-Verbose "Script MAIN execution. $ScriptName"
-Write-Host "Script MAIN execution." $MyInvocation.MyCommand.Name
-Write-HorizontalRule -HRtype DoubleLine
-Write-HorizontalRule -HRtype DashedLine
-Write-HorizontalRule -HRtype SingleLine
-Write-HorizontalRule -HRtype IntentionallyThrowError -Verbose
-
-Write-Host `n
-Write-Host "Write-HorizontalRuleAdv Help output:"
-Write-HorizontalRule
-Get-Help Write-HorizontalRuleAdv -Full
-Write-HorizontalRule
-
-Write-HorizontalRuleAdv -HRtype SingleLine -Verbose
-Write-HorizontalRuleAdv -HRtype DashedLine -Verbose
-Write-HorizontalRuleAdv -HRtype DoubleLine -Verbose
-Write-HorizontalRuleAdv -HRtype SingleLine -Endcaps
-Write-HorizontalRuleAdv -HRtype BlankLine -Endcaps -EndcapCharacter `|
-Write-HorizontalRuleAdv -HRtype DashedLine -Endcaps
-Write-HorizontalRuleAdv -HRtype BlankLine -Endcaps -EndcapCharacter `|
-Write-HorizontalRuleAdv -HRtype DoubleLine -Endcaps
-
-Write-HorizontalRuleAdv -HRtype SingleLine -IsVerbose
-Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
-Write-HorizontalRuleAdv -HRtype DoubleLine -IsVerbose
-Write-HorizontalRuleAdv -HRtype SingleLine -Endcaps -IsVerbose
-Write-HorizontalRuleAdv -HRtype BlankLine -Endcaps -EndcapCharacter `| -IsVerbose
-Write-HorizontalRuleAdv -HRtype DashedLine -Endcaps -IsVerbose
-Write-HorizontalRuleAdv -HRtype BlankLine -Endcaps -EndcapCharacter `| -IsVerbose
-Write-HorizontalRuleAdv -HRtype DoubleLine -Endcaps -IsVerbose
-
-Write-HorizontalRuleAdv -HRtype SingleLine -IsWarning
-Write-HorizontalRuleAdv -HRtype DashedLine -IsWarning
-Write-HorizontalRuleAdv -HRtype DoubleLine -IsWarning
-Write-HorizontalRuleAdv -HRtype SingleLine -Endcaps -IsWarning
-Write-HorizontalRuleAdv -HRtype BlankLine -Endcaps -EndcapCharacter `| -IsWarning
-Write-HorizontalRuleAdv -HRtype DashedLine -Endcaps -IsWarning
-Write-HorizontalRuleAdv -HRtype BlankLine -Endcaps -EndcapCharacter `| -IsWarning
-Write-HorizontalRuleAdv -HRtype DoubleLine -Endcaps -IsWarning
-
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-}
-
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-#=======================================================================================================================
-#3. Testing Convert-AMPMhourTo24hour
-#=======================================================================================================================
-
-$SectionName = "#3. Testing Convert-AMPMhourTo24hour"
+$SectionName = "#1. Testing Convert-AMPMhourTo24hour"
 
 $ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
 
@@ -1291,119 +1092,10 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #=======================================================================================================================
-#4. Testing Out-GridView
+#2. User Choice Selection / Menu Demos
 #=======================================================================================================================
 
-$SectionName = "#4. Testing Out-GridView"
-
-$ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
-
-If ($ChoiceSkip -eq 'N') {
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-#https://mcpmag.com/articles/2016/02/17/creating-a-gui-using-out-gridview.aspx
-Write-Host `n
-Write-HorizontalRuleAdv -HRtype DashedLine
-Write-Host `n
-Write-Host "A quick way to go back in your history and run the same command again:"
-Write-Host "Get-History | Out-GridView -PassThru | Invoke-Expression"
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-Get-History | Out-GridView -PassThru | Invoke-Expression
-
-Write-Host `n
-Write-HorizontalRuleAdv -HRtype DashedLine
-Write-Host `n
-Write-Host "Looking at the cmdlet help:"
-Get-Command | Out-GridView -PassThru | Get-Help -ShowWindow 
-
-Write-Host `n
-Write-HorizontalRuleAdv -HRtype DashedLine
-Write-Host `n
-Write-Host "Looking at the about* Help Files:"
-Get-Help about* | Out-GridView -PassThru | Get-Help -ShowWindow 
-
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Write-Host `n
-Write-HorizontalRuleAdv -HRtype DashedLine
-Write-Host `n
-Write-Host "Menu example using Out-GridView:"
-$Menu = [ordered]@{
-	1 = 'Do something'
-	2 = 'Do this instead'
-	3 = 'Do whatever you want'
-}
-
-$Result = $Menu | Out-GridView -PassThru -Title 'Make a selection'
-
-Switch ($Result) {
-	{$Result.Name -eq 1} {Write-Host 'Do something'}
-	{$Result.Name -eq 2} {Write-Host 'Do this instead'}
-	{$Result.Name -eq 3} {Write-Host 'Do whatever you want'}   
-} 
-
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Write-Host `n
-Write-HorizontalRuleAdv -HRtype DashedLine
-Write-Host `n
-Write-Host "Advanced Out-GridView usage:"
-$WMI =  @{
-	Filter =  "DriveType='3' AND (Not Name LIKE  '\\\\?\\%')"
-	Class =  "Win32_Volume"
-	ErrorAction =  "Stop"
-	Property =  "Name","Label","Capacity","FreeSpace"
-	Computername =  $Env:COMPUTERNAME
-}
-
-$List = New-Object System.Collections.ArrayList
-
-Get-WmiObject @WMI  | ForEach {
-
-	$Decimal  = $_.freespace / $_.capacity
-
-	$Graph  = "$($Bar)"*($Decimal*100)
-
-	$Hash = [ordered]@{
-
-		Computername =  $Env:COMPUTERNAME
-
-		Name =  $_.Name
-
-		FreeSpace =  "$Graph"       
-
-		Percent =  $Decimal
-
-		FreeSpaceGB =  ([math]::Round(($_.Freespace/1GB),2))
-
-		CapacityGB =  ([math]::Round(($_.Capacity/1GB),2))
-
-	}
-
-	[void]$List.Add((
-
-		[pscustomobject]$Hash
-
-	))
-
-}
-
-$List | Out-GridView -Title 'Drive Space' 
-
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-}
-
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-#=======================================================================================================================
-#5. User Choice Selection / Menu Demos
-#=======================================================================================================================
-
-$SectionName = "#5. User Choice Selection / Menu Demos"
+$SectionName = "#2. User Choice Selection / Menu Demos"
 
 $ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
 
@@ -1577,10 +1269,10 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #=======================================================================================================================
-#6. Test For loop & date formatting
+#3. Test For loop & date formatting
 #=======================================================================================================================
 
-$SectionName = "#6. Test For loop & date formatting"
+$SectionName = "#3. Test For loop & date formatting"
 
 $ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
 
@@ -1606,10 +1298,10 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #=======================================================================================================================
-#7. Test multi-dimensional variable methods
+#4. Test multi-dimensional variable methods
 #=======================================================================================================================
 
-$SectionName = "#7. Test multi-dimensional variable methods"
+$SectionName = "#4. Test multi-dimensional variable methods"
 
 $ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
 
@@ -1804,10 +1496,10 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #=======================================================================================================================
-#8. Test running external script
+#5. Test running external script
 #=======================================================================================================================
 
-$SectionName = "#8. Test running external script"
+$SectionName = "#5. Test running external script"
 
 $ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
 
