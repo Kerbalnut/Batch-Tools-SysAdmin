@@ -87,11 +87,11 @@ about_Functions_CmdletBindingAttribute
 # 		.\PowerShell\Templates\9to5it\PSLogging-master\Module\PSLogging
 # 	3. Either copy the module to a location within the PSModulePath environment variable, or add the location of the module to the PSModulePath environment variable.
 # 		3a. Copy the module to the location:
-# 			# Install for Current User ? $Home\Documents\WindowsPowerShell\Modules (%UserProfile%\Documents\WindowsPowerShell\Modules)
+# 			# Install for Current User - $Home\Documents\WindowsPowerShell\Modules (%UserProfile%\Documents\WindowsPowerShell\Modules)
 # 				$newModule = ".\PowerShell\Templates\9to5it\PSLogging-master\Module\PSLogging"
 # 				$Destination = "$Home\Documents\WindowsPowerShell\Modules"
 # 				Copy-Item "$newModule" -Destination "$Destination\PSLogging" -Recurse
-# 			# Install for All Users ? $Env:ProgramFiles\WindowsPowerShell\Modules (%ProgramFiles%\WindowsPowerShell\Modules)
+# 			# Install for All Users - $Env:ProgramFiles\WindowsPowerShell\Modules (%ProgramFiles%\WindowsPowerShell\Modules)
 # 				$newModule = ".\PowerShell\Templates\9to5it\PSLogging-master\Module\PSLogging"
 # 				$Destination = "$Env:ProgramFiles\WindowsPowerShell\Modules"
 # 				Copy-Item "$newModule" -Destination "$Destination\PSLogging" -Recurse
@@ -137,8 +137,8 @@ about_Functions_CmdletBindingAttribute
 # https://ss64.com/ps/syntax-scriptblock.html
 # When passing a variable to a scriptblock it is important to consider the variable scope.
 #    Each time the scriptblock is run; it will dynamically read the current value of the variable.
-#    When a scriptblock is run using the ?.? (dot) operator, updates to a variable apply to the current scope.
-#    When a scriptblock is run using the ?&? (call) operator, updates to a variable are not reflected in the parent scope.
+#    When a scriptblock is run using the "." (dot) operator, updates to a variable apply to the current scope.
+#    When a scriptblock is run using the "&" (call) operator, updates to a variable are not reflected in the parent scope.
 # help about_Scripts
 # %USERPROFILE% = $env:UserProfile = $Home
 # 'Dot-sourcing:'
@@ -191,10 +191,6 @@ Param (
   [Parameter(Mandatory=$false)]
   [switch]$LoadFunctions = $false
 )
-
-
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #-----------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------[Initializations]---------------------------------------------------
@@ -524,23 +520,23 @@ Function Write-HorizontalRuleAdv {
     #Script parameters go here
     # https://ss64.com/ps/syntax-args.html
     [Parameter(Mandatory=$false,Position=0,
-	ParameterSetName='DefineString')]
+    ParameterSetName='DefineString')]
     [ValidateSet("SingleLine", "DoubleLine", "DashedLine", "BlankLine")]
-	[Alias('HorizontalRule','HorizontalRuleType','Type')]
+    [Alias('HorizontalRule','HorizontalRuleType','Type')]
     [string]$HRtype = 'SingleLine',
     
-	[Parameter(ParameterSetName='SingleLine')]
-	[switch]$SingleLine,
-	
-	[Parameter(ParameterSetName='DoubleLine')]
-	[switch]$DoubleLine,
-	
-	[Parameter(ParameterSetName='DashedLine')]
-	[switch]$DashedLine,
-	
-	[Parameter(ParameterSetName='BlankLine')]
-	[switch]$BlankLine,
-	
+    [Parameter(ParameterSetName='SingleLine')]
+    [switch]$SingleLine,
+    
+    [Parameter(ParameterSetName='DoubleLine')]
+    [switch]$DoubleLine,
+    
+    [Parameter(ParameterSetName='DashedLine')]
+    [switch]$DashedLine,
+    
+    [Parameter(ParameterSetName='BlankLine')]
+    [switch]$BlankLine,
+    
     [Parameter(Mandatory=$false)]
     [switch]$Endcaps = $false,
 
@@ -571,7 +567,7 @@ Function Write-HorizontalRuleAdv {
   # https://ss64.com/ps/if.html
   IF ($LaunchedInCmd) {
     # Print horizontal rule styles here using Write-Host instead of Write-Verbose, since that would add "VERBOSE: " to the beginning of each line and prevent the horizontal rule from lining up on the screen properly.
-	# Command Prompt character width: 79
+    # Command Prompt character width: 79
     IF ($HRtype -eq "DoubleLine") {
       $HRoutput = "==============================================================================="
     } ELSEIF ($HRtype -eq "DashedLine") {

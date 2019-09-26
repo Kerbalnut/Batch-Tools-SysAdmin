@@ -1,4 +1,4 @@
-<#
+ï»¿<#
 .SYNOPSIS
   <Overview of script>
 
@@ -75,6 +75,8 @@ about_Functions_CmdletBindingAttribute
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+#1. PSLogging module
+<#
 # To insatll PSLogging module:
 # https://docs.microsoft.com/en-us/powershell/developer/module/installing-a-powershell-module
 # PowerShell v4:
@@ -85,11 +87,11 @@ about_Functions_CmdletBindingAttribute
 # 		.\PowerShell\Templates\9to5it\PSLogging-master\Module\PSLogging
 # 	3. Either copy the module to a location within the PSModulePath environment variable, or add the location of the module to the PSModulePath environment variable.
 # 		3a. Copy the module to the location:
-# 			# Install for Current User – $Home\Documents\WindowsPowerShell\Modules (%UserProfile%\Documents\WindowsPowerShell\Modules)
+# 			# Install for Current User - $Home\Documents\WindowsPowerShell\Modules (%UserProfile%\Documents\WindowsPowerShell\Modules)
 # 				$newModule = ".\PowerShell\Templates\9to5it\PSLogging-master\Module\PSLogging"
 # 				$Destination = "$Home\Documents\WindowsPowerShell\Modules"
 # 				Copy-Item "$newModule" -Destination "$Destination\PSLogging" -Recurse
-# 			# Install for All Users – $Env:ProgramFiles\WindowsPowerShell\Modules (%ProgramFiles%\WindowsPowerShell\Modules)
+# 			# Install for All Users - $Env:ProgramFiles\WindowsPowerShell\Modules (%ProgramFiles%\WindowsPowerShell\Modules)
 # 				$newModule = ".\PowerShell\Templates\9to5it\PSLogging-master\Module\PSLogging"
 # 				$Destination = "$Env:ProgramFiles\WindowsPowerShell\Modules"
 # 				Copy-Item "$newModule" -Destination "$Destination\PSLogging" -Recurse
@@ -102,16 +104,19 @@ about_Functions_CmdletBindingAttribute
 # 	Find-Module -Name "PSLogging*" | Install-Module -Scope AllUsers 
 # Accepted values: CurrentUser, AllUsers
 # 	Update-Module PSLogging -Force
+#>
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #-----------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------[Header]--------------------------------------------------------
 
 # Index:
-# 1. <# Help #>
+# 1. <# .HELP #>
 # 2. #Requires
 # 3. [Header]
 # 4. [Script Parameters]
-# 5. [Initialisations]
+# 5. [Initializations]
 # 6. [Modules]
 # 7. [Declarations]
 # 8. [Functions]
@@ -120,6 +125,8 @@ about_Functions_CmdletBindingAttribute
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+# Run this script:
+<#
 # Tested with PowerShell versions:
 # 5.1
 # Get PowerShell version:
@@ -127,26 +134,28 @@ about_Functions_CmdletBindingAttribute
 
 # To run from PowerShell command line:
 # https://ss64.com/ps/syntax-run.html
-# https://ss64.com/ps/call.html
 # https://ss64.com/ps/syntax-scriptblock.html
 # When passing a variable to a scriptblock it is important to consider the variable scope.
 #    Each time the scriptblock is run; it will dynamically read the current value of the variable.
-#    When a scriptblock is run using the “&” (call) operator, updates to a variable are not reflected in the parent scope.
-#    When a scriptblock is run using the “.” (dot) operator, updates to a variable apply to the current scope.
+#    When a scriptblock is run using the "." (dot) operator, updates to a variable apply to the current scope.
+#    When a scriptblock is run using the "&" (call) operator, updates to a variable are not reflected in the parent scope.
 # help about_Scripts
-# & "C:\Users\Grant\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1"
-# & "C:\Users\Grant\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1" -Verbose -Debug
-# & "C:\Users\Grant\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1" -Verbose -Debug -LaunchedInCmd
-# & "C:\Users\Grant\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1" -LoadFunctions
+# %USERPROFILE% = $env:UserProfile = $Home
+# 'Dot-sourcing:'
+# . "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1"
+# . "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1" -Verbose -Debug
+# . "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1" -Verbose -Debug -LaunchedInCmd
+# . "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1" -LoadFunctions
 # https://ss64.com/ps/source.html
-# . "C:\Users\Grant\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1"
-# . "C:\Users\Grant\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1" -Verbose -Debug
-# . "C:\Users\Grant\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1" -Verbose -Debug -LaunchedInCmd
-# . "C:\Users\Grant\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1" -LoadFunctions
+# Using the 'call' operator (&):
+# & "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1"
+# & "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1" -Verbose -Debug
+# & "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1" -Verbose -Debug -LaunchedInCmd
+# https://ss64.com/ps/call.html
 
 # To run help:
-# Get-Help "C:\Users\Grant\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1"
-# Get-Help "C:\Users\Grant\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1" -Full
+# Get-Help "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1"
+# Get-Help "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1" -Full
 # Example help file:
 # Get-Help Get-ChildItem
 # Get-Help Get-ChildItem -Full
@@ -156,6 +165,7 @@ about_Functions_CmdletBindingAttribute
 # Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
 # Set-ExecutionPolicy -ExecutionPolicy Bypass
 # Set-ExecutionPolicy $oldExecutionPolicy
+#>
 
 #-----------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------[Script Parameters]--------------------------------------------------
@@ -182,16 +192,13 @@ Param (
   [switch]$LoadFunctions = $false
 )
 
+#-----------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------[Initializations]---------------------------------------------------
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Only load functions of script. Do not execute Main script block.
+# Skip [Initializations] script block if -LoadFunctions is on.
 If (-Not $LoadFunctions) {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-#-----------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------[Initialisations]---------------------------------------------------
 
 # Script name (including extension)
 $ScriptName = $MyInvocation.MyCommand.Name
@@ -259,6 +266,11 @@ IF ($PSVersionTable.PSVersion.Major -lt $MinimumRequiredVersion) {
 	Write-Debug "This script requires at least PowerShell version $MinimumRequiredVersion. Running version $PoShVersion"
 }
 
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+}
+# Skip [Initializations] script block if -LoadFunctions is on.
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 #-----------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------[Modules]-------------------------------------------------------
 
@@ -274,6 +286,11 @@ Write-Verbose "Module import complete..."
 #-----------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------------[Declarations]----------------------------------------------------
 
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Skip [Declarations] script block if -LoadFunctions is on.
+If (-Not $LoadFunctions) {
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 #Script Version
 $sScriptVersion = '1.0'
 
@@ -287,11 +304,12 @@ Write-Verbose "LogName = $sLogName"
 $sLogFile = Join-Path -Path $sLogPath -ChildPath $sLogName
 Write-Verbose "LogFile = $sLogFile"
 
+# Create Log file if we don't have one already
+If (!($sLogPath)) { Start-Log -LogPath $sLogPath -LogName $sLogName -ScriptVersion $sScriptVersion }
+
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 }
-# Only load functions of script. Do not execute Main script block.
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Skip [Declarations] script block if -LoadFunctions is on.
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -304,6 +322,11 @@ Write-Verbose "LogFile = $sLogFile"
 # Get-Verb
 
 #Index of functions:
+# 1. <FunctionName> Example Function
+# 2. Start-PSAdmin
+# 3. Get-ScriptDirectory1
+# 4. Get-ScriptDirectory2
+# 5. Get-ScriptDirectory3
 # 6. Write-HorizontalRule
 # 7. Write-HorizontalRuleAdv
 
@@ -357,23 +380,113 @@ Function Write-HorizontalRule {
 Function Write-HorizontalRuleAdv {
   <#
 	.SYNOPSIS
-	Write-HorizontalRuleAdv
+	Writes a horizontal rule across the the console. 
 	
 	.DESCRIPTION
-	Write-HorizontalRuleAdv
+	Writes either a horzintal rule of different types:
 	
-    .PARAMETER HRtype
-    Horizontal Rule types. Accepted types are 'SingleLine', 'DoubleLine', 'DashedLine', and 'BlankLine'. 
-  
-    .PARAMETER Endcaps
-    Add a character to each end of the horizontal rule. Default is '#'. Set a different endcap character using -EndcapCharacter <single character>
+	SingleLine "-----" (default)
+	DoubleLine "====="
+	DashedLine "- - -"
+	BlankLine  "     "
+	
+	Using different output types:
+	
+	using Write-Host (default)
+	"--------------"
+	
+	using Write-Warning
+	"WARNING: -----"
+	
+	using Write-Verbose
+	"VERBOSE: -----"
+	
+	.PARAMETER HRtype
+	Horizontal Rule types. Accepted types are 'SingleLine', 'DoubleLine', 'DashedLine', and 'BlankLine'. Defaults to 'SingleLine'.
+	
+	.PARAMETER SingleLine
+	Set horizontal rule type as 'SingleLine'. If no other horizontal rule type is selected, will default to this.
+	
+	.PARAMETER DoubleLine
+	Set horizontal rule type as 'DoubleLine'
+	
+	.PARAMETER DashedLine
+	Set horizontal rule type as 'DashedLine'
+	
+	.PARAMETER BlankLine
+	Set horizontal rule type as 'BlankLine'
+	
+	.PARAMETER Endcaps
+	Add a character to each end of the horizontal rule. Default is '#'. Set a different endcap character using -EndcapCharacter <single character>
+	
+	.PARAMETER EndcapCharacter
+	Define which character is used as the end-cap using -EndcapCharacter "<SINGLE_CHARACTER>". Only works if the -Endcaps switch is also enabled. Default is '#'. 
+	
+	.PARAMETER IsWarning
+	Prints the output as a warning (using Write-Warning).
+	
+	.PARAMETER IsVerbose
+	Prints the output as a verbose message (using Write-Verbose). Will only be displayed if $VerbosePreference = "Continue"
+	
+	.INPUTS
+	If run without any input parameters, will default to a SingleLine "-----" ouput using Write-Host.
+	
+	.OUTPUTS
+	Outputs a horizontal rule across the console of the selected type.
+	
+	.NOTES
+	Command Prompt character width: 79
+	PowerShell window character width: 119
+	
+	WARNING: 
+	VERBOSE: 
+	123456789
+	
+	.LINK
+	about_Comment_Based_Help
+	
+	.LINK
+	about_Functions_Advanced_Parameters
+	
+	.LINK
+	https://docs.microsoft.com/en-us/powershell/developer/cmdlet/validating-parameter-input
+	
+	.LINK
+	https://social.technet.microsoft.com/wiki/contents/articles/15994.powershell-advanced-function-parameter-attributes.aspx
+	
+	.LINK
+	help about_Automatic_Variables
+	
+	.LINK
+	help about_If
+	
+	.LINK
+	help about_Comparison_Operators
+	
   #>
+  
+  #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
   Param (
     #Script parameters go here
     # https://ss64.com/ps/syntax-args.html
-    [Parameter(Mandatory=$false,Position=0)]
+    [Parameter(Mandatory=$false,Position=0,
+    ParameterSetName='DefineString')]
+    [ValidateSet("SingleLine", "DoubleLine", "DashedLine", "BlankLine")]
+    [Alias('HorizontalRule','HorizontalRuleType','Type')]
     [string]$HRtype = 'SingleLine',
+    
+    [Parameter(ParameterSetName='SingleLine')]
+    [switch]$SingleLine,
+    
+    [Parameter(ParameterSetName='DoubleLine')]
+    [switch]$DoubleLine,
+    
+    [Parameter(ParameterSetName='DashedLine')]
+    [switch]$DashedLine,
+    
+    [Parameter(ParameterSetName='BlankLine')]
+    [switch]$BlankLine,
     
     [Parameter(Mandatory=$false)]
     [switch]$Endcaps = $false,
@@ -391,12 +504,13 @@ Function Write-HorizontalRuleAdv {
     [switch]$MaxLineLength = $false
   )
   
+  #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  
   # Function name:
   # https://stackoverflow.com/questions/3689543/is-there-a-way-to-retrieve-a-powershell-function-name-from-within-a-function#3690830
   #$FunctionName = (Get-PSCallStack | Select-Object FunctionName -Skip 1 -First 1).FunctionName
   #$FunctionName = (Get-Variable MyInvocation -Scope 1).Value.MyCommand.Name
   $FunctionName = $PSCmdlet.MyInvocation.MyCommand.Name
-  Write-Verbose "Running function: $FunctionName"
   
   # help about_Automatic_Variables
   # help about_If
@@ -404,7 +518,7 @@ Function Write-HorizontalRuleAdv {
   # https://ss64.com/ps/if.html
   IF ($LaunchedInCmd) {
     # Print horizontal rule styles here using Write-Host instead of Write-Verbose, since that would add "VERBOSE: " to the beginning of each line and prevent the horizontal rule from lining up on the screen properly.
-	# Command Prompt character width: 79
+    # Command Prompt character width: 79
     IF ($HRtype -eq "DoubleLine") {
       $HRoutput = "==============================================================================="
     } ELSEIF ($HRtype -eq "DashedLine") {
@@ -478,7 +592,9 @@ Function Write-HorizontalRuleAdv {
   } ELSE {
     Write-Host $HRoutput
   }
-
+  
+  #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  
 } # End Write-HorizontalRuleAdv function -------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
@@ -727,7 +843,42 @@ If ($LoadFunctions) {
 #-----------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------[Execution]------------------------------------------------------
 
-If (!($sLogPath)) { Start-Log -LogPath $sLogPath -LogName $sLogName -ScriptVersion $sScriptVersion }
+#=======================================================================================================================
+#Index:
+#1. Test different methods of writing output
+#2. Testing Write-HorizontalRule function
+#3. Testing Convert-AMPMhourTo24hour
+#4. Testing Out-GridView
+#5. User Choice Selection / Menu Demos
+#6. Test For loop & date formatting
+#7. Test multi-dimensional variable methods
+#8. Test running external script
+#=======================================================================================================================
+
+#-----------------------------------------------------------------------------------------------------------------------
+#=======================================================================================================================
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#
+#
+##Script MAIN Execution goes here
+Clear-Host # CLS
+Write-Verbose `n
+Write-HorizontalRuleAdv -HRtype DoubleLine -IsVerbose
+Write-Verbose `n
+Write-Verbose "Script Main beginning. $ScriptName"
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#=======================================================================================================================
+#1. Test different methods of writing output
+#=======================================================================================================================
+
+$SectionName = "#1. Test different methods of writing output"
+
+$ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
+
+If ($ChoiceSkip -eq 'N') {
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # run "help about_comment_based_help" - I want to display formatted help for a function or script. Use comment-based help instead - run "help about_comment_based_help". PowerShell will format it for you.
 # https://technet.microsoft.com/en-us/library/dd819489.aspx
@@ -740,12 +891,10 @@ If (!($sLogPath)) { Start-Log -LogPath $sLogPath -LogName $sLogName -ScriptVersi
 # Write-Output - I just need to display some text! Do you really? PowerShell works better with objects, and that's what your script should be outputting, by means of Write-Output. Let PowerShell's Format cmdlets turn those objects into text like lists and tables.
 # Write-Progress - Makes a green and yellow progress bar appear at the top part of the command window.
 
-#Write-Host "Script Main beginning." $MyInvocation.MyCommand.Name
 Write-Host "Script Main beginning." $MyInvocation.MyCommand.Name
 Write-Information -MessageData "Will only display if set defaults display infromational messages."
-#Write-Information -MessageData "Test infromational messages." -InformationAction Continue
-Write-Information -MessageData "Test infromational messages." -InformationAction Continue
-Write-Verbose "Script Main beginning. $ScriptName"
+Write-Information -MessageData "Test informational messages." -InformationAction Continue
+Write-Verbose "Script body."
 Write-Verbose "Debug preference = $DebugPreference"
 Write-Debug "Script Main beginning." # NOTE: Writing debug text will PAUSE script execution automatically.
 Write-Warning "Test Warning."
@@ -753,33 +902,111 @@ Write-Error -Message "TEST ERROR. TEST ERROR. TEST ERROR. TEST ERROR." -Category
 For ($I = 1; $I -le 100; $I++) {Write-Progress -Activity "Test in progress..." -Status "$I% Complete:" -PercentComplete $I;}
 #For ($I = 1; $I -le 1000; $I++) {Write-Progress -Activity "Test in progress..." -Status "$($I / 10)% Complete:" -PercentComplete ($I/10)}
 
-# Write-LogInfo – Writes an informational message to the log file
-# Write-LogWarning – Writes a warning message to the log file (with the format of WARNING: )
-# Write-LogError – Writes an error message to the log file (with the format of ERROR: ). In addition, optionally calls Stop-Log to end logging and terminate the calling script on fatal error.
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#2. Test different methods of writing output thru Logging Module
+#-----------------------------------------------------------------------------------------------------------------------
+
+# Write-LogInfo ? Writes an informational message to the log file
+# Write-LogWarning ? Writes a warning message to the log file (with the format of WARNING: )
+# Write-LogError ? Writes an error message to the log file (with the format of ERROR: ). In addition, optionally calls Stop-Log to end logging and terminate the calling script on fatal error.
 
 Write-LogInfo -LogPath $sLogFile -Message "-----------------------------------------------------------------------------------------------------------------------"
 Write-LogInfo -LogPath $sLogFile -Message "[TIMESTAMP]: $($Time)"
-
 
 Write-LogInfo -LogPath $sLogFile -Message "Test log info write."
 Write-LogWarning -LogPath $sLogFile -Message "Test log warning write."
 Write-LogError -LogPath $sLogFile -Message "Test log error write."
 
-# https://ss64.com/ps/read-host.html
-#$Choice = Read-Host -Prompt "Enter text to be caputred" # CHOICE (Read-Host automatically adds colon at the end of prompt)
-# https://ss64.com/ps/syntax-esc.html
-#Write-Host "Captured text = `"$Choice`""
-
 #Read-Host "Press ENTER key to continue . . . " # PAUSE (Read-Host automatically adds colon : at the end of prompt)
 PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
-# -----------------------------------------------------------------------------------------------------------------------
-# =======================================================================================================================
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#
-#
-##Script MAIN Execution goes here
-Clear-Host # CLS
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#2. Test Write-Host colors output
+#-----------------------------------------------------------------------------------------------------------------------
+
+<#
+help Write-Host -Full
+
+-BackgroundColor <ConsoleColor>
+
+- Black
+- DarkBlue
+- DarkGreen
+- DarkCyan
+- DarkRed
+- DarkMagenta
+- DarkYellow
+- Gray
+- DarkGray
+- Blue
+- Green
+- Cyan
+- Red
+- Magenta
+- Yellow
+- White
+
+-ForegroundColor <ConsoleColor>
+
+- Black
+- DarkBlue
+- DarkGreen
+- DarkCyan
+- DarkRed
+- DarkMagenta
+- DarkYellow
+- Gray
+- DarkGray
+- Blue
+- Green
+- Cyan
+- Red
+- Magenta
+- Yellow
+- White
+#>
+
+$TestText = "The quick brown fox jumped over the lazy dog."
+
+Write-Verbose `n
+Write-HorizontalRuleAdv -HRtype SingleLine
+
+Write-Host $TestText -ForegroundColor White -BackgroundColor Black
+Write-Host $TestText -ForegroundColor Yellow -BackgroundColor Black
+Write-Host $TestText -ForegroundColor Magenta -BackgroundColor Black
+Write-Host $TestText -ForegroundColor Red -BackgroundColor Black
+Write-Host $TestText -ForegroundColor Cyan -BackgroundColor Black
+Write-Host $TestText -ForegroundColor Green -BackgroundColor Black
+Write-Host $TestText -ForegroundColor Blue -BackgroundColor DarkRed
+Write-Host $TestText -ForegroundColor DarkGray -BackgroundColor Cyan
+Write-Host $TestText -ForegroundColor Gray -BackgroundColor Black
+Write-Host $TestText -ForegroundColor DarkYellow -BackgroundColor Black
+Write-Host $TestText -ForegroundColor DarkMagenta -BackgroundColor White
+Write-Host $TestText -ForegroundColor DarkRed -BackgroundColor Black
+Write-Host $TestText -ForegroundColor DarkCyan -BackgroundColor Red
+Write-Host $TestText -ForegroundColor DarkGreen -BackgroundColor Black
+Write-Host $TestText -ForegroundColor DarkBlue -BackgroundColor DarkMagenta
+Write-Host $TestText -ForegroundColor Black -BackgroundColor White
+
+Write-HorizontalRuleAdv -HRtype SingleLine
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#=======================================================================================================================
+#2. Testing Write-HorizontalRule function
+#=======================================================================================================================
+
+$SectionName = "#2. Testing Write-HorizontalRule function"
+
+$ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
+
+If ($ChoiceSkip -eq 'N') {
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Write-Host "Write-HorizontalRule Help output:"
 Write-HorizontalRule
@@ -828,17 +1055,252 @@ Write-HorizontalRuleAdv -HRtype DoubleLine -Endcaps -IsWarning
 
 PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
-# =======================================================================================================================
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+}
 
-Clear-Host # CLS
-Write-Verbose `n
-Write-HorizontalRuleAdv -HRtype DoubleLine -IsVerbose
-Write-Verbose `n
-Write-Verbose "Script body."
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#=======================================================================================================================
+#3. Testing Convert-AMPMhourTo24hour
+#=======================================================================================================================
 
-# Testing Out-GridView
+$SectionName = "#3. Testing Convert-AMPMhourTo24hour"
+
+$ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
+
+If ($ChoiceSkip -eq 'N') {
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+#
+
+<#
+12.1
+11.6
+11.4
+11
+011
+9.6
+9.4
+09
+9
+-9
+.9
+0.9
+.0
+0.0
+#>
+
+#
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+#
+
+help Convert-AMPMhourTo24hour
+
+#
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+#
+
+Write-Host "help Convert-AMPMhourTo24hour -full"
+Write-Warning "Executing `"help Convert-AMPMhourTo24hour -full`" from a script environment during run will not display any of the extra information from the -Full switch. The command must be executed from the command line to get entire help content."
+
+#
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+#
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 0 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 1 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 12 -AM
+
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 09.6 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 09.4 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 12.1 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 11.6 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 11.4 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 11 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 011 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 9.6 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 9.4 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 009 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 09 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Success:" -ForegroundColor Green
+Convert-AMPMhourTo24hour 9 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour -9 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour .9 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 0.9 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour .0 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+Write-Host "Failure:"
+Convert-AMPMhourTo24hour 0.0 -AM
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+#
+
+Write-Host `r`n
+
+Write-Host "Example #1:"
+
+$AMPMhour = 4
+
+$OutputVar = Convert-AMPMhourTo24hour $AMPMhour -PM
+
+Write-Host "$AMPMhour PM = $OutputVar           (24-hour)"
+
+Write-Host `r`n
+
+#
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+#
+
+Write-Host `r`n
+
+Write-Host "Example #2:"
+
+Get-Date -UFormat %I | Convert-AMPMhourTo24hour -PM
+
+$NowHour = Get-Date -UFormat %I
+Write-Host "`$NowHour = $NowHour"
+
+$OutputVar = (Get-Date -UFormat %I | Convert-AMPMhourTo24hour -PM)
+Write-Host "`$OutputVar = $OutputVar"
+
+Write-Host "$NowHour PM = $OutputVar           (24-hour)"
+Write-Host "$(Get-Date -UFormat %I) PM = $OutputVar           (24-hour)"
+
+Write-Host `r`n
+
+#
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+#
+
+Write-Host `r`n
+
+Write-Host "Example #3:"
+
+Get-Random -Minimum 1 -Maximum 12 | Convert-AMPMhourTo24hour -PM
+
+Get-Random -Minimum 1 -Maximum 12 | Tee-Object -Variable Randomvar | Convert-AMPMhourTo24hour -PM
+Write-Host "`$Randomvar = $Randomvar"
+
+$OutputVar = (Get-Random -Minimum 1 -Maximum 12 | Tee-Object -Variable Randomvar | Convert-AMPMhourTo24hour -PM)
+Write-Host "$Randomvar PM = $OutputVar           (24-hour)"
+
+Write-Host `r`n
+
+#
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+#
+
+PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#=======================================================================================================================
+#4. Testing Out-GridView
+#=======================================================================================================================
+
+$SectionName = "#4. Testing Out-GridView"
+
+$ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
+
+If ($ChoiceSkip -eq 'N') {
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 #https://mcpmag.com/articles/2016/02/17/creating-a-gui-using-out-gridview.aspx
 Write-Host `n
 Write-HorizontalRuleAdv -HRtype DashedLine
@@ -860,7 +1322,7 @@ Write-Host `n
 Write-Host "Looking at the about* Help Files:"
 Get-Help about* | Out-GridView -PassThru | Get-Help -ShowWindow 
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Write-Host `n
 Write-HorizontalRuleAdv -HRtype DashedLine
@@ -880,7 +1342,7 @@ Switch ($Result) {
 	{$Result.Name -eq 3} {Write-Host 'Do whatever you want'}   
 } 
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Write-Host `n
 Write-HorizontalRuleAdv -HRtype DashedLine
@@ -928,8 +1390,202 @@ Get-WmiObject @WMI  | ForEach {
 
 $List | Out-GridView -Title 'Drive Space' 
 
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#=======================================================================================================================
+#5. User Choice Selection / Menu Demos
+#=======================================================================================================================
+
+$SectionName = "#5. User Choice Selection / Menu Demos"
+
+$ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
+
+If ($ChoiceSkip -eq 'N') {
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#-----------------------------------------------------------------------------------------------------------------------
+
+Write-Host `r`n
+Write-Host "User Choice Selection / Menu Demos"
+Write-Host `r`n
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Write-HorizontalRuleAdv -HRtype SingleLine
+Write-Host 'Method #1: "Read-Host -Prompt"'
+Write-HorizontalRuleAdv -HRtype DashedLine
+do {
+	$ChoiceYesNoCancel = Read-Host -Prompt "[Y]es, [N]o, or [C]ancel? [Y\N\C]"
+	switch ($ChoiceYesNoCancel) {
+		'Y'	{ # Y - Yes
+			Write-Verbose "Yes ('$ChoiceYesNoCancel') option selected."
+			Write-Host "Yes ('$ChoiceYesNoCancel') option selected."
+			Write-Host `r`n
+		}
+		'N' { # N - No
+			Write-Verbose "No ('$ChoiceYesNoCancel') option selected."
+			Write-Host "No ('$ChoiceYesNoCancel') option selected."
+			Write-Host `r`n
+		}
+		'C' { # C - Cancel
+			Write-Verbose "Cancel ('$ChoiceYesNoCancel') option selected."
+			Write-Host "Cancel ('$ChoiceYesNoCancel') option selected."
+			Write-Host `r`n
+		}
+		default { # Choice not recognized.
+			Write-Host `r`n
+			Write-Host "Choice `"$ChoiceYesNoCancel`" not recognized. Options must be Yes, No, or Cancel."
+			#Write-HorizontalRuleAdv -HRtype DashedLine
+			Write-Host `r`n
+			#Break #help about_Break
+			PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+			Write-Host `r`n
+			Write-HorizontalRuleAdv -HRtype DashedLine
+		}
+	}
+}
+until ($ChoiceYesNoCancel -eq 'Y' -Or $ChoiceYesNoCancel -eq 'N' -Or $ChoiceYesNoCancel -eq 'C')
+Write-HorizontalRuleAdv -HRtype DashedLine
+PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Write-Host `r`n
+Write-HorizontalRuleAdv -HRtype SingleLine
+Write-Host 'Method #2: "PromptForChoice()"'
+#-----------------------------------------------------------------------------------------------------------------------
+# Build Menu
+#-----------------------------------------------------------------------------------------------------------------------
+#Clear-Host # CLS
+Write-HorizontalRuleAdv -HRtype DashedLine
+#-----------------------------------------------------------------------------------------------------------------------
+# Build Choice Prompt
+#-----------------------------------------------------------------------------------------------------------------------
+$Title = "Main Menu"
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+$Info = 'User choice selection example using "PromptForChoice()"'
+$Info = @"
+User choice selection example using "PromptForChoice()"
+
+Y - Yes
+N - No
+Q - Quit
+ 
+Select a choice:
+"@
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# &Quit makes Q a Hot Key. 
+$ChoiceYes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Select [Y]es as the answer."
+$ChoiceNo = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Select [N]o as the answer."
+$ChoiceQuit = New-Object System.Management.Automation.Host.ChoiceDescription "&Quit", "[Q]uit, prints `"Good Bye!!!`" in green"
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceYes, $ChoiceNo)
+# default choice: 0 = first Option, 1 = second option, etc.
+[int]$defaultchoice = 1
+#-----------------------------------------------------------------------------------------------------------------------
+# Execute Choice Prompt
+#-----------------------------------------------------------------------------------------------------------------------
+# PromptForChoice() output will always be integer: https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
+# If run from shell, will create a GUI dialog box. If run from script, will create choice text menu in command line.
+# https://social.technet.microsoft.com/wiki/contents/articles/24030.powershell-demo-prompt-for-choice.aspx
+$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
+#-----------------------------------------------------------------------------------------------------------------------
+# Interpret answer
+#-----------------------------------------------------------------------------------------------------------------------
+#help about_switch
+#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
+Write-Verbose "Answer = $answer"
+switch ($answer) {
+	0	{ # Y - Yes
+		Write-Verbose "Yes ('$answer') option selected."
+		Write-Host "Si Senor." -ForegroundColor Green
+		Write-Host `r`n
+	}
+	1 { # N - No
+		Write-Verbose "No ('$answer') option selected."
+		Write-Host "No gracias." -ForegroundColor Orange
+		Write-Host `r`n
+	}
+	2 {
+		Write-Verbose "Quit ('$answer') option selected."
+		Write-Host "Good Bye!!!" -ForegroundColor Green
+		Write-HorizontalRuleAdv -HRtype DashedLine
+		Write-Host `r`n
+	}
+}
+Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
+PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Write-Host `r`n
+Write-HorizontalRuleAdv -HRtype SingleLine
+Write-Host 'Method #3: "Out-GridView -PassThru"'
+Write-HorizontalRuleAdv -HRtype DashedLine
+#-----------------------------------------------------------------------------------------------------------------------
+# Build Menu
+#-----------------------------------------------------------------------------------------------------------------------
+Write-Host `n
+Write-HorizontalRuleAdv -HRtype DashedLine
+Write-Host `n
+Write-Host "Menu example using Out-GridView:"
+#-----------------------------------------------------------------------------------------------------------------------
+# Build Choice Prompt
+#-----------------------------------------------------------------------------------------------------------------------
+$Title = "Main Menu"
+$Menu = [ordered]@{
+	1 = 'Yes'
+	2 = 'No'
+	3 = 'Cancel'
+}
+#-----------------------------------------------------------------------------------------------------------------------
+# Execute Choice Prompt
+#-----------------------------------------------------------------------------------------------------------------------
+# Using Out-GridView creates a GUI selection window with filter ability
+# and ability to select multiple options with the -PassThru switch
+$Result = $Menu | Out-GridView -PassThru -Title $Title
+#-----------------------------------------------------------------------------------------------------------------------
+# Interpret answer
+#-----------------------------------------------------------------------------------------------------------------------
+$answer = $Result.Name
+Write-Verbose "`$Result.Name = $answer"
+Write-HorizontalRuleAdv -HRtype DashedLine -IsVerbose
+Switch ($answer) {
+	1 {
+		Write-Host '"Yes" was selected.'
+	}
+	2 {
+		Write-Host '"No" was selected.'
+	}
+	3 {
+		Write-Host '"Cancel" was selected.'
+	}
+}
+Write-HorizontalRuleAdv -HRtype DashedLine
+PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#=======================================================================================================================
+#6. Test For loop & date formatting
+#=======================================================================================================================
+
+$SectionName = "#6. Test For loop & date formatting"
+
+$ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
+
+If ($ChoiceSkip -eq 'N') {
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Write-Host `n
 Write-HorizontalRuleAdv -HRtype DashedLine
@@ -944,7 +1600,21 @@ For ($m=1; $m -lt 13; $m++) {
 Write-Host `n
 PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#=======================================================================================================================
+#7. Test multi-dimensional variable methods
+#=======================================================================================================================
+
+$SectionName = "#7. Test multi-dimensional variable methods"
+
+$ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
+
+If ($ChoiceSkip -eq 'N') {
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Write-Host `n
 Write-HorizontalRuleAdv -HRtype DashedLine
@@ -970,7 +1640,7 @@ ForEach ($column in $CSVarray) {
 Write-Host `n
 PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Write-Host `n
 Write-HorizontalRuleAdv -HRtype DashedLine
@@ -996,7 +1666,7 @@ ForEach ($line in $CSVarray) {
 Write-Host `n
 PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Write-Host `n
 Write-HorizontalRuleAdv -HRtype DashedLine
@@ -1022,7 +1692,7 @@ ForEach ($line in $CSVarray) {
 Write-Host `n
 PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Write-Host `n
 Write-HorizontalRuleAdv -HRtype SingleLine
@@ -1049,7 +1719,7 @@ Import-CSV -Path $CSVfile -Delimiter "," -Header $CSVheaders | ForEach {
 Write-Host `n
 PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Write-Host `n
 Write-HorizontalRuleAdv -HRtype SingleLine
@@ -1078,7 +1748,7 @@ Import-CSV -Path $CSVfile | ForEach {
 Write-Host `n
 PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Write-Host `n
 Write-HorizontalRuleAdv -HRtype DoubleLine
@@ -1128,78 +1798,23 @@ Write-Host "Loop is over."
 Write-Host `n
 PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Write-Host `n
-Write-HorizontalRuleAdv -HRtype DashedLine
-Write-Host `n
-Write-Host "Choice dialog example."
-# If run from shell, will create a dialog box. If run in script, will show choice text in command line.
-# https://social.technet.microsoft.com/wiki/contents/articles/24030.powershell-demo-prompt-for-choice.aspx
-$Title = "Welcome"
-$Info = "Just to Demo Prompt for Choice"
-# &Power makes P a Hot Key. 
-#$Options = [System.Management.Automation.Host.ChoiceDescription[]] @("&Power", "&Shell", "&Quit")
-$ChoicePower = New-Object System.Management.Automation.Host.ChoiceDescription "&Power", "[P]ower, prints `"Power`" in green"
-$ChoiceShell = New-Object System.Management.Automation.Host.ChoiceDescription "&Shell", "[S]hell, prints `"Shell`" in green"
-$ChoiceQuit = New-Object System.Management.Automation.Host.ChoiceDescription "&Quit", "[Q]uit, prints `"Good Bye!!!`" in green"
-$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoicePower, $ChoiceShell, $ChoiceQuit)
-# default choice: 0 = first Option, 1 = second option, etc.
-[int]$defaultchoice = 1
-$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
-#help about_switch
-switch($answer)
-{
-    0 {Write-Host "Power" -ForegroundColor Green}
-    1 {Write-Host "Shell" -ForegroundColor Green}
-    2 {Write-Host "Good Bye!!!" -ForegroundColor Green}
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 }
-Write-Host `n
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-Write-Host `n
-Write-HorizontalRuleAdv -HRtype DashedLine
-Write-Host `n
-Write-Host "Looping Choice dialog example."
-# If run from shell, will create a dialog box. If run in script, will show choice text in command line.
-# https://social.technet.microsoft.com/wiki/contents/articles/24030.powershell-demo-prompt-for-choice.aspx
-$Title = "Welcome"
-$Info = @"
-Looping Prompt for Choice
+#=======================================================================================================================
+#8. Test running external script
+#=======================================================================================================================
 
-P - Power
-S - Shell
-Q - Quit
- 
-Select a choice:
-"@
-# &Power makes P a Hot Key. 
-#$Options = [System.Management.Automation.Host.ChoiceDescription[]] @("&Power", "&Shell", "&Quit")
-$ChoicePower = New-Object System.Management.Automation.Host.ChoiceDescription "&Power", "[P]ower, prints `"Power`" in green"
-$ChoiceShell = New-Object System.Management.Automation.Host.ChoiceDescription "&Shell", "[S]hell, prints `"Shell`" in green"
-$ChoiceQuit = New-Object System.Management.Automation.Host.ChoiceDescription "&Quit", "[Q]uit, prints `"Good Bye!!!`" in green"
-$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoicePower, $ChoiceShell, $ChoiceQuit)
-# default choice: 0 = first Option, 1 = second option, etc.
-[int]$defaultchoice = 1
-do
-{
-	Clear-Host # CLS
-	$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
-	#help about_switch
-	switch($answer)
-	{
-		0 {Write-Host "Power" -ForegroundColor Green}
-		1 {Write-Host "Shell" -ForegroundColor Green}
-		2 {Write-Host "Good Bye!!!" -ForegroundColor Green}
-	}
-	Write-Host `n
-	PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-}
-until ($answer -eq '2') 
+$SectionName = "#8. Test running external script"
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+$ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
+
+If ($ChoiceSkip -eq 'N') {
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#-----------------------------------------------------------------------------------------------------------------------
 
 Write-Host `n
 Write-HorizontalRuleAdv -HRtype DashedLine
@@ -1210,30 +1825,30 @@ PowerShell.exe -NoProfile -ExecutionPolicy Bypass -Command "& '$ExternalScript'"
 Write-Host `n
 PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Write-Host `n
 Write-Verbose "/Script body."
-
-# =======================================================================================================================
-
 Write-HorizontalRuleAdv -HRtype DoubleLine
+#Script MAIN Execution ends here
+#
+#
+#
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#=======================================================================================================================
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
+#------------------------------------------------------[Footer]---------------------------------------------------------
+
 Write-Host `n
 Write-Host "End of script" $MyInvocation.MyCommand.Name
 Write-Host `n
 PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 Write-Host `n
-
-#Script MAIN Execution ends here
-#
-#
-#
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# =======================================================================================================================
-# -----------------------------------------------------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------------------------------------------------
-#------------------------------------------------------[Footer]---------------------------------------------------------
 
 Write-Verbose "Script Main end. $ScriptName"
 Write-Debug "End-of-script. $ScriptName"
