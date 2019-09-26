@@ -333,6 +333,9 @@ If (!($sLogPath)) { Start-Log -LogPath $sLogPath -LogName $sLogName -ScriptVersi
 # 5. Get-ScriptDirectory3
 # 6. Write-HorizontalRule
 # 7. Write-HorizontalRuleAdv
+# 8. PromptForChoice-YesNoSectionSkip
+# 9. ReadPrompt-AMPM24
+# 10. Convert-AMPMhourTo24hour
 
 <# Function <FunctionName> {
   Param ()
@@ -648,6 +651,60 @@ Function Write-HorizontalRuleAdv {
 } # End Write-HorizontalRuleAdv function -------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
+Function PromptForChoice-YesNoSectionSkip {
+	
+	Param (
+		#Script parameters go here
+		[Parameter(Mandatory=$false,Position=0,
+		ValueFromPipeline = $true)]
+		[string]$SectionName
+	)
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#-----------------------------------------------------------------------------------------------------------------------
+	# Build Choice Prompt
+	#-----------------------------------------------------------------------------------------------------------------------
+	$Title = "Skip this section?"
+	$Info = "$SectionName"
+	$ChoiceYes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "[Y]es, skip this section."
+	$ChoiceNo = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "[N]o, do not skip this section"
+	$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceYes, $ChoiceNo)
+	# default choice: 0 = first Option, 1 = second option, etc.
+	[int]$defaultchoice = 0
+	#-----------------------------------------------------------------------------------------------------------------------
+	# Execute Choice Prompt
+	#-----------------------------------------------------------------------------------------------------------------------
+	# PromptForChoice() output will always be integer: https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
+	If ($SectionName) {
+		$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
+	} else {
+		$answer = $host.UI.PromptForChoice($Title, "", $Options, $defaultchoice)
+	}
+	#-----------------------------------------------------------------------------------------------------------------------
+	# Interpret answer
+	#-----------------------------------------------------------------------------------------------------------------------
+	#help about_switch
+	#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
+	#Write-Verbose "Answer = $answer"
+	switch ($answer) {
+		0	{ # Y - Yes
+			Write-Verbose "Yes ('$answer') option selected."
+			$ChoiceSkipSection = 'Y'
+		}
+		1 { # N - No
+			Write-Verbose "No ('$answer') option selected."
+			$ChoiceSkipSection = 'N'
+		}
+	}
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Return $ChoiceSkipSection
+
+} # End PromptForChoice-YesNoSectionSkip function ----------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
 Function ReadPrompt-AMPM24 {
 	
 	do {
@@ -948,60 +1005,6 @@ https://www.gngrninja.com/script-ninja/2016/5/15/powershell-getting-started-part
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 } # End Convert-AMPMhourTo24hour function ------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------------------------------------
-
-Function PromptForChoice-YesNoSectionSkip {
-	
-	Param (
-		#Script parameters go here
-		[Parameter(Mandatory=$false,Position=0,
-		ValueFromPipeline = $true)]
-		[string]$SectionName
-	)
-	
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
-	#-----------------------------------------------------------------------------------------------------------------------
-	# Build Choice Prompt
-	#-----------------------------------------------------------------------------------------------------------------------
-	$Title = "Skip this section?"
-	$Info = "$SectionName"
-	$ChoiceYes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "[Y]es, skip this section."
-	$ChoiceNo = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "[N]o, do not skip this section"
-	$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceYes, $ChoiceNo)
-	# default choice: 0 = first Option, 1 = second option, etc.
-	[int]$defaultchoice = 0
-	#-----------------------------------------------------------------------------------------------------------------------
-	# Execute Choice Prompt
-	#-----------------------------------------------------------------------------------------------------------------------
-	# PromptForChoice() output will always be integer: https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
-	If ($SectionName) {
-		$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
-	} else {
-		$answer = $host.UI.PromptForChoice($Title, "", $Options, $defaultchoice)
-	}
-	#-----------------------------------------------------------------------------------------------------------------------
-	# Interpret answer
-	#-----------------------------------------------------------------------------------------------------------------------
-	#help about_switch
-	#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
-	#Write-Verbose "Answer = $answer"
-	switch ($answer) {
-		0	{ # Y - Yes
-			Write-Verbose "Yes ('$answer') option selected."
-			$ChoiceSkipSection = 'Y'
-		}
-		1 { # N - No
-			Write-Verbose "No ('$answer') option selected."
-			$ChoiceSkipSection = 'N'
-		}
-	}
-	
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
-	Return $ChoiceSkipSection
-
-} # End PromptForChoice-YesNoSectionSkip function ----------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
