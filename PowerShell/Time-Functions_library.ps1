@@ -132,7 +132,11 @@ PAUSE
 
 #
 
-$StartHour = Read-Host -Prompt "Enter Start hour"
+Write-Host "# Start Time #`n`r`n"
+
+#$StartHour = Read-Host -Prompt "Enter Start hour"
+
+$StartHour = ReadPrompt-Hour -Verbose
 
 $StartMin = Read-Host -Prompt "Enter Start minute"
 

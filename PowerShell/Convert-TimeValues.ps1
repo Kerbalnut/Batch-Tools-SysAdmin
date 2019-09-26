@@ -111,17 +111,17 @@ about_Functions_CmdletBindingAttribute
 #-----------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------[Header]--------------------------------------------------------
 
-# Index:
-# 1. <# .HELP #>
-# 2. #Requires
-# 3. [Header]
-# 4. [Script Parameters]
-# 5. [Initializations]
-# 6. [Modules]
-# 7. [Declarations]
-# 8. [Functions]
-# 9. [Execution]
-# 10. [Footer]
+#Index:
+#1. <# .HELP #>
+#2. #Requires
+#3. [Header]
+#4. [Script Parameters]
+#5. [Initializations]
+#6. [Modules]
+#7. [Declarations]
+#8. [Functions]
+#9. [Execution]
+#10. [Footer]
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

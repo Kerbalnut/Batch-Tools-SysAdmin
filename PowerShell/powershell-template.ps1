@@ -333,6 +333,7 @@ If (!($sLogPath)) { Start-Log -LogPath $sLogPath -LogName $sLogName -ScriptVersi
 #9. ReadPrompt-AMPM24
 #10. Convert-AMPMhourTo24hour
 
+#-----------------------------------------------------------------------------------------------------------------------
 <# Function <FunctionName> {
   Param ()
 
@@ -360,26 +361,32 @@ If (!($sLogPath)) { Start-Log -LogPath $sLogPath -LogName $sLogName -ScriptVersi
 } #> # End <FunctionName> function ----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------------------------------------------------
 function Start-PSAdmin {Start-Process PowerShell -Verb RunAs}
+#-----------------------------------------------------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------------------------------------------------
 function Get-ScriptDirectory1 { #https://stackoverflow.com/questions/801967/how-can-i-find-the-source-path-of-an-executing-script/6985381#6985381
     Split-Path $script:MyInvocation.MyCommand.Path
 } # End Get-ScriptDirectory function -----------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------------------------------------------------
 function Get-ScriptDirectory2 { #https://stackoverflow.com/questions/1183183/path-of-currently-executing-powershell-script#1183197
     # For PowerShell 3.0 users - following works for both modules and script files:
     Split-Path -parent $PSCommandPath
 } # End Get-ScriptDirectory function -----------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------------------------------------------------
 function Get-ScriptDirectory3 { #https://stackoverflow.com/questions/1183183/path-of-currently-executing-powershell-script#1183197
   $Invocation = (Get-Variable MyInvocation -Scope 1).Value
   Split-Path $Invocation.MyCommand.Path
 } # End Get-ScriptDirectory function -----------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
-Function Write-HorizontalRule {
+#-----------------------------------------------------------------------------------------------------------------------
+Function Write-HorizontalRule { #---------------------------------------------------------------------------------------
   Param (
     #Script parameters go here
     # https://ss64.com/ps/syntax-args.html
@@ -426,7 +433,8 @@ Function Write-HorizontalRule {
 } # End Write-HorizontalRule function ----------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
-Function Write-HorizontalRuleAdv {
+#-----------------------------------------------------------------------------------------------------------------------
+Function Write-HorizontalRuleAdv { #------------------------------------------------------------------------------------
   <#
 	.SYNOPSIS
 	Writes a horizontal rule across the the console. 
@@ -647,7 +655,8 @@ Function Write-HorizontalRuleAdv {
 } # End Write-HorizontalRuleAdv function -------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
-Function PromptForChoice-YesNoSectionSkip {
+#-----------------------------------------------------------------------------------------------------------------------
+Function PromptForChoice-YesNoSectionSkip { #---------------------------------------------------------------------------
 	
 	Param (
 		#Script parameters go here
@@ -701,7 +710,8 @@ Function PromptForChoice-YesNoSectionSkip {
 } # End PromptForChoice-YesNoSectionSkip function ----------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
-Function ReadPrompt-AMPM24 {
+#-----------------------------------------------------------------------------------------------------------------------
+Function ReadPrompt-AMPM24 { #------------------------------------------------------------------------------------------
 	
 	do {
 		$ChoiceAMPM24hour = Read-Host -Prompt "[A]M, [P]M, or [2]4 hour? [A\P\2]"
@@ -743,7 +753,109 @@ Function ReadPrompt-AMPM24 {
 } # End ReadPrompt-AMPM24 function -------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
-Function Convert-AMPMhourTo24hour {
+#-----------------------------------------------------------------------------------------------------------------------
+Function ReadPrompt-Hour { #--------------------------------------------------------------------------------------------
+	
+	# Sub-functions:
+	#-----------------------------------------------------------------------------------------------------------------------
+	function Validate-Integer {
+		Param (
+			#Script parameters go here
+			[Parameter(Mandatory=$true,Position=0,
+			ValueFromPipeline = $true)]
+			# Validate a positive integer (whole number) using Regular Expressions, thanks to:
+			#https://stackoverflow.com/questions/16774064/regular-expression-for-whole-numbers-and-integers
+			#-----------------------------------------------------------------------------------------------------------------------
+			#	(?<![-.])		# Assert that the previous character isn't a minus sign or a dot.
+			#	\b				# Anchor the match to the start of a number.
+			#	[0-9]+			# Match a number.
+			#	\b				# Anchor the match to the end of the number.
+			#	(?!\.[0-9])		# Assert that no decimal part follows.
+			#$RegEx = "(?<![-.])\b[0-9]+\b(?!\.[0-9])"
+			#[ValidatePattern("(?<![-.])\b[0-9]+\b(?!\.[0-9])")]
+			# This [ValidateScript({})] does the exact same thing as the [ValidatePattern("")] above, it just throws much nicer, customizable error messages that actually explain why if failed (rather than "(?<![-.])\b[0-9]+\b(?!\.[0-9])").
+			[ValidateScript({
+				If ($_ -match "(?<![-.])\b[0-9]+\b(?!\.[0-9])") {
+					$True
+				} else {
+					Throw "$_ must be a positive integer (whole number, no decimals)."
+				}
+			})]
+			#-----------------------------------------------------------------------------------------------------------------------
+			# Bugfix: For the [ValidatePattern("")] or [ValidateScript({})] regex validation checks to work e.g. for strict integer validation (throw an error if a non-integer value is provided) do not define the var-type e.g. [int]$var since PowerShell will automatically round the input value to an integer BEFORE performing the regex comparisons. Instead, declare parameter without [int] defining the var-type e.g. $var,
+			$InputToValidate
+		)
+		
+		Return [int]$InputToValidate
+	}
+	#-----------------------------------------------------------------------------------------------------------------------
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	$IntegerValidation = $false
+	
+	$RangeValidation = $false
+	
+	Write-Verbose "what"
+	
+	#while ($HourRange -lt 0 -And $HourRange -gt 23) {
+	while ($IntegerValidation -eq $false -Or $RangeValidation -eq $false) {
+		
+		$IntegerValidation = $false
+		
+		$RangeValidation = $false
+		
+		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		
+		$HourInput = Read-Host -Prompt "Enter hour"
+		
+		Write-Verbose "Entered value = $HourInput"
+		
+		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		
+		try {
+			$HourInteger = Validate-Integer $HourInput
+		}
+		catch {
+			Write-Warning "Hour input must be an integer. (Whole numbers only, no decimals, no negatives.)"
+			#PAUSE
+			Write-Host `r`n
+			Continue #help about_Continue
+		}
+		
+		$IntegerValidation = $true
+		
+		Write-Verbose "Integer validation = $HourInteger"
+		
+		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		
+		If ($HourInteger -ge 0 -Or $HourInteger -le 23) {
+			$HourRange = $HourInteger
+			$RangeValidation = $true
+		} else {
+			Write-Warning "Hour input must be between 1-12 for AM/PM time, or 0-23 for 24-hour time."
+			#PAUSE
+			Write-Host `r`n
+			Continue #help about_Continue
+		}
+		
+		Write-Verbose "Hour value range validation = $HourRange"
+		
+		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		
+	}
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Write-Verbose "Hour value $HourRange validation complete."
+	
+	Return $HourRange
+	
+} # End ReadPrompt-Hour function ---------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
+Function Convert-AMPMhourTo24hour { #-----------------------------------------------------------------------------------
 <#
 .SYNOPSIS
 Convert an hour value in AM/PM format to a 24-hour value.
@@ -938,7 +1050,7 @@ https://www.gngrninja.com/script-ninja/2016/5/15/powershell-getting-started-part
 		#	(?!\.[0-9])		# Assert that no decimal part follows.
 		#$RegEx = "(?<![-.])\b[0-9]+\b(?!\.[0-9])"
 		#[ValidatePattern("(?<![-.])\b[0-9]+\b(?!\.[0-9])")]
-		# This [ValidateScript({))] does the exact same thing as the [ValidatePattern("")] above, it just throws much nicer, customizable error messages that actually explain why if failed (rather than "(?<![-.])\b[0-9]+\b(?!\.[0-9])").
+		# This [ValidateScript({})] does the exact same thing as the [ValidatePattern("")] above, it just throws much nicer, customizable error messages that actually explain why if failed (rather than "(?<![-.])\b[0-9]+\b(?!\.[0-9])").
 		[ValidateScript({
             If ($_ -match "(?<![-.])\b[0-9]+\b(?!\.[0-9])") {
                 $True
@@ -947,8 +1059,8 @@ https://www.gngrninja.com/script-ninja/2016/5/15/powershell-getting-started-part
             }
         })]
 		#-----------------------------------------------------------------------------------------------------------------------
-		[ValidateRange(1,12)]
 		# Bugfix: For the [ValidatePattern("")] or [ValidateScript({})] regex validation checks to work e.g. for strict integer validation (throw an error if a non-integer value is provided) do not define the var-type e.g. [int]$var since PowerShell will automatically round the input value to an integer BEFORE performing the regex comparisons. Instead, declare parameter without [int] defining the var-type e.g. $var,
+		[ValidateRange(1,12)]
 		$Hours,
 		
 		[Parameter(Mandatory=$true,
@@ -961,6 +1073,8 @@ https://www.gngrninja.com/script-ninja/2016/5/15/powershell-getting-started-part
 	)
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Write-Verbose "Input hours = $Hours"
 	
 	#-----------------------------------------------------------------------------------------------------------------------
 	# Convert AM hours
