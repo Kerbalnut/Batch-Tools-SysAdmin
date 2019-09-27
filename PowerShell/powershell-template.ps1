@@ -827,7 +827,20 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
 		# Remove leading zeros (0)
+		
 		$VarSimplified = $VarInput.TrimStart('0')
+		If ($VarSimplified -eq $null) {
+			Write-Verbose "Var is `$null after removing leading zeros."
+			$VarSimplified = '0'
+		}
+		If ($VarSimplified -eq "") {
+			Write-Verbose "Var is equal to `"`" after removing leading zeros."
+			$VarSimplified = '0'
+		}
+		If ($VarSimplified -eq '') {
+			Write-Verbose "Var is equal to `'`' after removing leading zeros."
+			$VarSimplified = '0'
+		}
 		
 		Write-Verbose "Remove leading zeros (0) = $VarSimplified"
 		
@@ -862,7 +875,7 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
 		# Check if $VarName input is between $MinInt and $MaxInt
-		If ($VarInteger -ge $MinInt -And $VarInteger -le $MaxInt) {
+		If ([int]$VarInteger -ge [int]$MinInt -And [int]$VarInteger -le [int]$MaxInt) {
 			$VarRange = $VarInteger
 			$RangeValidation = $true
 		} else {
