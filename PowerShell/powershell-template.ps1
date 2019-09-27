@@ -759,6 +759,8 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 	
 	#http://techgenix.com/powershell-functions-common-parameters/
 	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+	#[cmdletbinding()]
+	#Param()
 	[cmdletbinding()]
 	Param(
 		[Parameter(Mandatory=$false,Position=0,
@@ -804,7 +806,7 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	# Make function more customizable by minimizing hard-coded values
+	# Make function more customizable by condensing hard-coded values to the top
 	
 	$VarName = "Hour"
 	
@@ -816,7 +818,7 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	#Check if we have a value sent in from an external variable first
+	#Check if we have a value sent in from an external variable (parameter) first
 	If ($VarInput -eq $null -or $VarInput -eq "") {
 		$PipelineInput = $false
 	} else {
@@ -831,6 +833,7 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 	$IntegerValidation = $false
 	$RangeValidation = $false
 	
+	# Begin loop to validate Input, and request new input from user if it fails validation.
 	while ($IntegerValidation -eq $false -Or $RangeValidation -eq $false) {
 		
 		# Initialize test verification vars (at the start of each loop)
@@ -854,15 +857,15 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 		# Remove leading zeros (0)
 		$VarSimplified = $VarInput.TrimStart('0')
 		If ($VarSimplified -eq $null) {
-			Write-Verbose "Var is `$null after removing leading zeros."
+			Write-Verbose "$VarName is `$null after removing leading zeros."
 			$VarSimplified = '0'
 		}
 		If ($VarSimplified -eq "") {
-			Write-Verbose "Var is equal to `"`" after removing leading zeros."
+			Write-Verbose "$VarName is equal to `"`" after removing leading zeros."
 			$VarSimplified = '0'
 		}
 		If ($VarSimplified -eq '') {
-			Write-Verbose "Var is equal to `'`' after removing leading zeros."
+			Write-Verbose "$VarName is equal to `'`' after removing leading zeros."
 			$VarSimplified = '0'
 		}
 		
@@ -904,6 +907,7 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 			$RangeValidation = $true
 		} else {
 			Write-HorizontalRuleAdv -DashedLine -IsWarning
+			Write-Warning "$VarName input must be between $MinInt-$MaxInt."
 			Write-Warning "$VarName input must be between 1-12 for AM/PM time, or 0-23 for 24-hour time."
 			#PAUSE
 			Write-Host `r`n
@@ -930,8 +934,14 @@ Function ReadPrompt-Minute { #--------------------------------------------------
 	
 	#http://techgenix.com/powershell-functions-common-parameters/
 	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+	#[cmdletbinding()]
+	#Param()
 	[cmdletbinding()]
-	Param()
+	Param(
+		[Parameter(Mandatory=$false,Position=0,
+		ValueFromPipeline = $true)]
+		$VarInput
+	)
 	
 	# Sub-functions:
 	#-----------------------------------------------------------------------------------------------------------------------
@@ -969,6 +979,10 @@ Function ReadPrompt-Minute { #--------------------------------------------------
 	#-----------------------------------------------------------------------------------------------------------------------
 	# /Sub-functions
 	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Make function more customizable by condensing hard-coded values to the top
+	
 	$VarName = "Minute"
 	
 	$MinInt = 0
@@ -977,37 +991,54 @@ Function ReadPrompt-Minute { #--------------------------------------------------
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	$IntegerValidation = $false
+	#Check if we have a value sent in from an external variable (parameter) first
+	If ($VarInput -eq $null -or $VarInput -eq "") {
+		$PipelineInput = $false
+	} else {
+		$PipelineInput = $true
+		Write-Verbose "Piped-in content = $VarInput"
+		$VarInput = [string]$VarInput #Bugfix: convert input from an object to a string
+	}
 	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Initialize test verification vars
+	$IntegerValidation = $false
 	$RangeValidation = $false
 	
+	# Begin loop to validate Input, and request new input from user if it fails validation.
 	while ($IntegerValidation -eq $false -Or $RangeValidation -eq $false) {
 		
+		# Initialize test verification vars (at the start of each loop)
 		$IntegerValidation = $false
-		
 		$RangeValidation = $false
 		
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
-		$VarInput = Read-Host -Prompt "Enter $VarName"
-		
-		Write-Verbose "Entered value = $VarInput"
+		# Prompt user for $VarName value input
+		If ($PipelineInput -ne $true) {
+			Write-Verbose "No values piped-in from external sources (parameters)"
+			$VarInput = Read-Host -Prompt "Enter $VarName"
+			Write-Verbose "Entered value = $VarInput"
+		} else {
+			Write-Verbose "Using piped-in value from parameter = $VarInput"
+			$PipelineInput = $false
+		}
 		
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
 		# Remove leading zeros (0)
-		
 		$VarSimplified = $VarInput.TrimStart('0')
 		If ($VarSimplified -eq $null) {
-			Write-Verbose "Var is `$null after removing leading zeros."
+			Write-Verbose "$VarName is `$null after removing leading zeros."
 			$VarSimplified = '0'
 		}
 		If ($VarSimplified -eq "") {
-			Write-Verbose "Var is equal to `"`" after removing leading zeros."
+			Write-Verbose "$VarName is equal to `"`" after removing leading zeros."
 			$VarSimplified = '0'
 		}
 		If ($VarSimplified -eq '') {
-			Write-Verbose "Var is equal to `'`' after removing leading zeros."
+			Write-Verbose "$VarName is equal to `'`' after removing leading zeros."
 			$VarSimplified = '0'
 		}
 		
@@ -1045,11 +1076,11 @@ Function ReadPrompt-Minute { #--------------------------------------------------
 		
 		# Check if $VarName input is between $MinInt and $MaxInt
 		If ([int]$VarInteger -ge [int]$MinInt -And [int]$VarInteger -le [int]$MaxInt) {
-			$VarRange = $VarInteger
+			$VarRange = [int]$VarInteger
 			$RangeValidation = $true
 		} else {
 			Write-HorizontalRuleAdv -DashedLine -IsWarning
-			Write-Warning "$VarName input must be between 0-59."
+			Write-Warning "$VarName input must be between $MinInt-$MaxInt."
 			#PAUSE
 			Write-Host `r`n
 			Continue #help about_Continue
