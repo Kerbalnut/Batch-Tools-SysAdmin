@@ -128,20 +128,43 @@ $PastMidnight = Get-Date -Hour 0 -Minute 15 -Second 0 -Millisecond 0
 
 $PastMidnight
 
-PAUSE
+#PAUSE
 
 #
 
 Write-Host "# Start Time #`n`r`n"
 
-#$StartHour = Read-Host -Prompt "Enter Start hour"
+Write-HorizontalRuleAdv -SingleLine
 
+#$StartHour = Read-Host -Prompt "Enter Start hour"
 #$StartHour = ReadPrompt-Hour -Verbose
 $StartHour = ReadPrompt-Hour -Verbose
 
-$StartMin = Read-Host -Prompt "Enter Start minute"
+Write-HorizontalRuleAdv -DashedLine
+
+$StartHour = (0000004 | ReadPrompt-Hour -Verbose)
+
+Write-HorizontalRuleAdv -DashedLine
+
+$StartHour = ("0000000" | ReadPrompt-Hour -Verbose)
+
+Write-HorizontalRuleAdv -DashedLine
+
+$StartHour = (24 | ReadPrompt-Hour -Verbose)
+
+Write-HorizontalRuleAdv -SingleLine
+
+#$StartMin = Read-Host -Prompt "Enter Start minute"
+#$StartMin = ReadPrompt-Minute -Verbose
+$StartMin = ReadPrompt-Minute -Verbose
+
+Write-HorizontalRuleAdv -DashedLine
+
+Write-HorizontalRuleAdv -SingleLine
 
 $StartAMPM = ReadPrompt-AMPM24
+
+Write-HorizontalRuleAdv -SingleLine
 
 If ($StartAMPM -eq "AM") {
     $24hour = Convert-AMPMhourTo24hour $StartHour -AM -Verbose
