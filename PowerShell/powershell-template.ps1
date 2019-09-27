@@ -757,6 +757,11 @@ Function ReadPrompt-AMPM24 { #--------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 Function ReadPrompt-Hour { #--------------------------------------------------------------------------------------------
 	
+	#http://techgenix.com/powershell-functions-common-parameters/
+	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+	[cmdletbinding()]
+	Param()
+	
 	# Sub-functions:
 	#-----------------------------------------------------------------------------------------------------------------------
 	function Validate-Integer {
@@ -779,7 +784,7 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 				If ($_ -match "(?<![-.])\b[0-9]+\b(?!\.[0-9])") {
 					$True
 				} else {
-					Throw "$_ must be a positive integer (whole number, no decimals)."
+					Throw "$_ must be a positive integer (whole number, no decimals). [ValidateScript({})] error."
 				}
 			})]
 			#-----------------------------------------------------------------------------------------------------------------------
@@ -787,9 +792,19 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 			$InputToValidate
 		)
 		
-		Return [int]$InputToValidate
+		Return $InputToValidate
+		#Return [int]$InputToValidate
 	}
 	#-----------------------------------------------------------------------------------------------------------------------
+	# /Sub-functions
+	
+	$VarName = "Hour"
+	
+	$MinInt = 0
+	
+	$MaxInt = 23
+	
+	# since 24-hour time values are valid hour values
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
@@ -797,9 +812,6 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 	
 	$RangeValidation = $false
 	
-	Write-Verbose "what"
-	
-	#while ($HourRange -lt 0 -And $HourRange -gt 23) {
 	while ($IntegerValidation -eq $false -Or $RangeValidation -eq $false) {
 		
 		$IntegerValidation = $false
@@ -808,17 +820,36 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 		
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
-		$HourInput = Read-Host -Prompt "Enter hour"
+		$VarInput = Read-Host -Prompt "Enter $VarName"
 		
-		Write-Verbose "Entered value = $HourInput"
+		Write-Verbose "Entered value = $VarInput"
 		
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
+		# Remove leading zeros (0)
+		$VarSimplified = $VarInput.TrimStart('0')
+		
+		Write-Verbose "Remove leading zeros (0) = $VarSimplified"
+		
+		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		
+		# Check if $VarName input is integer using Validate-Integer function
 		try {
-			$HourInteger = Validate-Integer $HourInput
+			$VarInteger = Validate-Integer $VarSimplified -ErrorVariable ValidateIntError
+			# -ErrorVariable <variable_name> - Error is assigned to the variable name you specify. Even when you use the -ErrorVariable parameter, the $error variable is still updated.
+			# If you want to append an error to the variable instead of overwriting it, you can put a plus sign (+) in front of the variable name. E.g. -ErrorVariable +<variable_name>
+			#https://devblogs.microsoft.com/scripting/handling-errors-the-powershell-way/
 		}
 		catch {
-			Write-Warning "Hour input must be an integer. (Whole numbers only, no decimals, no negatives.)"
+			Write-HorizontalRuleAdv -DashedLine -IsVerbose
+			Write-Verbose "`$ValidateIntError:" # Error variable set using the -ErrorVariable "common parameter": Get-Help -Name about_CommonParameters
+			Write-Verbose "$ValidateIntError" -ErrorAction 'SilentlyContinue' # Error variable set using the -ErrorVariable "common parameter": Get-Help -Name about_CommonParameters
+			#Write-HorizontalRuleAdv -SingleLine -IsVerbose
+			#Write-Verbose "`$error:" # Command's error record will be appended to the "automatic variable" named $error
+			#Write-HorizontalRuleAdv -DashedLine -IsVerbose
+			#Write-Verbose "$error" -ErrorAction 'SilentlyContinue' # Command's error record will be appended to the "automatic variable" named $error
+			Write-HorizontalRuleAdv -DashedLine -IsWarning
+			Write-Warning "$VarName input must be an integer. (Whole numbers only, no decimals, no negatives.)"
 			#PAUSE
 			Write-Host `r`n
 			Continue #help about_Continue
@@ -826,21 +857,23 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 		
 		$IntegerValidation = $true
 		
-		Write-Verbose "Integer validation = $HourInteger"
+		Write-Verbose "Integer validation success = $VarInteger"
 		
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
-		If ($HourInteger -ge 0 -Or $HourInteger -le 23) {
-			$HourRange = $HourInteger
+		# Check if $VarName input is between $MinInt and $MaxInt
+		If ($VarInteger -ge $MinInt -And $VarInteger -le $MaxInt) {
+			$VarRange = $VarInteger
 			$RangeValidation = $true
 		} else {
-			Write-Warning "Hour input must be between 1-12 for AM/PM time, or 0-23 for 24-hour time."
+			Write-HorizontalRuleAdv -DashedLine -IsWarning
+			Write-Warning "$VarName input must be between 1-12 for AM/PM time, or 0-23 for 24-hour time."
 			#PAUSE
 			Write-Host `r`n
 			Continue #help about_Continue
 		}
 		
-		Write-Verbose "Hour value range validation = $HourRange"
+		Write-Verbose "$VarName value range validation = $VarRange"
 		
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
@@ -848,9 +881,9 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	Write-Verbose "Hour value $HourRange validation complete."
+	Write-Verbose "$VarName value $VarRange validation complete."
 	
-	Return $HourRange
+	Return $VarRange
 	
 } # End ReadPrompt-Hour function ---------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------

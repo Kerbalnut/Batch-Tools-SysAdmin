@@ -136,6 +136,7 @@ Write-Host "# Start Time #`n`r`n"
 
 #$StartHour = Read-Host -Prompt "Enter Start hour"
 
+#$StartHour = ReadPrompt-Hour -Verbose
 $StartHour = ReadPrompt-Hour -Verbose
 
 $StartMin = Read-Host -Prompt "Enter Start minute"
@@ -185,4 +186,8 @@ $Timestamp = Get-Date -Hour $24hour -Minute $EndMin -Second 0 -Millisecond 0
 $EndTime = Get-Date -Hour $24hour -Minute $EndMin -Second 0 -Millisecond 0
 
 $EndTime
+
+
+
+
 
