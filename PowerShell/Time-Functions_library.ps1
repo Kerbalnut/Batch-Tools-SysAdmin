@@ -146,11 +146,31 @@ $StartHour = (0000004 | ReadPrompt-Hour -Verbose)
 
 Write-HorizontalRuleAdv -DashedLine
 
+$StartHour = ('0000004' | ReadPrompt-Hour -Verbose)
+
+Write-HorizontalRuleAdv -DashedLine
+
 $StartHour = ("0000000" | ReadPrompt-Hour -Verbose)
 
 Write-HorizontalRuleAdv -DashedLine
 
 $StartHour = (24 | ReadPrompt-Hour -Verbose)
+
+Write-HorizontalRuleAdv -DashedLine
+
+$StartHour = (2.4 | ReadPrompt-Hour -Verbose)
+
+Write-HorizontalRuleAdv -DashedLine
+
+$StartHour = (-2 | ReadPrompt-Hour -Verbose)
+
+Write-HorizontalRuleAdv -DashedLine
+
+$StartHour = (0.01 | ReadPrompt-Hour -Verbose)
+
+Write-HorizontalRuleAdv -DashedLine
+
+$StartHour = (-0000.0010 | ReadPrompt-Hour -Verbose)
 
 Write-HorizontalRuleAdv -SingleLine
 

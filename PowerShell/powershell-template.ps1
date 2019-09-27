@@ -802,6 +802,10 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 	#-----------------------------------------------------------------------------------------------------------------------
 	# /Sub-functions
 	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Make function more customizable by minimizing hard-coded values
+	
 	$VarName = "Hour"
 	
 	$MinInt = 0
@@ -823,19 +827,19 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
+	# Initialize test verification vars
 	$IntegerValidation = $false
-	
 	$RangeValidation = $false
 	
 	while ($IntegerValidation -eq $false -Or $RangeValidation -eq $false) {
 		
+		# Initialize test verification vars (at the start of each loop)
 		$IntegerValidation = $false
-		
 		$RangeValidation = $false
 		
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
-		# Prompt user for $VarName value input, if not provided, or if not valid
+		# Prompt user for $VarName value input
 		If ($PipelineInput -ne $true) {
 			Write-Verbose "No values piped-in from external sources (parameters)"
 			$VarInput = Read-Host -Prompt "Enter $VarName"
@@ -848,7 +852,6 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
 		# Remove leading zeros (0)
-		
 		$VarSimplified = $VarInput.TrimStart('0')
 		If ($VarSimplified -eq $null) {
 			Write-Verbose "Var is `$null after removing leading zeros."
@@ -897,7 +900,7 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 		
 		# Check if $VarName input is between $MinInt and $MaxInt
 		If ([int]$VarInteger -ge [int]$MinInt -And [int]$VarInteger -le [int]$MaxInt) {
-			$VarRange = $VarInteger
+			$VarRange = [int]$VarInteger
 			$RangeValidation = $true
 		} else {
 			Write-HorizontalRuleAdv -DashedLine -IsWarning
