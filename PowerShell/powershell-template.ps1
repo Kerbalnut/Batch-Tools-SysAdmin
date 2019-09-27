@@ -67,11 +67,13 @@ about_Functions_CmdletBindingAttribute
 #-----------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------#Requires-------------------------------------------------------
 
+#Requires -Modules PSLogging
+<#
 # "#Requires" - You can use a #Requires statement to prevent a script from running without specified modules or snap-ins and a specified version of PowerShell. For more information, see about_Requires.
 # help about_Requires
 # help about_PSSnapins
 # e.g. "#Requires -Version 6" "#Requires -RunAsAdministrator"
-#Requires -Modules PSLogging
+#>
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -174,7 +176,7 @@ about_Functions_CmdletBindingAttribute
 # Debugging: You must have a script parameter defined here if you have the Help Topic .PARAMETER defined above.
 # https://ss64.com/ps/syntax-args.html
 
-#[CmdletBinding()]
+[CmdletBinding()]
 #[CmdletBinding(SupportsShouldProcess=$true)]
 
 #Script parameters go here
@@ -802,6 +804,30 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 		#Return [int]$InputToValidate
 	}
 	#-----------------------------------------------------------------------------------------------------------------------
+	function Remove-LeadingZeros {
+		Param (
+			#Script parameters go here
+			[Parameter(Mandatory=$true,Position=0,
+			ValueFromPipeline = $true)]
+			$VarInput
+		)
+		$VarSimplified = $VarInput.TrimStart('0')
+		If ($VarSimplified -eq $null) {
+			Write-Verbose "$VarName is `$null after removing leading zeros."
+			$VarSimplified = '0'
+		}
+		If ($VarSimplified -eq "") {
+			Write-Verbose "$VarName is equal to `"`" after removing leading zeros."
+			$VarSimplified = '0'
+		}
+		If ($VarSimplified -eq '') {
+			Write-Verbose "$VarName is equal to `'`' after removing leading zeros."
+			$VarSimplified = '0'
+		}
+		
+		Return $VarSimplified
+	}
+	#-----------------------------------------------------------------------------------------------------------------------
 	# /Sub-functions
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -853,6 +879,10 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 		}
 		
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		
+		# Remove leading zeros (0)
+		$VarSimplified = Remove-LeadingZeros $VarInput
+		Write-Verbose "Remove leading zeros (0) = $VarSimplified"
 		
 		# Remove leading zeros (0)
 		$VarSimplified = $VarInput.TrimStart('0')
