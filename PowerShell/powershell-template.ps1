@@ -540,12 +540,15 @@ Function Write-HorizontalRuleAdv { #--------------------------------------------
     [switch]$SingleLine,
     
     [Parameter(ParameterSetName='DoubleLine')]
+    [Alias('d','Dbl')]
     [switch]$DoubleLine,
     
     [Parameter(ParameterSetName='DashedLine')]
+    [Alias('dash')]
     [switch]$DashedLine,
     
     [Parameter(ParameterSetName='BlankLine')]
+    [Alias('blank')]
     [switch]$BlankLine,
     
     [Parameter(Mandatory=$false)]
@@ -656,6 +659,7 @@ Function Write-HorizontalRuleAdv { #--------------------------------------------
   #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
 } # End Write-HorizontalRuleAdv function -------------------------------------------------------------------------------
+Set-Alias -Name Write-HR -Value Write-HorizontalRuleAdv
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -960,7 +964,7 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
-Function ReadPrompt-Minute { #------------------------------------------------------------------------------------------
+Function ReadPrompt-ValidateIntegerRange { #----------------------------------------------------------------------------
 	
 	#http://techgenix.com/powershell-functions-common-parameters/
 	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
@@ -968,9 +972,18 @@ Function ReadPrompt-Minute { #--------------------------------------------------
 	#Param()
 	[cmdletbinding()]
 	Param(
-		[Parameter(Mandatory=$false,Position=0,
+		[Parameter(Mandatory=$false,
 		ValueFromPipeline = $true)]
-		$VarInput
+		[int]$ValueInput,
+		
+		[Parameter(Mandatory=$true,Position=0)]
+		[string]$Label,
+		
+		[Parameter(Mandatory=$true,Position=1)]
+		[int]$MinInt,
+		
+		[Parameter(Mandatory=$true,Position=2)]
+		[int]$MaxInt
 	)
 	
 	# Sub-functions:
@@ -1007,17 +1020,37 @@ Function ReadPrompt-Minute { #--------------------------------------------------
 		#Return [int]$InputToValidate
 	}
 	#-----------------------------------------------------------------------------------------------------------------------
+	function Remove-LeadingZeros {
+		Param (
+			#Script parameters go here
+			[Parameter(Mandatory=$true,Position=0,
+			ValueFromPipeline = $true)]
+			$VarInput
+		)
+		$VarSimplified = $VarInput.TrimStart('0')
+		If ($VarSimplified -eq $null) {
+			Write-Verbose "$VarName is `$null after removing leading zeros."
+			$VarSimplified = '0'
+		}
+		If ($VarSimplified -eq "") {
+			Write-Verbose "$VarName is equal to `"`" after removing leading zeros."
+			$VarSimplified = '0'
+		}
+		If ($VarSimplified -eq '') {
+			Write-Verbose "$VarName is equal to `'`' after removing leading zeros."
+			$VarSimplified = '0'
+		}
+		
+		Return $VarSimplified
+	}
+	#-----------------------------------------------------------------------------------------------------------------------
 	# /Sub-functions
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	# Make function more customizable by condensing hard-coded values to the top
+	$VarInput = $ValueInput
 	
-	$VarName = "Minute"
-	
-	$MinInt = 0
-	
-	$MaxInt = 59
+	$VarName = $Label
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
@@ -1058,6 +1091,11 @@ Function ReadPrompt-Minute { #--------------------------------------------------
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
 		# Remove leading zeros (0)
+		$VarSimplified = Remove-LeadingZeros $VarInput
+		Write-Verbose "Remove leading zeros (0) = $VarSimplified"
+		
+		# Remove leading zeros (0)
+		<#
 		$VarSimplified = $VarInput.TrimStart('0')
 		If ($VarSimplified -eq $null) {
 			Write-Verbose "$VarName is `$null after removing leading zeros."
@@ -1071,7 +1109,7 @@ Function ReadPrompt-Minute { #--------------------------------------------------
 			Write-Verbose "$VarName is equal to `'`' after removing leading zeros."
 			$VarSimplified = '0'
 		}
-		
+		#>
 		Write-Verbose "Remove leading zeros (0) = $VarSimplified"
 		
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1127,6 +1165,52 @@ Function ReadPrompt-Minute { #--------------------------------------------------
 	Write-Verbose "$VarName value $VarRange validation complete."
 	
 	Return $VarRange
+	
+} # End ReadPrompt-ValidateIntegerRange function -----------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
+Function ReadPrompt-Minute { #------------------------------------------------------------------------------------------
+	
+	#http://techgenix.com/powershell-functions-common-parameters/
+	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+	#[cmdletbinding()]
+	#Param()
+	[cmdletbinding()]
+	Param(
+		[Parameter(Mandatory=$false,Position=0,
+		ValueFromPipeline = $true)]
+		$VarInput
+	)
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Make function more customizable by condensing hard-coded values to the top
+	
+	$VarName = "Minute"
+	
+	$MinInt = 0
+	
+	$MaxInt = 59
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#Check if we have a value sent in from an external variable (parameter) first
+	If ($VarInput -eq $null -or $VarInput -eq "") {
+		$PipelineInput = $false
+		$OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt
+	} else {
+		$PipelineInput = $true
+		Write-Verbose "Piped-in content = $VarInput"
+		$VarInput = [string]$VarInput #Bugfix: convert input from an object to a string
+		$OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt
+	}
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Write-Verbose "$VarName value $OutputValue validation complete."
+	
+	Return $OutputValue
 	
 } # End ReadPrompt-Minute function -------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
