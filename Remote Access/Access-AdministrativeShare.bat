@@ -145,6 +145,10 @@ SET "_DRIVE_LETTER=%_UPCASE_STRING%"
 :: Phase 3: Open windows explorer to remote administrative share
 ::===============================================================================
 
+ECHO:
+ECHO Loading . . . 
+ECHO:
+	
 EXPLORER \\%_REMOTE_HOST%\%_DRIVE_LETTER%$\
 
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

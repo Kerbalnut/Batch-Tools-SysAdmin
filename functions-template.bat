@@ -114,7 +114,7 @@ REM ECHO DEBUGGING: Begin Parameters block.
 
 :Parameters
 
-:: Input from 
+:: Set from leading variables
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -135,6 +135,27 @@ SET "_FILE_B=%UserProfile%\Documents\SpiderOak Hive\SysAdmin\Configuring Systems
 SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-template (2).bat"
 
 SET "_FILE_B=\\gammafox\C$\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template (2).ps1"
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+::-------------------------------------------------------------------------------
+
+:: Input from file
+
+REM ECHO DEBUGGING: %%_FILE_A%% = %_FILE_A%
+REM ECHO DEBUGGING: %%_FILE_B%% = %_FILE_B%
+
+:: "%~dpn0_param0~x0" = will set the Drive letter, Path, Name, "_param", & eXtention of this script.
+:: E.g. if this script is "C:\my folder\My_Script.bat" it points to "C:\my folder\My_Script_param.bat"
+SET "_PARAMETER_FILE=%~dpn0_param%~x0"
+
+IF EXIST "%_PARAMETER_FILE%" CALL "%_PARAMETER_FILE%"
+
+REM ECHO DEBUGGING: Returned from CALLing external parameter file "%_PARAMETER_FILE%"
+REM ECHO DEBUGGING: %%_FILE_A%% = %_FILE_A%
+REM ECHO DEBUGGING: %%_FILE_B%% = %_FILE_B%
+
+::-------------------------------------------------------------------------------
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

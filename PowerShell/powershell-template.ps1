@@ -334,7 +334,9 @@ If (!($sLogPath)) { Start-Log -LogPath $sLogPath -LogName $sLogName -ScriptVersi
 # 8. PromptForChoice-YesNoSectionSkip
 # 9. ReadPrompt-AMPM24
 # 10. ReadPrompt-Hour
-# 11. Convert-AMPMhourTo24hour
+# 11. ReadPrompt-ValidateIntegerRange
+# 12. ReadPrompt-Minute 
+# 13. Convert-AMPMhourTo24hour
 
 #-----------------------------------------------------------------------------------------------------------------------
 <# Function <FunctionName> {
@@ -445,33 +447,33 @@ Function Write-HorizontalRuleAdv { #--------------------------------------------
 	.DESCRIPTION
 	Writes either a horzintal rule of different types:
 	
-	SingleLine "-----" (default)
-	DoubleLine "====="
-	DashedLine "- - -"
-	BlankLine  "     "
+	SingleLine "-------------------------" (default)
+	DoubleLine "========================="
+	DashedLine "- - - - - - - - - - - - -"
+	BlankLine  "                         "
 	
 	Using different output types:
 	
-	using Write-Host (default)
-	"--------------"
+	using Write-Host (default):
+	"-------------------------"
 	
-	using Write-Warning
-	"WARNING: -----"
+	using Write-Warning:
+	"WARNING: ----------------"
 	
-	using Write-Verbose
-	"VERBOSE: -----"
+	using Write-Verbose:
+	"VERBOSE: ----------------"
 	
 	.PARAMETER HRtype
 	Horizontal Rule types. Accepted types are 'SingleLine', 'DoubleLine', 'DashedLine', and 'BlankLine'. Defaults to 'SingleLine'.
 	
 	.PARAMETER SingleLine
-	Set horizontal rule type as 'SingleLine'. If no other horizontal rule type is selected, will default to this.
+	Set horizontal rule type as 'SingleLine'. Uses hyphen ('-'). If no other horizontal rule type is selected, will default to this.
 	
 	.PARAMETER DoubleLine
-	Set horizontal rule type as 'DoubleLine'
+	Set horizontal rule type as 'DoubleLine'. Uses equals sign ('=')
 	
 	.PARAMETER DashedLine
-	Set horizontal rule type as 'DashedLine'
+	Set horizontal rule type as 'DashedLine'. Uses spaces between hyphen sign.
 	
 	.PARAMETER BlankLine
 	Set horizontal rule type as 'BlankLine'
@@ -487,6 +489,38 @@ Function Write-HorizontalRuleAdv { #--------------------------------------------
 	
 	.PARAMETER IsVerbose
 	Prints the output as a verbose message (using Write-Verbose). Will only be displayed if $VerbosePreference = "Continue"
+	
+	.EXAMPLE
+	Write-HorizontalRuleAdv -BlankLine -Endcaps
+	
+	Prints a horizontal rule string like:
+	"#                       #"
+	
+	.EXAMPLE
+	Write-HR -double
+	
+	Uses the alias Write-HR to print a doubled horizontal rule (using the equals sign) like:
+	"========================="
+	
+	.EXAMPLE
+	Write-HR -dashed -IsWarning
+	
+	Uses the Write-HR alias to print a warning using Write-Warning, like:
+	"WARNING:  - - - - - - - -"
+	
+	.EXAMPLE
+	Write-HorizontalRuleAdv -HRtype SingleLine -Endcaps
+	PS C:\> Write-HorizontalRuleAdv -HRtype BlankLine -Endcaps -EndcapCharacter `|
+	PS C:\> Write-HorizontalRuleAdv -HRtype DashedLine -Endcaps
+	PS C:\> Write-HorizontalRuleAdv -HRtype BlankLine -Endcaps -EndcapCharacter `|
+	PS C:\> Write-HorizontalRuleAdv -HRtype DoubleLine -Endcaps
+	
+	Outputs something like:
+	"#-----------------------#"
+	"|                       |"
+	"# - - - - - - - - - - - #"
+	"|                       |"
+	"#=======================#"
 	
 	.INPUTS
 	If run without any input parameters, will default to a SingleLine "-----" ouput using Write-Host.
@@ -533,18 +567,19 @@ Function Write-HorizontalRuleAdv { #--------------------------------------------
     [Parameter(Mandatory=$false,Position=0,
     ParameterSetName='DefineString')]
     [ValidateSet("SingleLine", "DoubleLine", "DashedLine", "BlankLine")]
-    [Alias('HorizontalRule','HorizontalRuleType','Type')]
+    [Alias('HorizontalRule','HorizontalRuleType','Type','hr')]
     [string]$HRtype = 'SingleLine',
     
     [Parameter(ParameterSetName='SingleLine')]
+    [Alias('s','single')]
     [switch]$SingleLine,
     
     [Parameter(ParameterSetName='DoubleLine')]
-    [Alias('d','Dbl')]
+    [Alias('d','dbl','double')]
     [switch]$DoubleLine,
     
     [Parameter(ParameterSetName='DashedLine')]
-    [Alias('dash')]
+    [Alias('dash','dashed')]
     [switch]$DashedLine,
     
     [Parameter(ParameterSetName='BlankLine')]
@@ -574,6 +609,19 @@ Function Write-HorizontalRuleAdv { #--------------------------------------------
   #$FunctionName = (Get-PSCallStack | Select-Object FunctionName -Skip 1 -First 1).FunctionName
   #$FunctionName = (Get-Variable MyInvocation -Scope 1).Value.MyCommand.Name
   $FunctionName = $PSCmdlet.MyInvocation.MyCommand.Name
+  
+  # Set $HRtype
+  If ($SingleLine) {
+    $HRtype = "SingleLine"
+  } elseif ($DoubleLine) {
+    $HRtype = "DoubleLine"
+  } elseif ($DashedLine) {
+    $HRtype = "DashedLine"
+  } elseif ($BlankLine) {
+    $HRtype = "BlankLine"
+  }
+  
+  # Detect if $LaunchedInCmd
   
   # help about_Automatic_Variables
   # help about_If
@@ -659,7 +707,7 @@ Function Write-HorizontalRuleAdv { #--------------------------------------------
   #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
 } # End Write-HorizontalRuleAdv function -------------------------------------------------------------------------------
-Set-Alias -Name Write-HR -Value Write-HorizontalRuleAdv
+Set-Alias -Name "Write-HR" -Value Write-HorizontalRuleAdv
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------

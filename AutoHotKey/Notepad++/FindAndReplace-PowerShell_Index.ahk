@@ -5,46 +5,46 @@
 Return
 
 ^+x:: ; Ctrl-Shift-X to activate Part 1 of Find-and-Replace function. 
-	SendInput, {Home}{ShiftDown}{End}{ShiftUp} ; This presses keys Home, holds down Shift, End, releases Shift - (Select entire line)
+	SendInput, {Home}{ShiftDown}{End}{ShiftUp} ; This presses keys: Home, holds down Shift, End, releases Shift - (Select entire line)
 	Sleep 150  ; The number of milliseconds between keystrokes
 	
-	SendInput, {CtrlDown}{c}{h}{CtrlUp}{Tab} ; This presses keys holds down Ctrl, C, H, releases Ctrl, Tab = Ctrl+C (Copy to clipboard), Ctrl+H (Replace), Tab
+	SendInput, {CtrlDown}{c}{h}{CtrlUp}{Tab} ; This presses keys: holds down Ctrl, C, H, releases Ctrl, Tab = (Ctrl+C = Copy to clipboard), (Ctrl+H = Replace)
 	Sleep 150  ; The number of milliseconds between keystrokes
 	
-	SendInput, {CtrlDown}{v}{CtrlUp} ; This presses keys holds down Ctrl, V, releases Ctrl = Ctrl+V (Paste from clipboard)
-	;Send ^v ; This presses keys Ctrl+V (Paste from clipboard)
+	SendInput, {CtrlDown}{v}{CtrlUp} ; This presses keys: holds down Ctrl, V, releases Ctrl = Ctrl+V (Paste from clipboard)
+	;Send ^v ; This presses keys: Ctrl+V (Paste from clipboard)
 	Sleep 150  ; The number of milliseconds between keystrokes
 	
-	SendInput, {Home}{Right}{Delete} ; This presses keys Home, Right Arrow, Delete
+	SendInput, {Home}{Right}{Delete} ; This presses keys: Home, Right Arrow, Delete
 	Sleep 150  ; The number of milliseconds between keystrokes
 	
 Return
 
 !d:: ; Alt-D to activate Part 2 of Find-and-Replace function. 
-	SendInput, {CtrlDown}{a}{CtrlUp} ; This presses keys holds down Ctrl, A, releases Ctrl = Ctrl+A (Select All)
-	;Send ^a ; This presses keys Ctrl+A (Select All)
+	SendInput, {CtrlDown}{a}{CtrlUp} ; This presses keys: holds down Ctrl, A, releases Ctrl = Ctrl+A (Select All)
+	;Send ^a ; This presses keys: Ctrl+A (Select All)
 	Sleep 150  ; The number of milliseconds between keystrokes
 	
-	SendInput, {CtrlDown}{c}{CtrlUp} ; This presses keys holds down Ctrl, C, releases Ctrl = Ctrl+C (Copy to clipboard)
-	;Send ^c ; This presses keys Ctrl+C (Copy to clipboard)
+	SendInput, {CtrlDown}{c}{CtrlUp} ; This presses keys: holds down Ctrl, C, releases Ctrl = Ctrl+C (Copy to clipboard)
+	;Send ^c ; This presses keys: Ctrl+C (Copy to clipboard)
 	Sleep 150  ; The number of milliseconds between keystrokes
 	
-	SendInput, {Tab}{Tab}{Tab}{Tab}{Tab}{Tab}{Tab}{Tab}{Tab}{Tab} ; This presses keys Tab x10 times
+	SendInput, {Tab}{Tab}{Tab}{Tab}{Tab}{Tab}{Tab}{Tab}{Tab}{Tab} ; This presses keys: Tab x10 times
 	Sleep 150  ; The number of milliseconds between keystrokes
 	
 	Sleep 500  ; The number of milliseconds between keystrokes
 	
-	SendInput, {Enter} ; This presses keys Enter
+	SendInput, {Enter} ; This presses keys: Enter
 	Sleep 150  ; The number of milliseconds between keystrokes
 	
 	Sleep 1000  ; The number of milliseconds between keystrokes
 	
-	SendInput, {Escape} ; This presses keys Esc
+	SendInput, {Escape} ; This presses keys: Esc
 	Sleep 150  ; The number of milliseconds between keystrokes
 	
 	Sleep 500  ; The number of milliseconds between keystrokes
 	
-	SendInput, {Down}{Home} ; This presses keys Down Arrow, Home
+	SendInput, {Down}{Home} ; This presses keys: Down Arrow, Home
 	Sleep 150  ; The number of milliseconds between keystrokes
 	
 Return
