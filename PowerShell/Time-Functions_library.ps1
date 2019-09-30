@@ -200,7 +200,7 @@ Write-Host "End time = $(Get-Date $EndTime -Format F)"
 
 $TimeDifference = $EndTime - $StartTime
 
-Write-Host "Time Duration = $TimeDifference"
+Write-Host "Time Duration = $TimeDifference (hours:minutes)"
 
 #$TimeDifference | Get-Member
 
@@ -210,7 +210,7 @@ Write-Host "Time Duration = $TimeDifference"
 
 $TimeDifferenceHours = $TimeDifference.TotalHours
 
-Write-Host "Time Duration (hours) = $TimeDifferenceHours"
+Write-Host "Time Duration = $TimeDifferenceHours (hours)"
 
 #
 
@@ -232,7 +232,7 @@ Write-Host "Time Duration (hours) = $TimeDifferenceHours"
 
 $TimeGoal = (Get-Date -Hour 8 -Minute 0 -Second 0 -Millisecond 0) - (Get-Date -Hour 0 -Minute 0 -Second 0 -Millisecond 0)
 
-Write-Host "Time goal = $TimeGoal"
+Write-Host "Time goal = $TimeGoal (hours:minutes)"
 
 #$TimeGoal | Get-Member
 
@@ -242,13 +242,13 @@ Write-Host "Time goal = $TimeGoal"
 
 $TimeGoalHours = $TimeGoal.TotalHours
 
-Write-Host "Time goal (hours) = $TimeGoalHours"
+Write-Host "Time goal = $TimeGoalHours (hours)"
 
 #
 
 $TimeRemaining = $TimeGoal - ($EndTime - $StartTime)
 
-Write-Host "Time left = $TimeRemaining"
+Write-Host "Time left = $TimeRemaining (hours:minutes)"
 
 #$TimeRemaining = Get-Date -Date $TimeRemaining -Format t
 
@@ -262,7 +262,22 @@ Write-Host "Time left = $TimeRemaining"
 
 $TimeRemainingHours = $TimeRemaining.TotalHours
 
-Write-Host "Time left (hours) = $TimeRemainingHours"
+Write-Host "Time left = $TimeRemainingHours (hours)"
+
+#
+
+#-----------------------------------------------------------------------------------------------------------------------
+
+#
+
+Write-Host "`r`n"
+
+Write-HR
+
+Write-Host "`r`n"
+
+#
+
 
 #
 
