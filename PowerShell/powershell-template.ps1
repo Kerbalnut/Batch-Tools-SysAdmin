@@ -633,6 +633,9 @@ Function Write-HorizontalRuleAdv { #--------------------------------------------
   
   #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
+  [cmdletbinding(
+    DefaultParameterSetName='DefineString'
+  )]
   Param (
     #Script parameters go here
     # https://ss64.com/ps/syntax-args.html
@@ -779,7 +782,8 @@ Function Write-HorizontalRuleAdv { #--------------------------------------------
   #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
 } # End Write-HorizontalRuleAdv function -------------------------------------------------------------------------------
-Set-Alias -Name "Write-HR" -Value Write-HorizontalRuleAdv
+Set-Alias -Name "Write-HR" -Value "Write-HorizontalRuleAdv"
+#Set-Alias -Name "Write-HR" -Value "Write-HorizontalRuleAdv" -Scope Global
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
