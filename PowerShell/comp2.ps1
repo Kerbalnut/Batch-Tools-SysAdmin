@@ -10,7 +10,7 @@ Function ReadPrompt-ValidateIntegerRange { #------------------------------------
 	Param(
 		[Parameter(Mandatory=$false,
 		ValueFromPipeline = $true)]
-		[int]$ValueInput,
+		$ValueInput,
 		
 		[Parameter(Mandatory=$true,Position=0)]
 		[string]$Label,
@@ -200,7 +200,7 @@ Function ReadPrompt-ValidateIntegerRange { #------------------------------------
 	
 	Write-Verbose "$VarName value $VarRange validation complete."
 	
-	Return $VarRange
+	Return [int]$VarRange
 	
 } # End ReadPrompt-ValidateIntegerRange function -----------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------

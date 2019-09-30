@@ -12,23 +12,39 @@
 
 #
 
-$TodayDay = Get-Date -UFormat %d
+Write-Host "`r`n`r`n"
+
+#$TodayDay = Get-Date -UFormat %d
 
 $TodayDay = Get-Date
+
+Write-Host "`rToday:`r"
 
 $TodayDay
 
 $Yesterday = (Get-Date).AddDays(-1)
 
+Write-Host "Yesterday:"
+
 $Yesterday
+
+$Tomorrow = (Get-Date).AddDays(1)
+
+Write-Host "Tomorrow:"
+
+$Tomorrow
 
 #
 
 $Midnight = Get-Date -Hour 23 -Minute 52 -Second 0 -Millisecond 0
 
+Write-Host "Midnight:"
+
 $Midnight
 
 $PastMidnight = Get-Date -Hour 0 -Minute 15 -Second 0 -Millisecond 0
+
+Write-Host "Past midnight:"
 
 $PastMidnight
 
@@ -40,7 +56,7 @@ $PastMidnight
 
 #
 
-
+# Select Day:
 
 #
 
@@ -48,36 +64,37 @@ $PastMidnight
 
 #
 
-Write-Host "# Start Time #`n`r`n"
+Write-Host "`r`n# Start Time #`n`r`n" -ForegroundColor Yellow
 
 #Write-HorizontalRuleAdv -SingleLine
 
 #$StartHour = Read-Host -Prompt "Enter Start hour"
-#$StartHour = ReadPrompt-Hour -Verbose
-$StartHour = ReadPrompt-Hour
+$StartHour = ReadPrompt-Hour -Verbose
+#$StartHour = ReadPrompt-Hour
 
 #Write-HorizontalRuleAdv -DashedLine
 
 #$StartMin = Read-Host -Prompt "Enter Start minute"
-#$StartMin = ReadPrompt-Minute -Verbose
-$StartMin = ReadPrompt-Minute
+$StartMin = ReadPrompt-Minute -Verbose
+#$StartMin = ReadPrompt-Minute
 
 #Write-HorizontalRuleAdv -DashedLine
 
 If ($StartHour -gt 12 -Or $StartHour -eq 0) {
 	$StartAMPM = 24
 } else {
-	$StartAMPM = ReadPrompt-AMPM24
+	$StartAMPM = ReadPrompt-AMPM24 -Verbose
+	#$StartAMPM = ReadPrompt-AMPM24
 }
 
 #Write-HorizontalRuleAdv -SingleLine
 
 If ($StartAMPM -eq "AM") {
-    #$24hour = Convert-AMPMhourTo24hour $StartHour -AM -Verbose
-    $24hour = Convert-AMPMhourTo24hour $StartHour -AM
+    $24hour = Convert-AMPMhourTo24hour $StartHour -AM -Verbose
+    #$24hour = Convert-AMPMhourTo24hour $StartHour -AM
 } elseif ($StartAMPM -eq "PM") {
-    #$24hour = Convert-AMPMhourTo24hour $StartHour -PM -Verbose
-    $24hour = Convert-AMPMhourTo24hour $StartHour -PM
+    $24hour = Convert-AMPMhourTo24hour $StartHour -PM -Verbose
+    #$24hour = Convert-AMPMhourTo24hour $StartHour -PM
 } elseif ($StartAMPM -eq 24) {
     $24hour = $StartHour
 } else {
@@ -86,9 +103,21 @@ If ($StartAMPM -eq "AM") {
 
 $Timestamp = Get-Date -Hour $24hour -Minute $StartMin -Second 0 -Millisecond 0
 
+Write-Host "Timestamp = $Timestamp"
+
+#https://ss64.com/ps/syntax-dateformats.html
+$Timestamp = Get-Date -Date $Timestamp -Format F
+
+Write-Host "Timestamp = $Timestamp"
+
 $StartTime = Get-Date -Hour $24hour -Minute $StartMin -Second 0 -Millisecond 0
 
 Write-Host "Start time = $StartTime"
+
+#https://ss64.com/ps/syntax-dateformats.html
+#$StartTime = Get-Date -Date $StartTime -Format F
+
+#Write-Host "Start time = $StartTime"
 
 #
 
@@ -99,10 +128,12 @@ Write-Host "Start time = $StartTime"
 Write-Host "`r`n# End Time #`n`r`n"
 
 #$EndHour = Read-Host -Prompt "Enter End hour"
-$EndHour = ReadPrompt-Hour
+$EndHour = ReadPrompt-Hour -Verbose
+#$EndHour = ReadPrompt-Hour
 
 #$EndMin = Read-Host -Prompt "Enter End minute"
-$EndMin = ReadPrompt-Minute
+$EndMin = ReadPrompt-Minute -Verbose
+#$EndMin = ReadPrompt-Minute
 
 If ($EndHour -gt 12 -Or $EndHour -eq 0) {
 	$EndAMPM = 24
@@ -126,9 +157,21 @@ If ($EndAMPM -eq "AM") {
 
 $Timestamp = Get-Date -Hour $24hour -Minute $EndMin -Second 0 -Millisecond 0
 
+Write-Host "Timestamp = $Timestamp"
+
+#https://ss64.com/ps/syntax-dateformats.html
+$Timestamp = Get-Date -Date $Timestamp -Format F
+
+Write-Host "Timestamp = $Timestamp"
+
 $EndTime = Get-Date -Hour $24hour -Minute $EndMin -Second 0 -Millisecond 0
 
-Write-Host "End tiem = $EndTime"
+Write-Host "End time = $EndTime"
+
+#https://ss64.com/ps/syntax-dateformats.html
+#$EndTime = Get-Date -Date $EndTime -Format F
+
+#Write-Host "End time = $EndTime"
 
 #
 
@@ -136,10 +179,59 @@ Write-Host "End tiem = $EndTime"
 
 #
 
-$TimeDuration = $EndTime - $StartTime
+Write-Host "`r`n"
 
-Write-Host "Time Duration = $TimeDuration"
+Write-HR
 
+Write-Host "`r`n`r`n"
+
+#
+
+$StartTimeStr = Get-Date $StartTime -Format F
+
+$EndTimeStr = Get-Date $EndTime -Format F
+
+Write-Host "Start time = $(Get-Date $StartTime -Format F)"
+
+Write-Host "End time = $(Get-Date $EndTime -Format F)"
+
+#
+
+$TimeDifference = $EndTime - $StartTime
+
+Write-Host "Time Duration = $TimeDifference"
+
+#
+
+$TimeGoal = Get-Date -Hour 8 -Minute 0 -Second 0 -Millisecond 0
+
+Write-Host "Time goal = $TimeGoal"
+
+$TimeGoalStr = $TimeGoal.ToShortTimeString()
+
+Write-Host "Time goal = $TimeGoalStr"
+
+$TimeGoalStr = $TimeGoal.ToLongTimeString()
+
+Write-Host "Time goal = $TimeGoalStr"
+
+$TimeGoalStr = Get-Date -Date $TimeGoal -Format t
+
+Write-Host "Time goal = $TimeGoalStr"
+
+$TimeGoal = (Get-Date -Hour 8 -Minute 0 -Second 0 -Millisecond 0) - (Get-Date -Hour 0 -Minute 0 -Second 0 -Millisecond 0)
+
+Write-Host "Time goal = $TimeGoal"
+
+#
+
+$TimeRemaining = $TimeGoal - ($EndTime - $StartTime)
+
+Write-Host "Time left = $TimeRemaining"
+
+$TimeRemaining = Get-Date -Date $TimeRemaining -Format t
+
+Write-Host "Time left = $TimeRemaining"
 
 #
 

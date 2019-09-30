@@ -87,7 +87,7 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	#Check if we have a value sent in from an external variable (parameter) first
+	# Check if we have a value sent in from an external variable (parameter) first
 	If ($VarInput -eq $null -or $VarInput -eq "") {
 		$PipelineInput = $false
 	} else {
@@ -123,6 +123,17 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 		
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
+		# Check if input is null
+		If ($VarInput -eq $null -or $VarInput -eq "") {
+			Write-HorizontalRuleAdv -DashedLine -IsWarning
+			Write-Warning "$VarName input is null."
+			#PAUSE
+			Write-Host `r`n
+			Continue #help about_Continue
+		}
+		
+		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		
 		# Remove leading zeros (0)
 		$VarSimplified = Remove-LeadingZeros $VarInput
 		Write-Verbose "Remove leading zeros (0) = $VarSimplified"
@@ -142,8 +153,8 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 			Write-Verbose "$VarName is equal to `'`' after removing leading zeros."
 			$VarSimplified = '0'
 		}
-		#>
 		Write-Verbose "Remove leading zeros (0) = $VarSimplified"
+		#>
 		
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
@@ -198,7 +209,7 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 	
 	Write-Verbose "$VarName value $VarRange validation complete."
 	
-	Return $VarRange
+	Return [int]$VarRange
 	
 } # End ReadPrompt-Hour function ---------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------

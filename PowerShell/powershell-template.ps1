@@ -840,6 +840,13 @@ Function PromptForChoice-YesNoSectionSkip { #-----------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 Function ReadPrompt-AMPM24 { #------------------------------------------------------------------------------------------
 	
+	#http://techgenix.com/powershell-functions-common-parameters/
+	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+	#[cmdletbinding()]
+	#Param()
+	[cmdletbinding()]
+	Param()
+	
 	do {
 		$ChoiceAMPM24hour = Read-Host -Prompt "[A]M, [P]M, or [2]4 hour? [A\P\2]"
 		switch ($ChoiceAMPM24hour) {
@@ -968,7 +975,7 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	#Check if we have a value sent in from an external variable (parameter) first
+	# Check if we have a value sent in from an external variable (parameter) first
 	If ($VarInput -eq $null -or $VarInput -eq "") {
 		$PipelineInput = $false
 	} else {
@@ -1004,6 +1011,17 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 		
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
+		# Check if input is null
+		If ($VarInput -eq $null -or $VarInput -eq "") {
+			Write-HorizontalRuleAdv -DashedLine -IsWarning
+			Write-Warning "$VarName input is null."
+			#PAUSE
+			Write-Host `r`n
+			Continue #help about_Continue
+		}
+		
+		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		
 		# Remove leading zeros (0)
 		$VarSimplified = Remove-LeadingZeros $VarInput
 		Write-Verbose "Remove leading zeros (0) = $VarSimplified"
@@ -1023,8 +1041,8 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 			Write-Verbose "$VarName is equal to `'`' after removing leading zeros."
 			$VarSimplified = '0'
 		}
-		#>
 		Write-Verbose "Remove leading zeros (0) = $VarSimplified"
+		#>
 		
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
@@ -1610,6 +1628,11 @@ https://www.gngrninja.com/script-ninja/2016/5/15/powershell-getting-started-part
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
+	#http://techgenix.com/powershell-functions-common-parameters/
+	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+	#[cmdletbinding()]
+	#Param()
+	[cmdletbinding()]
 	Param (
 		#Script parameters go here
 		[Parameter(Mandatory=$true,Position=0,
