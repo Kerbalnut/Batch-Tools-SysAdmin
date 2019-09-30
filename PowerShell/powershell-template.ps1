@@ -1515,6 +1515,52 @@ Function ReadPrompt-Month { #---------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
+Function ReadPrompt-Year { #--------------------------------------------------------------------------------------------
+	
+	#http://techgenix.com/powershell-functions-common-parameters/
+	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+	#[cmdletbinding()]
+	#Param()
+	[cmdletbinding()]
+	Param(
+		[Parameter(Mandatory=$false,Position=0,
+		ValueFromPipeline = $true)]
+		$VarInput
+	)
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Make function more customizable by condensing hard-coded values to the top
+	
+	$VarName = "Year"
+	
+	$MinInt = 1900
+	
+	$MaxInt = 2050
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#Check if we have a value sent in from an external variable (parameter) first
+	If ($VarInput -eq $null -or $VarInput -eq "") {
+		$PipelineInput = $false
+		$OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt
+	} else {
+		$PipelineInput = $true
+		Write-Verbose "Piped-in content = $VarInput"
+		$VarInput = [string]$VarInput #Bugfix: convert input from an object to a string
+		$OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt
+	}
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Write-Verbose "$VarName value $OutputValue validation complete."
+	
+	Return $OutputValue
+	
+} # End ReadPrompt-Year function ---------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
 Function Convert-AMPMhourTo24hour { #-----------------------------------------------------------------------------------
 <#
 .SYNOPSIS

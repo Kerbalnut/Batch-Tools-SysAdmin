@@ -125,7 +125,7 @@ Write-Host "Start time = $StartTime"
 
 #
 
-Write-Host "`r`n# End Time #`n`r`n"
+Write-Host "`r`n# End Time #`n`r`n" -ForegroundColor Yellow
 
 #$EndHour = Read-Host -Prompt "Enter End hour"
 #$EndHour = ReadPrompt-Hour -Verbose
@@ -195,6 +195,26 @@ $EndTimeStr = Get-Date $EndTime -Format F
 Write-Host "Start time = $(Get-Date $StartTime -Format F)"
 
 Write-Host "End time = $(Get-Date $EndTime -Format F)"
+
+#$StartTime | Get-Member
+
+$StartTimeOnly = ($StartTime).TimeOfDay
+
+$EndTimeOnly = ($EndTime).TimeOfDay
+
+Write-Host "Start time = $StartTimeOnly"
+
+Write-Host "End time = $EndTimeOnly"
+
+#$StartTimeOnly | Get-Member
+
+$StartTime = Get-Date $StartTime
+
+$EndTime = Get-Date $EndTime
+
+Write-Host "Start time = $StartTime"
+
+Write-Host "End time = $EndTime"
 
 #
 
