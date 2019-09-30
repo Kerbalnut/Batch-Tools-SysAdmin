@@ -48,3 +48,4 @@ Temporary Items
 PowerShell/Task Tracker/Twilio-Auth.ps1
 *.orig
 *.log
+*.bak

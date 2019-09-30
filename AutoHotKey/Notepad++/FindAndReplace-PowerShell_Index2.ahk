@@ -1,7 +1,7 @@
  ; WARNING: For whatever reason {Enter} correctly sends the return key to most applications, except Notepad++
  ; Test the script in regular Notepad to see if it works, or a blank version of the same application.
 
-	MsgBox Notepad++ Find-and-Replace (1 space) function `n`nCtrl-Shift-X = to activate Part 1 of Find-and-Replace function. `nAlt-D = to activate Part 2 of Find-and-Replace function. ; A period is used to concatenate (join) two strings, and % is used to designate a expression. E.g.: MsgBox % "Kill repeat: " . killrepeat . "." And `n indicates a linefeed character. For breaking up even longer text, see MsgBox continuation section.
+	MsgBox Notepad++ Find-and-Replace (2 spaces) function `n`nCtrl-Shift-X = to activate Part 1 of Find-and-Replace function. `nAlt-D = to activate Part 2 of Find-and-Replace function. ; A period is used to concatenate (join) two strings, and % is used to designate a expression. E.g.: MsgBox % "Kill repeat: " . killrepeat . "." And `n indicates a linefeed character. For breaking up even longer text, see MsgBox continuation section.
 Return
 
 ^+x:: ; Ctrl-Shift-X to activate Part 1 of Find-and-Replace function. 
@@ -15,7 +15,7 @@ Return
 	;Send ^v ; This presses keys: Ctrl+V (Paste from clipboard)
 	Sleep 150  ; The number of milliseconds between keystrokes
 	
-	SendInput, {Home}{Right}{Delete} ; This presses keys: Home, Right Arrow, Delete
+	SendInput, {Home}{Right}{Right}{Delete} ; This presses keys: Home, Right Arrow, Delete
 	Sleep 150  ; The number of milliseconds between keystrokes
 	
 Return

@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
   <Overview of script>
 
@@ -937,6 +937,7 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 		Write-Verbose "Remove leading zeros (0) = $VarSimplified"
 		
 		# Remove leading zeros (0)
+		<#
 		$VarSimplified = $VarInput.TrimStart('0')
 		If ($VarSimplified -eq $null) {
 			Write-Verbose "$VarName is `$null after removing leading zeros."
@@ -950,7 +951,7 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 			Write-Verbose "$VarName is equal to `'`' after removing leading zeros."
 			$VarSimplified = '0'
 		}
-		
+		#>
 		Write-Verbose "Remove leading zeros (0) = $VarSimplified"
 		
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1022,7 +1023,7 @@ Function ReadPrompt-ValidateIntegerRange { #------------------------------------
 	Param(
 		[Parameter(Mandatory=$false,
 		ValueFromPipeline = $true)]
-		[int]$ValueInput,
+		$ValueInput,
 		
 		[Parameter(Mandatory=$true,Position=0)]
 		[string]$Label,
@@ -1261,6 +1262,98 @@ Function ReadPrompt-Minute { #--------------------------------------------------
 	Return $OutputValue
 	
 } # End ReadPrompt-Minute function -------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
+Function ReadPrompt-DayOfMonth { #--------------------------------------------------------------------------------------
+	
+	#http://techgenix.com/powershell-functions-common-parameters/
+	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+	#[cmdletbinding()]
+	#Param()
+	[cmdletbinding()]
+	Param(
+		[Parameter(Mandatory=$false,Position=0,
+		ValueFromPipeline = $true)]
+		$VarInput
+	)
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Make function more customizable by condensing hard-coded values to the top
+	
+	$VarName = "DayOfMonth"
+	
+	$MinInt = 1
+	
+	$MaxInt = 31
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#Check if we have a value sent in from an external variable (parameter) first
+	If ($VarInput -eq $null -or $VarInput -eq "") {
+		$PipelineInput = $false
+		$OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt
+	} else {
+		$PipelineInput = $true
+		Write-Verbose "Piped-in content = $VarInput"
+		$VarInput = [string]$VarInput #Bugfix: convert input from an object to a string
+		$OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt
+	}
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Write-Verbose "$VarName value $OutputValue validation complete."
+	
+	Return $OutputValue
+	
+} # End ReadPrompt-DayOfMonth function ---------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
+Function ReadPrompt-Month { #-------------------------------------------------------------------------------------------
+	
+	#http://techgenix.com/powershell-functions-common-parameters/
+	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+	#[cmdletbinding()]
+	#Param()
+	[cmdletbinding()]
+	Param(
+		[Parameter(Mandatory=$false,Position=0,
+		ValueFromPipeline = $true)]
+		$VarInput
+	)
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Make function more customizable by condensing hard-coded values to the top
+	
+	$VarName = "Month"
+	
+	$MinInt = 1
+	
+	$MaxInt = 12
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#Check if we have a value sent in from an external variable (parameter) first
+	If ($VarInput -eq $null -or $VarInput -eq "") {
+		$PipelineInput = $false
+		$OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt
+	} else {
+		$PipelineInput = $true
+		Write-Verbose "Piped-in content = $VarInput"
+		$VarInput = [string]$VarInput #Bugfix: convert input from an object to a string
+		$OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt
+	}
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Write-Verbose "$VarName value $OutputValue validation complete."
+	
+	Return $OutputValue
+	
+} # End ReadPrompt-Month function --------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -1526,6 +1619,105 @@ https://www.gngrninja.com/script-ninja/2016/5/15/powershell-getting-started-part
 } # End Convert-AMPMhourTo24hour function ------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------------------------------------------------
+Function Convert-TimeZone { #-------------------------------------------------------------------------------------------
+
+<#
+.SYNOPSIS
+Convert-TimeZone function converts times from one time zone to the same time in another time zone.
+
+.DESCRIPTION
+ Thanks to:
+ https://blogs.msdn.microsoft.com/rslaten/2014/08/04/converting-times-from-one-time-zone-to-another-time-zone-in-powershell/
+
+.PARAMETER Time
+Horizontal Rule types. Accepted types are 'SingleLine', 'DoubleLine', 'DashedLine', and 'BlankLine'. Defaults to 'SingleLine'.
+
+.PARAMETER FromTimeZone
+From
+
+.PARAMETER ToTimeZone
+To
+
+.LINK
+https://blogs.msdn.microsoft.com/rslaten/2014/08/04/converting-times-from-one-time-zone-to-another-time-zone-in-powershell/
+
+.LINK
+Get-TimeZone
+
+#>
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+param(
+  [Parameter(Mandatory=$false)]
+  $Time,
+  [Parameter(Mandatory=$false)]
+  $FromTimeZone,
+  [Parameter(Mandatory=$false)]
+  $ToTimeZone
+)
+
+#-----------------------------------------------------------------------------------------------------------------------
+
+function ConvertTime
+{
+  param($time, $FromTimeZone, $ToTimeZone)
+
+  $oFromTimeZone = [System.TimeZoneInfo]::FindSystemTimeZoneById($FromTimeZone)
+  $oToTimeZone = [System.TimeZoneInfo]::FindSystemTimeZoneById($ToTimeZone)
+  $utc = [System.TimeZoneInfo]::ConvertTimeToUtc($time, $oFromTimeZone)
+  $newTime = [System.TimeZoneInfo]::ConvertTime($utc, $oToTimeZone)
+
+  return $newTime
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+function ConvertUTC
+{
+  param($time, $FromTimeZone)
+
+  $oFromTimeZone = [System.TimeZoneInfo]::FindSystemTimeZoneById($FromTimeZone)
+  $utc = [System.TimeZoneInfo]::ConvertTimeToUtc($time, $oFromTimeZone)
+  return $utc
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
+
+if ($ToTimeZone)
+{
+  
+  [datetime]$time = $time
+  $toUTC = ConvertUTC -time $time -FromTimeZone $FromTimeZone
+  $toNewTimeZone = ConvertTime -time $time -FromTimeZone $FromTimeZone -ToTimeZone $ToTimeZone
+  Write-Host ("Original Time ({0}): {1}" -f $FromTimeZone, $time)
+  Write-Host ("UTC Time: {0}" -f $toUTC)
+  Write-Host ("{0}: {1}" -f $ToTimeZone, $toNewTimeZone)
+}
+else
+{
+  if (!($time)) 
+  {
+    $FromTimeZone = (([System.TimeZoneInfo]::Local).Id).ToString()
+    $time = [DateTime]::SpecifyKind((Get-Date), [DateTimeKind]::Unspecified)
+  }
+  else { [datetime]$time = $time }
+  Write-Host ("Original Time - {0}: {1}" -f $FromTimeZone, $time)
+  $toUTC = ConvertUTC -time $time -FromTimeZone $FromTimeZone
+  $times = @()
+  foreach ($timeZone in ([system.timezoneinfo]::GetSystemTimeZones()))
+  {
+   $times += (New-Object psobject -Property @{'Name' = $timeZone.DisplayName; 'ID' = $timeZone.id; 'Time' = (ConvertTime -time $time -FromTimeZone $FromTimeZone -ToTimeZone $timeZone.id); 'DST' = $timeZone.SupportsDaylightSavingTime})
+  }
+  $times | Sort-Object Time | Format-Table -Property * -AutoSize
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+} # End Convert-TimeZone function --------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Once [Functions] block has finished running, exit the script if -LoadFunctions switch is on.
 If ($LoadFunctions) {
@@ -1543,11 +1735,12 @@ If ($LoadFunctions) {
 #1. Test different methods of writing output
 #2. Testing Write-HorizontalRule function
 #3. Testing Convert-AMPMhourTo24hour
-#4. Testing Out-GridView
-#5. User Choice Selection / Menu Demos
-#6. Test For loop & date formatting
-#7. Test multi-dimensional variable methods
-#8. Test running external script
+#4. Testing ReadPrompt-Hour
+#5. Testing Out-GridView
+#6. User Choice Selection / Menu Demos
+#7. Test For loop & date formatting
+#8. Test multi-dimensional variable methods
+#9. Test running external script
 #=======================================================================================================================
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -1986,10 +2179,115 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #=======================================================================================================================
-#4. Testing Out-GridView
+#4. Testing ReadPrompt-Hour
 #=======================================================================================================================
 
-$SectionName = "#4. Testing Out-GridView"
+$SectionName = "#4. Testing ReadPrompt-Hour"
+
+$ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
+
+If ($ChoiceSkip -eq 'N') {
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+#
+
+Write-Host `r`n
+Write-Host `r`n
+
+#
+
+Write-Host "# Start Time #`n`r`n"
+
+Write-Host `r`n
+
+Write-HorizontalRuleAdv -SingleLine
+
+#$StartHour = Read-Host -Prompt "Enter Start hour"
+#$StartHour = ReadPrompt-Hour -Verbose
+$StartHour = ReadPrompt-Hour -Verbose
+
+#
+
+Write-HorizontalRuleAdv
+
+#
+
+#-----------------------------------------------------------------------------------------------------------------------
+
+Write-HorizontalRuleAdv -DashedLine
+
+Write-Host "Success:" -ForegroundColor Green
+$StartHour = (0000004 | ReadPrompt-Hour -Verbose)
+
+Write-HorizontalRuleAdv -DashedLine
+
+Write-Host "Success:" -ForegroundColor Green
+$StartHour = ('0000004' | ReadPrompt-Hour -Verbose)
+
+Write-HorizontalRuleAdv -DashedLine
+
+Write-Host "Success:" -ForegroundColor Green
+$StartHour = ("0000000" | ReadPrompt-Hour -Verbose)
+
+Write-HorizontalRuleAdv -DashedLine
+
+Write-Host "Failure:"
+$StartHour = (24 | ReadPrompt-Hour -Verbose)
+
+Write-HorizontalRuleAdv -DashedLine
+
+Write-Host "Failure:"
+$StartHour = (2.4 | ReadPrompt-Hour -Verbose)
+
+Write-HorizontalRuleAdv -DashedLine
+
+Write-Host "Failure:"
+$StartHour = (-2 | ReadPrompt-Hour -Verbose)
+
+Write-HorizontalRuleAdv -DashedLine
+
+Write-Host "Failure:"
+$StartHour = (0.01 | ReadPrompt-Hour -Verbose)
+
+Write-HorizontalRuleAdv -DashedLine
+
+Write-Host "Failure:"
+$StartHour = (-0000.0010 | ReadPrompt-Hour -Verbose)
+
+Write-HorizontalRuleAdv -DashedLine
+
+#-----------------------------------------------------------------------------------------------------------------------
+
+#
+
+Write-HorizontalRuleAdv
+
+#
+
+Write-Host `r`n
+
+#
+
+Write-Host "--------------------------------------------------------------------------------------------------"
+
+#
+
+PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#=======================================================================================================================
+#5. Testing Out-GridView
+#=======================================================================================================================
+
+$SectionName = "#5. Testing Out-GridView"
 
 $ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
 
@@ -2095,10 +2393,10 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #=======================================================================================================================
-#5. User Choice Selection / Menu Demos
+#6. User Choice Selection / Menu Demos
 #=======================================================================================================================
 
-$SectionName = "#5. User Choice Selection / Menu Demos"
+$SectionName = "#6. User Choice Selection / Menu Demos"
 
 $ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
 
@@ -2272,10 +2570,10 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #=======================================================================================================================
-#6. Test For loop & date formatting
+#7. Test For loop & date formatting
 #=======================================================================================================================
 
-$SectionName = "#6. Test For loop & date formatting"
+$SectionName = "#7. Test For loop & date formatting"
 
 $ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
 
@@ -2301,10 +2599,10 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #=======================================================================================================================
-#7. Test multi-dimensional variable methods
+#8. Test multi-dimensional variable methods
 #=======================================================================================================================
 
-$SectionName = "#7. Test multi-dimensional variable methods"
+$SectionName = "#8. Test multi-dimensional variable methods"
 
 $ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
 
@@ -2499,10 +2797,10 @@ PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #=======================================================================================================================
-#8. Test running external script
+#9. Test running external script
 #=======================================================================================================================
 
-$SectionName = "#8. Test running external script"
+$SectionName = "#9. Test running external script"
 
 $ChoiceSkip = PromptForChoice-YesNoSectionSkip $SectionName
 

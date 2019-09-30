@@ -2,6 +2,9 @@
 ::SETLOCAL
 SETLOCAL EnableDelayedExpansion
 
+:: Run from command line:
+:: CMD\> CompareTo-Parent.bat /?
+
 ::Index: 
 :: 1. :RunAsAdministrator
 :: 2. :Header
@@ -143,6 +146,10 @@ SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Conv
 
 SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1"
 
+SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp1.ps1"
+
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp2.ps1"
+
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :: Param2 = File B
@@ -184,6 +191,8 @@ SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Conv
 SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1"
 
 ::SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1.orig"
+
+::SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp2.ps1"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -897,36 +906,57 @@ SETLOCAL
 ::
 ::C:\Users\[Username]>_
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ECHO:
+ECHO ===============================================================================
 ::ECHO:
-::ECHO ===============================================================================
-::ECHO %~nx0 Help.
+ECHO Called from: "%~dp0"
+ECHO:
+ECHO %~n0 command-line help.
 ::ECHO:
-::ECHO Called from: "%~dp0"
-::ECHO:
-::ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ECHO:
 ECHO USAGE: .\%~nx0 "path_to_file_a" "path_to_file_b" [banner]
 ECHO:
-ECHO where
-ECHO     banner      =       QUIET - for minimal output
-ECHO                         SIMPLE - for a small banner during start.
-ECHO                         FANCY - for a custom banner during start ^& end.
-ECHO                        (If no option is selected, the default is FANCY.)
-ECHO:
-::ECHO OPTIONS:
+::ECHO EXAMPLE:
+::ECHO .\%~nx0 "path_to_file_a" "path_to_file_b" [BANNER]
 ::ECHO:
+::ECHO where
+::ECHO     banner      =       QUIET - for minimal output
+::ECHO                         SIMPLE - for a small banner during start.
+::ECHO                         FANCY - for a custom banner during start ^& end.
+::ECHO                         (If no option is selected, the default is FANCY.)
+::ECHO:
+::ECHO OPTIONS:
+ECHO PARAMETERS:
+ECHO    "path_to_file_a"   - Full file path pointing to the first file.
+ECHO    "path_to_file_b"   - Full file path pointing to the second file.
+ECHO    banner             - If no option is selected, the default is FANCY.
+ECHO                           + QUIET - for minimal output
+ECHO                           + SIMPLE - for a small banner during start.
+ECHO                           + FANCY - for a custom banner during start ^& end.
+ECHO:
+ECHO DESCRIPTION:
 ECHO Uses kdiff3 to merge changes between two different files or folders.
-ECHO Paramters can be passed via command line or hard-coded into this script.
-ECHO If no parameters are provided, default is to use hard-coded variables.
 ECHO:
-ECHO You may also drag-and-drop files on this script one at a time.
+ECHO "File_A" will always be updated first from "File_B", then "File_B" will be
+ECHO will be updated from "File_A".
 ECHO:
-ECHO EXAMPLES:
-ECHO     > .\%~nx0 "^%USERPROFILE^%\Documents\file_1.txt" "^%USERPROFILE^%\Dropbox\file_1.txt"
+ECHO Any file that gets updated will have a backup saved called "File_A.orig"
+ECHO                                                         or "File_B.orig"
 ECHO:
-ECHO     > .\%~nx0 "^%USERPROFILE^%\Documents\Folder1" "^%USERPROFILE^%\Dropbox\Folder1" fancy
+ECHO Paramters can be passed via command line, or hard-coded into this script.
+ECHO If no parameters are provided, default is to use the hard-coded variables.
 ECHO:
-ECHO     > .\%~nx0 "^%USERPROFILE^%\Desktop\file_2.json" "^%USERPROFILE^%\Dropbox\file_2.json" quiet
+ECHO You can also drag-and-drop files on this script one at a time to merge them.
+ECHO:
+ECHO EXAMPLE:
+ECHO     ^> .\%~nx0 "^%USERPROFILE^%\Documents\file_1.txt" "^%USERPROFILE^%\Dropbox\file_1.txt"
+ECHO:
+ECHO EXAMPLE:
+ECHO     ^> .\%~nx0 "^%USERPROFILE^%\Documents\Folder1" "\\^%server_name^%\packages\Folder1" fancy
+ECHO:
+ECHO EXAMPLE:
+ECHO     ^> .\%~nx0 "^%USERPROFILE^%\Desktop\file_2.json" "G:\Data\file_2.json" quiet
 ECHO:
 ::ECHO     > ipconfig                       ... Show information
 ::ECHO     > ipconfig /all                  ... Show detailed information
@@ -941,18 +971,9 @@ ECHO:
 ::ECHO     > ipconfig /allcompartments /all ... Show detailed information about all
 ::ECHO                                          compartments
 ::ECHO 
-::ECHO EXAMPLE:
-::ECHO .\%~nx0 "path_to_file_a" "path_to_file_b" [BANNER]
-::ECHO:
-::ECHO PARAMETERS:
-::ECHO    "path_to_file_a"   - Full file path pointing to the first file.
-::ECHO    "path_to_file_b"   - Full file path pointing to the second file.
-::ECHO    [BANNER]           - If no option is selected, the default is FANCY.
-::ECHO                           + QUIET - for minimal output
-::ECHO                           + SIMPLE - for a small banner during start.
-::ECHO                           + FANCY - for a custom banner during start ^& end.
 ::ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ECHO:
+ECHO -------------------------------------------------------------------------------
+::ECHO:
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ENDLOCAL
 EXIT /B
