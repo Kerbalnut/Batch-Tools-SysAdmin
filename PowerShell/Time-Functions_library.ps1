@@ -40,117 +40,112 @@ $PastMidnight
 
 #
 
+
+
+#
+
+#=======================================================================================================================
+
+#
+
 Write-Host "# Start Time #`n`r`n"
 
-Write-HorizontalRuleAdv -SingleLine
+#Write-HorizontalRuleAdv -SingleLine
 
 #$StartHour = Read-Host -Prompt "Enter Start hour"
 #$StartHour = ReadPrompt-Hour -Verbose
-$StartHour = ReadPrompt-Hour -Verbose
+$StartHour = ReadPrompt-Hour
 
-Write-HorizontalRuleAdv -DashedLine
-
-#
-
-#-----------------------------------------------------------------------------------------------------------------------
-
-<#
-
-$StartHour = (0000004 | ReadPrompt-Hour -Verbose)
-
-Write-HorizontalRuleAdv -DashedLine
-
-$StartHour = ('0000004' | ReadPrompt-Hour -Verbose)
-
-Write-HorizontalRuleAdv -DashedLine
-
-$StartHour = ("0000000" | ReadPrompt-Hour -Verbose)
-
-Write-HorizontalRuleAdv -DashedLine
-
-$StartHour = (24 | ReadPrompt-Hour -Verbose)
-
-Write-HorizontalRuleAdv -DashedLine
-
-$StartHour = (2.4 | ReadPrompt-Hour -Verbose)
-
-Write-HorizontalRuleAdv -DashedLine
-
-$StartHour = (-2 | ReadPrompt-Hour -Verbose)
-
-Write-HorizontalRuleAdv -DashedLine
-
-$StartHour = (0.01 | ReadPrompt-Hour -Verbose)
-
-Write-HorizontalRuleAdv -DashedLine
-
-$StartHour = (-0000.0010 | ReadPrompt-Hour -Verbose)
-
-#>
-
-#-----------------------------------------------------------------------------------------------------------------------
-
-#
-
-Write-HorizontalRuleAdv -SingleLine
+#Write-HorizontalRuleAdv -DashedLine
 
 #$StartMin = Read-Host -Prompt "Enter Start minute"
 #$StartMin = ReadPrompt-Minute -Verbose
-$StartMin = ReadPrompt-Minute -Verbose
+$StartMin = ReadPrompt-Minute
 
-Write-HorizontalRuleAdv -DashedLine
+#Write-HorizontalRuleAdv -DashedLine
 
-Write-HorizontalRuleAdv -SingleLine
+If ($StartHour -gt 12 -Or $StartHour -eq 0) {
+	$StartAMPM = 24
+} else {
+	$StartAMPM = ReadPrompt-AMPM24
+}
 
-$StartAMPM = ReadPrompt-AMPM24
-
-Write-HorizontalRuleAdv -SingleLine
+#Write-HorizontalRuleAdv -SingleLine
 
 If ($StartAMPM -eq "AM") {
-    $24hour = Convert-AMPMhourTo24hour $StartHour -AM -Verbose
-}
-
-If ($StartAMPM -eq "PM") {
-    $24hour = Convert-AMPMhourTo24hour $StartHour -PM -Verbose
-}
-
-If ($StartAMPM -eq 24) {
+    #$24hour = Convert-AMPMhourTo24hour $StartHour -AM -Verbose
+    $24hour = Convert-AMPMhourTo24hour $StartHour -AM
+} elseif ($StartAMPM -eq "PM") {
+    #$24hour = Convert-AMPMhourTo24hour $StartHour -PM -Verbose
+    $24hour = Convert-AMPMhourTo24hour $StartHour -PM
+} elseif ($StartAMPM -eq 24) {
     $24hour = $StartHour
+} else {
+	Write-Error "AM/PM/24-hour time not recognized."
 }
 
 $Timestamp = Get-Date -Hour $24hour -Minute $StartMin -Second 0 -Millisecond 0
 
 $StartTime = Get-Date -Hour $24hour -Minute $StartMin -Second 0 -Millisecond 0
 
-$StartTime
+Write-Host "Start time = $StartTime"
 
 #
 
-$EndHour = Read-Host -Prompt "Enter End hour"
+#-----------------------------------------------------------------------------------------------------------------------
 
-$EndMin = Read-Host -Prompt "Enter End minute"
+#
 
-$EndAMPM = ReadPrompt-AMPM24
+Write-Host "`r`n# End Time #`n`r`n"
+
+#$EndHour = Read-Host -Prompt "Enter End hour"
+$EndHour = ReadPrompt-Hour
+
+#$EndMin = Read-Host -Prompt "Enter End minute"
+$EndMin = ReadPrompt-Minute
+
+If ($EndHour -gt 12 -Or $EndHour -eq 0) {
+	$EndAMPM = 24
+} else {
+	$EndAMPM = ReadPrompt-AMPM24
+}
+
+#Write-HorizontalRuleAdv -SingleLine
 
 If ($EndAMPM -eq "AM") {
     $24hour = Convert-AMPMhourTo24hour $EndHour -AM -Verbose
-}
-
-If ($EndAMPM -eq "PM") {
+    #$24hour = Convert-AMPMhourTo24hour $EndHour -AM
+} elseif ($EndAMPM -eq "PM") {
     $24hour = Convert-AMPMhourTo24hour $EndHour -PM -Verbose
-}
-
-If ($EndAMPM -eq 24) {
+    #$24hour = Convert-AMPMhourTo24hour $EndHour -PM
+} elseif ($EndAMPM -eq 24) {
     $24hour = $EndHour
+} else {
+	Write-Error "AM/PM/24-hour time not recognized."
 }
 
 $Timestamp = Get-Date -Hour $24hour -Minute $EndMin -Second 0 -Millisecond 0
 
 $EndTime = Get-Date -Hour $24hour -Minute $EndMin -Second 0 -Millisecond 0
 
-$EndTime
+Write-Host "End tiem = $EndTime"
+
+#
+
+#-----------------------------------------------------------------------------------------------------------------------
+
+#
+
+$TimeDuration = $EndTime - $StartTime
+
+Write-Host "Time Duration = $TimeDuration"
 
 
+#
+
+#=======================================================================================================================
+
+#
 
 
 

@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   <Overview of script>
 
@@ -324,19 +324,22 @@ If (!($sLogPath)) { Start-Log -LogPath $sLogPath -LogName $sLogName -ScriptVersi
 # Get-Verb
 
 #Index of functions:
-# 1. <FunctionName> Example Function
+# 1. <FunctionName> (Example Function)
 # 2. Start-PSAdmin
 # 3. Get-ScriptDirectory1
 # 4. Get-ScriptDirectory2
 # 5. Get-ScriptDirectory3
 # 6. Write-HorizontalRule
-# 7. Write-HorizontalRuleAdv
+# 7. Write-HorizontalRuleAdv (Aliases: "Write-HR")
 # 8. PromptForChoice-YesNoSectionSkip
 # 9. ReadPrompt-AMPM24
 # 10. ReadPrompt-Hour
 # 11. ReadPrompt-ValidateIntegerRange
 # 12. ReadPrompt-Minute 
-# 13. Convert-AMPMhourTo24hour
+# 13. ReadPrompt-DayOfMonth
+# 14. ReadPrompt-Month
+# 15. Convert-AMPMhourTo24hour
+# 16. Convert-TimeZone
 
 #-----------------------------------------------------------------------------------------------------------------------
 <# Function <FunctionName> {
@@ -372,19 +375,88 @@ function Start-PSAdmin {Start-Process PowerShell -Verb RunAs}
 
 #-----------------------------------------------------------------------------------------------------------------------
 function Get-ScriptDirectory1 { #https://stackoverflow.com/questions/801967/how-can-i-find-the-source-path-of-an-executing-script/6985381#6985381
+  <#
+  .NOTES
+  From:
+  https://www.red-gate.com/simple-talk/dotnet/.net-tools/further-down-the-rabbit-hole-powershell-modules-and-encapsulation/#third
+  
+  To illustrate the difference between the two implementations, I created a test vehicle that evaluates the target expression in four different ways (bracketed terms are keys in the table that follows):
+  
+    - Inline code [inline]
+    - Inline function, i.e. function in the main program [inline function]
+    - Dot-sourced function, i.e. the same function moved to a separate .ps1 file [dot source]
+    - Module function, i.e. the same function moved to a separate .psm1 file [module]
+  
+  The first two columns in the table define the scenario; the last two columns display the results of the two candidate implementations of Get-ScriptDirectory. A result of script means that the invocation correctly reported the location of the script. A result of module means the invocation reported the location of the module (see next section) containing the function rather than the script that called the function; this indicates a drawback of both implementations such that you cannot put this function in a module to find the location of the calling script. Setting this module issue aside, the remarkable observation from the table is that using the parent scope approach fails most of the time (in fact, twice as often as it succeeds)!
+  
+  ________________________________________________________________
+  | Where Called | What Called     | Script Scope | Parent Scope |
+  |--------------|-----------------|--------------|--------------|
+  | Top Level    | inline          | script       | error        |
+  |              | inline function | script       | script       |
+  |              | dot source      | script       | script       |
+  |              | module          | module       | module       |
+  | Nested once  | inline          | script       | script       |
+  |              | inline function | script       | error        |
+  |              | dot source      | script       | error        |
+  |              | module          | module       | module       |
+  | Nested twice | inline          | script       | error        |
+  |              | inline function | script       | error        |
+  |              | dot source      | script       | error        |
+  |              | module          | module       | module       |
+  ----------------------------------------------------------------
+  
+  (You can find my test vehicle code for this in my post on StackOverflow.)
+  
+  .EXAMPLE  
+  Write-Host (Get-ScriptDirectory1)
+  
+  .LINK
+  https://stackoverflow.com/questions/801967/how-can-i-find-the-source-path-of-an-executing-script/6985381#6985381
+  
+  .LINK
+  https://www.red-gate.com/simple-talk/dotnet/.net-tools/further-down-the-rabbit-hole-powershell-modules-and-encapsulation/#third
+  
+  #>
     Split-Path $script:MyInvocation.MyCommand.Path
 } # End Get-ScriptDirectory function -----------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
 function Get-ScriptDirectory2 { #https://stackoverflow.com/questions/1183183/path-of-currently-executing-powershell-script#1183197
-    # For PowerShell 3.0 users - following works for both modules and script files:
+    <#
+	.LINK
+	https://stackoverflow.com/questions/1183183/path-of-currently-executing-powershell-script#1183197
+	#>
+	# For PowerShell 3.0 users - following works for both modules and script files:
     Split-Path -parent $PSCommandPath
 } # End Get-ScriptDirectory function -----------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
 function Get-ScriptDirectory3 { #https://stackoverflow.com/questions/1183183/path-of-currently-executing-powershell-script#1183197
+  <#
+  .NOTES
+  Thanks to Jeffrey Snover of the PowerShell team:
+  https://www.red-gate.com/simple-talk/dotnet/.net-tools/further-down-the-rabbit-hole-powershell-modules-and-encapsulation/#third
+  
+  .EXAMPLE  
+  Write-Host (Get-ScriptDirectory3)
+  
+  Will properly display the directory where your script resides rather than your current directory. 
+  
+  **Maybe.** The results you get from this function depend on where you call it from!
+  
+  See Get-ScriptDirectory1 and 
+  https://www.red-gate.com/simple-talk/dotnet/.net-tools/further-down-the-rabbit-hole-powershell-modules-and-encapsulation/#third
+  for more information.
+  
+  .LINK
+  https://stackoverflow.com/questions/1183183/path-of-currently-executing-powershell-script#1183197
+  
+  .LINK
+  https://www.red-gate.com/simple-talk/dotnet/.net-tools/further-down-the-rabbit-hole-powershell-modules-and-encapsulation/#third
+  #>
   $Invocation = (Get-Variable MyInvocation -Scope 1).Value
   Split-Path $Invocation.MyCommand.Path
 } # End Get-ScriptDirectory function -----------------------------------------------------------------------------------
@@ -1007,7 +1079,7 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 	
 	Write-Verbose "$VarName value $VarRange validation complete."
 	
-	Return $VarRange
+	Return [int]$VarRange
 	
 } # End ReadPrompt-Hour function ---------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
@@ -1213,7 +1285,7 @@ Function ReadPrompt-ValidateIntegerRange { #------------------------------------
 	
 	Write-Verbose "$VarName value $VarRange validation complete."
 	
-	Return $VarRange
+	Return [int]$VarRange
 	
 } # End ReadPrompt-ValidateIntegerRange function -----------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
