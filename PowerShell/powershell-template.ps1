@@ -231,8 +231,8 @@ $ErrorActionPreference = 'SilentlyContinue'
 $ErrorActionPreference = 'Continue'
 
 #Set Verbose message display
-#$VerbosePreference = "SilentlyContinue"
-#$VerbosePreference = "Continue"
+#$VerbosePreference = "SilentlyContinue" # Will suppress Write-Verbose messages. This is the default value.
+#$VerbosePreference = "Continue" # Will print out Write-Verbose messages. Gets set when -Verbose switch is used to run the script. (Or when you set the variable manually.)
 
 #Set Debug message display
 # help about_Debuggers
@@ -769,10 +769,10 @@ Function Write-HorizontalRuleAdv { #--------------------------------------------
     Write-Warning $HRoutput -WarningAction Continue
   } ELSEIF ($IsVerbose -eq $true) {
     # Set Verbose message display
-    # $VerbosePreference = "Continue"
-    # $VerbosePreference = "SilentlyContinue"
+	#$VerbosePreference = "SilentlyContinue" # Will suppress Write-Verbose messages. This is the default value.
+	#$VerbosePreference = "Continue" # Will print out Write-Verbose messages. Gets set when -Verbose switch is used to run the script. (Or when you set the variable manually.)
     #$OrigVerbosePreference = $VerbosePreference
-    #$VerbosePreference = "Continue"
+    #$VerbosePreference = "Continue" # Print out Write-Verbose messages.
     Write-Verbose $HRoutput
     #$VerbosePreference = $OrigVerbosePreference
   } ELSE {
@@ -842,7 +842,7 @@ Function PromptForChoice-YesNoSectionSkip { #-----------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
-Function PromptForChoice-YesNo { #---------------------------------------------------------------------------
+Function PromptForChoice-YesNo { #--------------------------------------------------------------------------------------
 	
 	Param (
 		#Script parameters go here
@@ -899,7 +899,478 @@ Function PromptForChoice-YesNo { #----------------------------------------------
 	
 	Return $ChoiceResultVar
 
-} # End PromptForChoice-YesNo function ----------------------------------------------------------------------
+} # End PromptForChoice-YesNo function ---------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
+Function PromptForChoice-DayDate { #------------------------------------------------------------------------------------
+	
+	<#
+	.LINK
+	https://ss64.com/ps/syntax-dateformats.html
+	#>
+	
+	Param (
+		#Script parameters go here
+		[Parameter(Mandatory=$false,Position=0,
+		ValueFromPipeline = $true)]
+		[string]$TitleName,
+		
+		[Parameter(Mandatory=$false)]
+		[string]$InfoDescription,
+		
+		[Parameter(Mandatory=$false)]
+		[string]$HintPhrase
+	)
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#$VerbosePreference = "SilentlyContinue" # Will suppress Write-Verbose messages. This is the default value.
+	$VerbosePreference = "Continue" # Will print out Write-Verbose messages. Gets set when -Verbose switch is used to run the script. (Or when you set the variable manually.)
+	
+	#-----------------------------------------------------------------------------------------------------------------------
+	
+	# Collect date variables
+	
+	#https://ss64.com/ps/syntax-dateformats.html
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Today:
+	
+	$TodayDoWLong = Get-Date -UFormat %A
+	Write-Verbose "`$TodayDoWLong = $TodayDoWLong"
+	
+	$TodayMonthDay = Get-Date -Format 'm, M'
+	Write-Verbose "`$TodayMonthDay = $TodayMonthDay"
+	
+	$TodayMonthDay = Get-Date -UFormat %m/%d
+	Write-Verbose "`$TodayMonthDay = $TodayMonthDay"
+	
+	$TodayDayMonth = Get-Date -UFormat %d/%m
+	Write-Verbose "`$TodayDayMonth = $TodayDayMonth"
+	
+	Write-HR -IsVerbose -DashedLine
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Yesterday:
+	
+	$TodayDateTime = Get-Date
+	
+	$YesterdayDateTime = $TodayDateTime.AddDays(-1)
+	Write-Verbose "`$YesterdayDateTime = $YesterdayDateTime"
+	
+	$YesterdayDateTime = (Get-Date).AddDays(-1)
+	Write-Verbose "`$YesterdayDateTime = $YesterdayDateTime"
+	
+	$YesterdayDoW = Get-Date -Date $YesterdayDateTime -UFormat %A
+	Write-Verbose "`$YesterdayDoW = $YesterdayDoW"
+	
+	$YesterdayMonthDay = Get-Date -Date $YesterdayDateTime -UFormat %m/%d
+	Write-Verbose "`$YesterdayMonthDay = $YesterdayMonthDay"
+	
+	$YesterdayDayMonth = Get-Date -Date $YesterdayDateTime -UFormat %d/%m
+	Write-Verbose "`$YesterdayDayMonth = $YesterdayDayMonth"
+	
+	Write-HR -IsVerbose -DashedLine
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Get earlier Days of Week
+	
+	Write-Verbose "Today:"
+	
+	$TodayDoWLong = Get-Date -UFormat %A
+	Write-Verbose "`$TodayDoWLong = $TodayDoWLong"
+	
+	# Day-of-Week in 3 characters:
+	<#
+	Sun
+	Mon
+	Tue
+	Wed
+	Thu
+	Fri
+	Sat
+	Sun
+	#>
+	$TodayDoWShort = Get-Date -UFormat %a
+	Write-Verbose "`$TodayDoWShort = $TodayDoWShort"
+	
+	# Day-of-Week in number format (0-6):
+	<#
+	0 = Sunday
+	1 = Monday
+	2 = Tuesday
+	3 = Wednesday
+	4 = Thursday
+	5 = Friday
+	6 = Saturday
+	#>
+	$TodayDoWNumber = Get-Date -UFormat %u
+	Write-Verbose "`$TodayDoWNumber = $TodayDoWNumber"
+	
+	# Day-of-Week in number format (1-7):
+	<#
+	1 = Monday
+	2 = Tuesday
+	3 = Wednesday
+	4 = Thursday
+	5 = Friday
+	6 = Saturday
+	7 = Sunday
+	#>
+	$TodayDoWNumberOneThruSeven = Get-Date -UFormat %u
+	If ([int]$TodayDoWNumberOneThruSeven -eq 0) {$TodayDoWNumberOneThruSeven = 7}
+	Write-Verbose "`$TodayDoWNumberOneThruSeven = $TodayDoWNumberOneThruSeven"
+	
+	Write-HR -IsVerbose -DashedLine
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Test all Day-of-Week output
+	
+	Write-Verbose "Start of Loop."
+	
+	Write-HR -IsVerbose
+	
+	$CurrentDateTime = Get-Date
+	
+	For ($i=1; $i -le 7; $i++) {
+	
+	$DoWLong = Get-Date -Date $CurrentDateTime -UFormat %A
+	Write-Verbose "`$DoWLong = $DoWLong"
+	
+	# Day-of-Week in 3 characters::
+	<#
+	Sun
+	Mon
+	Tue
+	Wed
+	Thu
+	Fri
+	Sat
+	Sun
+	#>
+	$DoWShort = Get-Date -Date $CurrentDateTime -UFormat %a
+	Write-Verbose "`$DoWShort = $DoWShort"
+	
+	# Day-of-Week in number format (0-6):
+	<#
+	0 = Sunday
+	1 = Monday
+	2 = Tuesday
+	3 = Wednesday
+	4 = Thursday
+	5 = Friday
+	6 = Saturday
+	#>
+	$DoWNumber = Get-Date -Date $CurrentDateTime -UFormat %u
+	Write-Verbose "`$DoWNumber = $DoWNumber"
+	
+	# Day-of-Week in number format (1-7):
+	<#
+	1 = Monday
+	2 = Tuesday
+	3 = Wednesday
+	4 = Thursday
+	5 = Friday
+	6 = Saturday
+	7 = Sunday
+	#>
+	$DoWNumberOneThruSeven = Get-Date -Date $CurrentDateTime -UFormat %u
+	If ([int]$DoWNumberOneThruSeven -eq 0) {$DoWNumberOneThruSeven = 7}
+	Write-Verbose "`$DoWNumberOneThruSeven = $DoWNumberOneThruSeven"
+	
+	$CurrentDateTime = $CurrentDateTime.AddDays(-1)
+	
+	Write-HR -IsVerbose
+	
+	}
+	Write-Verbose "End of Loop."
+	
+	Write-HR -IsVerbose -DashedLine
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Fill in earlier days of the week.
+	
+	# 'Today' and 'Yesterday' will be constant. But we'll fill in every day earlier as an option, up to Monday. So starting at Wednesday and later, we'll calculate those values. And to do that we'll need the Day-of-Week as an integer value for Monday through Sunday.
+	
+	# Day-of-Week in number format (1-7):
+	<#
+	1 = Monday
+	2 = Tuesday
+	3 = Wednesday
+	4 = Thursday
+	5 = Friday
+	6 = Saturday
+	7 = Sunday
+	#>
+	$TodayDoWNumberOneThruSeven = Get-Date -UFormat %u
+	If ([int]$TodayDoWNumberOneThruSeven -eq 0) {$TodayDoWNumberOneThruSeven = 7}
+	Write-Verbose "`$TodayDoWNumberOneThruSeven = $TodayDoWNumberOneThruSeven"
+	
+	
+	
+	$TodayDateTime = Get-Date
+	
+	$YesterdayDateTime = $TodayDateTime.AddDays(-1)
+	
+	<#
+	1 = Monday		
+	2 = Tuesday		
+	3 = Wednesday	-2 = 1 Monday
+	4 = Thursday	-3 = 1 Monday, -2 = Tuesday
+	5 = Friday		-4 = 1 Monday, -3 = Tuesday, -2 = Wednesday
+	6 = Saturday	-5 = 1 Monday, -4 = Tuesday, -3 = Wednesday, -2 = Thursday
+	7 = Sunday		-6 = 1 Monday, -5 = Tuesday, -4 = Wednesday, -3 = Thursday, -2 = Friday
+	#>
+	
+	<#
+	1 = Monday		
+	2 = Tuesday		
+	3 = Wednesday	DayOptionOne = -2 = 1 Monday
+	4 = Thursday	DayOptionTwo = -3 = 1 Monday, -2 = Tuesday
+	5 = Friday		DayOptionThree = -4 = 1 Monday, -3 = Tuesday, -2 = Wednesday
+	6 = Saturday	DayOptionFour = -5 = 1 Monday, -4 = Tuesday, -3 = Wednesday, -2 = Thursday
+	7 = Sunday		DayOptionFive = -6 = 1 Monday, -5 = Tuesday, -4 = Wednesday, -3 = Thursday, -2 = Friday
+	#>
+	
+	
+	Write-Verbose "`$TodayDoWNumberOneThruSeven = $TodayDoWNumberOneThruSeven"
+	
+	If ([int]$TodayDoWNumberOneThruSeven -ge 3) {
+		
+		$RollingInt = [int]$TodayDoWNumberOneThruSeven - 2
+		Write-Verbose "`$RollingInt = $RollingInt"
+		$DaysBefore = -2
+		Write-Verbose "`$DaysBefore = $DaysBefore"
+		$DayOptionFive = (Get-Date).AddDays($DaysBefore) # Two days before
+		Write-Verbose "`$DayOptionFive = $DayOptionFive"
+		$DayOptionFive = $TodayDateTime.AddDays($DaysBefore) # Two days before
+		Write-Verbose "`$DayOptionFive = $DayOptionFive"
+		Write-Verbose "`$DayOptionFive = $(Get-Date -Date $DayOptionFive -UFormat %A)"
+		
+		$RollingInt = $RollingInt - 1
+		Write-Verbose "`$RollingInt = $RollingInt"
+		$DaysBefore = $DaysBefore - 1
+		Write-Verbose "`$DaysBefore = $DaysBefore"
+		$DayOptionFour = $TodayDateTime.AddDays($DaysBefore)
+		Write-Verbose "`$DayOptionFour = $DayOptionFour"
+		Write-Verbose "`$DayOptionFour = $(Get-Date -Date $DayOptionFour -UFormat %A)"
+		
+		$RollingInt = $RollingInt - 1
+		Write-Verbose "`$RollingInt = $RollingInt"
+		$DaysBefore = $DaysBefore - 1
+		Write-Verbose "`$DaysBefore = $DaysBefore"
+		$DayOptionThree = $TodayDateTime.AddDays($DaysBefore)
+		Write-Verbose "`$DayOptionThree = $DayOptionThree"
+		Write-Verbose "`$DayOptionThree = $(Get-Date -Date $DayOptionThree -UFormat %A)"
+		
+		$RollingInt = $RollingInt - 1
+		Write-Verbose "`$RollingInt = $RollingInt"
+		$DaysBefore = $DaysBefore - 1
+		Write-Verbose "`$DaysBefore = $DaysBefore"
+		$DayOptionTwo = $TodayDateTime.AddDays($DaysBefore)
+		Write-Verbose "`$DayOptionTwo = $DayOptionTwo"
+		Write-Verbose "`$DayOptionTwo = $(Get-Date -Date $DayOptionTwo -UFormat %A)"
+		
+		$RollingInt = $RollingInt - 1
+		Write-Verbose "`$RollingInt = $RollingInt"
+		$DaysBefore = $DaysBefore - 1
+		Write-Verbose "`$DaysBefore = $DaysBefore"
+		$DayOptionOne = $TodayDateTime.AddDays($DaysBefore)
+		Write-Verbose "`$DayOptionOne = $DayOptionOne"
+		Write-Verbose "`$DayOptionOne = $(Get-Date -Date $DayOptionOne -UFormat %A)"
+		
+		
+		
+		
+		
+	}
+	
+	
+	
+	Write-Verbose "`$TodayDoWNumberOneThruSeven = $TodayDoWNumberOneThruSeven"
+	
+	If ([int]$TodayDoWNumberOneThruSeven -ge 3) {
+		
+		$RollingInt = [int]$TodayDoWNumberOneThruSeven - 2
+		Write-Verbose "`$RollingInt = $RollingInt"
+		$DaysBefore = -2
+		Write-Verbose "`$DaysBefore = $DaysBefore"
+		$DayOptionFive = (Get-Date).AddDays($DaysBefore) # Two days before
+		Write-Verbose "`$DayOptionFive = $DayOptionFive"
+		$DayOptionFive = $TodayDateTime.AddDays($DaysBefore) # Two days before
+		Write-Verbose "`$DayOptionFive = $DayOptionFive"
+		Write-Verbose "`$DayOptionFive = $(Get-Date -Date $DayOptionFive -UFormat %A)"
+		
+		$RollingInt = $RollingInt - 1
+		Write-Verbose "`$RollingInt = $RollingInt"
+		$DaysBefore = $DaysBefore - 1
+		Write-Verbose "`$DaysBefore = $DaysBefore"
+		$DayOptionFour = $TodayDateTime.AddDays($DaysBefore)
+		Write-Verbose "`$DayOptionFour = $DayOptionFour"
+		Write-Verbose "`$DayOptionFour = $(Get-Date -Date $DayOptionFour -UFormat %A)"
+		
+		$RollingInt = $RollingInt - 1
+		Write-Verbose "`$RollingInt = $RollingInt"
+		$DaysBefore = $DaysBefore - 1
+		Write-Verbose "`$DaysBefore = $DaysBefore"
+		$DayOptionThree = $TodayDateTime.AddDays($DaysBefore)
+		Write-Verbose "`$DayOptionThree = $DayOptionThree"
+		Write-Verbose "`$DayOptionThree = $(Get-Date -Date $DayOptionThree -UFormat %A)"
+		
+		$RollingInt = $RollingInt - 1
+		Write-Verbose "`$RollingInt = $RollingInt"
+		$DaysBefore = $DaysBefore - 1
+		Write-Verbose "`$DaysBefore = $DaysBefore"
+		$DayOptionTwo = $TodayDateTime.AddDays($DaysBefore)
+		Write-Verbose "`$DayOptionTwo = $DayOptionTwo"
+		Write-Verbose "`$DayOptionTwo = $(Get-Date -Date $DayOptionTwo -UFormat %A)"
+		
+		$RollingInt = $RollingInt - 1
+		Write-Verbose "`$RollingInt = $RollingInt"
+		$DaysBefore = $DaysBefore - 1
+		Write-Verbose "`$DaysBefore = $DaysBefore"
+		$DayOptionOne = $TodayDateTime.AddDays($DaysBefore)
+		Write-Verbose "`$DayOptionOne = $DayOptionOne"
+		Write-Verbose "`$DayOptionOne = $(Get-Date -Date $DayOptionOne -UFormat %A)"
+		
+		
+		
+		
+		
+	}
+	
+	
+	
+	
+	
+	
+	If ([int]$TodayDoWNumberOneThruSeven -ge 3) {
+		
+		
+		
+		If ([int]$TodayDoWNumberOneThruSeven -ge 4) {
+			If ([int]$TodayDoWNumberOneThruSeven -ge 5) {
+				If ([int]$TodayDoWNumberOneThruSeven -ge 6) {
+					If ([int]$TodayDoWNumberOneThruSeven -eq 7) {
+						# Today is Sunday
+						
+						
+					}
+					
+				}
+				
+			}
+			
+		}
+		
+		
+		
+	}
+	
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	PAUSE
+	
+	#-----------------------------------------------------------------------------------------------------------------------
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#-----------------------------------------------------------------------------------------------------------------------
+	# Build Choice Prompt
+	#-----------------------------------------------------------------------------------------------------------------------
+	$Title = "$TitleName?"
+	$Info = "$InfoDescription"
+	$Info = @"
+Select day:
+
+T - Today
+Y - Yesterday
+N - Next Week
+
+D - Sunday
+S - Saturday
+F - Friday
+H - Thursday
+W - Wednesday
+U - Tuesday
+M - Monday
+
+P - Previous Week
+L - Last Week
+Q - Quit
+
+Select a choice:
+"@
+	
+	$Info = @"
+Choose day:
+
+T - Today
+Y - Yesterday
+"@
+	
+	$Info += @"
+Choose day:
+
+T - Today
+Y - Yesterday
+
+F - Friday
+H - Thursday
+W - Wednesday
+U - Tuesday
+M - Monday
+
+L - Last Week
+Q - Quit
+
+Select a choice:
+"@
+	
+	
+	$ChoiceYes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "[Y]es, $HintPhrase."
+	$ChoiceNo = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "[N]o, do not $HintPhrase."
+	$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceYes, $ChoiceNo)
+	# default choice: 0 = first Option, 1 = second option, etc.
+	[int]$defaultchoice = 0
+	#-----------------------------------------------------------------------------------------------------------------------
+	# Execute Choice Prompt
+	#-----------------------------------------------------------------------------------------------------------------------
+	# PromptForChoice() output will always be integer: https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
+	If ($InfoDescription) {
+		$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
+	} else {
+		$answer = $host.UI.PromptForChoice($Title, "", $Options, $defaultchoice)
+	}
+	#-----------------------------------------------------------------------------------------------------------------------
+	# Interpret answer
+	#-----------------------------------------------------------------------------------------------------------------------
+	#help about_switch
+	#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
+	#Write-Verbose "Answer = $answer"
+	switch ($answer) {
+		0 { # Y - Yes
+			Write-Verbose "Yes ('$answer') option selected."
+			$ChoiceResultVar = 'Y'
+		}
+		1 { # N - No
+			Write-Verbose "No ('$answer') option selected."
+			$ChoiceResultVar = 'N'
+		}
+	}
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Return $ChoiceResultVar
+
+} # End PromptForChoice-DayDate function -------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -1115,7 +1586,8 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
 		# Check if $VarName input is integer using Validate-Integer function
-		try {
+		try { # help about_Try_Catch_Finally
+			#https://stackoverflow.com/questions/6430382/powershell-detecting-errors-in-script-functions
 			$VarInteger = Validate-Integer $VarSimplified -ErrorVariable ValidateIntError
 			# -ErrorVariable <variable_name> - Error is assigned to the variable name you specify. Even when you use the -ErrorVariable parameter, the $error variable is still updated.
 			# If you want to append an error to the variable instead of overwriting it, you can put a plus sign (+) in front of the variable name. E.g. -ErrorVariable +<variable_name>
@@ -1322,7 +1794,8 @@ Function ReadPrompt-ValidateIntegerRange { #------------------------------------
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
 		# Check if $VarName input is integer using Validate-Integer function
-		try {
+		try { # help about_Try_Catch_Finally
+			#https://stackoverflow.com/questions/6430382/powershell-detecting-errors-in-script-functions
 			$VarInteger = Validate-Integer $VarSimplified -ErrorVariable ValidateIntError
 			# -ErrorVariable <variable_name> - Error is assigned to the variable name you specify. Even when you use the -ErrorVariable parameter, the $error variable is still updated.
 			# If you want to append an error to the variable instead of overwriting it, you can put a plus sign (+) in front of the variable name. E.g. -ErrorVariable +<variable_name>
