@@ -125,6 +125,7 @@ SET "_LOCAL_FILE=%UserProfile%\Nextcloud\Documents\Raspberry Pi\Pi-Hole DNS serv
 ::SET "_LOCAL_FILE=%UserProfile%\Nextcloud\Documents\Docker\docker compose\projects\pipsqueak-plus\etc\letsencrypt\"
 ::SET "_LOCAL_FILE=%UserProfile%\Nextcloud\Documents\Docker\docker compose\projects\pipsqueak-plus\~\"
 ::SET "_LOCAL_FILE=%UserProfile%\Nextcloud\Documents\Docker\docker compose\projects\pipsqueak-plus\home\docker-compose.yaml"
+SET "_LOCAL_FILE=%UserProfile%\Documents\Wireshark"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -137,6 +138,7 @@ SET "_REMOTE_FILE=/home/pi/DynDNS/*.log"
 ::SET "_REMOTE_FILE=/home/g/docker/home-ass/"
 ::SET "_REMOTE_FILE=/home/g/docker/"
 ::SET "_REMOTE_FILE=/home/g/*"
+SET "_REMOTE_FILE=/home/getmo/packetcap/2019-10-05dump.pcap"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -147,13 +149,14 @@ SET "_REMOTE_HOST=192.168.0.200"
 ::SET "_REMOTE_HOST=my.pi"
 ::SET "_REMOTE_HOST=192.168.0.201"
 ::SET "_REMOTE_HOST=rotteneggs.local"
+SET "_REMOTE_HOST=192.168.0.1"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :: Param5 = Remote host username to login with
 
 SET "_REMOTE_HOST_USERNAME="
-SET "_REMOTE_HOST_USERNAME=pi"
+SET "_REMOTE_HOST_USERNAME=getmo"
 ::SET "_REMOTE_HOST_USERNAME=root"
 ::SET "_REMOTE_HOST_USERNAME=g"
 
@@ -409,15 +412,15 @@ IF /I "%_SEND_OR_RECEIVE%"=="SEND" (
 	)
 ) ELSE IF /I "%_SEND_OR_RECEIVE%"=="RECEIVE" (
 	REM Check if receiving location exists
-	IF NOT EXIST "%_LOCAL_FILE_PATH%" (
+	IF NOT EXIST "%_LOCAL_FILE%" (
 		ECHO:
-		ECHO This path does not exist. ^(_LOCAL_FILE_PATH^)
+		ECHO This path does not exist. ^(_LOCAL_FILE^)
 		ECHO: 
-		ECHO "%_LOCAL_FILE_PATH%"
+		ECHO "%_LOCAL_FILE%"
 		ECHO:
 		CHOICE /M "Would you like to create it?"
 		IF ERRORLEVEL 2 GOTO END & REM No.
-		IF ERRORLEVEL 1 MKDIR "%_LOCAL_FILE_PATH%" && ECHO Directory successfully created. & REM Yes.
+		IF ERRORLEVEL 1 MKDIR "%_LOCAL_FILE%" && ECHO Directory successfully created. & REM Yes.
 		ECHO:
 		IF /I "%_REMOTE_FILE_WILDCARD%"=="DISABLED" (
 			ECHO Retrieving file "%_REMOTE_FILE%"
@@ -425,7 +428,7 @@ IF /I "%_SEND_OR_RECEIVE%"=="SEND" (
 			ECHO Retrieving file^(s^) "%_REMOTE_FILE%"
 		)
 		ECHO:
-		ECHO To save at location "%_LOCAL_FILE_PATH%"
+		ECHO To save at location "%_LOCAL_FILE%"
 		ECHO:
 	) ELSE (
 		ECHO:
@@ -435,7 +438,7 @@ IF /I "%_SEND_OR_RECEIVE%"=="SEND" (
 			ECHO Retrieving file^(s^) "%_REMOTE_FILE%"
 		)
 		ECHO:
-		ECHO To save at location "%_LOCAL_FILE_PATH%"
+		ECHO To save at location "%_LOCAL_FILE%"
 		ECHO:
 	)
 )
