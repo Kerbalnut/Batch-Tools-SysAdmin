@@ -138,7 +138,7 @@ SET "_REMOTE_FILE=/home/pi/DynDNS/*.log"
 ::SET "_REMOTE_FILE=/home/g/docker/home-ass/"
 ::SET "_REMOTE_FILE=/home/g/docker/"
 ::SET "_REMOTE_FILE=/home/g/*"
-SET "_REMOTE_FILE=/home/getmo/packetcap/2019-10-05dump.pcap"
+SET "_REMOTE_FILE=/home/getmo/packetcap/2019-10-05dump_4.pcap"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

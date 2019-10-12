@@ -1206,6 +1206,11 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 		$DayOptionFive = $TodayDateTime.AddDays($DaysBefore) # Two days before
 		Write-Verbose "`$DayOptionFive = $DayOptionFive"
 		Write-Verbose "`$DayOptionFive = $(Get-Date -Date $DayOptionFive -UFormat %A)"
+		$DayOptionFiveDate = $DayOptionFive.Date
+		Write-Verbose "`$DayOptionFive = $($DayOptionFive.Date)"
+		Write-Verbose "`$DayOptionFive = $DayOptionFiveDate"
+		Write-Verbose "`$DayOptionFive = $(Get-Date -Date $DayOptionFive)"
+		
 		
 		$RollingInt = $RollingInt - 1
 		Write-Verbose "`$RollingInt = $RollingInt"
@@ -1302,6 +1307,7 @@ W - Wednesday
 U - Tuesday
 M - Monday
 
+O - Show/Hide Saturday & Sunday
 P - Previous Week
 L - Last Week
 Q - Quit

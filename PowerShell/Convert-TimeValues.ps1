@@ -259,6 +259,7 @@ Write-Host "Time Duration = $TimeDifferenceHours (hours)"
 #Write-Host "Time goal = $TimeGoalStr"
 
 $TimeGoal = (Get-Date -Hour 8 -Minute 0 -Second 0 -Millisecond 0) - (Get-Date -Hour 0 -Minute 0 -Second 0 -Millisecond 0)
+$TimeGoal = (Get-Date -Hour 8 -Minute 0 -Second 0 -Millisecond 0).TimeOfDay
 
 Write-Host "Time goal = $TimeGoal (hours:minutes)"
 
@@ -291,6 +292,25 @@ Write-Host "Time left = $TimeRemaining (hours:minutes)"
 $TimeRemainingHours = $TimeRemaining.TotalHours
 
 Write-Host "Time left = $TimeRemainingHours (hours)"
+
+#
+
+$AccumulatedTime = (Get-Date -Hour 8 -Minute 10 -Second 0 -Millisecond 0).TimeOfDay
+$AccumulatedTime += (Get-Date -Hour 8 -Minute 15 -Second 0 -Millisecond 0).TimeOfDay
+$AccumulatedTime += (Get-Date -Hour 8 -Minute 45 -Second 0 -Millisecond 0).TimeOfDay
+
+$TimeGoal = (Get-Date -Hour 33 -Minute 0 -Second 0 -Millisecond 0).TimeOfDay
+
+$TimeRemaining = $TimeGoal - $AccumulatedTime
+$TimeRemaining = 33 - $AccumulatedTime.TotalHours
+
+$AccumulatedTimeToday = (Get-Date -Hour 12 -Minute 25 -Second 0 -Millisecond 0).TimeOfDay - (Get-Date -Hour 8 -Minute 45 -Second 0 -Millisecond 0).TimeOfDay
+
+$HourFormatted = ReadPrompt-Hour
+
+
+$TimeRemainingToday = 33 - ($AccumulatedTime.TotalHours + $AccumulatedTimeToday.TotalHours)
+$TimeRemainingToday = $TimeRemainingToday.
 
 #
 

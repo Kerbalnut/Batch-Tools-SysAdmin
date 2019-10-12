@@ -61,7 +61,6 @@ https://osqa-ask.wireshark.org/questions/22230/filter-for-partial-ip-address
 To filter for public hostnames, use:
 
 ip.host contains netflix
-ip.host contains netflix
 ip.host contains netflix || ip.host contains nflxext.com
 
 
