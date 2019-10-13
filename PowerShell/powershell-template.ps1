@@ -1297,6 +1297,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	}
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	# Test past dates
 	
@@ -1304,17 +1305,30 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	
 	Write-Host "`Test past dates"
 	
-	$CountLoop = 45
-	Write-Verbose "Days to count backwards: $CountLoop"
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	Write-Verbose "Start of Loop."
+	
+	$VerbosePreferenceOrig = $VerbosePreference
+	$VerbosePreference = 'SilentlyContinue'
 	
 	Write-HR -IsVerbose
 	
 	$CurrentDateTime = Get-Date
+	$LastWeekOfYear = ""
 	
-	$VerbosePreferenceOrig = $VerbosePreference
-	$VerbosePreference = 'SilentlyContinue'
+	# Week of the Year (00-52)
+	$TodayWeekOfYearZero = Get-Date -UFormat %W
+	Write-Verbose "`$TodayWeekOfYearZero (00-52) = $TodayWeekOfYearZero"
+    
+	# Week of the Year (01-53)
+	$TodayWeekOfYear = Get-Date -UFormat %V
+	Write-Verbose "`$TodayWeekOfYear (01-53) = $TodayWeekOfYear"
+	
+	$CountLoop = 45
+	Write-Verbose "Days to count backwards: $CountLoop"
+	
+	#-----------------------------------------------------------------------------------------------------------------------
 	
 	For ($i=1; $i -le $CountLoop; $i++) {
 	
@@ -1400,22 +1414,42 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	$WeekOfYear = Get-Date -Date $CurrentDateTime -UFormat %V
 	Write-Verbose "`$WeekOfYear (01-53) = $WeekOfYear"
 	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	#Write-Host "$MonthDay - $DoWShort - $MonthShort - Week #($WeekOfYear/52)"
-	Write-Host "$MonthDay - $DoWShort - ($WeekOfYear/52) - $MonthShort"
 	
+	If ($WeekOfYear -eq $TodayWeekOfYear) {
+		Write-Verbose "Current week selected"
+		$WeekOfYearDisplayLabel = " - Current week."
+	} Else {
+		$WeekOfYearDisplayLabel = ""
+	}
+	
+	if ($WeekOfYear -ne $LastWeekOfYear) {
+		Write-Verbose "New week detected."
+		Write-Host "New week detected."
+		$LastWeekOfYear = $WeekOfYear
+	}
+	 
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#Write-Host "$MonthDay - $DoWShort - $MonthShort - Week #($WeekOfYear/52)($WeekOfYearDisplayLabel)"
+	Write-Host "$MonthDay - $DoWShort - ($WeekOfYear/52) - $MonthShort$($WeekOfYearDisplayLabel)"
 	
 	$CurrentDateTime = $CurrentDateTime.AddDays(-1)
 	
 	Write-HR -IsVerbose
-	
 	}
+	
 	$VerbosePreference = 'Continue'
 	$VerbosePreference = $VerbosePreferenceOrig
 	Write-Verbose "End of Loop."
 	
+	#-----------------------------------------------------------------------------------------------------------------------
+	
 	Write-HR -IsVerbose -DashedLine
 	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	

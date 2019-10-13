@@ -595,6 +595,11 @@ Function Write-HorizontalRuleAdv {
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+#https://www.powershellgallery.com/packages/Convert-Time/1.0#
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
 Function Log-Time {
 	<#
 		.SYNOPSIS
