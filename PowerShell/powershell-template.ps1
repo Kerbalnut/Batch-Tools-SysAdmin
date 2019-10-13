@@ -1316,6 +1316,8 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	
 	$CurrentDateTime = Get-Date
 	$LastWeekOfYear = ""
+	#$LastMonthFull = ""
+	$LastMonthFull = $TodayMonthFull
 	
 	# Week of the Year (00-52)
 	$TodayWeekOfYearZero = Get-Date -UFormat %W
@@ -1424,6 +1426,14 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 		$WeekOfYearDisplayLabel = ""
 	}
 	
+	if ($MonthFull -ne $LastMonthFull) {
+		Write-Verbose "Month change detected."
+		$LastMonthFull = $MonthFull
+		$MonthChangeDisplayLabel = " - Month change."
+	}  Else {
+		$MonthChangeDisplayLabel = ""
+	}
+	
 	if ($WeekOfYear -ne $LastWeekOfYear) {
 		Write-Verbose "New week detected."
 		Write-Host "New week detected."
@@ -1433,8 +1443,8 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	#Write-Host "$MonthDay - $DoWShort - $MonthShort - Week #($WeekOfYear/52)($WeekOfYearDisplayLabel)"
-	Write-Host "$MonthDay - $DoWShort - ($WeekOfYear/52) - $MonthShort$($WeekOfYearDisplayLabel)"
+	#Write-Host "$MonthDay - $DoWShort - $MonthShort - Week #($WeekOfYear/52)($WeekOfYearDisplayLabel)$($MonthChangeDisplayLabel)"
+	Write-Host "$MonthDay - $DoWShort - ($WeekOfYear/52) - $MonthShort$($WeekOfYearDisplayLabel)$($MonthChangeDisplayLabel)"
 	
 	$CurrentDateTime = $CurrentDateTime.AddDays(-1)
 	
