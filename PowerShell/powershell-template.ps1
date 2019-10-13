@@ -1331,7 +1331,6 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	Write-Verbose "Days to count backwards: $CountLoop"
 	
 	#-----------------------------------------------------------------------------------------------------------------------
-	
 	For ($i=1; $i -le $CountLoop; $i++) {
 	
 	$DoWLong = Get-Date -Date $CurrentDateTime -UFormat %A
@@ -1417,6 +1416,12 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	Write-Verbose "`$WeekOfYear (01-53) = $WeekOfYear"
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#Test case:
+	If ($i -eq 3) {
+		#$MonthFull = "December"
+		#$MonthShort = "Dec"
+	}
 	
 	
 	If ($WeekOfYear -eq $TodayWeekOfYear) {
