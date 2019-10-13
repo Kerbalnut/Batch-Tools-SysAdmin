@@ -782,9 +782,22 @@ Function Write-HorizontalRuleAdv { #--------------------------------------------
   #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
 } # End Write-HorizontalRuleAdv function -------------------------------------------------------------------------------
-#Set-Alias -Name "Write-HR" -Value "Write-HorizontalRuleAdv"
-Set-Alias -Name "Write-HR" -Value "Write-HorizontalRuleAdv" -Scope Global
+Set-Alias -Name "Write-HR" -Value "Write-HorizontalRuleAdv" # -Scope Global
 #-----------------------------------------------------------------------------------------------------------------------
+
+Function DateToiso($Zeit) {
+  <#
+  .LINK
+  https://ss64.com/ps/syntax-dateformats.htmls
+  #>
+  "Returns an array containing the ISO Year, Week and DayofWeek"
+  $DayofWeek = +$Zeit.DayofWeek
+  if ($DayofWeek -eq 0) { $DayofWeek = 7 }           # Mon=1..Sun=7
+  $Thursday = $Zeit.AddDays(4 - $DayofWeek)          # Go to nearest Thursday
+  $Week = 1+[Math]::Floor(($Thursday.DayOfYear-1)/7) # Adjusted seventh
+  $Year = $Thursday.Year         # Needed
+  $Year, $Week, $DayofWeek
+} # Source Dr J R Stockton 
 
 #-----------------------------------------------------------------------------------------------------------------------
 Function PromptForChoice-YesNoSectionSkip { #---------------------------------------------------------------------------
@@ -941,14 +954,47 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	$TodayDoWLong = Get-Date -UFormat %A
 	Write-Verbose "`$TodayDoWLong = $TodayDoWLong"
 	
+	# Month/Day (MM/DD)
 	$TodayMonthDay = Get-Date -Format 'm, M'
 	Write-Verbose "`$TodayMonthDay = $TodayMonthDay"
 	
+	# Month/Day (MM/DD)
 	$TodayMonthDay = Get-Date -UFormat %m/%d
 	Write-Verbose "`$TodayMonthDay = $TodayMonthDay"
 	
+	# Day/Month (DD/MM)
 	$TodayDayMonth = Get-Date -UFormat %d/%m
 	Write-Verbose "`$TodayDayMonth = $TodayDayMonth"
+	
+    # Month name - abbreviated (Jan)
+	<#
+	01 - Jan
+	02 - Feb
+	03 - Mar
+	04 - Apr
+	05 - May
+	06 - Jun
+	07 - Jul
+	08 - Aug
+	09 - Sep
+	10 - Oct
+	11 - Nov
+	12 - Dec
+	#>
+    $TodayMonthShort = Get-Date -UFormat %b
+	Write-Verbose "`$TodayMonthShort - $TodayMonthShort"
+	    
+    # Month name - full (January)
+	$TodayMonthFull = Get-Date -UFormat %B
+	Write-Verbose "`$TodayMonthFull = $TodayMonthFull"
+	
+	# Week of the Year (00-52)
+	$TodayWeekOfYearZero = Get-Date -UFormat %W
+	Write-Verbose "`$TodayWeekOfYearZero (00-52) = $TodayWeekOfYearZero"
+    
+	# Week of the Year (01-53)
+	$TodayWeekOfYear = Get-Date -UFormat %V
+	Write-Verbose "`$TodayWeekOfYear (01-53) = $TodayWeekOfYear"
 	
 	Write-HR -IsVerbose -DashedLine
 	
@@ -1250,8 +1296,157 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 		
 	}
 	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Test past dates
+	
+	Write-HR -DashedLine
+	
+	Write-Host "`Test past dates"
+	
+	$CountLoop = 45
+	Write-Verbose "Days to count backwards: $CountLoop"
+	
+	Write-Verbose "Start of Loop."
+	
+	Write-HR -IsVerbose
+	
+	$CurrentDateTime = Get-Date
+	
+	$VerbosePreferenceOrig = $VerbosePreference
+	$VerbosePreference = 'SilentlyContinue'
+	
+	For ($i=1; $i -le $CountLoop; $i++) {
+	
+	$DoWLong = Get-Date -Date $CurrentDateTime -UFormat %A
+	Write-Verbose "`$DoWLong = $DoWLong"
+	
+	# Day-of-Week in 3 characters::
+	<#
+	Sun
+	Mon
+	Tue
+	Wed
+	Thu
+	Fri
+	Sat
+	Sun
+	#>
+	$DoWShort = Get-Date -Date $CurrentDateTime -UFormat %a
+	Write-Verbose "`$DoWShort = $DoWShort"
+	
+	# Day-of-Week in number format (0-6):
+	<#
+	0 = Sunday
+	1 = Monday
+	2 = Tuesday
+	3 = Wednesday
+	4 = Thursday
+	5 = Friday
+	6 = Saturday
+	#>
+	$DoWNumber = Get-Date -Date $CurrentDateTime -UFormat %u
+	Write-Verbose "`$DoWNumber = $DoWNumber"
+	
+	# Day-of-Week in number format (1-7):
+	<#
+	1 = Monday
+	2 = Tuesday
+	3 = Wednesday
+	4 = Thursday
+	5 = Friday
+	6 = Saturday
+	7 = Sunday
+	#>
+	$DoWNumberOneThruSeven = Get-Date -Date $CurrentDateTime -UFormat %u
+	If ([int]$DoWNumberOneThruSeven -eq 0) {$DoWNumberOneThruSeven = 7}
+	Write-Verbose "`$DoWNumberOneThruSeven = $DoWNumberOneThruSeven"
+	
+	# Month/Day (MM/DD)
+	$MonthDay = Get-Date -Date $CurrentDateTime -UFormat %m/%d
+	Write-Verbose "`$MonthDay = $MonthDay"
+	
+	# Day/Month (DD/MM)
+	$DayMonth = Get-Date -Date $CurrentDateTime -UFormat %d/%m
+	Write-Verbose "`$DayMonth = $DayMonth"
+	
+    # Month name - abbreviated (Jan)
+	<#
+	01 - Jan
+	02 - Feb
+	03 - Mar
+	04 - Apr
+	05 - May
+	06 - Jun
+	07 - Jul
+	08 - Aug
+	09 - Sep
+	10 - Oct
+	11 - Nov
+	12 - Dec
+	#>
+    $MonthShort = Get-Date -Date $CurrentDateTime -UFormat %b
+	Write-Verbose "`$MonthShort - $MonthShort"
+	    
+    # Month name - full (January)
+	$MonthFull = Get-Date -Date $CurrentDateTime -UFormat %B
+	Write-Verbose "`$MonthFull = $MonthFull"
+	
+	# Week of the Year (00-52)
+	$WeekOfYearZero = Get-Date -Date $CurrentDateTime -UFormat %W
+	Write-Verbose "`$WeekOfYearZero (00-52) = $WeekOfYearZero"
+    
+	# Week of the Year (01-53)
+	$WeekOfYear = Get-Date -Date $CurrentDateTime -UFormat %V
+	Write-Verbose "`$WeekOfYear (01-53) = $WeekOfYear"
 	
 	
+	#Write-Host "$MonthDay - $DoWShort - $MonthShort - Week #($WeekOfYear/52)"
+	Write-Host "$MonthDay - $DoWShort - ($WeekOfYear/52) - $MonthShort"
+	
+	
+	$CurrentDateTime = $CurrentDateTime.AddDays(-1)
+	
+	Write-HR -IsVerbose
+	
+	}
+	$VerbosePreference = 'Continue'
+	$VerbosePreference = $VerbosePreferenceOrig
+	Write-Verbose "End of Loop."
+	
+	Write-HR -IsVerbose -DashedLine
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	
+	
+	$Info = @"
+Month: $TodayMonth
+Week #$TodayWeekOfYear/53
+
+Select day:
+
+T - Today - $TodayDoWLong ($TodayMonthDay)
+Y - Yesterday - $YesterdayDoW ($YesterdayMonthDay)
+C - Current Week
+N - Next Week
+
+D - Sunday
+S - Saturday
+F - Friday
+H - Thursday
+W - Wednesday
+U - Tuesday
+M - Monday
+
+O - Show/Hide Saturday & Sunday
+P - Previous Week
+L - Last Week
+Q - Quit
+
+Select a choice:
+"@
+	Write-Host "$Info"
 	
 	
 	
@@ -1293,10 +1488,14 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	$Title = "$TitleName?"
 	$Info = "$InfoDescription"
 	$Info = @"
+Month: $TodayMonth
+Week #$TodayWeekOfYear/53
+
 Select day:
 
-T - Today
-Y - Yesterday
+T - Today - $TodayDoWLong ($TodayMonthDay)
+Y - Yesterday - $YesterdayDoW ($YesterdayMonthDay)
+C - Current Week
 N - Next Week
 
 D - Sunday

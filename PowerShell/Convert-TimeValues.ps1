@@ -310,7 +310,7 @@ $HourFormatted = ReadPrompt-Hour
 
 
 $TimeRemainingToday = 33 - ($AccumulatedTime.TotalHours + $AccumulatedTimeToday.TotalHours)
-$TimeRemainingToday = $TimeRemainingToday.
+$TimeRemainingToday = $TimeRemainingToday
 
 #
 
