@@ -621,6 +621,8 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	[int]$SelectedDoW = [int]$TodayDoWNumberOneThruSeven
+	[int]$TodayDoW = [int]$TodayDoWNumberOneThruSeven
+
 	
 	[DateTime]$SelectedDateTime = [DateTime]$TodayDateTime
     
@@ -936,13 +938,82 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	    } until ($SelectedDoW -lt 1)
     
         If ($StartOfWeekMonSunMonthLong -ne $EndOfWeekMonSunMonthLong) {
-            Write-Host "Month (Mon-Sun): $StartOfWeekMonSunMonthShort-$EndOfWeekMonSunMonthShort"
+            $MonthLabel = "$StartOfWeekMonSunMonthShort-$EndOfWeekMonSunMonthShort"
+            Write-Host "Month (Mon-Sun): $MonthLabel"
         } Else {
-            Write-Host "Month (Mon-Sun): $StartOfWeekMonSunMonthLong"
+            $MonthLabel = "$StartOfWeekMonSunMonthLong"
+            Write-Host "Month (Mon-Sun): $MonthLabel"
         }
         # Month/Day (MM/DD)
         Write-Host "(Mon-Sun): Mon ($(Get-Date -Date $StartOfWeekMonSun -UFormat %m/%d))"
         Write-Host "(Mon-Sun): Sun ($(Get-Date -Date $EndOfWeekMonSun -UFormat %m/%d))"
+
+        $Info = @"
+Month: $MonthLabel
+Week #$WeekOfYear/53
+
+Select day:
+"@
+
+If ($SelectedWeek -ne 0) {
+$Info += "`r`n`r`nC - Current Week`r`n"
+$Info += "N - Next Week"
+}
+
+$Info += "`r`n`r`nT - ($TodayMonthDay) Today - $TodayDoWLong`r`n"
+$Info += "Y - ($YesterdayMonthDay) Yesterday - $YesterdayDoW`r`n"
+
+If ($TodayDoW -gt 6) {
+$Info += "F - ($(Get-Date -Date $Friday -UFormat %m/%d)) Friday`r`n"
+}
+
+If ($TodayDoW -eq 5) {
+$Info += "H - ($(Get-Date -Date $Thursday -UFormat %m/%d)) Thursday`r`n"
+}
+
+If ($TodayDoW -gt 4) {
+$Info += "W - ($(Get-Date -Date $Wednesday -UFormat %m/%d)) Wednesday`r`n"
+}
+
+If ($TodayDoW -gt 3) {
+$Info += "U - ($(Get-Date -Date $Tuesday -UFormat %m/%d)) Tuesday`r`n"
+}
+
+If ($TodayDoW -gt 2) {
+$Info += "M - ($(Get-Date -Date $Monday -UFormat %m/%d)) Monday`r`n"
+}
+
+If ($SelectedWeek -ne 0) {
+$Info += "`r`nO - Show/Hide Saturday & Sunday"
+}
+
+$Info += @"
+
+P - Previous Week
+Q - Quit
+
+Select a choice:
+"@
+
+<#
+D - Sunday
+S - Saturday
+F - Friday
+H - Thursday
+W - Wednesday
+U - Tuesday
+M - Monday
+
+O - Show/Hide Saturday & Sunday
+P - Previous Week
+L - Last Week
+Q - Quit
+
+Select a choice:
+#>
+    	
+        Write-HR
+	    Write-Host "$Info"
         
     	Write-HR -IsVerbose -DashedLine
     	Write-HR
