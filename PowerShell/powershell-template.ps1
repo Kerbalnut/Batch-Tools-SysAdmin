@@ -1553,6 +1553,22 @@ Select a choice:
 	If ([int]$TodayDoWNumberOneThruSeven -eq 0) {$TodayDoWNumberOneThruSeven = 7}
 	Write-Verbose "`$TodayDoWNumberOneThruSeven = $TodayDoWNumberOneThruSeven"
 	
+    function Convert-DoWNumberToMonSun {
+    param([datetime]$Input)
+	$DoWNumberOneThruSeven = Get-Date -Date $Input -UFormat %u
+	If ([int]$DoWNumberOneThruSeven -eq 0) {$DoWNumberOneThruSeven = 7}
+	Write-Verbose "`$DoWNumberOneThruSeven = $DoWNumberOneThruSeven"
+    Return [int]$DoWNumberOneThruSeven
+	}
+
+    function Convert-DoWNumberToSunSat {
+    param([datetime]$Input)
+	$DoWNumberZeroThruSix = Get-Date -Date $Input -UFormat %u
+	If ([int]$DoWNumberZeroThruSix -eq 7) {$DoWNumberZeroThruSix = 0}
+	Write-Verbose "`$DoWNumberZeroThruSix = $DoWNumberZeroThruSix"
+    Return [int]$DoWNumberZeroThruSix
+	}
+
 	$DaysIntoTheWeek = [int]$TodayDoWNumberOneThruSeven
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1572,8 +1588,41 @@ Select a choice:
 	5 = Friday    - Monday is 5 - 4 = 1
 	6 = Saturday  - Monday is 6 - 5 = 1
 	7 = Sunday    - Monday is 7 - 6 = 1
+    
+    
+	1 = Monday    - Monday is $Input - 0 = 1
+	2 = Tuesday   - Monday is $Input - 1 = 1
+	3 = Wednesday - Monday is $Input - 2 = 1
+	4 = Thursday  - Monday is $Input - 3 = 1
+	5 = Friday    - Monday is $Input - 4 = 1
+	6 = Saturday  - Monday is $Input - 5 = 1
+	7 = Sunday    - Monday is $Input - 6 = 1
+    
+    
+	0 = Monday    - Monday is $Input - 0 = 0
+	1 = Tuesday   - Monday is $Input - 1 = 0
+	2 = Wednesday - Monday is $Input - 2 = 0
+	3 = Thursday  - Monday is $Input - 3 = 0
+	4 = Friday    - Monday is $Input - 4 = 0
+	5 = Saturday  - Monday is $Input - 5 = 0
+	6 = Sunday    - Monday is $Input - 6 = 0
 	#>
     
+
+    function Get-MondayOfWeekInt {
+    param([int]$DoWInput)
+    $ModifyBy = [int]$DoWInput - 1
+    $MondayOfWeek = [int]$DoWInput - [int]$ModifyBy
+    Return [int]$MondayOfWeek
+    }
+
+
+    function Get-MondayOfWeek {
+    param([datetime]$DoWInput)
+    $ModifyBy = (Get-Date -Date $DoWInput -UFormat %u) * -1
+    $MondayOfWeek = (Get-Date -Date $DoWInput).AddDays($ModifyBy)
+    Return [datetime]$MondayOfWeek
+    }
     
     # Get Sunday of current week
 
@@ -1586,10 +1635,50 @@ Select a choice:
 	5 = Friday    - Sunday is 5 + 2 = 7
 	6 = Saturday  - Sunday is 6 + 1 = 7
 	7 = Sunday    - Sunday is 7 + 0 = 7
+	
+	1 = Monday    - Sunday is $Input + 6 = 7
+	2 = Tuesday   - Sunday is $Input + 5 = 7
+	3 = Wednesday - Sunday is $Input + 4 = 7
+	4 = Thursday  - Sunday is $Input + 3 = 7
+	5 = Friday    - Sunday is $Input + 2 = 7
+	6 = Saturday  - Sunday is $Input + 1 = 7
+	7 = Sunday    - Sunday is $Input + 0 = 7
+    
+	0 = Monday    - Sunday is $Input + 6 = 6
+	1 = Tuesday   - Sunday is $Input + 5 = 6
+	2 = Wednesday - Sunday is $Input + 4 = 6
+	3 = Thursday  - Sunday is $Input + 3 = 6
+	4 = Friday    - Sunday is $Input + 2 = 6
+	5 = Saturday  - Sunday is $Input + 1 = 6
+	6 = Sunday    - Sunday is $Input + 0 = 6
 	#>
 
+    function Get-SundayOfWeekInt {
+    param([int]$DoWInput)
+    $ModifyBy = 7 - [int]$DoWInput
+    $SundayOfWeek = [int]$DoWInput + [int]$ModifyBy
+    Return [int]$SundayOfWeek
+    }
+
+    function Get-SundayOfWeek {
+    param([datetime]$DoWInput)
+    $ModifyBy = 6 - (Get-Date -Date $DoWInput -UFormat %u)
+    $SundayOfWeek = (Get-Date -Date $DoWInput).AddDays($ModifyBy)
+    Return [datetime]$SundayOfWeek
+    }
+
+    Get-MondayOfWeek -DoWInput $SelectedDoW
+    Get-SundayOfWeek -DoWInput $SelectedDoW
     
+    #$StartOfWeekMonthLong = Get-Date -Date (Get-MondayOfWeekInt -DoWInput $SelectedDoW) -UFormat %B
+    $StartOfWeekMonthLong = Get-Date -Date (Get-MondayOfWeek -DoWInput $SelectedDateTime) -UFormat %B
+    #$StartOfWeekMonthShort = Get-Date -Date (Get-MondayOfWeekInt -DoWInput $SelectedDoW) -UFormat %b
+    $StartOfWeekMonthShort = Get-Date -Date (Get-MondayOfWeek -DoWInput $SelectedDateTime) -UFormat %b
     
+    #$EndOfWeekMonthLong = Get-Date -Date (Get-SundayOfWeekInt -DoWInput $SelectedDoW) -UFormat %B
+    $EndOfWeekMonthLong = Get-Date -Date (Get-SundayOfWeek -DoWInput $SelectedDateTime) -UFormat %B
+    #$EndOfWeekMonthShort = Get-Date -Date (Get-SundayOfWeekInt -DoWInput $SelectedDoW) -UFormat %b
+	$EndOfWeekMonthShort = Get-Date -Date (Get-SundayOfWeek -DoWInput $SelectedDateTime) -UFormat %b
 	
 	If ($SelectedWeek -eq 0) {
 		$SelectedDoW = [int]$TodayDoWNumberOneThruSeven
@@ -1618,7 +1707,7 @@ Select a choice:
 		$SelectedDoW = 7
 		
 	}
-
+    
 	# Week of the Year (00-52)
 	$WeekOfYearZero = Get-Date -Date $CurrentDateTime -UFormat %W
 	Write-Verbose "`$WeekOfYearZero (00-52) = $WeekOfYearZero"
