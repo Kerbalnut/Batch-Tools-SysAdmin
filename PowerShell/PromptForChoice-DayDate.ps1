@@ -633,21 +633,28 @@ Select a choice:
 	6 = Saturday
 	7 = Sunday
 	#>
-	$TodayDoWNumberOneThruSeven = Get-Date -UFormat %u
+	[int]$TodayDoWNumberOneThruSeven = Get-Date -UFormat %u
 	If ([int]$TodayDoWNumberOneThruSeven -eq 0) {$TodayDoWNumberOneThruSeven = 7}
 	Write-Verbose "`$TodayDoWNumberOneThruSeven = $TodayDoWNumberOneThruSeven"
 	
+
     function Convert-DoWNumberToMonSun {
-    param([datetime]$Input)
-	$DoWNumberOneThruSeven = Get-Date -Date $Input -UFormat %u
+    param(
+        [parameter(Position=0)]
+        [DateTime]$InputVal
+    )
+	$DoWNumberOneThruSeven = (Get-Date -Date $InputVal -UFormat %u)
 	If ([int]$DoWNumberOneThruSeven -eq 0) {$DoWNumberOneThruSeven = 7}
 	Write-Verbose "`$DoWNumberOneThruSeven = $DoWNumberOneThruSeven"
     Return [int]$DoWNumberOneThruSeven
 	}
 
     function Convert-DoWNumberToSunSat {
-    param([datetime]$Input)
-	$DoWNumberZeroThruSix = Get-Date -Date $Input -UFormat %u
+    param(
+        [parameter(Position=0)]
+        [DateTime]$InputVal
+    )
+	$DoWNumberZeroThruSix = Get-Date -Date $InputVal -UFormat %u
 	If ([int]$DoWNumberZeroThruSix -eq 7) {$DoWNumberZeroThruSix = 0}
 	Write-Verbose "`$DoWNumberZeroThruSix = $DoWNumberZeroThruSix"
     Return [int]$DoWNumberZeroThruSix
@@ -694,15 +701,21 @@ Select a choice:
     
 
     function Get-MondayOfWeekInt {
-    param([int]$DoWInput)
+    param(
+        [parameter(Position=0)]
+        [int]$DoWInput
+    )
     $ModifyBy = [int]$DoWInput - 1
     $MondayOfWeek = [int]$DoWInput - [int]$ModifyBy
     Return [int]$MondayOfWeek
     }
 
 
-    function Get-MondayOfWeek {
-    param([datetime]$DoWInput)
+    function Get-SundayOfWeek {
+    param(
+        [parameter(Position=0)]
+        [DateTime]$DoWInput
+    )
     $ModifyBy = [int](Get-Date -Date $DoWInput -UFormat %u) * -1
     $MondayOfWeek = (Get-Date -Date $DoWInput).AddDays($ModifyBy)
     Return [datetime]$MondayOfWeek
@@ -738,14 +751,20 @@ Select a choice:
 	#>
 
     function Get-SundayOfWeekInt {
-    param([int]$DoWInput)
-    $ModifyBy = 7 - [int]$DoWInput
-    $SundayOfWeek = [int]$DoWInput + [int]$ModifyBy
+    param(
+        [parameter(Position=0)]
+        [int]$DoWInput
+    )
+    [int]$ModifyBy = 7 - [int]$DoWInput
+    [int]$SundayOfWeek = [int]$DoWInput + [int]$ModifyBy
     Return [int]$SundayOfWeek
     }
 
-    function Get-SundayOfWeek {
-    param([datetime]$DoWInput)
+    function Get-SaturdayOfWeek {
+    param(
+        [parameter(Position=0)]
+        [DateTime]$DoWInput
+    )
     $ModifyBy = 6 - [int](Get-Date -Date $DoWInput -UFormat %u)
     $SundayOfWeek = (Get-Date -Date $DoWInput).AddDays($ModifyBy)
     Return [datetime]$SundayOfWeek
@@ -758,8 +777,10 @@ Select a choice:
     Write-HR -IsVerbose -DoubleLine
 
 	If ($SelectedWeek -eq 0) {
-		$SelectedDoW = [int]$TodayDoWNumberOneThruSeven
-		$SelectedDateTime = [datetime]$TodayDateTime
+        $ConvertedDoWMonSun = (Convert-DoWNumberToMonSun -Input $TodayDateTime)
+        write-hr -isverbose -dashed
+		[int]$SelectedDoW = (Get-SundayOfWeekInt -DoWInput $ConvertedDoWMonSun)
+		$SelectedDateTime = (Get-SaturdayOfWeek -DoWInput $TodayDateTime)
         
 	} Else {
 		If ($SelectedWeek -lt 0) {
@@ -786,19 +807,19 @@ Select a choice:
 	}
     
     #$StartOfWeekMonthLong = Get-Date -Date (Get-MondayOfWeekInt -DoWInput $SelectedDoW) -UFormat %B
-    $StartOfWeekMonthLong = Get-Date -Date (Get-MondayOfWeek -DoWInput $SelectedDateTime) -UFormat %B
+    $StartOfWeekMonthLong = Get-Date -Date (Get-SundayOfWeek -DoWInput $SelectedDateTime) -UFormat %B
     #$StartOfWeekMonthShort = Get-Date -Date (Get-MondayOfWeekInt -DoWInput $SelectedDoW) -UFormat %b
-    $StartOfWeekMonthShort = Get-Date -Date (Get-MondayOfWeek -DoWInput $SelectedDateTime) -UFormat %b
+    $StartOfWeekMonthShort = Get-Date -Date (Get-SundayOfWeek -DoWInput $SelectedDateTime) -UFormat %b
     
     #$EndOfWeekMonthLong = Get-Date -Date (Get-SundayOfWeekInt -DoWInput $SelectedDoW) -UFormat %B
-    $EndOfWeekMonthLong = Get-Date -Date (Get-SundayOfWeek -DoWInput $SelectedDateTime) -UFormat %B
+    $EndOfWeekMonthLong = Get-Date -Date (Get-SaturdayOfWeek -DoWInput $SelectedDateTime) -UFormat %B
     #$EndOfWeekMonthShort = Get-Date -Date (Get-SundayOfWeekInt -DoWInput $SelectedDoW) -UFormat %b
-	$EndOfWeekMonthShort = Get-Date -Date (Get-SundayOfWeek -DoWInput $SelectedDateTime) -UFormat %b
+	$EndOfWeekMonthShort = Get-Date -Date (Get-SaturdayOfWeek -DoWInput $SelectedDateTime) -UFormat %b
     
     If ($StartOfWeekMonthLong -ne $EndOfWeekMonthLong) {
-        Write-Host "Month (func): $StartOfWeekMonthShort-$EndOfWeekMonthShort"
+        Write-Host "Month (Sun-Sat): $StartOfWeekMonthShort-$EndOfWeekMonthShort"
     } Else {
-        Write-Host "Month (func): $StartOfWeekMonthLong"
+        Write-Host "Month (Sun-Sat): $StartOfWeekMonthLong"
     }
     
 	# Week of the Year (00-52)
@@ -825,6 +846,7 @@ Select a choice:
 			$YesterdayLabel = ""
 		}
         
+        #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
 		If ($SelectedDoW -eq 7) { # Sunday
 			$Sunday = $SelectedDateTime
@@ -871,9 +893,9 @@ Select a choice:
 	} until ($SelectedDoW -lt 1)
     
     If ($StartOfWeekMonthLong -ne $EndOfWeekMonthLong) {
-        Write-Host "Month: $StartOfWeekMonthShort-$EndOfWeekMonthShort"
+        Write-Host "Month (Mon-Sun): $StartOfWeekMonthShort-$EndOfWeekMonthShort"
     } Else {
-        Write-Host "Month: $StartOfWeekMonthLong"
+        Write-Host "Month (Mon-Sun): $StartOfWeekMonthLong"
     }
     
 	
@@ -917,19 +939,19 @@ Select a choice:
 	}
     
     #$StartOfWeekMonthLong = Get-Date -Date (Get-MondayOfWeekInt -DoWInput $SelectedDoW) -UFormat %B
-    $StartOfWeekMonthLong = Get-Date -Date (Get-MondayOfWeek -DoWInput $SelectedDateTime) -UFormat %B
+    $StartOfWeekMonthLong = Get-Date -Date (Get-SundayOfWeek -DoWInput $SelectedDateTime) -UFormat %B
     #$StartOfWeekMonthShort = Get-Date -Date (Get-MondayOfWeekInt -DoWInput $SelectedDoW) -UFormat %b
-    $StartOfWeekMonthShort = Get-Date -Date (Get-MondayOfWeek -DoWInput $SelectedDateTime) -UFormat %b
+    $StartOfWeekMonthShort = Get-Date -Date (Get-SundayOfWeek -DoWInput $SelectedDateTime) -UFormat %b
     
     #$EndOfWeekMonthLong = Get-Date -Date (Get-SundayOfWeekInt -DoWInput $SelectedDoW) -UFormat %B
-    $EndOfWeekMonthLong = Get-Date -Date (Get-SundayOfWeek -DoWInput $SelectedDateTime) -UFormat %B
+    $EndOfWeekMonthLong = Get-Date -Date (Get-SaturdayOfWeek -DoWInput $SelectedDateTime) -UFormat %B
     #$EndOfWeekMonthShort = Get-Date -Date (Get-SundayOfWeekInt -DoWInput $SelectedDoW) -UFormat %b
-	$EndOfWeekMonthShort = Get-Date -Date (Get-SundayOfWeek -DoWInput $SelectedDateTime) -UFormat %b
+	$EndOfWeekMonthShort = Get-Date -Date (Get-SaturdayOfWeek -DoWInput $SelectedDateTime) -UFormat %b
     
     If ($StartOfWeekMonthLong -ne $EndOfWeekMonthLong) {
-        Write-Host "Month (func): $StartOfWeekMonthShort-$EndOfWeekMonthShort"
+        Write-Host "Month (Sun-Sat): $StartOfWeekMonthShort-$EndOfWeekMonthShort"
     } Else {
-        Write-Host "Month (func): $StartOfWeekMonthLong"
+        Write-Host "Month (Sun-Sat): $StartOfWeekMonthLong"
     }
     
 	# Week of the Year (00-52)
@@ -1002,9 +1024,9 @@ Select a choice:
 	} until ($SelectedDoW -lt 1)
     
     If ($StartOfWeekMonthLong -ne $EndOfWeekMonthLong) {
-        Write-Host "Month: $StartOfWeekMonthShort-$EndOfWeekMonthShort"
+        Write-Host "Month (Mon-Sun): $StartOfWeekMonthShort-$EndOfWeekMonthShort"
     } Else {
-        Write-Host "Month: $StartOfWeekMonthLong"
+        Write-Host "Month (Mon-Sun): $StartOfWeekMonthLong"
     }
     
 	
@@ -1048,19 +1070,19 @@ Select a choice:
 	}
     
     #$StartOfWeekMonthLong = Get-Date -Date (Get-MondayOfWeekInt -DoWInput $SelectedDoW) -UFormat %B
-    $StartOfWeekMonthLong = Get-Date -Date (Get-MondayOfWeek -DoWInput $SelectedDateTime) -UFormat %B
+    $StartOfWeekMonthLong = Get-Date -Date (Get-SundayOfWeek -DoWInput $SelectedDateTime) -UFormat %B
     #$StartOfWeekMonthShort = Get-Date -Date (Get-MondayOfWeekInt -DoWInput $SelectedDoW) -UFormat %b
-    $StartOfWeekMonthShort = Get-Date -Date (Get-MondayOfWeek -DoWInput $SelectedDateTime) -UFormat %b
+    $StartOfWeekMonthShort = Get-Date -Date (Get-SundayOfWeek -DoWInput $SelectedDateTime) -UFormat %b
     
     #$EndOfWeekMonthLong = Get-Date -Date (Get-SundayOfWeekInt -DoWInput $SelectedDoW) -UFormat %B
-    $EndOfWeekMonthLong = Get-Date -Date (Get-SundayOfWeek -DoWInput $SelectedDateTime) -UFormat %B
+    $EndOfWeekMonthLong = Get-Date -Date (Get-SaturdayOfWeek -DoWInput $SelectedDateTime) -UFormat %B
     #$EndOfWeekMonthShort = Get-Date -Date (Get-SundayOfWeekInt -DoWInput $SelectedDoW) -UFormat %b
-	$EndOfWeekMonthShort = Get-Date -Date (Get-SundayOfWeek -DoWInput $SelectedDateTime) -UFormat %b
+	$EndOfWeekMonthShort = Get-Date -Date (Get-SaturdayOfWeek -DoWInput $SelectedDateTime) -UFormat %b
     
     If ($StartOfWeekMonthLong -ne $EndOfWeekMonthLong) {
-        Write-Host "Month (func): $StartOfWeekMonthShort-$EndOfWeekMonthShort"
+        Write-Host "Month (Sun-Sat): $StartOfWeekMonthShort-$EndOfWeekMonthShort"
     } Else {
-        Write-Host "Month (func): $StartOfWeekMonthLong"
+        Write-Host "Month (Sun-Sat): $StartOfWeekMonthLong"
     }
     
 	# Week of the Year (00-52)
@@ -1133,9 +1155,9 @@ Select a choice:
 	} until ($SelectedDoW -lt 1)
     
     If ($StartOfWeekMonthLong -ne $EndOfWeekMonthLong) {
-        Write-Host "Month: $StartOfWeekMonthShort-$EndOfWeekMonthShort"
+        Write-Host "Month (Mon-Sun): $StartOfWeekMonthShort-$EndOfWeekMonthShort"
     } Else {
-        Write-Host "Month: $StartOfWeekMonthLong"
+        Write-Host "Month (Mon-Sun): $StartOfWeekMonthLong"
     }
     
 	
@@ -1179,19 +1201,19 @@ Select a choice:
 	}
     
     #$StartOfWeekMonthLong = Get-Date -Date (Get-MondayOfWeekInt -DoWInput $SelectedDoW) -UFormat %B
-    $StartOfWeekMonthLong = Get-Date -Date (Get-MondayOfWeek -DoWInput $SelectedDateTime) -UFormat %B
+    $StartOfWeekMonthLong = Get-Date -Date (Get-SundayOfWeek -DoWInput $SelectedDateTime) -UFormat %B
     #$StartOfWeekMonthShort = Get-Date -Date (Get-MondayOfWeekInt -DoWInput $SelectedDoW) -UFormat %b
-    $StartOfWeekMonthShort = Get-Date -Date (Get-MondayOfWeek -DoWInput $SelectedDateTime) -UFormat %b
+    $StartOfWeekMonthShort = Get-Date -Date (Get-SundayOfWeek -DoWInput $SelectedDateTime) -UFormat %b
     
     #$EndOfWeekMonthLong = Get-Date -Date (Get-SundayOfWeekInt -DoWInput $SelectedDoW) -UFormat %B
-    $EndOfWeekMonthLong = Get-Date -Date (Get-SundayOfWeek -DoWInput $SelectedDateTime) -UFormat %B
+    $EndOfWeekMonthLong = Get-Date -Date (Get-SaturdayOfWeek -DoWInput $SelectedDateTime) -UFormat %B
     #$EndOfWeekMonthShort = Get-Date -Date (Get-SundayOfWeekInt -DoWInput $SelectedDoW) -UFormat %b
-	$EndOfWeekMonthShort = Get-Date -Date (Get-SundayOfWeek -DoWInput $SelectedDateTime) -UFormat %b
+	$EndOfWeekMonthShort = Get-Date -Date (Get-SaturdayOfWeek -DoWInput $SelectedDateTime) -UFormat %b
     
     If ($StartOfWeekMonthLong -ne $EndOfWeekMonthLong) {
-        Write-Host "Month (func): $StartOfWeekMonthShort-$EndOfWeekMonthShort"
+        Write-Host "Month (Sun-Sat): $StartOfWeekMonthShort-$EndOfWeekMonthShort"
     } Else {
-        Write-Host "Month (func): $StartOfWeekMonthLong"
+        Write-Host "Month (Sun-Sat): $StartOfWeekMonthLong"
     }
     
 	# Week of the Year (00-52)
@@ -1264,9 +1286,9 @@ Select a choice:
 	} until ($SelectedDoW -lt 1)
     
     If ($StartOfWeekMonthLong -ne $EndOfWeekMonthLong) {
-        Write-Host "Month: $StartOfWeekMonthShort-$EndOfWeekMonthShort"
+        Write-Host "Month (Mon-Sun): $StartOfWeekMonthShort-$EndOfWeekMonthShort"
     } Else {
-        Write-Host "Month: $StartOfWeekMonthLong"
+        Write-Host "Month (Mon-Sun): $StartOfWeekMonthLong"
     }
     
 	
