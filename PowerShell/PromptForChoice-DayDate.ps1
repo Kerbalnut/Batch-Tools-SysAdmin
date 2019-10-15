@@ -599,6 +599,9 @@ Select a choice:
 	$SelectedWeek = 0
 	$PresentWeekSelected = $true
 	$TodayDateTime = Get-Date
+    #Test case
+	$TodayDateTime = Get-Date -Day 28
+    
 	$YesterdayDateTime = $TodayDateTime.AddDays(-1)
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -620,7 +623,7 @@ Select a choice:
 	5 = Friday
 	6 = Saturday
 	#>
-	$TodayDoWNumber = Get-Date -UFormat %u
+	$TodayDoWNumber = Get-Date -Date $TodayDateTime -UFormat %u
 	Write-Verbose "`$TodayDoWNumber = $TodayDoWNumber"
 	
 	# Day-of-Week in number format, (Mon-Sun = 1-7):
@@ -633,7 +636,7 @@ Select a choice:
 	6 = Saturday
 	7 = Sunday
 	#>
-	[int]$TodayDoWNumberOneThruSeven = Get-Date -UFormat %u
+	[int]$TodayDoWNumberOneThruSeven = Get-Date -Date $TodayDateTime -UFormat %u
 	If ([int]$TodayDoWNumberOneThruSeven -eq 0) {$TodayDoWNumberOneThruSeven = 7}
 	Write-Verbose "`$TodayDoWNumberOneThruSeven = $TodayDoWNumberOneThruSeven"
 	
@@ -660,13 +663,13 @@ Select a choice:
     Return [int]$DoWNumberZeroThruSix
 	}
 
-	$DaysIntoTheWeek = [int]$TodayDoWNumberOneThruSeven
+	[int]$DaysIntoTheWeek = [int]$TodayDoWNumberOneThruSeven
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	$SelectedDoW = [int]$TodayDoWNumberOneThruSeven
+	[int]$SelectedDoW = [int]$TodayDoWNumberOneThruSeven
 	
-	$SelectedDateTime = [datetime]$TodayDateTime
+	[DateTime]$SelectedDateTime = [DateTime]$TodayDateTime
     
     # Get Monday of current week
 
@@ -718,7 +721,7 @@ Select a choice:
     )
     $ModifyBy = [int](Get-Date -Date $DoWInput -UFormat %u) * -1
     $MondayOfWeek = (Get-Date -Date $DoWInput).AddDays($ModifyBy)
-    Return [datetime]$MondayOfWeek
+    Return [DateTime]$MondayOfWeek
     }
     
     # Get Sunday of current week
@@ -767,7 +770,7 @@ Select a choice:
     )
     $ModifyBy = 6 - [int](Get-Date -Date $DoWInput -UFormat %u)
     $SundayOfWeek = (Get-Date -Date $DoWInput).AddDays($ModifyBy)
-    Return [datetime]$SundayOfWeek
+    Return [DateTime]$SundayOfWeek
     }
     
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -778,10 +781,9 @@ Select a choice:
 
 	If ($SelectedWeek -eq 0) {
         $ConvertedDoWMonSun = (Convert-DoWNumberToMonSun -Input $TodayDateTime)
-        write-hr -isverbose -dashed
 		[int]$SelectedDoW = (Get-SundayOfWeekInt -DoWInput $ConvertedDoWMonSun)
 		$SelectedDateTime = (Get-SaturdayOfWeek -DoWInput $TodayDateTime)
-        
+        $SelectedDateTime = $SelectedDateTime.AddDays(1) # Shift foward 1 day since we want (Mon-Sun) week instead of (Sun-Sat)
 	} Else {
 		If ($SelectedWeek -lt 0) {
 			$SelectedWeekPos = $SelectedWeek * -1
@@ -835,6 +837,7 @@ Select a choice:
 	Do {
 		
 		If ($SelectedDateTime -eq $TodayDateTime) {
+		#If ($SelectedDoW -eq $DaysIntoTheWeek) {
 			$TodayLabel = " (Today)"
 		} Else {
 			$TodayLabel = ""
