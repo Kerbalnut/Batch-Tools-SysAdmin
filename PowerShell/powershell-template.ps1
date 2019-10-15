@@ -1559,11 +1559,11 @@ Select a choice:
 	
 	$SelectedDoW = [int]$TodayDoWNumberOneThruSeven
 	
-	$SelectedDateTime = $TodayDateTime
+	$SelectedDateTime = [datetime]$TodayDateTime
 	
 	If ($SelectedWeek -eq 0) {
 		$SelectedDoW = [int]$TodayDoWNumberOneThruSeven
-		$SelectedDateTime = $TodayDateTime
+		$SelectedDateTime = [datetime]$TodayDateTime
 	} Else {
 		If ($SelectedWeek -lt 0) {
 			$SelectedWeekPos = $SelectedWeek * -1
@@ -1571,7 +1571,7 @@ Select a choice:
 			$SelectedWeekPos = $SelectedWeek
 		}
 		
-		$DaysToCountBackward = ([int]$TodayDoWNumberOneThruSeven + 1)
+		$DaysToCountBackward = ([int]$TodayDoWNumberOneThruSeven)
 		Write-Verbose "`$DaysToCountBackward = $DaysToCountBackward"
 		
 		If ($SelectedWeekPos -gt 1) {
@@ -1640,7 +1640,276 @@ Select a choice:
 		$SelectedDoW = $SelectedDoW - 1
 		$SelectedDateTime = ($SelectedDateTime).AddDays(-1)
 		
-	} until ($SelectedDoW -eq 1)
+	} until ($SelectedDoW -lt 1)
+	
+	Write-HR -IsVerbose -DashedLine
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+    $SelectedWeek = -1
+	
+	If ($SelectedWeek -eq 0) {
+		$SelectedDoW = [int]$TodayDoWNumberOneThruSeven
+		$SelectedDateTime = [datetime]$TodayDateTime
+	} Else {
+		If ($SelectedWeek -lt 0) {
+			$SelectedWeekPos = $SelectedWeek * -1
+		} Else {
+			$SelectedWeekPos = $SelectedWeek
+		}
+		
+		$DaysToCountBackward = ([int]$TodayDoWNumberOneThruSeven)
+		Write-Verbose "`$DaysToCountBackward = $DaysToCountBackward"
+		
+		If ($SelectedWeekPos -gt 1) {
+			$DaysToCountBackward = $DaysToCountBackward + (($SelectedWeekPos - 1) * 7)
+			Write-Verbose "`$DaysToCountBackward = $DaysToCountBackward"
+		}
+		
+		$DaysToCountBackward = $DaysToCountBackward * -1
+		Write-Verbose "`$DaysToCountBackward = $DaysToCountBackward"
+		
+		$SelectedDateTime = $TodayDateTime.AddDays($DaysToCountBackward)
+		
+		$SelectedDoW = 7
+		
+	}
+	
+	Do {
+		
+		If ($SelectedDateTime -eq $TodayDateTime) {
+			$TodayLabel = " (Today)"
+		} Else {
+			$TodayLabel = ""
+		}
+		
+		If ($SelectedDateTime -eq $YesterdayDateTime) {
+			$YesterdayLabel = " (Yesterday)"
+		} Else {
+			$YesterdayLabel = ""
+		}
+		
+		If ($SelectedDoW -eq 7) { # Sunday
+			$Sunday = $SelectedDateTime
+			Write-Verbose "Sunday = $Sunday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		If ($SelectedDoW -eq 6) { # Saturday
+			$Saturday = $SelectedDateTime
+			Write-Verbose "Saturday = $Saturday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		If ($SelectedDoW -eq 5) { # Friday
+			$Friday = $SelectedDateTime
+			Write-Verbose "Friday = $Friday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		If ($SelectedDoW -eq 4) { # Thursday
+			$Thursday = $SelectedDateTime
+			Write-Verbose "Thursday = $Thursday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		If ($SelectedDoW -eq 3) { # Wednesday
+			$Wednesday = $SelectedDateTime
+			Write-Verbose "Wednesday = $Wednesday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		If ($SelectedDoW -eq 2) { # Tuesday
+			$Tuesday = $SelectedDateTime
+			Write-Verbose "Tuesday = $Tuesday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		If ($SelectedDoW -eq 1) { # Monday
+			$Monday = $SelectedDateTime
+			Write-Verbose "Monday = $Monday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		$SelectedDoW = $SelectedDoW - 1
+		$SelectedDateTime = ($SelectedDateTime).AddDays(-1)
+		
+	} until ($SelectedDoW -lt 1)
+	
+	Write-HR -IsVerbose -DashedLine
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+    $SelectedWeek = -2
+	
+	If ($SelectedWeek -eq 0) {
+		$SelectedDoW = [int]$TodayDoWNumberOneThruSeven
+		$SelectedDateTime = [datetime]$TodayDateTime
+	} Else {
+		If ($SelectedWeek -lt 0) {
+			$SelectedWeekPos = $SelectedWeek * -1
+		} Else {
+			$SelectedWeekPos = $SelectedWeek
+		}
+		
+		$DaysToCountBackward = ([int]$TodayDoWNumberOneThruSeven)
+		Write-Verbose "`$DaysToCountBackward = $DaysToCountBackward"
+		
+		If ($SelectedWeekPos -gt 1) {
+			$DaysToCountBackward = $DaysToCountBackward + (($SelectedWeekPos - 1) * 7)
+			Write-Verbose "`$DaysToCountBackward = $DaysToCountBackward"
+		}
+		
+		$DaysToCountBackward = $DaysToCountBackward * -1
+		Write-Verbose "`$DaysToCountBackward = $DaysToCountBackward"
+		
+		$SelectedDateTime = $TodayDateTime.AddDays($DaysToCountBackward)
+		
+		$SelectedDoW = 7
+		
+	}
+	
+    
+	Do {
+		
+		If ($SelectedDateTime -eq $TodayDateTime) {
+			$TodayLabel = " (Today)"
+		} Else {
+			$TodayLabel = ""
+		}
+		
+		If ($SelectedDateTime -eq $YesterdayDateTime) {
+			$YesterdayLabel = " (Yesterday)"
+		} Else {
+			$YesterdayLabel = ""
+		}
+		
+		If ($SelectedDoW -eq 7) { # Sunday
+			$Sunday = $SelectedDateTime
+			Write-Verbose "Sunday = $Sunday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		If ($SelectedDoW -eq 6) { # Saturday
+			$Saturday = $SelectedDateTime
+			Write-Verbose "Saturday = $Saturday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		If ($SelectedDoW -eq 5) { # Friday
+			$Friday = $SelectedDateTime
+			Write-Verbose "Friday = $Friday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		If ($SelectedDoW -eq 4) { # Thursday
+			$Thursday = $SelectedDateTime
+			Write-Verbose "Thursday = $Thursday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		If ($SelectedDoW -eq 3) { # Wednesday
+			$Wednesday = $SelectedDateTime
+			Write-Verbose "Wednesday = $Wednesday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		If ($SelectedDoW -eq 2) { # Tuesday
+			$Tuesday = $SelectedDateTime
+			Write-Verbose "Tuesday = $Tuesday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		If ($SelectedDoW -eq 1) { # Monday
+			$Monday = $SelectedDateTime
+			Write-Verbose "Monday = $Monday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		$SelectedDoW = $SelectedDoW - 1
+		$SelectedDateTime = ($SelectedDateTime).AddDays(-1)
+		
+	} until ($SelectedDoW -lt 1)
+	
+	Write-HR -IsVerbose -DashedLine
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+    $SelectedWeek = -3
+	
+	If ($SelectedWeek -eq 0) {
+		$SelectedDoW = [int]$TodayDoWNumberOneThruSeven
+		$SelectedDateTime = [datetime]$TodayDateTime
+	} Else {
+		If ($SelectedWeek -lt 0) {
+			$SelectedWeekPos = $SelectedWeek * -1
+		} Else {
+			$SelectedWeekPos = $SelectedWeek
+		}
+		
+		$DaysToCountBackward = ([int]$TodayDoWNumberOneThruSeven)
+		Write-Verbose "`$DaysToCountBackward = $DaysToCountBackward"
+		
+		If ($SelectedWeekPos -gt 1) {
+			$DaysToCountBackward = $DaysToCountBackward + (($SelectedWeekPos - 1) * 7)
+			Write-Verbose "`$DaysToCountBackward = $DaysToCountBackward"
+		}
+		
+		$DaysToCountBackward = $DaysToCountBackward * -1
+		Write-Verbose "`$DaysToCountBackward = $DaysToCountBackward"
+		
+		$SelectedDateTime = $TodayDateTime.AddDays($DaysToCountBackward)
+		
+		$SelectedDoW = 7
+		
+	}
+	
+    
+	Do {
+		
+		If ($SelectedDateTime -eq $TodayDateTime) {
+			$TodayLabel = " (Today)"
+		} Else {
+			$TodayLabel = ""
+		}
+		
+		If ($SelectedDateTime -eq $YesterdayDateTime) {
+			$YesterdayLabel = " (Yesterday)"
+		} Else {
+			$YesterdayLabel = ""
+		}
+		
+		If ($SelectedDoW -eq 7) { # Sunday
+			$Sunday = $SelectedDateTime
+			Write-Verbose "Sunday = $Sunday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		If ($SelectedDoW -eq 6) { # Saturday
+			$Saturday = $SelectedDateTime
+			Write-Verbose "Saturday = $Saturday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		If ($SelectedDoW -eq 5) { # Friday
+			$Friday = $SelectedDateTime
+			Write-Verbose "Friday = $Friday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		If ($SelectedDoW -eq 4) { # Thursday
+			$Thursday = $SelectedDateTime
+			Write-Verbose "Thursday = $Thursday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		If ($SelectedDoW -eq 3) { # Wednesday
+			$Wednesday = $SelectedDateTime
+			Write-Verbose "Wednesday = $Wednesday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		If ($SelectedDoW -eq 2) { # Tuesday
+			$Tuesday = $SelectedDateTime
+			Write-Verbose "Tuesday = $Tuesday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		If ($SelectedDoW -eq 1) { # Monday
+			$Monday = $SelectedDateTime
+			Write-Verbose "Monday = $Monday$($TodayLabel)$($YesterdayLabel)"
+		}
+		
+		$SelectedDoW = $SelectedDoW - 1
+		$SelectedDateTime = ($SelectedDateTime).AddDays(-1)
+		
+	} until ($SelectedDoW -lt 1)
 	
 	Write-HR -IsVerbose -DashedLine
 	
