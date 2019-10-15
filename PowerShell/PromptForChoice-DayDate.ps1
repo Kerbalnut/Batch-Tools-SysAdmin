@@ -821,11 +821,11 @@ Function PromptForChoice-DayDate { #--------------------------------------------
         Write-Host "(Sun-Sat): Sat ($(Get-Date -Date $EndOfWeekSunSat -UFormat %m/%d))"
         
     	# Week of the Year (00-52)
-    	$WeekOfYearZero = Get-Date -Date $CurrentDateTime -UFormat %W
+    	$WeekOfYearZero = Get-Date -Date $SelectedDateTime -UFormat %W
     	Write-Verbose "`$WeekOfYearZero (00-52) = $WeekOfYearZero"
            
     	# Week of the Year (01-53)
-    	$WeekOfYear = Get-Date -Date $CurrentDateTime -UFormat %V
+    	$WeekOfYear = Get-Date -Date $SelectedDateTime -UFormat %V
     	Write-Verbose "`$WeekOfYear (01-53) = $WeekOfYear"
         
         Write-HR -IsVerbose -DashedLine
