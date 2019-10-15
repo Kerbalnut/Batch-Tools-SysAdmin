@@ -22,6 +22,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
+	$VerbosePreferenceOrig = $VerbosePreference
 	#$VerbosePreference = "SilentlyContinue" # Will suppress Write-Verbose messages. This is the default value.
 	$VerbosePreference = "Continue" # Will print out Write-Verbose messages. Gets set when -Verbose switch is used to run the script. (Or when you set the variable manually.)
 	
@@ -247,26 +248,6 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	$TodayDateTime = Get-Date
 	
 	$YesterdayDateTime = $TodayDateTime.AddDays(-1)
-	
-	<#
-	1 = Monday		
-	2 = Tuesday		
-	3 = Wednesday	-2 = 1 Monday
-	4 = Thursday	-3 = 1 Monday, -2 = Tuesday
-	5 = Friday		-4 = 1 Monday, -3 = Tuesday, -2 = Wednesday
-	6 = Saturday	-5 = 1 Monday, -4 = Tuesday, -3 = Wednesday, -2 = Thursday
-	7 = Sunday		-6 = 1 Monday, -5 = Tuesday, -4 = Wednesday, -3 = Thursday, -2 = Friday
-	#>
-	
-	<#
-	1 = Monday		
-	2 = Tuesday		
-	3 = Wednesday	DayOptionOne = -2 = 1 Monday
-	4 = Thursday	DayOptionTwo = -3 = 1 Monday, -2 = Tuesday
-	5 = Friday		DayOptionThree = -4 = 1 Monday, -3 = Tuesday, -2 = Wednesday
-	6 = Saturday	DayOptionFour = -5 = 1 Monday, -4 = Tuesday, -3 = Wednesday, -2 = Thursday
-	7 = Sunday		DayOptionFive = -6 = 1 Monday, -5 = Tuesday, -4 = Wednesday, -3 = Thursday, -2 = Friday
-	#>
 	
 	
 	Write-Verbose "`$TodayDoWNumberOneThruSeven = $TodayDoWNumberOneThruSeven"
@@ -553,34 +534,6 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	
 	
 	
-	$Info = @"
-Month: $TodayMonth
-Week #$TodayWeekOfYear/53
-
-Select day:
-
-T - Today - $TodayDoWLong ($TodayMonthDay)
-Y - Yesterday - $YesterdayDoW ($YesterdayMonthDay)
-C - Current Week
-N - Next Week
-
-D - Sunday
-S - Saturday
-F - Friday
-H - Thursday
-W - Wednesday
-U - Tuesday
-M - Monday
-
-O - Show/Hide Saturday & Sunday
-P - Previous Week
-L - Last Week
-Q - Quit
-
-Select a choice:
-"@
-	Write-Host "$Info"
-	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -673,8 +626,14 @@ Select a choice:
     
     # Get Monday of current week
 
-	# Day-of-Week in number format, (Mon-Sun = 1-7):
-	<#
+    function Get-MondayOfWeekInt {
+	<#    
+    .SYNOPSIS
+    Get Monday of current week
+
+	.NOTES
+    Day-of-Week in number format, (Mon-Sun = 1-7):
+
 	1 = Monday    - Monday is 1 - 0 = 1
 	2 = Tuesday   - Monday is 2 - 1 = 1
 	3 = Wednesday - Monday is 3 - 2 = 1
@@ -691,19 +650,7 @@ Select a choice:
 	5 = Friday    - Monday is $Input - 4 = 1
 	6 = Saturday  - Monday is $Input - 5 = 1
 	7 = Sunday    - Monday is $Input - 6 = 1
-    
-    
-	0 = Monday    - Monday is $Input - 0 = 0
-	1 = Tuesday   - Monday is $Input - 1 = 0
-	2 = Wednesday - Monday is $Input - 2 = 0
-	3 = Thursday  - Monday is $Input - 3 = 0
-	4 = Friday    - Monday is $Input - 4 = 0
-	5 = Saturday  - Monday is $Input - 5 = 0
-	6 = Sunday    - Monday is $Input - 6 = 0
 	#>
-    
-
-    function Get-MondayOfWeekInt {
     param(
         [parameter(Position=0)]
         [int]$DoWInput
@@ -715,6 +662,29 @@ Select a choice:
 
 
     function Get-SundayOfWeek {
+    <#    
+    .SYNOPSIS
+    Get Sunday of current week (Sun-Mon)
+
+	.NOTES
+    Day-of-Week in number format, (Sun-Mon = 0-6):
+    
+	0 = Sunday
+	1 = Monday
+	2 = Tuesday
+	3 = Wednesday
+	4 = Thursday
+	5 = Friday
+	6 = Saturday
+
+	0 = Monday    - Monday is $Input - 0 = 0
+	1 = Tuesday   - Monday is $Input - 1 = 0
+	2 = Wednesday - Monday is $Input - 2 = 0
+	3 = Thursday  - Monday is $Input - 3 = 0
+	4 = Friday    - Monday is $Input - 4 = 0
+	5 = Saturday  - Monday is $Input - 5 = 0
+	6 = Sunday    - Monday is $Input - 6 = 0
+	#>
     param(
         [parameter(Position=0)]
         [DateTime]$DoWInput
@@ -726,8 +696,14 @@ Select a choice:
     
     # Get Sunday of current week
 
-	# Day-of-Week in number format, (Mon-Sun = 1-7):
+    function Get-SundayOfWeekInt {
 	<#
+    .SYNOPSIS
+    Get Sunday of current week (Mon-Sun)
+
+    .NOTES
+	Day-of-Week in number format, (Mon-Sun = 1-7):
+
 	1 = Monday    - Sunday is 1 + 6 = 7
 	2 = Tuesday   - Sunday is 2 + 5 = 7
 	3 = Wednesday - Sunday is 3 + 4 = 7
@@ -743,17 +719,7 @@ Select a choice:
 	5 = Friday    - Sunday is $Input + 2 = 7
 	6 = Saturday  - Sunday is $Input + 1 = 7
 	7 = Sunday    - Sunday is $Input + 0 = 7
-    
-	0 = Monday    - Sunday is $Input + 6 = 6
-	1 = Tuesday   - Sunday is $Input + 5 = 6
-	2 = Wednesday - Sunday is $Input + 4 = 6
-	3 = Thursday  - Sunday is $Input + 3 = 6
-	4 = Friday    - Sunday is $Input + 2 = 6
-	5 = Saturday  - Sunday is $Input + 1 = 6
-	6 = Sunday    - Sunday is $Input + 0 = 6
 	#>
-
-    function Get-SundayOfWeekInt {
     param(
         [parameter(Position=0)]
         [int]$DoWInput
@@ -764,6 +730,29 @@ Select a choice:
     }
 
     function Get-SaturdayOfWeek {
+	<#
+    .SYNOPSIS
+    Get Sunday of current week (Sun-Sat)
+
+    .NOTES
+	Day-of-Week in number format, (Sun-Sat = 0-6):
+    
+	0 = Sunday
+	1 = Monday
+	2 = Tuesday
+	3 = Wednesday
+	4 = Thursday
+	5 = Friday
+	6 = Saturday
+    
+	0 = Monday    - Sunday is $Input + 6 = 6
+	1 = Tuesday   - Sunday is $Input + 5 = 6
+	2 = Wednesday - Sunday is $Input + 4 = 6
+	3 = Thursday  - Sunday is $Input + 3 = 6
+	4 = Friday    - Sunday is $Input + 2 = 6
+	5 = Saturday  - Sunday is $Input + 1 = 6
+	6 = Sunday    - Sunday is $Input + 0 = 6
+	#>
     param(
         [parameter(Position=0)]
         [DateTime]$DoWInput
@@ -779,186 +768,186 @@ Select a choice:
 	
     Do {
 
-    Write-HR -IsVerbose -DoubleLine
+        Write-HR -IsVerbose -DoubleLine
 
-	If ($SelectedWeek -eq 0) {
-        $ConvertedDoWMonSun = (Convert-DoWNumberToMonSun -Input $TodayDateTime)
-		[int]$SelectedDoW = (Get-SundayOfWeekInt -DoWInput $ConvertedDoWMonSun)
-		$SelectedDateTime = (Get-SaturdayOfWeek -DoWInput $TodayDateTime)
-        $SelectedDateTime = $SelectedDateTime.AddDays(1) # Shift foward 1 day since we want (Mon-Sun) week instead of (Sun-Sat)
-	} Else {
-		If ($SelectedWeek -lt 0) {
-			$SelectedWeekPos = $SelectedWeek * -1
-		} Else {
-			$SelectedWeekPos = $SelectedWeek
-		}
+	    If ($SelectedWeek -eq 0) {
+            $ConvertedDoWMonSun = (Convert-DoWNumberToMonSun -Input $TodayDateTime)
+		    [int]$SelectedDoW = (Get-SundayOfWeekInt -DoWInput $ConvertedDoWMonSun)
+		    $SelectedDateTime = (Get-SaturdayOfWeek -DoWInput $TodayDateTime)
+            $SelectedDateTime = $SelectedDateTime.AddDays(1) # Shift foward 1 day since we want (Mon-Sun) week instead of (Sun-Sat)
+	    } Else {
+    		If ($SelectedWeek -lt 0) {
+			    $SelectedWeekPos = $SelectedWeek * -1
+		    } Else {
+    			$SelectedWeekPos = $SelectedWeek
+		    }
+    		
+	    	$DaysToCountBackward = ([int]$TodayDoWNumberOneThruSeven)
+    		Write-Verbose "`$DaysToCountBackward = $DaysToCountBackward"
+    		
+		    If ($SelectedWeekPos -gt 1) {
+    			$DaysToCountBackward = $DaysToCountBackward + (($SelectedWeekPos - 1) * 7)
+			    Write-Verbose "`$DaysToCountBackward = $DaysToCountBackward"
+		    }
+    		
+		    $DaysToCountBackward = $DaysToCountBackward * -1
+		    Write-Verbose "`$DaysToCountBackward = $DaysToCountBackward"
+		    
+    		$SelectedDateTime = $TodayDateTime.AddDays($DaysToCountBackward)
 		
-		$DaysToCountBackward = ([int]$TodayDoWNumberOneThruSeven)
-		Write-Verbose "`$DaysToCountBackward = $DaysToCountBackward"
+	    	$SelectedDoW = 7
 		
-		If ($SelectedWeekPos -gt 1) {
-			$DaysToCountBackward = $DaysToCountBackward + (($SelectedWeekPos - 1) * 7)
-			Write-Verbose "`$DaysToCountBackward = $DaysToCountBackward"
-		}
-		
-		$DaysToCountBackward = $DaysToCountBackward * -1
-		Write-Verbose "`$DaysToCountBackward = $DaysToCountBackward"
-		
-		$SelectedDateTime = $TodayDateTime.AddDays($DaysToCountBackward)
-		
-		$SelectedDoW = 7
-		
-	}
-    
-    #$StartOfWeekMonthLong = Get-Date -Date (Get-MondayOfWeekInt -DoWInput $SelectedDoW) -UFormat %B
-    $StartOfWeekSunSat = Get-SundayOfWeek -DoWInput $SelectedDateTime
-    $StartOfWeekSunSatMonthLong = Get-Date -Date $StartOfWeekSunSat -UFormat %B
-    #$StartOfWeekMonthShort = Get-Date -Date (Get-MondayOfWeekInt -DoWInput $SelectedDoW) -UFormat %b
-    $StartOfWeekSunSatMonthShort = Get-Date -Date $StartOfWeekSunSat -UFormat %b
-    
-    #$EndOfWeekMonthLong = Get-Date -Date (Get-SundayOfWeekInt -DoWInput $SelectedDoW) -UFormat %B
-    $EndOfWeekSunSat = Get-SaturdayOfWeek -DoWInput $SelectedDateTime
-    $EndOfWeekSunSatMonthLong = Get-Date -Date $EndOfWeekSunSat -UFormat %B
-    #$EndOfWeekMonthShort = Get-Date -Date (Get-SundayOfWeekInt -DoWInput $SelectedDoW) -UFormat %b
-	$EndOfWeekSunSatMonthShort = Get-Date -Date $EndOfWeekSunSat -UFormat %b
-    
-    If ($StartOfWeekSunSatMonthLong -ne $EndOfWeekSunSatMonthLong) {
-        Write-Host "Month (Sun-Sat): $StartOfWeekSunSatMonthShort-$EndOfWeekSunSatMonthShort"
-	} Else {
-        Write-Host "Month (Sun-Sat): $StartOfWeekSunSatMonthLong"
-    }
-	# Month/Day (MM/DD)
-    Write-Host "(Sun-Sat): Sun ($(Get-Date -Date $StartOfWeekSunSat -UFormat %m/%d))"
-    Write-Host "(Sun-Sat): Sat ($(Get-Date -Date $EndOfWeekSunSat -UFormat %m/%d))"
-    
-	# Week of the Year (00-52)
-	$WeekOfYearZero = Get-Date -Date $CurrentDateTime -UFormat %W
-	Write-Verbose "`$WeekOfYearZero (00-52) = $WeekOfYearZero"
-       
-	# Week of the Year (01-53)
-	$WeekOfYear = Get-Date -Date $CurrentDateTime -UFormat %V
-	Write-Verbose "`$WeekOfYear (01-53) = $WeekOfYear"
-    
-    Write-HR -IsVerbose -DashedLine
-
-	Do {
-		
-		If ($SelectedDateTime -eq $TodayDateTime) {
-		#If ($SelectedDoW -eq $DaysIntoTheWeek) {
-			$TodayLabel = " (Today)"
-		} Else {
-			$TodayLabel = ""
-		}
-		
-		If ($SelectedDateTime -eq $YesterdayDateTime) {
-			$YesterdayLabel = " (Yesterday)"
-		} Else {
-			$YesterdayLabel = ""
-		}
+    	}
         
-        #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		
-		If ($SelectedDoW -eq 7) { # Sunday
-			$Sunday = $SelectedDateTime
-	        # Week of the Year (00-52)
-	        $WeekOfYearZero = Get-Date -Date $SelectedDateTime -UFormat %W
-	        $WeekOfYearZeroLabel = " WoY=($WeekOfYearZero/52)"
-        	# Week of the Year (01-53)
-	        $WeekOfYear = Get-Date -Date $SelectedDateTime -UFormat %V
-	        $WeekOfYearLabel = " WoY=($WeekOfYear/53)"
-			Write-Verbose "Sunday    = $Sunday$($WeekOfYearZeroLabel)$($WeekOfYearLabel)$($TodayLabel)$($YesterdayLabel)"
-            $EndOfWeekMonSun = Get-Date -Date $SelectedDateTime
-            $EndOfWeekMonSunMonthLong = Get-Date -Date $SelectedDateTime -UFormat %B
-            $EndOfWeekMonSunMonthShort = Get-Date -Date $SelectedDateTime -UFormat %b
-		}
-		
-		If ($SelectedDoW -eq 6) { # Saturday
-			$Saturday = $SelectedDateTime
-	        # Week of the Year (00-52)
-	        $WeekOfYearZero = Get-Date -Date $SelectedDateTime -UFormat %W
-	        $WeekOfYearZeroLabel = " WoY=($WeekOfYearZero/52)"
-        	# Week of the Year (01-53)
-	        $WeekOfYear = Get-Date -Date $SelectedDateTime -UFormat %V
-	        $WeekOfYearLabel = " WoY=($WeekOfYear/53)"
-			Write-Verbose "Saturday  = $Saturday$($WeekOfYearZeroLabel)$($WeekOfYearLabel)$($TodayLabel)$($YesterdayLabel)"
-		}
-		
-		If ($SelectedDoW -eq 5) { # Friday
-			$Friday = $SelectedDateTime
-	        # Week of the Year (00-52)
-	        $WeekOfYearZero = Get-Date -Date $SelectedDateTime -UFormat %W
-	        $WeekOfYearZeroLabel = " WoY=($WeekOfYearZero/52)"
-        	# Week of the Year (01-53)
-	        $WeekOfYear = Get-Date -Date $SelectedDateTime -UFormat %V
-	        $WeekOfYearLabel = " WoY=($WeekOfYear/53)"
-			Write-Verbose "Friday    = $Friday$($WeekOfYearZeroLabel)$($WeekOfYearLabel)$($TodayLabel)$($YesterdayLabel)"
-		}
-		
-		If ($SelectedDoW -eq 4) { # Thursday
-			$Thursday = $SelectedDateTime
-	        # Week of the Year (00-52)
-	        $WeekOfYearZero = Get-Date -Date $SelectedDateTime -UFormat %W
-	        $WeekOfYearZeroLabel = " WoY=($WeekOfYearZero/52)"
-        	# Week of the Year (01-53)
-	        $WeekOfYear = Get-Date -Date $SelectedDateTime -UFormat %V
-	        $WeekOfYearLabel = " WoY=($WeekOfYear/53)"
-			Write-Verbose "Thursday  = $Thursday$($WeekOfYearZeroLabel)$($WeekOfYearLabel)$($TodayLabel)$($YesterdayLabel)"
-		}
-		
-		If ($SelectedDoW -eq 3) { # Wednesday
-			$Wednesday = $SelectedDateTime
-	        # Week of the Year (00-52)
-	        $WeekOfYearZero = Get-Date -Date $SelectedDateTime -UFormat %W
-	        $WeekOfYearZeroLabel = " WoY=($WeekOfYearZero/52)"
-        	# Week of the Year (01-53)
-	        $WeekOfYear = Get-Date -Date $SelectedDateTime -UFormat %V
-	        $WeekOfYearLabel = " WoY=($WeekOfYear/53)"
-			Write-Verbose "Wednesday = $Wednesday$($WeekOfYearZeroLabel)$($WeekOfYearLabel)$($TodayLabel)$($YesterdayLabel)"
-		}
-		
-		If ($SelectedDoW -eq 2) { # Tuesday
-			$Tuesday = $SelectedDateTime
-	        # Week of the Year (00-52)
-	        $WeekOfYearZero = Get-Date -Date $SelectedDateTime -UFormat %W
-	        $WeekOfYearZeroLabel = " WoY=($WeekOfYearZero/52)"
-        	# Week of the Year (01-53)
-	        $WeekOfYear = Get-Date -Date $SelectedDateTime -UFormat %V
-	        $WeekOfYearLabel = " WoY=($WeekOfYear/53)"
-			Write-Verbose "Tuesday   = $Tuesday$($WeekOfYearZeroLabel)$($WeekOfYearLabel)$($TodayLabel)$($YesterdayLabel)"
-		}
-		
-		If ($SelectedDoW -eq 1) { # Monday
-			$Monday = $SelectedDateTime
-	        # Week of the Year (00-52)
-	        $WeekOfYearZero = Get-Date -Date $SelectedDateTime -UFormat %W
-	        $WeekOfYearZeroLabel = " WoY=($WeekOfYearZero/52)"
-        	# Week of the Year (01-53)
-	        $WeekOfYear = Get-Date -Date $SelectedDateTime -UFormat %V
-	        $WeekOfYearLabel = " WoY=($WeekOfYear/53)"
-			Write-Verbose "Monday    = $Monday$($WeekOfYearZeroLabel)$($WeekOfYearLabel)$($TodayLabel)$($YesterdayLabel)"
-            $StartOfWeekMonSun = Get-Date -Date $SelectedDateTime
-            $StartOfWeekMonSunMonthLong = Get-Date -Date $SelectedDateTime -UFormat %B
-            $StartOfWeekMonSunMonthShort = Get-Date -Date $SelectedDateTime -UFormat %b
-		}
-		
-		$SelectedDoW = $SelectedDoW - 1
-		$SelectedDateTime = ($SelectedDateTime).AddDays(-1)
-		
-	} until ($SelectedDoW -lt 1)
+        #$StartOfWeekMonthLong = Get-Date -Date (Get-MondayOfWeekInt -DoWInput $SelectedDoW) -UFormat %B
+        $StartOfWeekSunSat = Get-SundayOfWeek -DoWInput $SelectedDateTime
+        $StartOfWeekSunSatMonthLong = Get-Date -Date $StartOfWeekSunSat -UFormat %B
+        #$StartOfWeekMonthShort = Get-Date -Date (Get-MondayOfWeekInt -DoWInput $SelectedDoW) -UFormat %b
+        $StartOfWeekSunSatMonthShort = Get-Date -Date $StartOfWeekSunSat -UFormat %b
+        
+        #$EndOfWeekMonthLong = Get-Date -Date (Get-SundayOfWeekInt -DoWInput $SelectedDoW) -UFormat %B
+        $EndOfWeekSunSat = Get-SaturdayOfWeek -DoWInput $SelectedDateTime
+        $EndOfWeekSunSatMonthLong = Get-Date -Date $EndOfWeekSunSat -UFormat %B
+        #$EndOfWeekMonthShort = Get-Date -Date (Get-SundayOfWeekInt -DoWInput $SelectedDoW) -UFormat %b
+    	$EndOfWeekSunSatMonthShort = Get-Date -Date $EndOfWeekSunSat -UFormat %b
+        
+        If ($StartOfWeekSunSatMonthLong -ne $EndOfWeekSunSatMonthLong) {
+            Write-Host "Month (Sun-Sat): $StartOfWeekSunSatMonthShort-$EndOfWeekSunSatMonthShort"
+	    } Else {
+            Write-Host "Month (Sun-Sat): $StartOfWeekSunSatMonthLong"
+        }
+    	# Month/Day (MM/DD)
+        Write-Host "(Sun-Sat): Sun ($(Get-Date -Date $StartOfWeekSunSat -UFormat %m/%d))"
+        Write-Host "(Sun-Sat): Sat ($(Get-Date -Date $EndOfWeekSunSat -UFormat %m/%d))"
+        
+    	# Week of the Year (00-52)
+    	$WeekOfYearZero = Get-Date -Date $CurrentDateTime -UFormat %W
+    	Write-Verbose "`$WeekOfYearZero (00-52) = $WeekOfYearZero"
+           
+    	# Week of the Year (01-53)
+    	$WeekOfYear = Get-Date -Date $CurrentDateTime -UFormat %V
+    	Write-Verbose "`$WeekOfYear (01-53) = $WeekOfYear"
+        
+        Write-HR -IsVerbose -DashedLine
     
-    If ($StartOfWeekMonSunMonthLong -ne $EndOfWeekMonSunMonthLong) {
-        Write-Host "Month (Mon-Sun): $StartOfWeekMonSunMonthShort-$EndOfWeekMonSunMonthShort"
-    } Else {
-        Write-Host "Month (Mon-Sun): $StartOfWeekMonSunMonthLong"
-    }
-    # Month/Day (MM/DD)
-    Write-Host "(Mon-Sun): Mon ($(Get-Date -Date $StartOfWeekMonSun -UFormat %m/%d))"
-    Write-Host "(Mon-Sun): Sun ($(Get-Date -Date $EndOfWeekMonSun -UFormat %m/%d))"
+    	Do {
+		
+	    	If ($SelectedDateTime -eq $TodayDateTime) {
+		    #If ($SelectedDoW -eq $DaysIntoTheWeek) {
+    			$TodayLabel = " (Today)"
+	    	} Else {
+			    $TodayLabel = ""
+		    }
+		    
+		    If ($SelectedDateTime -eq $YesterdayDateTime) {
+    			$YesterdayLabel = " (Yesterday)"
+	    	} Else {
+			    $YesterdayLabel = ""
+		    }
+        
+            #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    		
+		    If ($SelectedDoW -eq 7) { # Sunday
+    			$Sunday = $SelectedDateTime
+	            # Week of the Year (00-52)
+	            $WeekOfYearZero = Get-Date -Date $SelectedDateTime -UFormat %W
+	            $WeekOfYearZeroLabel = " WoY=($WeekOfYearZero/52)"
+        	    # Week of the Year (01-53)
+	            $WeekOfYear = Get-Date -Date $SelectedDateTime -UFormat %V
+	            $WeekOfYearLabel = " WoY=($WeekOfYear/53)"
+			    Write-Verbose "Sunday    = $Sunday$($WeekOfYearZeroLabel)$($WeekOfYearLabel)$($TodayLabel)$($YesterdayLabel)"
+                $EndOfWeekMonSun = Get-Date -Date $SelectedDateTime
+                $EndOfWeekMonSunMonthLong = Get-Date -Date $SelectedDateTime -UFormat %B
+                $EndOfWeekMonSunMonthShort = Get-Date -Date $SelectedDateTime -UFormat %b
+		    }
+		    
+		    If ($SelectedDoW -eq 6) { # Saturday
+    			$Saturday = $SelectedDateTime
+	            # Week of the Year (00-52)
+	            $WeekOfYearZero = Get-Date -Date $SelectedDateTime -UFormat %W
+	            $WeekOfYearZeroLabel = " WoY=($WeekOfYearZero/52)"
+        	    # Week of the Year (01-53)
+	            $WeekOfYear = Get-Date -Date $SelectedDateTime -UFormat %V
+	            $WeekOfYearLabel = " WoY=($WeekOfYear/53)"
+			    Write-Verbose "Saturday  = $Saturday$($WeekOfYearZeroLabel)$($WeekOfYearLabel)$($TodayLabel)$($YesterdayLabel)"
+		    }
+		    
+		    If ($SelectedDoW -eq 5) { # Friday
+			    $Friday = $SelectedDateTime
+	            # Week of the Year (00-52)
+	            $WeekOfYearZero = Get-Date -Date $SelectedDateTime -UFormat %W
+	            $WeekOfYearZeroLabel = " WoY=($WeekOfYearZero/52)"
+        	    # Week of the Year (01-53)
+	            $WeekOfYear = Get-Date -Date $SelectedDateTime -UFormat %V
+	            $WeekOfYearLabel = " WoY=($WeekOfYear/53)"
+			    Write-Verbose "Friday    = $Friday$($WeekOfYearZeroLabel)$($WeekOfYearLabel)$($TodayLabel)$($YesterdayLabel)"
+		    }
+    		
+	    	If ($SelectedDoW -eq 4) { # Thursday
+			    $Thursday = $SelectedDateTime
+	            # Week of the Year (00-52)
+	            $WeekOfYearZero = Get-Date -Date $SelectedDateTime -UFormat %W
+	            $WeekOfYearZeroLabel = " WoY=($WeekOfYearZero/52)"
+        	    # Week of the Year (01-53)
+	            $WeekOfYear = Get-Date -Date $SelectedDateTime -UFormat %V
+	            $WeekOfYearLabel = " WoY=($WeekOfYear/53)"
+			    Write-Verbose "Thursday  = $Thursday$($WeekOfYearZeroLabel)$($WeekOfYearLabel)$($TodayLabel)$($YesterdayLabel)"
+		    }
+    		
+	    	If ($SelectedDoW -eq 3) { # Wednesday
+			    $Wednesday = $SelectedDateTime
+	            # Week of the Year (00-52)
+	            $WeekOfYearZero = Get-Date -Date $SelectedDateTime -UFormat %W
+	            $WeekOfYearZeroLabel = " WoY=($WeekOfYearZero/52)"
+        	    # Week of the Year (01-53)
+	            $WeekOfYear = Get-Date -Date $SelectedDateTime -UFormat %V
+	            $WeekOfYearLabel = " WoY=($WeekOfYear/53)"
+			    Write-Verbose "Wednesday = $Wednesday$($WeekOfYearZeroLabel)$($WeekOfYearLabel)$($TodayLabel)$($YesterdayLabel)"
+		    }
+		    
+		    If ($SelectedDoW -eq 2) { # Tuesday
+    			$Tuesday = $SelectedDateTime
+	            # Week of the Year (00-52)
+	            $WeekOfYearZero = Get-Date -Date $SelectedDateTime -UFormat %W
+    	        $WeekOfYearZeroLabel = " WoY=($WeekOfYearZero/52)"
+            	# Week of the Year (01-53)
+	            $WeekOfYear = Get-Date -Date $SelectedDateTime -UFormat %V
+	            $WeekOfYearLabel = " WoY=($WeekOfYear/53)"
+			    Write-Verbose "Tuesday   = $Tuesday$($WeekOfYearZeroLabel)$($WeekOfYearLabel)$($TodayLabel)$($YesterdayLabel)"
+		    }
+		    
+		    If ($SelectedDoW -eq 1) { # Monday
+    			$Monday = $SelectedDateTime
+	            # Week of the Year (00-52)
+	            $WeekOfYearZero = Get-Date -Date $SelectedDateTime -UFormat %W
+	            $WeekOfYearZeroLabel = " WoY=($WeekOfYearZero/52)"
+        	    # Week of the Year (01-53)
+	            $WeekOfYear = Get-Date -Date $SelectedDateTime -UFormat %V
+	            $WeekOfYearLabel = " WoY=($WeekOfYear/53)"
+			    Write-Verbose "Monday    = $Monday$($WeekOfYearZeroLabel)$($WeekOfYearLabel)$($TodayLabel)$($YesterdayLabel)"
+                $StartOfWeekMonSun = Get-Date -Date $SelectedDateTime
+                $StartOfWeekMonSunMonthLong = Get-Date -Date $SelectedDateTime -UFormat %B
+                $StartOfWeekMonSunMonthShort = Get-Date -Date $SelectedDateTime -UFormat %b
+		    }
+		    
+		    $SelectedDoW = $SelectedDoW - 1
+		    $SelectedDateTime = ($SelectedDateTime).AddDays(-1)
+		
+	    } until ($SelectedDoW -lt 1)
     
-	Write-HR -IsVerbose -DashedLine
-	Write-HR
-	
-    $SelectedWeek += -1
+        If ($StartOfWeekMonSunMonthLong -ne $EndOfWeekMonSunMonthLong) {
+            Write-Host "Month (Mon-Sun): $StartOfWeekMonSunMonthShort-$EndOfWeekMonSunMonthShort"
+        } Else {
+            Write-Host "Month (Mon-Sun): $StartOfWeekMonSunMonthLong"
+        }
+        # Month/Day (MM/DD)
+        Write-Host "(Mon-Sun): Mon ($(Get-Date -Date $StartOfWeekMonSun -UFormat %m/%d))"
+        Write-Host "(Mon-Sun): Sun ($(Get-Date -Date $EndOfWeekMonSun -UFormat %m/%d))"
+        
+    	Write-HR -IsVerbose -DashedLine
+    	Write-HR
+    	
+        $SelectedWeek += -1
     
     } Until ($SelectedWeek -lt -3)
 
@@ -1119,30 +1108,6 @@ Select a choice:
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	If ([int]$TodayDoWNumberOneThruSeven -ge 3) {
-		
-		
-		
-		If ([int]$TodayDoWNumberOneThruSeven -ge 4) {
-			If ([int]$TodayDoWNumberOneThruSeven -ge 5) {
-				If ([int]$TodayDoWNumberOneThruSeven -ge 6) {
-					If ([int]$TodayDoWNumberOneThruSeven -eq 7) {
-						# Today is Sunday
-						
-						
-					}
-					
-				}
-				
-			}
-			
-		}
-		
-		
-		
-	}
-	
-	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	PAUSE
@@ -1182,6 +1147,7 @@ Q - Quit
 
 Select a choice:
 "@
+	Write-Host "$Info"
 	
 	$Info = @"
 Choose day:
