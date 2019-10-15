@@ -960,7 +960,7 @@ $Info += "`r`n`r`nC - Current Week`r`n"
 $Info += "N - Next Week"
 }
 
-$Info += "`r`n`r`nT - ($TodayMonthDay) Today - $TodayDoWLong`r`n"
+$Info += "`r`n`r`nT - ($TodayMonthDay) Today   -   $TodayDoWLong`r`n"
 $Info += "Y - ($YesterdayMonthDay) Yesterday - $YesterdayDoW`r`n"
 
 If ($TodayDoW -gt 6) {
@@ -983,13 +983,15 @@ If ($TodayDoW -gt 2) {
 $Info += "M - ($(Get-Date -Date $Monday -UFormat %m/%d)) Monday`r`n"
 }
 
+
+$Info += "`r`nP - Previous Week"
+
 If ($SelectedWeek -ne 0) {
 $Info += "`r`nO - Show/Hide Saturday & Sunday"
 }
 
 $Info += @"
 
-P - Previous Week
 Q - Quit
 
 Select a choice:
