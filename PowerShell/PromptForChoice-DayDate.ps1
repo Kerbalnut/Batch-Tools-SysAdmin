@@ -35,12 +35,32 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	# Today:
+    
+	$TodayDateTime = Get-Date
 	
 	$TodayDoWLong = Get-Date -UFormat %A
 	Write-Verbose "`$TodayDoWLong = $TodayDoWLong"
 	
+	# Day-of-Week in 3 characters:
+	<#
+	Sun
+	Mon
+	Tue
+	Wed
+	Thu
+	Fri
+	Sat
+	Sun
+	#>
+	$TodayDoWShort = Get-Date -UFormat %a
+	Write-Verbose "`$TodayDoWShort = $TodayDoWShort"
+	
 	# Month/Day (MM/DD)
 	$TodayMonthDay = Get-Date -Format 'm, M'
+	Write-Verbose "`$TodayMonthDay = $TodayMonthDay"
+	$TodayMonthDay = Get-Date -Format m
+	Write-Verbose "`$TodayMonthDay = $TodayMonthDay"
+	$TodayMonthDay = Get-Date -Format M
 	Write-Verbose "`$TodayMonthDay = $TodayMonthDay"
 	
 	# Month/Day (MM/DD)
@@ -87,22 +107,149 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	
 	# Yesterday:
 	
-	$TodayDateTime = Get-Date
-	
 	$YesterdayDateTime = $TodayDateTime.AddDays(-1)
 	Write-Verbose "`$YesterdayDateTime = $YesterdayDateTime"
 	
 	$YesterdayDateTime = (Get-Date).AddDays(-1)
 	Write-Verbose "`$YesterdayDateTime = $YesterdayDateTime"
 	
-	$YesterdayDoW = Get-Date -Date $YesterdayDateTime -UFormat %A
-	Write-Verbose "`$YesterdayDoW = $YesterdayDoW"
+	$YesterdayDoWLong = Get-Date -Date $YesterdayDateTime -UFormat %A
+	Write-Verbose "`$YesterdayDoWLong = $YesterdayDoWLong"
 	
+	# Day-of-Week in 3 characters:
+	<#
+	Sun
+	Mon
+	Tue
+	Wed
+	Thu
+	Fri
+	Sat
+	Sun
+	#>
+	$YesterdayDoWShort = Get-Date -Date $YesterdayDateTime -UFormat %a
+	Write-Verbose "`$YesterdayDoWShort = $YesterdayDoWShort"
+	
+	# Month/Day (MM/DD)
+	$YesterdayMonthDay = Get-Date -Date $YesterdayDateTime -Format 'm, M'
+	Write-Verbose "`$YesterdayMonthDay = $YesterdayMonthDay"
+	$YesterdayMonthDay = Get-Date -Date $YesterdayDateTime -Format m
+	Write-Verbose "`$YesterdayMonthDay = $YesterdayMonthDay"
+	$YesterdayMonthDay = Get-Date -Date $YesterdayDateTime -Format M
+	Write-Verbose "`$YesterdayMonthDay = $YesterdayMonthDay"
+	
+	# Month/Day (MM/DD)
 	$YesterdayMonthDay = Get-Date -Date $YesterdayDateTime -UFormat %m/%d
 	Write-Verbose "`$YesterdayMonthDay = $YesterdayMonthDay"
 	
+	# Day/Month (DD/MM)
 	$YesterdayDayMonth = Get-Date -Date $YesterdayDateTime -UFormat %d/%m
 	Write-Verbose "`$YesterdayDayMonth = $YesterdayDayMonth"
+	
+    # Month name - abbreviated (Jan)
+	<#
+	01 - Jan
+	02 - Feb
+	03 - Mar
+	04 - Apr
+	05 - May
+	06 - Jun
+	07 - Jul
+	08 - Aug
+	09 - Sep
+	10 - Oct
+	11 - Nov
+	12 - Dec
+	#>
+    $YesterdayMonthShort = Get-Date -Date $YesterdayDateTime -UFormat %b
+	Write-Verbose "`$YesterdayMonthShort - $YesterdayMonthShort"
+	    
+    # Month name - full (January)
+	$YesterdayMonthFull = Get-Date -Date $YesterdayDateTime -UFormat %B
+	Write-Verbose "`$YesterdayMonthFull = $YesterdayMonthFull"
+	
+	# Week of the Year (00-52)
+	$YesterdayWeekOfYearZero = Get-Date -Date $YesterdayDateTime -UFormat %W
+	Write-Verbose "`$YesterdayWeekOfYearZero (00-52) = $YesterdayWeekOfYearZero"
+    
+	# Week of the Year (01-53)
+	$YesterdayWeekOfYear = Get-Date -Date $YesterdayDateTime -UFormat %V
+	Write-Verbose "`$YesterdayWeekOfYear (01-53) = $YesterdayWeekOfYear"
+	
+	Write-HR -IsVerbose -DashedLine
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Tomorrow:
+	
+	$TomorrowDateTime = $TodayDateTime.AddDays(1)
+	Write-Verbose "`$TomorrowDateTime = $TomorrowDateTime"
+	
+	$TomorrowDateTime = (Get-Date).AddDays(1)
+	Write-Verbose "`$TomorrowDateTime = $TomorrowDateTime"
+	
+	$TomorrowDoWLong = Get-Date -Date $TomorrowDateTime -UFormat %A
+	Write-Verbose "`$TomorrowDoWLong = $TomorrowDoWLong"
+	
+	# Day-of-Week in 3 characters:
+	<#
+	Sun
+	Mon
+	Tue
+	Wed
+	Thu
+	Fri
+	Sat
+	Sun
+	#>
+	$TomorrowDoWShort = Get-Date -Date $TomorrowDateTime -UFormat %a
+	Write-Verbose "`$TomorrowDoWShort = $TomorrowDoWShort"
+	
+	# Month/Day (MM/DD)
+	$TomorrowMonthDay = Get-Date -Date $TomorrowDateTime -Format 'm, M'
+	Write-Verbose "`$TomorrowMonthDay = $TomorrowMonthDay"
+	$TomorrowMonthDay = Get-Date -Date $TomorrowDateTime -Format m
+	Write-Verbose "`$TomorrowMonthDay = $TomorrowMonthDay"
+	$TomorrowMonthDay = Get-Date -Date $TomorrowDateTime -Format M
+	Write-Verbose "`$TomorrowMonthDay = $TomorrowMonthDay"
+	
+	# Month/Day (MM/DD)
+	$TomorrowMonthDay = Get-Date -Date $TomorrowDateTime -UFormat %m/%d
+	Write-Verbose "`$TomorrowMonthDay = $TomorrowMonthDay"
+	
+	# Day/Month (DD/MM)
+	$TomorrowDayMonth = Get-Date -Date $TomorrowDateTime -UFormat %d/%m
+	Write-Verbose "`$TomorrowDayMonth = $TomorrowDayMonth"
+	
+    # Month name - abbreviated (Jan)
+	<#
+	01 - Jan
+	02 - Feb
+	03 - Mar
+	04 - Apr
+	05 - May
+	06 - Jun
+	07 - Jul
+	08 - Aug
+	09 - Sep
+	10 - Oct
+	11 - Nov
+	12 - Dec
+	#>
+    $TomorrowMonthShort = Get-Date -Date $TomorrowDateTime -UFormat %b
+	Write-Verbose "`$TomorrowMonthShort - $TomorrowMonthShort"
+	    
+    # Month name - full (January)
+	$TomorrowMonthFull = Get-Date -Date $TomorrowDateTime -UFormat %B
+	Write-Verbose "`$TomorrowMonthFull = $TomorrowMonthFull"
+	
+	# Week of the Year (00-52)
+	$TomorrowWeekOfYearZero = Get-Date -Date $TomorrowDateTime -UFormat %W
+	Write-Verbose "`$TomorrowWeekOfYearZero (00-52) = $TomorrowWeekOfYearZero"
+    
+	# Week of the Year (01-53)
+	$TomorrowWeekOfYear = Get-Date -Date $TomorrowDateTime -UFormat %V
+	Write-Verbose "`$TomorrowWeekOfYear (01-53) = $TomorrowWeekOfYear"
 	
 	Write-HR -IsVerbose -DashedLine
 	
@@ -111,9 +258,6 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	# Get earlier Days of Week
 	
 	Write-Verbose "Today:"
-	
-	$TodayDoWLong = Get-Date -UFormat %A
-	Write-Verbose "`$TodayDoWLong = $TodayDoWLong"
 	
 	# Day-of-Week in 3 characters:
 	<#
@@ -557,6 +701,9 @@ Function PromptForChoice-DayDate { #--------------------------------------------
     
 	$YesterdayDateTime = $TodayDateTime.AddDays(-1)
 	$TomorrowDateTime = $TodayDateTime.AddDays(1)
+    
+    $TomorrowOption = $true
+    #$TomorrowOption = $false
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	# Build out currently selected week, out until Monday (Mon-Sun week display)
@@ -987,8 +1134,12 @@ $Info += "N - Next Week`r`n`r`n"
 }
 
 If ($SelectedWeek -eq 0) {
-$Info += "`r`n`r`nT - ($TodayMonthDay) $TodayDoWLong - Today`r`n"
-$Info += "Y - ($YesterdayMonthDay) $YesterdayDoW - Yesterday`r`n"
+$Info += "`r`n`r`n"
+If ($TomorrowOption -eq $true) {
+$Info += "R - ($TomorrowMonthDay) $TomorrowDoWLong - Tomorrow`r`n"
+}
+$Info += "T - ($TodayMonthDay) $TodayDoWLong - Today`r`n"
+$Info += "Y - ($YesterdayMonthDay) $YesterdayDoWLong - Yesterday`r`n"
 }
 
 If ($SelectedWeek -eq 0) {
@@ -1232,7 +1383,7 @@ Select day:
 
 R - Tomorrow
 T - Today - $TodayDoWLong ($TodayMonthDay)
-Y - Yesterday - $YesterdayDoW ($YesterdayMonthDay)
+Y - Yesterday - $YesterdayDoWLong ($YesterdayMonthDay)
 C - Current Week
 N - Next Week
 
