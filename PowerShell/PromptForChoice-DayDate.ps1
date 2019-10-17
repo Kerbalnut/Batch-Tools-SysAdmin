@@ -524,8 +524,6 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	
 	# Since the default output of PowerShell DoW is Sun-Sat = 0-6, we must convert it to our choice of a Monday through Sunday week format, Mon-Sun = 1-7.
 	
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
     $TodayDoWNumberOneThruSeven = Convert-DoWNumberToMonSun $TodayDateTime
 
 	[int]$DaysIntoTheWeek = [int]$TodayDoWNumberOneThruSeven
@@ -538,8 +536,11 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
+	PAUSE
+	
     Do {
-
+		Clear-Host
+		
         Write-HR -IsVerbose -DoubleLine
 
 	    If ($SelectedWeek -eq 0) {
@@ -717,7 +718,11 @@ Function PromptForChoice-DayDate { #--------------------------------------------
         # Month/Day (MM/DD)
         Write-Host "(Mon-Sun): Mon ($(Get-Date -Date $StartOfWeekMonSun -UFormat %m/%d))"
         Write-Host "(Mon-Sun): Sun ($(Get-Date -Date $EndOfWeekMonSun -UFormat %m/%d))"
-
+        
+	    #-----------------------------------------------------------------------------------------------------------------------
+	    # Build Choice Prompt
+	    #-----------------------------------------------------------------------------------------------------------------------
+	
         $Info = @"
 Month: $MonthLabel
 Week #$WeekOfYear/53
@@ -815,22 +820,78 @@ If ($SelectedWeek -ne 0) {
 $Info += "`r`nO - Show/Hide Saturday & Sunday"
 }
 
-$Info += @"
-
-Q - Quit
-
-Select a choice:
-"@
+$Info += "`r`n`r`nQ - Quit`r`n`n`n"
     	
-        Write-HR
+        #Write-HR
 	    Write-Host "$Info"
         
-    	Write-HR -IsVerbose -DashedLine
-    	Write-HR
+    	#Write-HR -IsVerbose -DashedLine
+    	#Write-HR
     	
-        $SelectedWeek += -1
+        
+    	#-----------------------------------------------------------------------------------------------------------------------
+    	# Execute Choice Prompt
+    	#-----------------------------------------------------------------------------------------------------------------------
+    	$Answer = Read-Host -Prompt "Select a choice"
+    	#-----------------------------------------------------------------------------------------------------------------------
+    	# Interpret answer
+    	#-----------------------------------------------------------------------------------------------------------------------
+    	#help about_switch
+    	#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
+    	#Write-Verbose "`$Answer = $Answer"
+    	switch ($Answer) {
+			'R' { # R - Tomorrow
+			}
+			'T' { # T - Today
+			}
+			'Y' { # Y - Yesterday
+			}
+			'C' { # C - Current Week
+				$SelectedWeek = 0
+			}
+			'N' { # N - Next Week
+				$SelectedWeek += 1
+			}
+			'D' { # D - Sunday
+			}
+			'S' { # S - Saturday
+			}
+			'F' { # F - Friday
+			}
+			'H' { # H - Thursday
+			}
+			'W' { # W - Wednesday
+			}
+			'U' { # U - Tuesday
+			}
+			'M' { # M - Monday
+			}
+			'O' { # O - Show/Hide Saturday & Sunday
+			}
+			'P' { # P - Previous Week
+				$SelectedWeek += -1
+			}
+			'L' { # L - Last Week
+			}
+			'Q' { # Q - Quit
+			}
+
+		    default { # Choice not recognized.
+			    Write-Host `r`n
+			    Write-Host "Choice `"$Answer`" not recognized. Options must be one of the above."
+			    #Write-HorizontalRuleAdv -HRtype DashedLine
+			    Write-Host `r`n
+			    #Break #help about_Break
+			    PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+			    Write-Host `r`n
+			    Write-HorizontalRuleAdv -HRtype DashedLine
+		    }
+	    }
+	
+
+        
     
-    } Until ($SelectedWeek -lt -3)
+    } Until ($Answer -eq 'R' -Or $Answer -eq 'T' -Or $Answer -eq 'Y' -Or $Answer -eq 'D' -Or $Answer -eq 'S' -Or $Answer -eq 'F' -Or $Answer -eq 'H' -Or $Answer -eq 'W' -Or $Answer -eq 'U' -Or $Answer -eq 'M' -Or $Answer -eq 'Q')
 
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
@@ -864,36 +925,6 @@ Select a choice:
 	#-----------------------------------------------------------------------------------------------------------------------
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
-	#-----------------------------------------------------------------------------------------------------------------------
-	# Build Choice Prompt
-	#-----------------------------------------------------------------------------------------------------------------------
-	[int]$defaultchoice = 0
-	#-----------------------------------------------------------------------------------------------------------------------
-	# Execute Choice Prompt
-	#-----------------------------------------------------------------------------------------------------------------------
-	# PromptForChoice() output will always be integer: https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
-	If ($InfoDescription) {
-		$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
-	} else {
-		$answer = $host.UI.PromptForChoice($Title, "", $Options, $defaultchoice)
-	}
-	#-----------------------------------------------------------------------------------------------------------------------
-	# Interpret answer
-	#-----------------------------------------------------------------------------------------------------------------------
-	#help about_switch
-	#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
-	#Write-Verbose "Answer = $answer"
-	switch ($answer) {
-		0 { # Y - Yes
-			Write-Verbose "Yes ('$answer') option selected."
-			$ChoiceResultVar = 'Y'
-		}
-		1 { # N - No
-			Write-Verbose "No ('$answer') option selected."
-			$ChoiceResultVar = 'N'
-		}
-	}
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
