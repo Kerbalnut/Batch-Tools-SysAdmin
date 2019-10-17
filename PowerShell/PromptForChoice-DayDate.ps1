@@ -526,6 +526,8 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
+    $TodayDoWNumberOneThruSeven = Convert-DoWNumberToMonSun $TodayDateTime
+
 	[int]$DaysIntoTheWeek = [int]$TodayDoWNumberOneThruSeven
 	[int]$SelectedDoW = [int]$TodayDoWNumberOneThruSeven
 	[int]$TodayDoW = [int]$TodayDoWNumberOneThruSeven
