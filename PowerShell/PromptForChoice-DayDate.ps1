@@ -31,7 +31,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	
 	$VerbosePreferenceOrig = $VerbosePreference
 	#$VerbosePreference = "SilentlyContinue" # Will suppress Write-Verbose messages. This is the default value.
-	$VerbosePreference = "Continue" # Will print out Write-Verbose messages. Gets set when -Verbose switch is used to run the script. (Or when you set the variable manually.)
+	#$VerbosePreference = "Continue" # Will print out Write-Verbose messages. Gets set when -Verbose switch is used to run the script. (Or when you set the variable manually.)
 	
 	#-----------------------------------------------------------------------------------------------------------------------
 	
@@ -585,13 +585,13 @@ Function PromptForChoice-DayDate { #--------------------------------------------
     	$EndOfWeekSunSatMonthShort = Get-Date -Date $EndOfWeekSunSat -UFormat %b
         
         If ($StartOfWeekSunSatMonthLong -ne $EndOfWeekSunSatMonthLong) {
-            Write-Host "Month (Sun-Sat): $StartOfWeekSunSatMonthShort-$EndOfWeekSunSatMonthShort"
+            Write-Verbose   "Month (Sun-Sat): $StartOfWeekSunSatMonthShort-$EndOfWeekSunSatMonthShort"
 	    } Else {
-            Write-Host "Month (Sun-Sat): $StartOfWeekSunSatMonthLong"
+            Write-Verbose   "Month (Sun-Sat): $StartOfWeekSunSatMonthLong"
         }
     	# Month/Day (MM/DD)
-        Write-Host "(Sun-Sat): Sun ($(Get-Date -Date $StartOfWeekSunSat -UFormat %m/%d))"
-        Write-Host "(Sun-Sat): Sat ($(Get-Date -Date $EndOfWeekSunSat -UFormat %m/%d))"
+        Write-Verbose   "(Sun-Sat): Sun ($(Get-Date -Date $StartOfWeekSunSat -UFormat %m/%d))"
+        Write-Verbose   "(Sun-Sat): Sat ($(Get-Date -Date $EndOfWeekSunSat -UFormat %m/%d))"
         
     	# Week of the Year (00-52)
     	$WeekOfYearZero = Get-Date -Date $SelectedDateTime -UFormat %W
@@ -710,14 +710,14 @@ Function PromptForChoice-DayDate { #--------------------------------------------
     
         If ($StartOfWeekMonSunMonthLong -ne $EndOfWeekMonSunMonthLong) {
             $MonthLabel = "$StartOfWeekMonSunMonthShort-$EndOfWeekMonSunMonthShort"
-            Write-Host "Month (Mon-Sun): $MonthLabel"
+            Write-Verbose   "Month (Mon-Sun): $MonthLabel"
         } Else {
             $MonthLabel = "$StartOfWeekMonSunMonthLong"
-            Write-Host "Month (Mon-Sun): $MonthLabel"
+            Write-Verbose   "Month (Mon-Sun): $MonthLabel"
         }
         # Month/Day (MM/DD)
-        Write-Host "(Mon-Sun): Mon ($(Get-Date -Date $StartOfWeekMonSun -UFormat %m/%d))"
-        Write-Host "(Mon-Sun): Sun ($(Get-Date -Date $EndOfWeekMonSun -UFormat %m/%d))"
+        Write-Verbose   "(Mon-Sun): Mon ($(Get-Date -Date $StartOfWeekMonSun -UFormat %m/%d))"
+        Write-Verbose   "(Mon-Sun): Sun ($(Get-Date -Date $EndOfWeekMonSun -UFormat %m/%d))"
         
 	    #-----------------------------------------------------------------------------------------------------------------------
 	    # Build Choice Prompt
@@ -756,7 +756,7 @@ Q - Quit
 #>
 
 If ($SelectedWeek -ne 0) {
-$Info += "`r`n`r`nC - Current Week`r`n"
+$Info += "`r`n`r`nC - Current Week (#$TodayWeekOfYear)`r`n"
 $Info += "N - Next Week`r`n`r`n"
 }
 
@@ -933,4 +933,4 @@ $Info += "`r`n`r`nQ - Quit`r`n`n`n"
 } # End PromptForChoice-DayDate function -------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
-PromptForChoice-DayDate -Verbose
+PromptForChoice-DayDate # -Verbose
