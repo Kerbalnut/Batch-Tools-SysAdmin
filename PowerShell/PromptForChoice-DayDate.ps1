@@ -704,6 +704,9 @@ Function PromptForChoice-DayDate { #--------------------------------------------
     
     $TomorrowOption = $true
     #$TomorrowOption = $false
+    
+    $SatSunEnabled = $true
+    $SatSunEnabled = $false
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	# Build out currently selected week, out until Monday (Mon-Sun week display)
@@ -1140,6 +1143,11 @@ $Info += "R - ($TomorrowMonthDay) $TomorrowDoWLong - Tomorrow`r`n"
 }
 $Info += "T - ($TodayMonthDay) $TodayDoWLong - Today`r`n"
 $Info += "Y - ($YesterdayMonthDay) $YesterdayDoWLong - Yesterday`r`n"
+}
+
+If ($SelectedWeek -ne 0 -And $SatSunEnabled -eq $true) {
+$Info += "D - ($(Get-Date -Date $Sunday -UFormat %m/%d)) Sunday`r`n"
+$Info += "S - ($(Get-Date -Date $Saturday -UFormat %m/%d)) Saturday`r`n"
 }
 
 If ($SelectedWeek -eq 0) {
