@@ -176,6 +176,11 @@ about_Functions_CmdletBindingAttribute
 # Debugging: You must have a script parameter defined here if you have the Help Topic .PARAMETER defined above.
 # https://ss64.com/ps/syntax-args.html
 
+#http://techgenix.com/powershell-functions-common-parameters/
+# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+#[CmdletBinding()]
+#Param()
+	
 [CmdletBinding()]
 #[CmdletBinding(SupportsShouldProcess=$true)]
 

@@ -6,6 +6,13 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	.LINK
 	https://ss64.com/ps/syntax-dateformats.html
 	#>
+    
+    #http://techgenix.com/powershell-functions-common-parameters/
+    # To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+    #[CmdletBinding()]
+    #Param()
+    	
+    [CmdletBinding()]
 	
 	Param (
 		#Script parameters go here
@@ -24,7 +31,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	
 	$VerbosePreferenceOrig = $VerbosePreference
 	#$VerbosePreference = "SilentlyContinue" # Will suppress Write-Verbose messages. This is the default value.
-	$VerbosePreference = "Continue" # Will print out Write-Verbose messages. Gets set when -Verbose switch is used to run the script. (Or when you set the variable manually.)
+	#$VerbosePreference = "Continue" # Will print out Write-Verbose messages. Gets set when -Verbose switch is used to run the script. (Or when you set the variable manually.)
 	
 	#-----------------------------------------------------------------------------------------------------------------------
 	
@@ -255,115 +262,211 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	# Get earlier Days of Week
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	Write-Verbose "Today:"
-	
-	# Day-of-Week in 3 characters:
-	<#
-	Sun
-	Mon
-	Tue
-	Wed
-	Thu
-	Fri
-	Sat
-	Sun
-	#>
-	$TodayDoWShort = Get-Date -UFormat %a
-	Write-Verbose "`$TodayDoWShort = $TodayDoWShort"
-	
-	# Day-of-Week in number format, (Sun-Sat = 0-6):
-	<#
-	0 = Sunday
-	1 = Monday
-	2 = Tuesday
-	3 = Wednesday
-	4 = Thursday
-	5 = Friday
-	6 = Saturday
-	#>
-	$TodayDoWNumber = Get-Date -UFormat %u
+	$TodayDoWNumber = Get-Date -Date $TodayDateTime -UFormat %u
 	Write-Verbose "`$TodayDoWNumber = $TodayDoWNumber"
 	
-	# Day-of-Week in number format, (Mon-Sun = 1-7):
-	<#
-	1 = Monday
-	2 = Tuesday
-	3 = Wednesday
-	4 = Thursday
-	5 = Friday
-	6 = Saturday
-	7 = Sunday
-	#>
-	$TodayDoWNumberOneThruSeven = Get-Date -UFormat %u
-	If ([int]$TodayDoWNumberOneThruSeven -eq 0) {$TodayDoWNumberOneThruSeven = 7}
-	Write-Verbose "`$TodayDoWNumberOneThruSeven = $TodayDoWNumberOneThruSeven"
-	
+	# Sub-functions:
+	#-----------------------------------------------------------------------------------------------------------------------
+    function Convert-DoWNumberToMonSun { #----------------------------------------------------------------------------------
+	    <#
+        .NOTES
+        Day-of-Week in number format, (Mon-Sun = 1-7):
+        
+	    1 = Monday
+	    2 = Tuesday
+	    3 = Wednesday
+	    4 = Thursday
+	    5 = Friday
+  	    6 = Saturday
+	    7 = Sunday
+	    #>
+        param(
+            [parameter(Position=0)]
+            [DateTime]$InputVal
+        )
+	    $DoWNumberOneThruSeven = (Get-Date -Date $InputVal -UFormat %u)
+	    If ([int]$DoWNumberOneThruSeven -eq 0) {$DoWNumberOneThruSeven = 7}
+	    Write-Verbose "`$DoWNumberOneThruSeven = $DoWNumberOneThruSeven"
+        Return [int]$DoWNumberOneThruSeven
+    } # End Convert-DoWNumberToMonSun function -----------------------------------------------------------------------------
+	#-----------------------------------------------------------------------------------------------------------------------
+    
+    #-----------------------------------------------------------------------------------------------------------------------
+    function Convert-DoWNumberToSunSat { #----------------------------------------------------------------------------------
+        <#
+        .NOTES	
+        Day-of-Week in number format, (Sun-Sat = 0-6):
+        
+	    0 = Sunday
+	    1 = Monday
+	    2 = Tuesday
+	    3 = Wednesday
+	    4 = Thursday
+	    5 = Friday
+	    6 = Saturday
+	    #>
+        param(
+            [parameter(Position=0)]
+            [DateTime]$InputVal
+        )
+	    $DoWNumberZeroThruSix = Get-Date -Date $InputVal -UFormat %u
+	    If ([int]$DoWNumberZeroThruSix -eq 7) {$DoWNumberZeroThruSix = 0}
+	    Write-Verbose "`$DoWNumberZeroThruSix = $DoWNumberZeroThruSix"
+        Return [int]$DoWNumberZeroThruSix
+    } # End Convert-DoWNumberToSunSat function -----------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------------------------------------------------
+
+    # Get beginning of current week
+    
+    #-----------------------------------------------------------------------------------------------------------------------
+    function Get-MondayOfWeekInt { #----------------------------------------------------------------------------------------
+	    <#    
+        .SYNOPSIS
+        Get Monday of current week
+    
+    	.NOTES
+        Day-of-Week in number format, (Mon-Sun = 1-7):
+    
+    	1 = Monday    - Monday is 1 - 0 = 1
+    	2 = Tuesday   - Monday is 2 - 1 = 1
+    	3 = Wednesday - Monday is 3 - 2 = 1
+    	4 = Thursday  - Monday is 4 - 3 = 1
+    	5 = Friday    - Monday is 5 - 4 = 1
+    	6 = Saturday  - Monday is 6 - 5 = 1
+    	7 = Sunday    - Monday is 7 - 6 = 1
+        
+        
+	    1 = Monday    - Monday is $Input - 0 = 1
+	    2 = Tuesday   - Monday is $Input - 1 = 1
+	    3 = Wednesday - Monday is $Input - 2 = 1
+	    4 = Thursday  - Monday is $Input - 3 = 1
+	    5 = Friday    - Monday is $Input - 4 = 1
+	    6 = Saturday  - Monday is $Input - 5 = 1
+	    7 = Sunday    - Monday is $Input - 6 = 1
+	    #>
+        param(
+            [parameter(Position=0)]
+            [int]$DoWInput
+        )
+        $ModifyBy = [int]$DoWInput - 1
+        $MondayOfWeek = [int]$DoWInput - [int]$ModifyBy
+        Return [int]$MondayOfWeek
+    } # End Get-MondayOfWeekInt function -----------------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------------------------------------------------
+
+    #-----------------------------------------------------------------------------------------------------------------------
+    function Get-SundayOfWeek { #-------------------------------------------------------------------------------------------
+        <#    
+        .SYNOPSIS
+        Get Sunday of current week (Sun-Mon)
+    
+	    .NOTES
+        Day-of-Week in number format, (Sun-Mon = 0-6):
+        
+	    0 = Sunday
+	    1 = Monday
+	    2 = Tuesday
+	    3 = Wednesday
+	    4 = Thursday
+	    5 = Friday
+	    6 = Saturday
+    
+	    0 = Monday    - Monday is $Input - 0 = 0
+	    1 = Tuesday   - Monday is $Input - 1 = 0
+	    2 = Wednesday - Monday is $Input - 2 = 0
+	    3 = Thursday  - Monday is $Input - 3 = 0
+	    4 = Friday    - Monday is $Input - 4 = 0
+	    5 = Saturday  - Monday is $Input - 5 = 0
+	    6 = Sunday    - Monday is $Input - 6 = 0
+	    #>
+        param(
+            [parameter(Position=0)]
+            [DateTime]$DoWInput
+        )
+        $ModifyBy = [int](Get-Date -Date $DoWInput -UFormat %u) * -1
+        $MondayOfWeek = (Get-Date -Date $DoWInput).AddDays($ModifyBy)
+        Return [DateTime]$MondayOfWeek
+    } # End Get-SundayOfWeek function --------------------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------------------------------------------------
+    
+    # Get end of current week
+
+    #-----------------------------------------------------------------------------------------------------------------------
+    function Get-SundayOfWeekInt { #----------------------------------------------------------------------------------------
+	    <#
+        .SYNOPSIS
+        Get Sunday of current week (Mon-Sun)
+    
+        .NOTES
+	    Day-of-Week in number format, (Mon-Sun = 1-7):
+    
+	    1 = Monday    - Sunday is 1 + 6 = 7
+	    2 = Tuesday   - Sunday is 2 + 5 = 7
+	    3 = Wednesday - Sunday is 3 + 4 = 7
+	    4 = Thursday  - Sunday is 4 + 3 = 7
+	    5 = Friday    - Sunday is 5 + 2 = 7
+	    6 = Saturday  - Sunday is 6 + 1 = 7
+	    7 = Sunday    - Sunday is 7 + 0 = 7
+        	
+	    1 = Monday    - Sunday is $Input + 6 = 7
+	    2 = Tuesday   - Sunday is $Input + 5 = 7
+	    3 = Wednesday - Sunday is $Input + 4 = 7
+	    4 = Thursday  - Sunday is $Input + 3 = 7
+	    5 = Friday    - Sunday is $Input + 2 = 7
+	    6 = Saturday  - Sunday is $Input + 1 = 7
+	    7 = Sunday    - Sunday is $Input + 0 = 7
+	    #>
+        param(
+            [parameter(Position=0)]
+            [int]$DoWInput
+        )
+        [int]$ModifyBy = 7 - [int]$DoWInput
+        [int]$SundayOfWeek = [int]$DoWInput + [int]$ModifyBy
+        Return [int]$SundayOfWeek
+    } # End Get-SundayOfWeekInt function -----------------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------------------------------------------------
+
+    #-----------------------------------------------------------------------------------------------------------------------
+    function Get-SaturdayOfWeek { #-----------------------------------------------------------------------------------------
+	    <#
+        .SYNOPSIS
+        Get Sunday of current week (Sun-Sat)
+    
+        .NOTES
+	    Day-of-Week in number format, (Sun-Sat = 0-6):
+        
+    	0 = Sunday
+    	1 = Monday
+    	2 = Tuesday
+    	3 = Wednesday
+    	4 = Thursday
+    	5 = Friday
+    	6 = Saturday
+        
+    	0 = Monday    - Sunday is $Input + 6 = 6
+    	1 = Tuesday   - Sunday is $Input + 5 = 6
+    	2 = Wednesday - Sunday is $Input + 4 = 6
+    	3 = Thursday  - Sunday is $Input + 3 = 6
+    	4 = Friday    - Sunday is $Input + 2 = 6
+    	5 = Saturday  - Sunday is $Input + 1 = 6
+    	6 = Sunday    - Sunday is $Input + 0 = 6
+    	#>
+        param(
+            [parameter(Position=0)]
+            [DateTime]$DoWInput
+        )
+        $ModifyBy = 6 - [int](Get-Date -Date $DoWInput -UFormat %u)
+        $SundayOfWeek = (Get-Date -Date $DoWInput).AddDays($ModifyBy)
+        Return [DateTime]$SundayOfWeek
+    } # End Get-SaturdayOfWeek function ------------------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------------------------------------------------
+	# /Sub-functions
+
 	Write-HR -IsVerbose -DashedLine
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
-	# Test all Day-of-Week output
-	
-	Write-Verbose "Start of Loop."
-	
-	Write-HR -IsVerbose
-	
-	$CurrentDateTime = Get-Date
-	
-	For ($i=1; $i -le 7; $i++) {
-	
-	$DoWLong = Get-Date -Date $CurrentDateTime -UFormat %A
-	Write-Verbose "`$DoWLong = $DoWLong"
-	
-	# Day-of-Week in 3 characters::
-	<#
-	Sun
-	Mon
-	Tue
-	Wed
-	Thu
-	Fri
-	Sat
-	Sun
-	#>
-	$DoWShort = Get-Date -Date $CurrentDateTime -UFormat %a
-	Write-Verbose "`$DoWShort = $DoWShort"
-	
-	# Day-of-Week in number format, (Sun-Sat = 0-6):
-	<#
-	0 = Sunday
-	1 = Monday
-	2 = Tuesday
-	3 = Wednesday
-	4 = Thursday
-	5 = Friday
-	6 = Saturday
-	#>
-	$DoWNumber = Get-Date -Date $CurrentDateTime -UFormat %u
-	Write-Verbose "`$DoWNumber = $DoWNumber"
-	
-	# Day-of-Week in number format, (Mon-Sun = 1-7):
-	<#
-	1 = Monday
-	2 = Tuesday
-	3 = Wednesday
-	4 = Thursday
-	5 = Friday
-	6 = Saturday
-	7 = Sunday
-	#>
-	$DoWNumberOneThruSeven = Get-Date -Date $CurrentDateTime -UFormat %u
-	If ([int]$DoWNumberOneThruSeven -eq 0) {$DoWNumberOneThruSeven = 7}
-	Write-Verbose "`$DoWNumberOneThruSeven = $DoWNumberOneThruSeven"
-	
-	$CurrentDateTime = $CurrentDateTime.AddDays(-1)
-	
-	Write-HR -IsVerbose
-	
-	}
-	Write-Verbose "End of Loop."
 	
 	Write-HR -IsVerbose -DashedLine
 	
@@ -373,304 +476,8 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	
 	# 'Today' and 'Yesterday' will be constant. But we'll fill in every day earlier as an option, up to Monday. So starting at Wednesday and later, we'll calculate those values. And to do that we'll need the Day-of-Week as an integer value for Monday through Sunday.
 	
-	# Day-of-Week in number format, (Mon-Sun = 1-7):
-	<#
-	1 = Monday
-	2 = Tuesday
-	3 = Wednesday
-	4 = Thursday
-	5 = Friday
-	6 = Saturday
-	7 = Sunday
-	#>
-	$TodayDoWNumberOneThruSeven = Get-Date -UFormat %u
-	If ([int]$TodayDoWNumberOneThruSeven -eq 0) {$TodayDoWNumberOneThruSeven = 7}
-	Write-Verbose "`$TodayDoWNumberOneThruSeven = $TodayDoWNumberOneThruSeven"
-	
-	
-	
-	$TodayDateTime = Get-Date
-	
-	$YesterdayDateTime = $TodayDateTime.AddDays(-1)
-	
-	
-	Write-Verbose "`$TodayDoWNumberOneThruSeven = $TodayDoWNumberOneThruSeven"
-	
-	If ([int]$TodayDoWNumberOneThruSeven -ge 3) {
-		
-		$RollingInt = [int]$TodayDoWNumberOneThruSeven - 2
-		Write-Verbose "`$RollingInt = $RollingInt"
-		$DaysBefore = -2
-		Write-Verbose "`$DaysBefore = $DaysBefore"
-		$DayOptionFive = (Get-Date).AddDays($DaysBefore) # Two days before
-		Write-Verbose "`$DayOptionFive = $DayOptionFive"
-		$DayOptionFive = $TodayDateTime.AddDays($DaysBefore) # Two days before
-		Write-Verbose "`$DayOptionFive = $DayOptionFive"
-		Write-Verbose "`$DayOptionFive = $(Get-Date -Date $DayOptionFive -UFormat %A)"
-		
-		$RollingInt = $RollingInt - 1
-		Write-Verbose "`$RollingInt = $RollingInt"
-		$DaysBefore = $DaysBefore - 1
-		Write-Verbose "`$DaysBefore = $DaysBefore"
-		$DayOptionFour = $TodayDateTime.AddDays($DaysBefore)
-		Write-Verbose "`$DayOptionFour = $DayOptionFour"
-		Write-Verbose "`$DayOptionFour = $(Get-Date -Date $DayOptionFour -UFormat %A)"
-		
-		$RollingInt = $RollingInt - 1
-		Write-Verbose "`$RollingInt = $RollingInt"
-		$DaysBefore = $DaysBefore - 1
-		Write-Verbose "`$DaysBefore = $DaysBefore"
-		$DayOptionThree = $TodayDateTime.AddDays($DaysBefore)
-		Write-Verbose "`$DayOptionThree = $DayOptionThree"
-		Write-Verbose "`$DayOptionThree = $(Get-Date -Date $DayOptionThree -UFormat %A)"
-		
-		$RollingInt = $RollingInt - 1
-		Write-Verbose "`$RollingInt = $RollingInt"
-		$DaysBefore = $DaysBefore - 1
-		Write-Verbose "`$DaysBefore = $DaysBefore"
-		$DayOptionTwo = $TodayDateTime.AddDays($DaysBefore)
-		Write-Verbose "`$DayOptionTwo = $DayOptionTwo"
-		Write-Verbose "`$DayOptionTwo = $(Get-Date -Date $DayOptionTwo -UFormat %A)"
-		
-		$RollingInt = $RollingInt - 1
-		Write-Verbose "`$RollingInt = $RollingInt"
-		$DaysBefore = $DaysBefore - 1
-		Write-Verbose "`$DaysBefore = $DaysBefore"
-		$DayOptionOne = $TodayDateTime.AddDays($DaysBefore)
-		Write-Verbose "`$DayOptionOne = $DayOptionOne"
-		Write-Verbose "`$DayOptionOne = $(Get-Date -Date $DayOptionOne -UFormat %A)"
-		
-		
-		
-		
-		
-	}
-	
-	
-	
-	Write-Verbose "`$TodayDoWNumberOneThruSeven = $TodayDoWNumberOneThruSeven"
-	
-	If ([int]$TodayDoWNumberOneThruSeven -ge 3) {
-		
-		$RollingInt = [int]$TodayDoWNumberOneThruSeven - 2
-		Write-Verbose "`$RollingInt = $RollingInt"
-		$DaysBefore = -2
-		Write-Verbose "`$DaysBefore = $DaysBefore"
-		$DayOptionFive = (Get-Date).AddDays($DaysBefore) # Two days before
-		Write-Verbose "`$DayOptionFive = $DayOptionFive"
-		$DayOptionFive = $TodayDateTime.AddDays($DaysBefore) # Two days before
-		Write-Verbose "`$DayOptionFive = $DayOptionFive"
-		Write-Verbose "`$DayOptionFive = $(Get-Date -Date $DayOptionFive -UFormat %A)"
-		$DayOptionFiveDate = $DayOptionFive.Date
-		Write-Verbose "`$DayOptionFive = $($DayOptionFive.Date)"
-		Write-Verbose "`$DayOptionFive = $DayOptionFiveDate"
-		Write-Verbose "`$DayOptionFive = $(Get-Date -Date $DayOptionFive)"
-		
-		
-		$RollingInt = $RollingInt - 1
-		Write-Verbose "`$RollingInt = $RollingInt"
-		$DaysBefore = $DaysBefore - 1
-		Write-Verbose "`$DaysBefore = $DaysBefore"
-		$DayOptionFour = $TodayDateTime.AddDays($DaysBefore)
-		Write-Verbose "`$DayOptionFour = $DayOptionFour"
-		Write-Verbose "`$DayOptionFour = $(Get-Date -Date $DayOptionFour -UFormat %A)"
-		
-		$RollingInt = $RollingInt - 1
-		Write-Verbose "`$RollingInt = $RollingInt"
-		$DaysBefore = $DaysBefore - 1
-		Write-Verbose "`$DaysBefore = $DaysBefore"
-		$DayOptionThree = $TodayDateTime.AddDays($DaysBefore)
-		Write-Verbose "`$DayOptionThree = $DayOptionThree"
-		Write-Verbose "`$DayOptionThree = $(Get-Date -Date $DayOptionThree -UFormat %A)"
-		
-		$RollingInt = $RollingInt - 1
-		Write-Verbose "`$RollingInt = $RollingInt"
-		$DaysBefore = $DaysBefore - 1
-		Write-Verbose "`$DaysBefore = $DaysBefore"
-		$DayOptionTwo = $TodayDateTime.AddDays($DaysBefore)
-		Write-Verbose "`$DayOptionTwo = $DayOptionTwo"
-		Write-Verbose "`$DayOptionTwo = $(Get-Date -Date $DayOptionTwo -UFormat %A)"
-		
-		$RollingInt = $RollingInt - 1
-		Write-Verbose "`$RollingInt = $RollingInt"
-		$DaysBefore = $DaysBefore - 1
-		Write-Verbose "`$DaysBefore = $DaysBefore"
-		$DayOptionOne = $TodayDateTime.AddDays($DaysBefore)
-		Write-Verbose "`$DayOptionOne = $DayOptionOne"
-		Write-Verbose "`$DayOptionOne = $(Get-Date -Date $DayOptionOne -UFormat %A)"
-		
-		
-		
-		
-		
-	}
-	
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
-	# Test past dates
-	
-	Write-HR -DashedLine
-	
-	Write-Host "`Test past dates"
-	
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
-	Write-Verbose "Start of Loop."
-	
-	$VerbosePreferenceOrig = $VerbosePreference
-	$VerbosePreference = 'SilentlyContinue'
-	
-	Write-HR -IsVerbose
-	
-	$CurrentDateTime = Get-Date
-	$LastWeekOfYear = ""
-	#$LastMonthFull = ""
-	$LastMonthFull = $TodayMonthFull
-	
-	# Week of the Year (00-52)
-	$TodayWeekOfYearZero = Get-Date -UFormat %W
-	Write-Verbose "`$TodayWeekOfYearZero (00-52) = $TodayWeekOfYearZero"
-    
-	# Week of the Year (01-53)
-	$TodayWeekOfYear = Get-Date -UFormat %V
-	Write-Verbose "`$TodayWeekOfYear (01-53) = $TodayWeekOfYear"
-	
-	$CountLoop = 45
-	Write-Verbose "Days to count backwards: $CountLoop"
-	
 	#-----------------------------------------------------------------------------------------------------------------------
-	For ($i=1; $i -le $CountLoop; $i++) {
-	    
-	    $DoWLong = Get-Date -Date $CurrentDateTime -UFormat %A
-	    Write-Verbose "`$DoWLong = $DoWLong"
-	    
-	    # Day-of-Week in 3 characters::
-	    <#
-	    Sun
-	    Mon
-	    Tue
-	    Wed
-	    Thu
-	    Fri
-	    Sat
-	    Sun
-	    #>
-	    $DoWShort = Get-Date -Date $CurrentDateTime -UFormat %a
-	    Write-Verbose "`$DoWShort = $DoWShort"
-    	
-	    # Day-of-Week in number format, (Sun-Sat = 0-6):
-	    <#
-	    0 = Sunday
-	    1 = Monday
-	    2 = Tuesday
-	    3 = Wednesday
-	    4 = Thursday
-	    5 = Friday
-	    6 = Saturday
-	    #>
-	    $DoWNumber = Get-Date -Date $CurrentDateTime -UFormat %u
-	    Write-Verbose "`$DoWNumber = $DoWNumber"
-    	
-	    # Day-of-Week in number format, (Mon-Sun = 1-7):
-	    <#
-	    1 = Monday
-	    2 = Tuesday
-	    3 = Wednesday
-	    4 = Thursday
-	    5 = Friday
-	    6 = Saturday
-	    7 = Sunday
-	    #>
-	    $DoWNumberOneThruSeven = Get-Date -Date $CurrentDateTime -UFormat %u
-	    If ([int]$DoWNumberOneThruSeven -eq 0) {$DoWNumberOneThruSeven = 7}
-	    Write-Verbose "`$DoWNumberOneThruSeven = $DoWNumberOneThruSeven"
-    	
-	    # Month/Day (MM/DD)
-	    $MonthDay = Get-Date -Date $CurrentDateTime -UFormat %m/%d
-	    Write-Verbose "`$MonthDay = $MonthDay"
-    	
-    	# Day/Month (DD/MM)
-	    $DayMonth = Get-Date -Date $CurrentDateTime -UFormat %d/%m
-	    Write-Verbose "`$DayMonth = $DayMonth"
-    	
-        # Month name - abbreviated (Jan)
-	    <#
-	    01 - Jan
-	    02 - Feb
-	    03 - Mar
-	    04 - Apr
-	    05 - May
-	    06 - Jun
-	    07 - Jul
-	    08 - Aug
-	    09 - Sep
-	    10 - Oct
-	    11 - Nov
-	    12 - Dec
-	    #>
-        $MonthShort = Get-Date -Date $CurrentDateTime -UFormat %b
-	    Write-Verbose "`$MonthShort - $MonthShort"
-    	    
-        # Month name - full (January)
-	    $MonthFull = Get-Date -Date $CurrentDateTime -UFormat %B
-	    Write-Verbose "`$MonthFull = $MonthFull"
-    	
-	    # Week of the Year (00-52)
-	    $WeekOfYearZero = Get-Date -Date $CurrentDateTime -UFormat %W
-	    Write-Verbose "`$WeekOfYearZero (00-52) = $WeekOfYearZero"
-        
-	    # Week of the Year (01-53)
-	    $WeekOfYear = Get-Date -Date $CurrentDateTime -UFormat %V
-	    Write-Verbose "`$WeekOfYear (01-53) = $WeekOfYear"
-    	
-	    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    	
-	    #Test case:
-	    If ($i -eq 3) {
-		    #$MonthFull = "December"
-		    #$MonthShort = "Dec"
-	    }
-	    
-    	
-	    If ($WeekOfYear -eq $TodayWeekOfYear) {
-		    Write-Verbose "Current week selected"
-    		$WeekOfYearDisplayLabel = " - Current week."
-	    } Else {
-		    $WeekOfYearDisplayLabel = ""
-    	}
-    	
-	    if ($MonthFull -ne $LastMonthFull) {
-		    Write-Verbose "Month change detected."
-    		$LastMonthFull = $MonthFull
-	    	$MonthChangeDisplayLabel = " - Month change."
-    	}  Else {
-    		$MonthChangeDisplayLabel = ""
-	    }
-	    
-    	if ($WeekOfYear -ne $LastWeekOfYear) {
-    		Write-Verbose "New week detected."
-	    	Write-Host "New week detected."
-    		$LastWeekOfYear = $WeekOfYear
-	    }
-	    
-	    
-    	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    	
-	    #Write-Host "$MonthDay - $DoWShort - $MonthShort - Week #($WeekOfYear/52)($WeekOfYearDisplayLabel)$($MonthChangeDisplayLabel)"
-	    Write-Host "$MonthDay - $DoWShort - ($WeekOfYear/52) - $MonthShort$($WeekOfYearDisplayLabel)$($MonthChangeDisplayLabel)"
-	    
-    	$CurrentDateTime = $CurrentDateTime.AddDays(-1)
-    	
-	    Write-HR -IsVerbose
-	}
-	
-	$VerbosePreference = 'Continue'
-	$VerbosePreference = $VerbosePreferenceOrig
-	Write-Verbose "End of Loop."
-	
-	#-----------------------------------------------------------------------------------------------------------------------
-	
+
 	Write-HR -IsVerbose -DashedLine
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -717,210 +524,25 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	
 	# Since the default output of PowerShell DoW is Sun-Sat = 0-6, we must convert it to our choice of a Monday through Sunday week format, Mon-Sun = 1-7.
 	
-	# Day-of-Week in number format, (Sun-Sat = 0-6):
-	<#
-	0 = Sunday
-	1 = Monday
-	2 = Tuesday
-	3 = Wednesday
-	4 = Thursday
-	5 = Friday
-	6 = Saturday
-	#>
-	$TodayDoWNumber = Get-Date -Date $TodayDateTime -UFormat %u
-	Write-Verbose "`$TodayDoWNumber = $TodayDoWNumber"
-	
-	# Day-of-Week in number format, (Mon-Sun = 1-7):
-	<#
-	1 = Monday
-	2 = Tuesday
-	3 = Wednesday
-	4 = Thursday
-	5 = Friday
-	6 = Saturday
-	7 = Sunday
-	#>
-	[int]$TodayDoWNumberOneThruSeven = Get-Date -Date $TodayDateTime -UFormat %u
-	If ([int]$TodayDoWNumberOneThruSeven -eq 0) {$TodayDoWNumberOneThruSeven = 7}
-	Write-Verbose "`$TodayDoWNumberOneThruSeven = $TodayDoWNumberOneThruSeven"
-	
-
-    function Convert-DoWNumberToMonSun {
-    param(
-        [parameter(Position=0)]
-        [DateTime]$InputVal
-    )
-	$DoWNumberOneThruSeven = (Get-Date -Date $InputVal -UFormat %u)
-	If ([int]$DoWNumberOneThruSeven -eq 0) {$DoWNumberOneThruSeven = 7}
-	Write-Verbose "`$DoWNumberOneThruSeven = $DoWNumberOneThruSeven"
-    Return [int]$DoWNumberOneThruSeven
-	}
-
-    function Convert-DoWNumberToSunSat {
-    param(
-        [parameter(Position=0)]
-        [DateTime]$InputVal
-    )
-	$DoWNumberZeroThruSix = Get-Date -Date $InputVal -UFormat %u
-	If ([int]$DoWNumberZeroThruSix -eq 7) {$DoWNumberZeroThruSix = 0}
-	Write-Verbose "`$DoWNumberZeroThruSix = $DoWNumberZeroThruSix"
-    Return [int]$DoWNumberZeroThruSix
-	}
+    $TodayDoWNumberOneThruSeven = Convert-DoWNumberToMonSun $TodayDateTime
 
 	[int]$DaysIntoTheWeek = [int]$TodayDoWNumberOneThruSeven
-	
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
 	[int]$SelectedDoW = [int]$TodayDoWNumberOneThruSeven
 	[int]$TodayDoW = [int]$TodayDoWNumberOneThruSeven
 
-	
 	[DateTime]$SelectedDateTime = [DateTime]$TodayDateTime
     
-    # Get Monday of current week
-
-    function Get-MondayOfWeekInt {
-	<#    
-    .SYNOPSIS
-    Get Monday of current week
-
-	.NOTES
-    Day-of-Week in number format, (Mon-Sun = 1-7):
-
-	1 = Monday    - Monday is 1 - 0 = 1
-	2 = Tuesday   - Monday is 2 - 1 = 1
-	3 = Wednesday - Monday is 3 - 2 = 1
-	4 = Thursday  - Monday is 4 - 3 = 1
-	5 = Friday    - Monday is 5 - 4 = 1
-	6 = Saturday  - Monday is 6 - 5 = 1
-	7 = Sunday    - Monday is 7 - 6 = 1
-    
-    
-	1 = Monday    - Monday is $Input - 0 = 1
-	2 = Tuesday   - Monday is $Input - 1 = 1
-	3 = Wednesday - Monday is $Input - 2 = 1
-	4 = Thursday  - Monday is $Input - 3 = 1
-	5 = Friday    - Monday is $Input - 4 = 1
-	6 = Saturday  - Monday is $Input - 5 = 1
-	7 = Sunday    - Monday is $Input - 6 = 1
-	#>
-    param(
-        [parameter(Position=0)]
-        [int]$DoWInput
-    )
-    $ModifyBy = [int]$DoWInput - 1
-    $MondayOfWeek = [int]$DoWInput - [int]$ModifyBy
-    Return [int]$MondayOfWeek
-    }
-
-
-    function Get-SundayOfWeek {
-    <#    
-    .SYNOPSIS
-    Get Sunday of current week (Sun-Mon)
-
-	.NOTES
-    Day-of-Week in number format, (Sun-Mon = 0-6):
-    
-	0 = Sunday
-	1 = Monday
-	2 = Tuesday
-	3 = Wednesday
-	4 = Thursday
-	5 = Friday
-	6 = Saturday
-
-	0 = Monday    - Monday is $Input - 0 = 0
-	1 = Tuesday   - Monday is $Input - 1 = 0
-	2 = Wednesday - Monday is $Input - 2 = 0
-	3 = Thursday  - Monday is $Input - 3 = 0
-	4 = Friday    - Monday is $Input - 4 = 0
-	5 = Saturday  - Monday is $Input - 5 = 0
-	6 = Sunday    - Monday is $Input - 6 = 0
-	#>
-    param(
-        [parameter(Position=0)]
-        [DateTime]$DoWInput
-    )
-    $ModifyBy = [int](Get-Date -Date $DoWInput -UFormat %u) * -1
-    $MondayOfWeek = (Get-Date -Date $DoWInput).AddDays($ModifyBy)
-    Return [DateTime]$MondayOfWeek
-    }
-    
-    # Get Sunday of current week
-
-    function Get-SundayOfWeekInt {
-	<#
-    .SYNOPSIS
-    Get Sunday of current week (Mon-Sun)
-
-    .NOTES
-	Day-of-Week in number format, (Mon-Sun = 1-7):
-
-	1 = Monday    - Sunday is 1 + 6 = 7
-	2 = Tuesday   - Sunday is 2 + 5 = 7
-	3 = Wednesday - Sunday is 3 + 4 = 7
-	4 = Thursday  - Sunday is 4 + 3 = 7
-	5 = Friday    - Sunday is 5 + 2 = 7
-	6 = Saturday  - Sunday is 6 + 1 = 7
-	7 = Sunday    - Sunday is 7 + 0 = 7
-	
-	1 = Monday    - Sunday is $Input + 6 = 7
-	2 = Tuesday   - Sunday is $Input + 5 = 7
-	3 = Wednesday - Sunday is $Input + 4 = 7
-	4 = Thursday  - Sunday is $Input + 3 = 7
-	5 = Friday    - Sunday is $Input + 2 = 7
-	6 = Saturday  - Sunday is $Input + 1 = 7
-	7 = Sunday    - Sunday is $Input + 0 = 7
-	#>
-    param(
-        [parameter(Position=0)]
-        [int]$DoWInput
-    )
-    [int]$ModifyBy = 7 - [int]$DoWInput
-    [int]$SundayOfWeek = [int]$DoWInput + [int]$ModifyBy
-    Return [int]$SundayOfWeek
-    }
-
-    function Get-SaturdayOfWeek {
-	<#
-    .SYNOPSIS
-    Get Sunday of current week (Sun-Sat)
-
-    .NOTES
-	Day-of-Week in number format, (Sun-Sat = 0-6):
-    
-	0 = Sunday
-	1 = Monday
-	2 = Tuesday
-	3 = Wednesday
-	4 = Thursday
-	5 = Friday
-	6 = Saturday
-    
-	0 = Monday    - Sunday is $Input + 6 = 6
-	1 = Tuesday   - Sunday is $Input + 5 = 6
-	2 = Wednesday - Sunday is $Input + 4 = 6
-	3 = Thursday  - Sunday is $Input + 3 = 6
-	4 = Friday    - Sunday is $Input + 2 = 6
-	5 = Saturday  - Sunday is $Input + 1 = 6
-	6 = Sunday    - Sunday is $Input + 0 = 6
-	#>
-    param(
-        [parameter(Position=0)]
-        [DateTime]$DoWInput
-    )
-    $ModifyBy = 6 - [int](Get-Date -Date $DoWInput -UFormat %u)
-    $SundayOfWeek = (Get-Date -Date $DoWInput).AddDays($ModifyBy)
-    Return [DateTime]$SundayOfWeek
-    }
-    
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#PAUSE
+	
+	$UserSelectedDateTime = $null
 	
     Do {
-
+		Clear-Host
+		
         Write-HR -IsVerbose -DoubleLine
 
 	    If ($SelectedWeek -eq 0) {
@@ -965,13 +587,13 @@ Function PromptForChoice-DayDate { #--------------------------------------------
     	$EndOfWeekSunSatMonthShort = Get-Date -Date $EndOfWeekSunSat -UFormat %b
         
         If ($StartOfWeekSunSatMonthLong -ne $EndOfWeekSunSatMonthLong) {
-            Write-Host "Month (Sun-Sat): $StartOfWeekSunSatMonthShort-$EndOfWeekSunSatMonthShort"
+            Write-Verbose   "Month (Sun-Sat): $StartOfWeekSunSatMonthShort-$EndOfWeekSunSatMonthShort"
 	    } Else {
-            Write-Host "Month (Sun-Sat): $StartOfWeekSunSatMonthLong"
+            Write-Verbose   "Month (Sun-Sat): $StartOfWeekSunSatMonthLong"
         }
     	# Month/Day (MM/DD)
-        Write-Host "(Sun-Sat): Sun ($(Get-Date -Date $StartOfWeekSunSat -UFormat %m/%d))"
-        Write-Host "(Sun-Sat): Sat ($(Get-Date -Date $EndOfWeekSunSat -UFormat %m/%d))"
+        Write-Verbose   "(Sun-Sat): Sun ($(Get-Date -Date $StartOfWeekSunSat -UFormat %m/%d))"
+        Write-Verbose   "(Sun-Sat): Sat ($(Get-Date -Date $EndOfWeekSunSat -UFormat %m/%d))"
         
     	# Week of the Year (00-52)
     	$WeekOfYearZero = Get-Date -Date $SelectedDateTime -UFormat %W
@@ -980,6 +602,22 @@ Function PromptForChoice-DayDate { #--------------------------------------------
     	# Week of the Year (01-53)
     	$WeekOfYear = Get-Date -Date $SelectedDateTime -UFormat %V
     	Write-Verbose "`$WeekOfYear (01-53) = $WeekOfYear"
+        
+    	# Week of the Year (01-53)
+    	$NextWeekOfYearZero = Get-Date -Date (($SelectedDateTime).AddDays(7)) -UFormat %W
+    	Write-Verbose "`$NextWeekOfYearZero (00-52) = $NextWeekOfYearZero"
+        
+    	# Week of the Year (01-53)
+    	$NextWeekOfYear = Get-Date -Date (($SelectedDateTime).AddDays(7)) -UFormat %V
+    	Write-Verbose "`$NextWeekOfYear (01-53) = $NextWeekOfYear"
+        
+    	# Week of the Year (01-53)
+    	$PreviousWeekOfYearZero = Get-Date -Date (($SelectedDateTime).AddDays(-7)) -UFormat %W
+    	Write-Verbose "`$PreviousWeekOfYearZero (00-52) = $PreviousWeekOfYearZero"
+        
+    	# Week of the Year (01-53)
+    	$PreviousWeekOfYear = Get-Date -Date (($SelectedDateTime).AddDays(-7)) -UFormat %V
+    	Write-Verbose "`$PreviousWeekOfYear (01-53) = $PreviousWeekOfYear"
         
         Write-HR -IsVerbose -DashedLine
     
@@ -1090,15 +728,19 @@ Function PromptForChoice-DayDate { #--------------------------------------------
     
         If ($StartOfWeekMonSunMonthLong -ne $EndOfWeekMonSunMonthLong) {
             $MonthLabel = "$StartOfWeekMonSunMonthShort-$EndOfWeekMonSunMonthShort"
-            Write-Host "Month (Mon-Sun): $MonthLabel"
+            Write-Verbose   "Month (Mon-Sun): $MonthLabel"
         } Else {
             $MonthLabel = "$StartOfWeekMonSunMonthLong"
-            Write-Host "Month (Mon-Sun): $MonthLabel"
+            Write-Verbose   "Month (Mon-Sun): $MonthLabel"
         }
         # Month/Day (MM/DD)
-        Write-Host "(Mon-Sun): Mon ($(Get-Date -Date $StartOfWeekMonSun -UFormat %m/%d))"
-        Write-Host "(Mon-Sun): Sun ($(Get-Date -Date $EndOfWeekMonSun -UFormat %m/%d))"
-
+        Write-Verbose   "(Mon-Sun): Mon ($(Get-Date -Date $StartOfWeekMonSun -UFormat %m/%d))"
+        Write-Verbose   "(Mon-Sun): Sun ($(Get-Date -Date $EndOfWeekMonSun -UFormat %m/%d))"
+        
+	    #-----------------------------------------------------------------------------------------------------------------------
+	    # Build Choice Prompt
+	    #-----------------------------------------------------------------------------------------------------------------------
+	    
         $Info = @"
 Month: $MonthLabel
 Week #$WeekOfYear/53
@@ -1132,86 +774,168 @@ Q - Quit
 #>
 
 If ($SelectedWeek -ne 0) {
-$Info += "`r`n`r`nC - Current Week`r`n"
-$Info += "N - Next Week`r`n`r`n"
+$Info += "`r`n`r`n[C] - Current Week (#$TodayWeekOfYear)`r`n"
+$Info += "[N] - Next Week (#$NextWeekOfYear)`r`n`r`n"
 }
 
 If ($SelectedWeek -eq 0) {
 $Info += "`r`n`r`n"
 If ($TomorrowOption -eq $true) {
-$Info += "R - ($TomorrowMonthDay) $TomorrowDoWLong - Tomorrow`r`n"
+$Info += "[R] - ($TomorrowMonthDay) $TomorrowDoWLong - Tomo[r]row`r`n"
 }
-$Info += "T - ($TodayMonthDay) $TodayDoWLong - Today`r`n"
-$Info += "Y - ($YesterdayMonthDay) $YesterdayDoWLong - Yesterday`r`n"
+$Info += "[T] - ($TodayMonthDay) $TodayDoWLong - [T]oday`r`n"
+$Info += "[Y] - ($YesterdayMonthDay) $YesterdayDoWLong - [Y]esterday`r`n"
 }
 
 If ($SelectedWeek -ne 0 -And $SatSunEnabled -eq $true) {
-$Info += "D - ($(Get-Date -Date $Sunday -UFormat %m/%d)) Sunday`r`n"
-$Info += "S - ($(Get-Date -Date $Saturday -UFormat %m/%d)) Saturday`r`n"
+$Info += "[D] - ($(Get-Date -Date $Sunday -UFormat %m/%d)) Sunday`r`n"
+$Info += "[S] - ($(Get-Date -Date $Saturday -UFormat %m/%d)) Saturday`r`n"
 }
 
 If ($SelectedWeek -eq 0) {
 If ($TodayDoW -gt 6) {
-$Info += "F - ($(Get-Date -Date $Friday -UFormat %m/%d)) Friday`r`n"
+$Info += "[F] - ($(Get-Date -Date $Friday -UFormat %m/%d)) Friday`r`n"
 }
 } Else {
-$Info += "F - ($(Get-Date -Date $Friday -UFormat %m/%d)) Friday`r`n"
+$Info += "[F] - ($(Get-Date -Date $Friday -UFormat %m/%d)) Friday`r`n"
 }
 
 If ($SelectedWeek -eq 0) {
 If ($TodayDoW -eq 5) {
-$Info += "H - ($(Get-Date -Date $Thursday -UFormat %m/%d)) Thursday`r`n"
+$Info += "[H] - ($(Get-Date -Date $Thursday -UFormat %m/%d)) Thursday`r`n"
 }
 } Else {
-$Info += "H - ($(Get-Date -Date $Thursday -UFormat %m/%d)) Thursday`r`n"
+$Info += "[H] - ($(Get-Date -Date $Thursday -UFormat %m/%d)) Thursday`r`n"
 }
 
 If ($SelectedWeek -eq 0) {
 If ($TodayDoW -gt 4) {
-333$Info += "W - ($(Get-Date -Date $Wednesday -UFormat %m/%d)) Wednesday`r`n"
+$Info += "[W] - ($(Get-Date -Date $Wednesday -UFormat %m/%d)) Wednesday`r`n"
 }
 } Else {
-$Info += "W - ($(Get-Date -Date $Wednesday -UFormat %m/%d)) Wednesday`r`n"
+$Info += "[W] - ($(Get-Date -Date $Wednesday -UFormat %m/%d)) Wednesday`r`n"
 }
 
 If ($SelectedWeek -eq 0) {
 If ($TodayDoW -gt 3) {
-$Info += "U - ($(Get-Date -Date $Tuesday -UFormat %m/%d)) Tuesday`r`n"
+$Info += "[U] - ($(Get-Date -Date $Tuesday -UFormat %m/%d)) Tuesday`r`n"
 }
 } Else {
-$Info += "U - ($(Get-Date -Date $Tuesday -UFormat %m/%d)) Tuesday`r`n"
+$Info += "[U] - ($(Get-Date -Date $Tuesday -UFormat %m/%d)) Tuesday`r`n"
 }
 
 If ($SelectedWeek -eq 0) {
 If ($TodayDoW -gt 2) {
-$Info += "M - ($(Get-Date -Date $Monday -UFormat %m/%d)) Monday`r`n"
+$Info += "[M] - ($(Get-Date -Date $Monday -UFormat %m/%d)) Monday`r`n"
 }
 } Else {
-$Info += "M - ($(Get-Date -Date $Monday -UFormat %m/%d)) Monday`r`n"
+$Info += "[M] - ($(Get-Date -Date $Monday -UFormat %m/%d)) Monday`r`n"
 }
 
-$Info += "`r`nP - Previous Week"
+$Info += "`r`n[P] - Previous Week (#$PreviousWeekOfYear)"
 
 If ($SelectedWeek -ne 0) {
-$Info += "`r`nO - Show/Hide Saturday & Sunday"
+$Info += "`r`n[O] - Show/Hide Saturday & Sunday"
 }
 
-$Info += @"
-
-Q - Quit
-
-Select a choice:
-"@
+$Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
     	
-        Write-HR
+        #Write-HR
 	    Write-Host "$Info"
         
-    	Write-HR -IsVerbose -DashedLine
-    	Write-HR
+    	#Write-HR -IsVerbose -DashedLine
+    	#Write-HR
     	
-        $SelectedWeek += -1
+        
+    	#-----------------------------------------------------------------------------------------------------------------------
+    	# Execute Choice Prompt
+    	#-----------------------------------------------------------------------------------------------------------------------
+    	$Answer = Read-Host -Prompt "Select a choice"
+    	#-----------------------------------------------------------------------------------------------------------------------
+    	# Interpret answer
+    	#-----------------------------------------------------------------------------------------------------------------------
+    	#help about_switch
+    	#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
+    	#Write-Verbose "`$Answer = $Answer"
+    	switch ($Answer) {
+			'R' { # R - Tomorrow
+                If ($SelectedWeek -eq 0) {
+                    $UserSelectedDateTime = $TomorrowDateTime
+                }
+			}
+			'T' { # T - Today
+                If ($SelectedWeek -eq 0) {
+                    $UserSelectedDateTime = $TodayDateTime
+                }
+			}
+			'Y' { # Y - Yesterday
+                If ($SelectedWeek -eq 0) {
+                    $UserSelectedDateTime = $YesterdayDateTime
+                }
+			}
+			'C' { # C - Current Week
+                If ($SelectedWeek -ne 0) {
+				    $SelectedWeek = 0
+                }
+			}
+			'N' { # N - Next Week
+				If ($SelectedWeek -ne 0) {
+                    $SelectedWeek += 1
+                }
+			}
+			'D' { # D - Sunday
+				If ($SatSunEnabled -ne $true) {
+					$UserSelectedDateTime = $Sunday
+				}
+			}
+			'S' { # S - Saturday
+				If ($SatSunEnabled -ne $true) {
+					$UserSelectedDateTime = $Saturday
+				}
+			}
+			'F' { # F - Friday
+                 $UserSelectedDateTime = $Friday
+			}
+			'H' { # H - Thursday
+                 $UserSelectedDateTime = $Thursday
+			}
+			'W' { # W - Wednesday
+                 $UserSelectedDateTime = $Wednesday
+			}
+			'U' { # U - Tuesday
+                 $UserSelectedDateTime = $Tuesday
+			}
+			'M' { # M - Monday
+                 $UserSelectedDateTime = $Monday
+			}
+			'O' { # O - Show/Hide Saturday & Sunday
+                $SatSunEnabled = -not $SatSunEnabled
+			}
+			'P' { # P - Previous Week
+				$SelectedWeek += -1
+			}
+			'L' { # L - Last Week
+			}
+			'Q' { # Q - Quit
+                $UserSelectedDateTime = 'Quit/End/Exit'
+			}
+
+		    default { # Choice not recognized.
+			    Write-Host `r`n
+			    Write-Host "Choice `"$Answer`" not recognized. Options must be one of the above."
+			    #Write-HorizontalRuleAdv -HRtype DashedLine
+			    Write-Host `r`n
+			    #Break #help about_Break
+			    PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+			    Write-Host `r`n
+			    Write-HorizontalRuleAdv -HRtype DashedLine
+		    }
+	    }
+	
+
+        
     
-    } Until ($SelectedWeek -lt -3)
+    } Until ($UserSelectedDateTime -ne $null)
 
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
@@ -1223,138 +947,6 @@ Select a choice:
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
-	$YesterdayDateTime = $TodayDateTime.AddDays(-1)
-	
-	<#
-	1 = Monday		
-	2 = Tuesday		
-	3 = Wednesday	-2 = 1 Monday
-	4 = Thursday	-3 = 1 Monday, -2 = Tuesday
-	5 = Friday		-4 = 1 Monday, -3 = Tuesday, -2 = Wednesday
-	6 = Saturday	-5 = 1 Monday, -4 = Tuesday, -3 = Wednesday, -2 = Thursday
-	7 = Sunday		-6 = 1 Monday, -5 = Tuesday, -4 = Wednesday, -3 = Thursday, -2 = Friday
-	#>
-	
-	<#
-	1 = Monday		
-	2 = Tuesday		
-	3 = Wednesday	DayOptionOne = -2 = 1 Monday
-	4 = Thursday	DayOptionTwo = -3 = 1 Monday, -2 = Tuesday
-	5 = Friday		DayOptionThree = -4 = 1 Monday, -3 = Tuesday, -2 = Wednesday
-	6 = Saturday	DayOptionFour = -5 = 1 Monday, -4 = Tuesday, -3 = Wednesday, -2 = Thursday
-	7 = Sunday		DayOptionFive = -6 = 1 Monday, -5 = Tuesday, -4 = Wednesday, -3 = Thursday, -2 = Friday
-	#>
-	
-	Write-Verbose "`$TodayDoWNumberOneThruSeven = $TodayDoWNumberOneThruSeven"
-	
-	If ([int]$TodayDoWNumberOneThruSeven -ge 3) {
-		
-		$RollingInt = [int]$TodayDoWNumberOneThruSeven - 2
-		Write-Verbose "`$RollingInt = $RollingInt"
-		$DaysBefore = -2
-		Write-Verbose "`$DaysBefore = $DaysBefore"
-		$DayOptionFive = (Get-Date).AddDays($DaysBefore) # Two days before
-		Write-Verbose "`$DayOptionFive = $DayOptionFive"
-		$DayOptionFive = $TodayDateTime.AddDays($DaysBefore) # Two days before
-		Write-Verbose "`$DayOptionFive = $DayOptionFive"
-		Write-Verbose "`$DayOptionFive = $(Get-Date -Date $DayOptionFive -UFormat %A)"
-		
-		$RollingInt = $RollingInt - 1
-		Write-Verbose "`$RollingInt = $RollingInt"
-		$DaysBefore = $DaysBefore - 1
-		Write-Verbose "`$DaysBefore = $DaysBefore"
-		$DayOptionFour = $TodayDateTime.AddDays($DaysBefore)
-		Write-Verbose "`$DayOptionFour = $DayOptionFour"
-		Write-Verbose "`$DayOptionFour = $(Get-Date -Date $DayOptionFour -UFormat %A)"
-		
-		$RollingInt = $RollingInt - 1
-		Write-Verbose "`$RollingInt = $RollingInt"
-		$DaysBefore = $DaysBefore - 1
-		Write-Verbose "`$DaysBefore = $DaysBefore"
-		$DayOptionThree = $TodayDateTime.AddDays($DaysBefore)
-		Write-Verbose "`$DayOptionThree = $DayOptionThree"
-		Write-Verbose "`$DayOptionThree = $(Get-Date -Date $DayOptionThree -UFormat %A)"
-		
-		$RollingInt = $RollingInt - 1
-		Write-Verbose "`$RollingInt = $RollingInt"
-		$DaysBefore = $DaysBefore - 1
-		Write-Verbose "`$DaysBefore = $DaysBefore"
-		$DayOptionTwo = $TodayDateTime.AddDays($DaysBefore)
-		Write-Verbose "`$DayOptionTwo = $DayOptionTwo"
-		Write-Verbose "`$DayOptionTwo = $(Get-Date -Date $DayOptionTwo -UFormat %A)"
-		
-		$RollingInt = $RollingInt - 1
-		Write-Verbose "`$RollingInt = $RollingInt"
-		$DaysBefore = $DaysBefore - 1
-		Write-Verbose "`$DaysBefore = $DaysBefore"
-		$DayOptionOne = $TodayDateTime.AddDays($DaysBefore)
-		Write-Verbose "`$DayOptionOne = $DayOptionOne"
-		Write-Verbose "`$DayOptionOne = $(Get-Date -Date $DayOptionOne -UFormat %A)"
-		
-		
-		
-		
-		
-	}
-	
-	Write-Verbose "`$TodayDoWNumberOneThruSeven = $TodayDoWNumberOneThruSeven"
-	
-	If ([int]$TodayDoWNumberOneThruSeven -ge 3) {
-		
-		$RollingInt = [int]$TodayDoWNumberOneThruSeven - 2
-		Write-Verbose "`$RollingInt = $RollingInt"
-		$DaysBefore = -2
-		Write-Verbose "`$DaysBefore = $DaysBefore"
-		$DayOptionFive = (Get-Date).AddDays($DaysBefore) # Two days before
-		Write-Verbose "`$DayOptionFive = $DayOptionFive"
-		$DayOptionFive = $TodayDateTime.AddDays($DaysBefore) # Two days before
-		Write-Verbose "`$DayOptionFive = $DayOptionFive"
-		Write-Verbose "`$DayOptionFive = $(Get-Date -Date $DayOptionFive -UFormat %A)"
-		$DayOptionFiveDate = $DayOptionFive.Date
-		Write-Verbose "`$DayOptionFive = $($DayOptionFive.Date)"
-		Write-Verbose "`$DayOptionFive = $DayOptionFiveDate"
-		Write-Verbose "`$DayOptionFive = $(Get-Date -Date $DayOptionFive)"
-		
-		
-		$RollingInt = $RollingInt - 1
-		Write-Verbose "`$RollingInt = $RollingInt"
-		$DaysBefore = $DaysBefore - 1
-		Write-Verbose "`$DaysBefore = $DaysBefore"
-		$DayOptionFour = $TodayDateTime.AddDays($DaysBefore)
-		Write-Verbose "`$DayOptionFour = $DayOptionFour"
-		Write-Verbose "`$DayOptionFour = $(Get-Date -Date $DayOptionFour -UFormat %A)"
-		
-		$RollingInt = $RollingInt - 1
-		Write-Verbose "`$RollingInt = $RollingInt"
-		$DaysBefore = $DaysBefore - 1
-		Write-Verbose "`$DaysBefore = $DaysBefore"
-		$DayOptionThree = $TodayDateTime.AddDays($DaysBefore)
-		Write-Verbose "`$DayOptionThree = $DayOptionThree"
-		Write-Verbose "`$DayOptionThree = $(Get-Date -Date $DayOptionThree -UFormat %A)"
-		
-		$RollingInt = $RollingInt - 1
-		Write-Verbose "`$RollingInt = $RollingInt"
-		$DaysBefore = $DaysBefore - 1
-		Write-Verbose "`$DaysBefore = $DaysBefore"
-		$DayOptionTwo = $TodayDateTime.AddDays($DaysBefore)
-		Write-Verbose "`$DayOptionTwo = $DayOptionTwo"
-		Write-Verbose "`$DayOptionTwo = $(Get-Date -Date $DayOptionTwo -UFormat %A)"
-		
-		$RollingInt = $RollingInt - 1
-		Write-Verbose "`$RollingInt = $RollingInt"
-		$DaysBefore = $DaysBefore - 1
-		Write-Verbose "`$DaysBefore = $DaysBefore"
-		$DayOptionOne = $TodayDateTime.AddDays($DaysBefore)
-		Write-Verbose "`$DayOptionOne = $DayOptionOne"
-		Write-Verbose "`$DayOptionOne = $(Get-Date -Date $DayOptionOne -UFormat %A)"
-		
-		
-		
-		
-		
-	}
-	
 	
 	
 	#-----------------------------------------------------------------------------------------------------------------------
@@ -1378,97 +970,6 @@ Select a choice:
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	#-----------------------------------------------------------------------------------------------------------------------
-	# Build Choice Prompt
-	#-----------------------------------------------------------------------------------------------------------------------
-	$Title = "$TitleName?"
-	$Info = "$InfoDescription"
-	$Info = @"
-Month: $TodayMonth
-Week #$TodayWeekOfYear/53
-
-Select day:
-
-R - Tomorrow
-T - Today - $TodayDoWLong ($TodayMonthDay)
-Y - Yesterday - $YesterdayDoWLong ($YesterdayMonthDay)
-C - Current Week
-N - Next Week
-
-D - Sunday
-S - Saturday
-F - Friday
-H - Thursday
-W - Wednesday
-U - Tuesday
-M - Monday
-
-O - Show/Hide Saturday & Sunday
-P - Previous Week
-L - Last Week
-Q - Quit
-
-Select a choice:
-"@
-	Write-Host "$Info"
-	
-	$Info = @"
-Choose day:
-
-T - Today
-Y - Yesterday
-"@
-	
-	$Info += @"
-Choose day:
-
-T - Today
-Y - Yesterday
-
-F - Friday
-H - Thursday
-W - Wednesday
-U - Tuesday
-M - Monday
-
-L - Last Week
-Q - Quit
-
-Select a choice:
-"@
-	
-	
-	$ChoiceYes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "[Y]es, $HintPhrase."
-	$ChoiceNo = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "[N]o, do not $HintPhrase."
-	$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceYes, $ChoiceNo)
-	# default choice: 0 = first Option, 1 = second option, etc.
-	[int]$defaultchoice = 0
-	#-----------------------------------------------------------------------------------------------------------------------
-	# Execute Choice Prompt
-	#-----------------------------------------------------------------------------------------------------------------------
-	# PromptForChoice() output will always be integer: https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
-	If ($InfoDescription) {
-		$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
-	} else {
-		$answer = $host.UI.PromptForChoice($Title, "", $Options, $defaultchoice)
-	}
-	#-----------------------------------------------------------------------------------------------------------------------
-	# Interpret answer
-	#-----------------------------------------------------------------------------------------------------------------------
-	#help about_switch
-	#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
-	#Write-Verbose "Answer = $answer"
-	switch ($answer) {
-		0 { # Y - Yes
-			Write-Verbose "Yes ('$answer') option selected."
-			$ChoiceResultVar = 'Y'
-		}
-		1 { # N - No
-			Write-Verbose "No ('$answer') option selected."
-			$ChoiceResultVar = 'N'
-		}
-	}
-	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	Return $ChoiceResultVar
@@ -1476,4 +977,8 @@ Select a choice:
 } # End PromptForChoice-DayDate function -------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
-PromptForChoice-DayDate
+$SelectedDate = PromptForChoice-DayDate # -Verbose
+
+$SelectedDate
+
+
