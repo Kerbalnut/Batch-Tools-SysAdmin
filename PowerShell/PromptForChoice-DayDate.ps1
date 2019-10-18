@@ -536,7 +536,9 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	PAUSE
+	#PAUSE
+	
+	$UserSelectedDateTime = $null
 	
     Do {
 		Clear-Host
@@ -600,6 +602,22 @@ Function PromptForChoice-DayDate { #--------------------------------------------
     	# Week of the Year (01-53)
     	$WeekOfYear = Get-Date -Date $SelectedDateTime -UFormat %V
     	Write-Verbose "`$WeekOfYear (01-53) = $WeekOfYear"
+        
+    	# Week of the Year (01-53)
+    	$NextWeekOfYearZero = Get-Date -Date (($SelectedDateTime).AddDays(7)) -UFormat %W
+    	Write-Verbose "`$NextWeekOfYearZero (00-52) = $NextWeekOfYearZero"
+        
+    	# Week of the Year (01-53)
+    	$NextWeekOfYear = Get-Date -Date (($SelectedDateTime).AddDays(7)) -UFormat %V
+    	Write-Verbose "`$NextWeekOfYear (01-53) = $NextWeekOfYear"
+        
+    	# Week of the Year (01-53)
+    	$PreviousWeekOfYearZero = Get-Date -Date (($SelectedDateTime).AddDays(-7)) -UFormat %W
+    	Write-Verbose "`$PreviousWeekOfYearZero (00-52) = $PreviousWeekOfYearZero"
+        
+    	# Week of the Year (01-53)
+    	$PreviousWeekOfYear = Get-Date -Date (($SelectedDateTime).AddDays(-7)) -UFormat %V
+    	Write-Verbose "`$PreviousWeekOfYear (01-53) = $PreviousWeekOfYear"
         
         Write-HR -IsVerbose -DashedLine
     
@@ -722,7 +740,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	    #-----------------------------------------------------------------------------------------------------------------------
 	    # Build Choice Prompt
 	    #-----------------------------------------------------------------------------------------------------------------------
-	
+	    
         $Info = @"
 Month: $MonthLabel
 Week #$WeekOfYear/53
@@ -756,71 +774,71 @@ Q - Quit
 #>
 
 If ($SelectedWeek -ne 0) {
-$Info += "`r`n`r`nC - Current Week (#$TodayWeekOfYear)`r`n"
-$Info += "N - Next Week`r`n`r`n"
+$Info += "`r`n`r`n[C] - Current Week (#$TodayWeekOfYear)`r`n"
+$Info += "[N] - Next Week (#$NextWeekOfYear)`r`n`r`n"
 }
 
 If ($SelectedWeek -eq 0) {
 $Info += "`r`n`r`n"
 If ($TomorrowOption -eq $true) {
-$Info += "R - ($TomorrowMonthDay) $TomorrowDoWLong - Tomorrow`r`n"
+$Info += "[R] - ($TomorrowMonthDay) $TomorrowDoWLong - Tomo[r]row`r`n"
 }
-$Info += "T - ($TodayMonthDay) $TodayDoWLong - Today`r`n"
-$Info += "Y - ($YesterdayMonthDay) $YesterdayDoWLong - Yesterday`r`n"
+$Info += "[T] - ($TodayMonthDay) $TodayDoWLong - [T]oday`r`n"
+$Info += "[Y] - ($YesterdayMonthDay) $YesterdayDoWLong - [Y]esterday`r`n"
 }
 
 If ($SelectedWeek -ne 0 -And $SatSunEnabled -eq $true) {
-$Info += "D - ($(Get-Date -Date $Sunday -UFormat %m/%d)) Sunday`r`n"
-$Info += "S - ($(Get-Date -Date $Saturday -UFormat %m/%d)) Saturday`r`n"
+$Info += "[D] - ($(Get-Date -Date $Sunday -UFormat %m/%d)) Sunday`r`n"
+$Info += "[S] - ($(Get-Date -Date $Saturday -UFormat %m/%d)) Saturday`r`n"
 }
 
 If ($SelectedWeek -eq 0) {
 If ($TodayDoW -gt 6) {
-$Info += "F - ($(Get-Date -Date $Friday -UFormat %m/%d)) Friday`r`n"
+$Info += "[F] - ($(Get-Date -Date $Friday -UFormat %m/%d)) Friday`r`n"
 }
 } Else {
-$Info += "F - ($(Get-Date -Date $Friday -UFormat %m/%d)) Friday`r`n"
+$Info += "[F] - ($(Get-Date -Date $Friday -UFormat %m/%d)) Friday`r`n"
 }
 
 If ($SelectedWeek -eq 0) {
 If ($TodayDoW -eq 5) {
-$Info += "H - ($(Get-Date -Date $Thursday -UFormat %m/%d)) Thursday`r`n"
+$Info += "[H] - ($(Get-Date -Date $Thursday -UFormat %m/%d)) Thursday`r`n"
 }
 } Else {
-$Info += "H - ($(Get-Date -Date $Thursday -UFormat %m/%d)) Thursday`r`n"
+$Info += "[H] - ($(Get-Date -Date $Thursday -UFormat %m/%d)) Thursday`r`n"
 }
 
 If ($SelectedWeek -eq 0) {
 If ($TodayDoW -gt 4) {
-333$Info += "W - ($(Get-Date -Date $Wednesday -UFormat %m/%d)) Wednesday`r`n"
+$Info += "[W] - ($(Get-Date -Date $Wednesday -UFormat %m/%d)) Wednesday`r`n"
 }
 } Else {
-$Info += "W - ($(Get-Date -Date $Wednesday -UFormat %m/%d)) Wednesday`r`n"
+$Info += "[W] - ($(Get-Date -Date $Wednesday -UFormat %m/%d)) Wednesday`r`n"
 }
 
 If ($SelectedWeek -eq 0) {
 If ($TodayDoW -gt 3) {
-$Info += "U - ($(Get-Date -Date $Tuesday -UFormat %m/%d)) Tuesday`r`n"
+$Info += "[U] - ($(Get-Date -Date $Tuesday -UFormat %m/%d)) Tuesday`r`n"
 }
 } Else {
-$Info += "U - ($(Get-Date -Date $Tuesday -UFormat %m/%d)) Tuesday`r`n"
+$Info += "[U] - ($(Get-Date -Date $Tuesday -UFormat %m/%d)) Tuesday`r`n"
 }
 
 If ($SelectedWeek -eq 0) {
 If ($TodayDoW -gt 2) {
-$Info += "M - ($(Get-Date -Date $Monday -UFormat %m/%d)) Monday`r`n"
+$Info += "[M] - ($(Get-Date -Date $Monday -UFormat %m/%d)) Monday`r`n"
 }
 } Else {
-$Info += "M - ($(Get-Date -Date $Monday -UFormat %m/%d)) Monday`r`n"
+$Info += "[M] - ($(Get-Date -Date $Monday -UFormat %m/%d)) Monday`r`n"
 }
 
-$Info += "`r`nP - Previous Week"
+$Info += "`r`n[P] - Previous Week (#$PreviousWeekOfYear)"
 
 If ($SelectedWeek -ne 0) {
-$Info += "`r`nO - Show/Hide Saturday & Sunday"
+$Info += "`r`n[O] - Show/Hide Saturday & Sunday"
 }
 
-$Info += "`r`n`r`nQ - Quit`r`n`n`n"
+$Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
     	
         #Write-HR
 	    Write-Host "$Info"
@@ -841,32 +859,57 @@ $Info += "`r`n`r`nQ - Quit`r`n`n`n"
     	#Write-Verbose "`$Answer = $Answer"
     	switch ($Answer) {
 			'R' { # R - Tomorrow
+                If ($SelectedWeek -eq 0) {
+                    $UserSelectedDateTime = $TomorrowDateTime
+                }
 			}
 			'T' { # T - Today
+                If ($SelectedWeek -eq 0) {
+                    $UserSelectedDateTime = $TodayDateTime
+                }
 			}
 			'Y' { # Y - Yesterday
+                If ($SelectedWeek -eq 0) {
+                    $UserSelectedDateTime = $YesterdayDateTime
+                }
 			}
 			'C' { # C - Current Week
-				$SelectedWeek = 0
+                If ($SelectedWeek -ne 0) {
+				    $SelectedWeek = 0
+                }
 			}
 			'N' { # N - Next Week
-				$SelectedWeek += 1
+				If ($SelectedWeek -ne 0) {
+                    $SelectedWeek += 1
+                }
 			}
 			'D' { # D - Sunday
+				If ($SatSunEnabled -ne $true) {
+					$UserSelectedDateTime = $Sunday
+				}
 			}
 			'S' { # S - Saturday
+				If ($SatSunEnabled -ne $true) {
+					$UserSelectedDateTime = $Saturday
+				}
 			}
 			'F' { # F - Friday
+                 $UserSelectedDateTime = $Friday
 			}
 			'H' { # H - Thursday
+                 $UserSelectedDateTime = $Thursday
 			}
 			'W' { # W - Wednesday
+                 $UserSelectedDateTime = $Wednesday
 			}
 			'U' { # U - Tuesday
+                 $UserSelectedDateTime = $Tuesday
 			}
 			'M' { # M - Monday
+                 $UserSelectedDateTime = $Monday
 			}
 			'O' { # O - Show/Hide Saturday & Sunday
+                $SatSunEnabled = -not $SatSunEnabled
 			}
 			'P' { # P - Previous Week
 				$SelectedWeek += -1
@@ -874,6 +917,7 @@ $Info += "`r`n`r`nQ - Quit`r`n`n`n"
 			'L' { # L - Last Week
 			}
 			'Q' { # Q - Quit
+                $UserSelectedDateTime = 'Quit/End/Exit'
 			}
 
 		    default { # Choice not recognized.
@@ -891,7 +935,7 @@ $Info += "`r`n`r`nQ - Quit`r`n`n`n"
 
         
     
-    } Until ($Answer -eq 'R' -Or $Answer -eq 'T' -Or $Answer -eq 'Y' -Or $Answer -eq 'D' -Or $Answer -eq 'S' -Or $Answer -eq 'F' -Or $Answer -eq 'H' -Or $Answer -eq 'W' -Or $Answer -eq 'U' -Or $Answer -eq 'M' -Or $Answer -eq 'Q')
+    } Until ($UserSelectedDateTime -ne $null)
 
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
@@ -933,4 +977,8 @@ $Info += "`r`n`r`nQ - Quit`r`n`n`n"
 } # End PromptForChoice-DayDate function -------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
-PromptForChoice-DayDate # -Verbose
+$SelectedDate = PromptForChoice-DayDate # -Verbose
+
+$SelectedDate
+
+
