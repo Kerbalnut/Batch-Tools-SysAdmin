@@ -884,12 +884,12 @@ $Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
                 }
 			}
 			'D' { # D - Sunday
-				If ($SatSunEnabled -ne $true) {
+				If ($SatSunEnabled -ne $true -Or $SelectedWeek -ne 0) {
 					$UserSelectedDateTime = $Sunday
 				}
 			}
 			'S' { # S - Saturday
-				If ($SatSunEnabled -ne $true) {
+				If ($SatSunEnabled -ne $true -Or $SelectedWeek -ne 0) {
 					$UserSelectedDateTime = $Saturday
 				}
 			}
@@ -931,11 +931,11 @@ $Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
 			    Write-HorizontalRuleAdv -HRtype DashedLine
 		    }
 	    }
-	
-
+	    Write-Host "Answer is:"
+        Write-Host "$UserSelectedDateTime"
         
     
-    } Until ($UserSelectedDateTime -ne $null)
+    } Until ($UserSelectedDateTime -ne $null -Or $UserSelectedDateTime -ne "" -Or $UserSelectedDateTime -ne '')
 
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
@@ -964,7 +964,10 @@ $Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	PAUSE
+    If ($UserSelectedDateTime -eq $null -Or $UserSelectedDateTime -eq "" -Or $UserSelectedDateTime -eq '') {
+        Write-Host "Is this the pause you're looking for?"
+	    PAUSE
+    }
 	
 	#-----------------------------------------------------------------------------------------------------------------------
 	
@@ -972,13 +975,16 @@ $Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	Return $ChoiceResultVar
+	#Return $UserSelectedDateTime
+    Write-Output $UserSelectedDateTime
 
 } # End PromptForChoice-DayDate function -------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 $SelectedDate = PromptForChoice-DayDate # -Verbose
 
-$SelectedDate
+$TestItString = "Is it working?"
+Write-Host "$TestItString"
+Write-Host "$SelectedDate"
 
 
