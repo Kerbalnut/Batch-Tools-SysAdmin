@@ -2181,6 +2181,54 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
+Function ReadPrompt-Hour { #--------------------------------------------------------------------------------------------
+	
+	#http://techgenix.com/powershell-functions-common-parameters/
+	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+	#[cmdletbinding()]
+	#Param()
+	[cmdletbinding()]
+	Param(
+		[Parameter(Mandatory=$false,Position=0,
+		ValueFromPipeline = $true)]
+		$VarInput
+	)
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Make function more customizable by condensing hard-coded values to the top
+	
+	$VarName = "Hour"
+	
+	$MinInt = 0
+	
+	$MaxInt = 23
+	
+	# since 24-hour time values are valid hour values
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#Check if we have a value sent in from an external variable (parameter) first
+	If ($VarInput -eq $null -or $VarInput -eq "") {
+		$PipelineInput = $false
+		$OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt
+	} else {
+		$PipelineInput = $true
+		Write-Verbose "Piped-in content = $VarInput"
+		$VarInput = [string]$VarInput #Bugfix: convert input from an object to a string
+		$OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt
+	}
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Write-Verbose "$VarName value $OutputValue validation complete."
+	
+	Return $OutputValue
+	
+} # End ReadPrompt-Hour function ---------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
 Function ReadPrompt-ValidateIntegerRange { #----------------------------------------------------------------------------
 	
 	#http://techgenix.com/powershell-functions-common-parameters/
@@ -2204,8 +2252,10 @@ Function ReadPrompt-ValidateIntegerRange { #------------------------------------
 	)
 	
 	# Sub-functions:
+	#=======================================================================================================================
+	
 	#-----------------------------------------------------------------------------------------------------------------------
-	function Validate-Integer {
+	function Validate-Integer { #-------------------------------------------------------------------------------------------
 		Param (
 			#Script parameters go here
 			[Parameter(Mandatory=$true,Position=0,
@@ -2235,9 +2285,11 @@ Function ReadPrompt-ValidateIntegerRange { #------------------------------------
 		
 		Return $InputToValidate
 		#Return [int]$InputToValidate
-	}
+	} # End Validate-Integer function --------------------------------------------------------------------------------------
 	#-----------------------------------------------------------------------------------------------------------------------
-	function Remove-LeadingZeros {
+	
+	#-----------------------------------------------------------------------------------------------------------------------
+	function Remove-LeadingZeros { #----------------------------------------------------------------------------------------
 		Param (
 			#Script parameters go here
 			[Parameter(Mandatory=$true,Position=0,
@@ -2259,8 +2311,10 @@ Function ReadPrompt-ValidateIntegerRange { #------------------------------------
 		}
 		
 		Return $VarSimplified
-	}
+	} # End Remove-LeadingZeros --------------------------------------------------------------------------------------------
 	#-----------------------------------------------------------------------------------------------------------------------
+	
+	#=======================================================================================================================
 	# /Sub-functions
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

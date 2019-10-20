@@ -19,7 +19,10 @@ Function ReadPrompt-ValidateIntegerRange { #------------------------------------
 		[int]$MinInt,
 		
 		[Parameter(Mandatory=$true,Position=2)]
-		[int]$MaxInt
+		[int]$MaxInt,
+		
+		[Parameter(Mandatory=$false)]
+		[string]$HintMinMax
 	)
 	
 	# Sub-functions:
@@ -197,6 +200,9 @@ Function ReadPrompt-ValidateIntegerRange { #------------------------------------
 		} else {
 			Write-HorizontalRuleAdv -DashedLine -IsWarning
 			Write-Warning "$VarName input must be between $MinInt-$MaxInt."
+			If (!($HintMinMax -eq $null -Or $HintMinMax -eq "") {
+				Write-Warning $HintMinMax
+			}
 			#PAUSE
 			Write-Host `r`n
 			Continue #help about_Continue
