@@ -603,7 +603,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 		# Week of the Year (00-52)
 		$WeekOfYearZero = Get-Date -Date $SelectedDateTime -UFormat %W
 		Write-Verbose "`$WeekOfYearZero (00-52) = $WeekOfYearZero"
-		   
+		
 		# Week of the Year (01-53)
 		$WeekOfYear = Get-Date -Date $SelectedDateTime -UFormat %V
 		Write-Verbose "`$WeekOfYear (01-53) = $WeekOfYear"
@@ -899,19 +899,19 @@ $Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
 				}
 			}
 			'F' { # F - Friday
-				 $UserSelectedDateTime = $Friday
+				$UserSelectedDateTime = $Friday
 			}
 			'H' { # H - Thursday
-				 $UserSelectedDateTime = $Thursday
+				$UserSelectedDateTime = $Thursday
 			}
 			'W' { # W - Wednesday
-				 $UserSelectedDateTime = $Wednesday
+				$UserSelectedDateTime = $Wednesday
 			}
 			'U' { # U - Tuesday
-				 $UserSelectedDateTime = $Tuesday
+				$UserSelectedDateTime = $Tuesday
 			}
 			'M' { # M - Monday
-				 $UserSelectedDateTime = $Monday
+				$UserSelectedDateTime = $Monday
 			}
 			'O' { # O - Show/Hide Saturday & Sunday
 				$SatSunEnabled = -not $SatSunEnabled
@@ -987,7 +987,7 @@ $Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
 #-----------------------------------------------------------------------------------------------------------------------
 
 $SelectedDate = PromptForChoice-DayDate # -Verbose
-	
+
 $TestItString = "Is it working?"
 Write-Host "$TestItString"
 Write-Host "$SelectedDate"
