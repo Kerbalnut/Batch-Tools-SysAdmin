@@ -1020,7 +1020,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	#>
 	$TodayMonthShort = Get-Date -UFormat %b
 	Write-Verbose "`$TodayMonthShort - $TodayMonthShort"
-		
+	
 	# Month name - full (January)
 	$TodayMonthFull = Get-Date -UFormat %B
 	Write-Verbose "`$TodayMonthFull = $TodayMonthFull"
@@ -1095,7 +1095,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	#>
 	$YesterdayMonthShort = Get-Date -Date $YesterdayDateTime -UFormat %b
 	Write-Verbose "`$YesterdayMonthShort - $YesterdayMonthShort"
-		
+	
 	# Month name - full (January)
 	$YesterdayMonthFull = Get-Date -Date $YesterdayDateTime -UFormat %B
 	Write-Verbose "`$YesterdayMonthFull = $YesterdayMonthFull"
@@ -1170,7 +1170,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	#>
 	$TomorrowMonthShort = Get-Date -Date $TomorrowDateTime -UFormat %b
 	Write-Verbose "`$TomorrowMonthShort - $TomorrowMonthShort"
-		
+	
 	# Month name - full (January)
 	$TomorrowMonthFull = Get-Date -Date $TomorrowDateTime -UFormat %B
 	Write-Verbose "`$TomorrowMonthFull = $TomorrowMonthFull"
@@ -1204,7 +1204,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 		3 = Wednesday
 		4 = Thursday
 		5 = Friday
-  		6 = Saturday
+		6 = Saturday
 		7 = Sunday
 		#>
 		param(
