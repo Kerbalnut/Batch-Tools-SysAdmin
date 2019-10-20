@@ -515,6 +515,11 @@ Function PromptForChoice-DayDate { #--------------------------------------------
     $SatSunEnabled = $true
     $SatSunEnabled = $false
 	
+    Write-Verbose "`$TitleName = `"$TitleName`""
+    If ($TitleName -ne $null -Or $TitleName -ne "" -Or $TitleName -ne $false) {
+        Write-Host "`$TitleName is set = `"$TitleName`""
+    }
+	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	# Build out currently selected week, out until Monday (Mon-Sun week display)
 	
@@ -933,8 +938,8 @@ $Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
 	    }
 	    Write-Host "Answer is:"
         Write-Host "$UserSelectedDateTime"
-        
-    
+	
+
     } Until ($UserSelectedDateTime -ne $null -Or $UserSelectedDateTime -ne "" -Or $UserSelectedDateTime -ne '')
 
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -982,7 +987,7 @@ $Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
 #-----------------------------------------------------------------------------------------------------------------------
 
 $SelectedDate = PromptForChoice-DayDate # -Verbose
-
+	
 $TestItString = "Is it working?"
 Write-Host "$TestItString"
 Write-Host "$SelectedDate"

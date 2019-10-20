@@ -18,45 +18,25 @@ Write-Host "`r`n`r`n"
 
 $TodayDay = Get-Date
 
-Write-Host "`rToday:`r"
-
-$TodayDay
+Write-Verbose "`rToday: $TodayDay`r"
 
 $Yesterday = (Get-Date).AddDays(-1)
 
-Write-Host "Yesterday:"
-
-$Yesterday
+Write-Verbose "Yesterday: $Yesterday"
 
 $Tomorrow = (Get-Date).AddDays(1)
 
-Write-Host "Tomorrow:"
-
-$Tomorrow
+Write-Verbose "Tomorrow: $Tomorrow"
 
 #
-
-$Midnight = Get-Date -Hour 23 -Minute 52 -Second 0 -Millisecond 0
-
-Write-Host "Midnight:"
-
-$Midnight
-
-$PastMidnight = Get-Date -Hour 0 -Minute 15 -Second 0 -Millisecond 0
-
-Write-Host "Past midnight:"
-
-$PastMidnight
 
 #-----------------------------------------------------------------------------------------------------------------------
 
 Write-Host "`r`n`r`n"
 
-PromptForChoice-DayDate -Verbose
-
 #-----------------------------------------------------------------------------------------------------------------------
 
-PAUSE
+#PAUSE
 
 #
 
@@ -75,6 +55,8 @@ PAUSE
 Write-Host "`r`n# Start Time #`n`r`n" -ForegroundColor Yellow
 
 #Write-HorizontalRuleAdv -SingleLine
+
+PromptForChoice-DayDate
 
 #$StartHour = Read-Host -Prompt "Enter Start hour"
 #$StartHour = ReadPrompt-Hour -Verbose
