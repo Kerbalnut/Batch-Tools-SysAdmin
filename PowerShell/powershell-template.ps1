@@ -943,7 +943,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 		#Script parameters go here
 		[Parameter(Mandatory=$false,Position=0,
 		ValueFromPipeline = $true)]
-		[string]$TitleName,
+		[string]$TitleName = "Select day:",
 		
 		[Parameter(Mandatory=$false)]
 		[string]$InfoDescription,
@@ -1193,19 +1193,35 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	Write-Verbose "`$TodayDoWNumber = $TodayDoWNumber"
 	
 	# Sub-functions:
+	#=======================================================================================================================
+	
 	#-----------------------------------------------------------------------------------------------------------------------
 	function Convert-DoWNumberToMonSun { #----------------------------------------------------------------------------------
 		<#
 		.NOTES
-		Day-of-Week in number format, (Mon-Sun = 1-7):
+		Converts the PowerShell default:
 		
+		Day-of-Week in number format, (Sun-Sat = 0-6):
+		
+		0 = Sunday
 		1 = Monday
 		2 = Tuesday
 		3 = Wednesday
 		4 = Thursday
 		5 = Friday
 		6 = Saturday
-		7 = Sunday
+		
+		to
+
+		Day-of-Week in number format, (Mon-Sun = 1-7):
+		
+		1 = Monday    - Dow = $default
+		2 = Tuesday   - Dow = $default
+		3 = Wednesday - Dow = $default
+		4 = Thursday  - Dow = $default
+		5 = Friday    - Dow = $default
+		6 = Saturday  - Dow = $default
+		7 = Sunday    - Dow = 7
 		#>
 		param(
 			[parameter(Position=0)]
@@ -1221,7 +1237,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	#-----------------------------------------------------------------------------------------------------------------------
 	function Convert-DoWNumberToSunSat { #----------------------------------------------------------------------------------
 		<#
-		.NOTES	
+		.NOTES
 		Day-of-Week in number format, (Sun-Sat = 0-6):
 		
 		0 = Sunday
@@ -1387,6 +1403,8 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 		Return [DateTime]$SundayOfWeek
 	} # End Get-SaturdayOfWeek function ------------------------------------------------------------------------------------
 	#-----------------------------------------------------------------------------------------------------------------------
+	
+	#=======================================================================================================================
 	# /Sub-functions
 
 	Write-HR -IsVerbose -DashedLine
@@ -1440,11 +1458,6 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	$SatSunEnabled = $true
 	$SatSunEnabled = $false
 	
-	Write-Verbose "`$TitleName = `"$TitleName`""
-	If ($TitleName -ne $null -Or $TitleName -ne "" -Or $TitleName -ne $false) {
-		Write-Host "`$TitleName is set = `"$TitleName`""
-	}
-	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	# Build out currently selected week, out until Monday (Mon-Sun week display)
 	
@@ -1454,9 +1467,8 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	
 	# Since the default output of PowerShell DoW is Sun-Sat = 0-6, we must convert it to our choice of a Monday through Sunday week format, Mon-Sun = 1-7.
 	
-	$TodayDoWNumberOneThruSeven = Convert-DoWNumberToMonSun $TodayDateTime
-
-	[int]$DaysIntoTheWeek = [int]$TodayDoWNumberOneThruSeven
+	$TodayDoWNumberOneThruSeven = Convert-DoWNumberToMonSun (Get-Date)
+	
 	[int]$SelectedDoW = [int]$TodayDoWNumberOneThruSeven
 	[int]$TodayDoW = [int]$TodayDoWNumberOneThruSeven
 
@@ -1472,14 +1484,49 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	
 	Do {
 		Clear-Host
+		Start-Sleep -Milliseconds 100 #Bugfix: Clear-Host acts so quickly, sometimes it won't actually wipe the terminal properly. If you force it to wait, then after PowerShell will display any specially-formatted text properly.
 		
 		Write-HR -IsVerbose -DoubleLine
 
 		If ($SelectedWeek -eq 0) {
 			$ConvertedDoWMonSun = (Convert-DoWNumberToMonSun -Input $TodayDateTime)
 			[int]$SelectedDoW = (Get-SundayOfWeekInt -DoWInput $ConvertedDoWMonSun)
-			$SelectedDateTime = (Get-SaturdayOfWeek -DoWInput $TodayDateTime)
-			$SelectedDateTime = $SelectedDateTime.AddDays(1) # Shift foward 1 day since we want (Mon-Sun) week instead of (Sun-Sat)
+			If ($TodayDoW -ne 7) {
+				$SelectedDateTime = (Get-SaturdayOfWeek -DoWInput $TodayDateTime)
+				$SelectedDateTime = $SelectedDateTime.AddDays(1) # Shift foward 1 day since we want (Mon-Sun) week instead of (Sun-Sat)
+			} else { #Bugfix:
+				$SelectedDateTime = $TodayDateTime
+				<#
+				#Bugfix:
+				Since the system default of powershell is:
+				
+				Day-of-Week in number format, (Sun-Sat = 0-6):
+				
+				0 = Sunday
+				1 = Monday
+				2 = Tuesday
+				3 = Wednesday
+				4 = Thursday
+				5 = Friday
+				6 = Saturday
+				
+				If $Today is Sunday, asking Get-SaturdayOfWeek using $Today will count all the way out to next Saturday, 6 days ahead.
+
+				This is because if it is Sunday, the new week has already started. But we want to use:
+		
+				Day-of-Week in number format, (Mon-Sun = 1-7):
+				
+				1 = Monday    - Dow = $default
+				2 = Tuesday   - Dow = $default
+				3 = Wednesday - Dow = $default
+				4 = Thursday  - Dow = $default
+				5 = Friday    - Dow = $default
+				6 = Saturday  - Dow = $default
+				7 = Sunday    - Dow = 7
+
+				where Sunday is just the last day of THIS week, we don't need to ask Get-SaturdayOfWeek anything.
+				#>
+			}
 		} Else {
 			If ($SelectedWeek -lt 0) {
 				$SelectedWeekPos = $SelectedWeek * -1
@@ -1554,7 +1601,6 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 		Do {
 		
 			If ($SelectedDateTime -eq $TodayDateTime) {
-			#If ($SelectedDoW -eq $DaysIntoTheWeek) {
 				$TodayLabel = " (Today)"
 			} Else {
 				$TodayLabel = ""
@@ -1577,6 +1623,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 				$WeekOfYear = Get-Date -Date $SelectedDateTime -UFormat %V
 				$WeekOfYearLabel = " WoY=($WeekOfYear/53)"
 				Write-Verbose "Sunday    = $Sunday$($WeekOfYearZeroLabel)$($WeekOfYearLabel)$($TodayLabel)$($YesterdayLabel)"
+				#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 				$EndOfWeekMonSun = Get-Date -Date $SelectedDateTime
 				$EndOfWeekMonSunMonthLong = Get-Date -Date $SelectedDateTime -UFormat %B
 				$EndOfWeekMonSunMonthShort = Get-Date -Date $SelectedDateTime -UFormat %b
@@ -1646,6 +1693,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 				$WeekOfYear = Get-Date -Date $SelectedDateTime -UFormat %V
 				$WeekOfYearLabel = " WoY=($WeekOfYear/53)"
 				Write-Verbose "Monday    = $Monday$($WeekOfYearZeroLabel)$($WeekOfYearLabel)$($TodayLabel)$($YesterdayLabel)"
+				#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 				$StartOfWeekMonSun = Get-Date -Date $SelectedDateTime
 				$StartOfWeekMonSunMonthLong = Get-Date -Date $SelectedDateTime -UFormat %B
 				$StartOfWeekMonSunMonthShort = Get-Date -Date $SelectedDateTime -UFormat %b
@@ -1677,7 +1725,7 @@ Week #$WeekOfYear/53
 "@
 
 If ($SelectedWeek -eq 0) {
-$Info += "`r`n`r`nSelect day:"
+$Info += "`r`n`r`n$TitleName"
 }
 
 <#
@@ -1731,7 +1779,7 @@ $Info += "[F] - ($(Get-Date -Date $Friday -UFormat %m/%d)) Friday`r`n"
 }
 
 If ($SelectedWeek -eq 0) {
-If ($TodayDoW -eq 5) {
+If ($TodayDoW -gt 5) {
 $Info += "[H] - ($(Get-Date -Date $Thursday -UFormat %m/%d)) Thursday`r`n"
 }
 } Else {
@@ -1865,7 +1913,7 @@ $Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
 		Write-Host "$UserSelectedDateTime"
 	
 
-	} Until ($UserSelectedDateTime -ne $null -Or $UserSelectedDateTime -ne "" -Or $UserSelectedDateTime -ne '')
+	} Until (!($UserSelectedDateTime -eq $null -Or $UserSelectedDateTime -eq "" -Or $UserSelectedDateTime -eq ''))
 
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	

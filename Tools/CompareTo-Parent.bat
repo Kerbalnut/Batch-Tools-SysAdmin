@@ -148,7 +148,7 @@ SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powe
 
 ::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp1.ps1"
 
-SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp2.ps1"
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp2.ps1"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -196,7 +196,7 @@ SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp
 
 SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp1.ps1"
 
-::SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\PromptForChoice-DayDate.ps1"
+SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\PromptForChoice-DayDate.ps1"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
