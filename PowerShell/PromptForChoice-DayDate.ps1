@@ -542,6 +542,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	
 	Do {
 		Clear-Host
+        Start-Sleep -Milliseconds 100 #Bugfix: Clear-Host acts so quickly, sometimes it won't actually wipe the terminal properly. If you force it to wait, then after PowerShell will display any specially-formatted text properly.
 		
 		Write-HR -IsVerbose -DoubleLine
 
@@ -935,7 +936,7 @@ $Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
 		Write-Host "$UserSelectedDateTime"
 	
 
-	} Until ($UserSelectedDateTime -ne $null -Or $UserSelectedDateTime -ne "" -Or $UserSelectedDateTime -ne '')
+	} Until (!($UserSelectedDateTime -eq $null -Or $UserSelectedDateTime -eq "" -Or $UserSelectedDateTime -eq ''))
 
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
@@ -981,7 +982,7 @@ $Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
 } # End PromptForChoice-DayDate function -------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
-#$SelectedDate = PromptForChoice-DayDate # -Verbose
+$SelectedDate = PromptForChoice-DayDate # -Verbose
 #$SelectedDate = PromptForChoice-DayDate -TitleName Whatupadolfio # -Verbose
 
 

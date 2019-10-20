@@ -55,10 +55,11 @@ Write-Host "`r`n`r`n"
 # Get Date to enter time for
 $PickedDate = PromptForChoice-DayDate -TitleName "Select day to enter times for:"
 
-# Collect time
+# Collect time (display header)
 Clear-Host
-Write-Host "`r`nSelected date: $($PickedDate.ToLongDateString())`n`r`n"
-Write-Host "# Start Time #`n`r`n" -ForegroundColor Yellow
+Start-Sleep -Milliseconds 100 #Bugfix: Clear-Host acts so quickly, sometimes it won't actually wipe the terminal properly. If you force it to wait, then after PowerShell will display any specially-formatted text properly.
+Write-Host "`r`nSelected date: $($PickedDate.ToLongDateString())`n"
+Write-Host "`r`n# Start Time #`n`r`n" -ForegroundColor Yellow
 
 #Get Start time hour value
 $StartHour = ReadPrompt-Hour
@@ -87,7 +88,7 @@ If ($StartAMPM -eq "AM") {
 	Write-Error "AM/PM/24-hour time mode not recognized."
 }
 
-$Timestamp = Get-Date -Hour $24hour -Minute $StartMin -Second 0 -Millisecond 0
+$Timestamp = Get-Date -Date $PickedDate -Hour $24hour -Minute $StartMin -Second 0 -Millisecond 0
 
 Write-Host "Timestamp = $Timestamp"
 
@@ -96,7 +97,7 @@ $Timestamp = Get-Date -Date $Timestamp -Format F
 
 Write-Host "Timestamp = $Timestamp"
 
-$StartTime = Get-Date -Hour $24hour -Minute $StartMin -Second 0 -Millisecond 0
+$StartTime = Get-Date -Date $PickedDate -Hour $24hour -Minute $StartMin -Second 0 -Millisecond 0
 
 Write-Host "Start time = $StartTime"
 

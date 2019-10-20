@@ -14,8 +14,10 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 	)
 	
 	# Sub-functions:
+	#=======================================================================================================================
+	
 	#-----------------------------------------------------------------------------------------------------------------------
-	function Validate-Integer {
+	function Validate-Integer { #-------------------------------------------------------------------------------------------
 		Param (
 			#Script parameters go here
 			[Parameter(Mandatory=$true,Position=0,
@@ -45,9 +47,11 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 		
 		Return $InputToValidate
 		#Return [int]$InputToValidate
-	}
+	} # End Validate-Integer function --------------------------------------------------------------------------------------
 	#-----------------------------------------------------------------------------------------------------------------------
-	function Remove-LeadingZeros {
+	
+	#-----------------------------------------------------------------------------------------------------------------------
+	function Remove-LeadingZeros { #----------------------------------------------------------------------------------------
 		Param (
 			#Script parameters go here
 			[Parameter(Mandatory=$true,Position=0,
@@ -69,8 +73,10 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 		}
 		
 		Return $VarSimplified
-	}
+	} # End Remove-LeadingZeros --------------------------------------------------------------------------------------------
 	#-----------------------------------------------------------------------------------------------------------------------
+	
+	#=======================================================================================================================
 	# /Sub-functions
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -241,17 +247,19 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 	
 	# since 24-hour time values are valid hour values
 	
+	$RangeFailureHintText = "$VarName input must be between 1-12 for AM/PM time, or 0-23 for 24-hour time."
+	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	#Check if we have a value sent in from an external variable (parameter) first
 	If ($VarInput -eq $null -or $VarInput -eq "") {
 		$PipelineInput = $false
-		$OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt
+		$OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText
 	} else {
 		$PipelineInput = $true
 		Write-Verbose "Piped-in content = $VarInput"
 		$VarInput = [string]$VarInput #Bugfix: convert input from an object to a string
-		$OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt
+		$OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText
 	}
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

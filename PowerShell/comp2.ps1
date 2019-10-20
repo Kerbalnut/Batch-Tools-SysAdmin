@@ -1,7 +1,17 @@
 ﻿
 #-----------------------------------------------------------------------------------------------------------------------
 Function ReadPrompt-ValidateIntegerRange { #----------------------------------------------------------------------------
+	<#
+	.PARAMETER HintMinMax
+	Extra hint text string you can add that displays as a warning if user enters an integer input outside of Min-Max range. 
 	
+	This only happens at the end, after integer validation. If user enters a non-integer, those errors & warnings will be thrown first instead.
+	
+	The default display text during the Min-Max validation failure is:
+	WARNING: $Label input must be between $MinInt-$MaxInt.
+	
+	If -HintMinMax is set, that string will also be displayed as a warning to help explain what the range is for.
+	#>
 	#http://techgenix.com/powershell-functions-common-parameters/
 	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
 	#[cmdletbinding()]
@@ -26,8 +36,10 @@ Function ReadPrompt-ValidateIntegerRange { #------------------------------------
 	)
 	
 	# Sub-functions:
+	#=======================================================================================================================
+	
 	#-----------------------------------------------------------------------------------------------------------------------
-	function Validate-Integer {
+	function Validate-Integer { #-------------------------------------------------------------------------------------------
 		Param (
 			#Script parameters go here
 			[Parameter(Mandatory=$true,Position=0,
@@ -57,9 +69,11 @@ Function ReadPrompt-ValidateIntegerRange { #------------------------------------
 		
 		Return $InputToValidate
 		#Return [int]$InputToValidate
-	}
+	} # End Validate-Integer function --------------------------------------------------------------------------------------
 	#-----------------------------------------------------------------------------------------------------------------------
-	function Remove-LeadingZeros {
+	
+	#-----------------------------------------------------------------------------------------------------------------------
+	function Remove-LeadingZeros { #----------------------------------------------------------------------------------------
 		Param (
 			#Script parameters go here
 			[Parameter(Mandatory=$true,Position=0,
@@ -81,8 +95,10 @@ Function ReadPrompt-ValidateIntegerRange { #------------------------------------
 		}
 		
 		Return $VarSimplified
-	}
+	} # End Remove-LeadingZeros --------------------------------------------------------------------------------------------
 	#-----------------------------------------------------------------------------------------------------------------------
+	
+	#=======================================================================================================================
 	# /Sub-functions
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -200,7 +216,7 @@ Function ReadPrompt-ValidateIntegerRange { #------------------------------------
 		} else {
 			Write-HorizontalRuleAdv -DashedLine -IsWarning
 			Write-Warning "$VarName input must be between $MinInt-$MaxInt."
-			If (!($HintMinMax -eq $null -Or $HintMinMax -eq "") {
+			If (!($HintMinMax -eq $null -Or $HintMinMax -eq "")) {
 				Write-Warning $HintMinMax
 			}
 			#PAUSE
