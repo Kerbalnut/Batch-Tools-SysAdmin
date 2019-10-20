@@ -12,13 +12,82 @@
 #
 
 #-----------------------------------------------------------------------------------------------------------------------
+Function Pick-TimeStampTag { #---------------------------------------------------------------------------------------------------
+	<#
+    #>
+    
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#http://techgenix.com/powershell-functions-common-parameters/
+	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+	#[CmdletBinding()]
+	#Param()
+    
+    Param(
+        
+		[Parameter(Mandatory=$false)]
+		[Alias('i','PickTime','Add')]
+		[switch]$BeginEndOutput = $false
+		
+    )
+    
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	$TimeLogTag = $TimeStampTag
+	$BeginEnd = "[TimeStamp]"
+	    
+    $TimeLogTag = "Clock-In"
+	$BeginEnd = "[Begin]"
+	
+	$TimeLogTag = "Clock-Out"
+	$BeginEnd = "[End]"
+	
+	$TimeLogTag = "TimeStamp"
+	$BeginEnd = "[TimeStamp]"
+	
+	$TimeLogTag = "Task-Start='$TaskStart'"
+	$BeginEnd = "[Begin]"
+	
+	$TimeLogTag = "Task-Stop"
+	$BeginEnd = "[End]"
+	
+	$TimeLogTag = "Break-Start"
+	$BeginEnd = "[Begin]"
+	
+	$TimeLogTag = "Break-Stop"
+	$BeginEnd = "[End]"
+	
+	$TimeLogTag = "Pause-Start='$PauseStart'"
+	$BeginEnd = "[Begin]"
+	
+	$TimeLogTag = "Pause-Stop"
+	$BeginEnd = "[End]"
+	
+	$TimeLogTag = "Distraction"
+	$BeginEnd = "[TimeStamp]"
+	
+    
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+    If ($BeginEndOutput -eq $false) {
+        Return $TimeLogTag
+    } ElseIf ($BeginEndOutput -eq $true) {
+        Return $BeginEnd
+    }
+    
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+} # End 
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
 Function Log-Time { #---------------------------------------------------------------------------------------------------
 	<#
 		.SYNOPSIS
 		Logs a timestamp to a .csv log file.
 
 		.DESCRIPTION
-		Logs a UTC/GMT (Coordinated Universal Time, Greenwich Mean Time) timestamp 'type' tag
+		Logs a UTC/GMT (Coordinated Universal Time, Greenwich Mean Time) date & time value, the local timezone from where the entry was logged (ID and Name), a timestamp idenfitication 'type' tag, and a [Begin]/[End] tag for filtering purposes.
 
 		.PARAMETER TimeLogFile
 		TimeLogFile
@@ -63,11 +132,14 @@ Function Log-Time { #-----------------------------------------------------------
 		C:\PS> Test-Param -A "Anne" -D "Dave" -F "Freddy"
         
         .NOTES
-        
+        CSV file format headers:
 
+        TimeStampUT,TimeZoneID,TimeZoneName,[Begin/End/TimeStamp],Tag
 
 	#>
     
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
 	#http://techgenix.com/powershell-functions-common-parameters/
 	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
 	#[CmdletBinding()]
@@ -142,6 +214,8 @@ Function Log-Time { #-----------------------------------------------------------
 	$FunctionName = $PSCmdlet.MyInvocation.MyCommand.Name
 	Write-Verbose "Running function: $FunctionName"
 	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
 	#-----------------------------------------------------------------------------------------------------------------------
 	# Evaluate input parameters
 	#-----------------------------------------------------------------------------------------------------------------------
@@ -152,7 +226,9 @@ Function Log-Time { #-----------------------------------------------------------
             $UserInput = Read-Hose "Would you like to create it? [Y/N]"
         } until ($UserInput -eq 'y' -Or $UserInput -eq 'n')
         If ($UserInput -eq 'y') {
-            New-Item $UserInput #| Out-Null
+            New-Item $TimeLogFile #| Out-Null
+            $CSVheaders = "TimeStampUT,TimeZoneID,TimeZoneName,[Begin/End/TimeStamp],Tag"
+            $CSVheaders > $TimeLogFile
         } else {
             Return
         }
@@ -214,7 +290,9 @@ Function Log-Time { #-----------------------------------------------------------
 		$TimeLogTag = "Distraction"
 		$BeginEnd = "[TimeStamp]"
 	}
-
+    
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
 	If (($TimeLogTag -eq $null -Or $TimeLogTag -eq "") -And ($TimeLogTag -eq $null -Or $TimeLogTag -eq "")) {
 		$TimeLogTag = "TimeStamp"
 		$BeginEnd = "[TimeStamp]"
@@ -230,26 +308,76 @@ Function Log-Time { #-----------------------------------------------------------
     #=======================================================================================================================
     #
     
-    $TodayDay = Get-Date
-    Write-Verbose "`rToday: $TodayDay`r"
+    $TodayDateTime = Get-Date
+    Write-Verbose "`rToday: $TodayDateTime`r"
+	$TodayDoWLong = Get-Date -UFormat %A
+	# Month/Day (MM/DD)
+	$TodayMonthDay = Get-Date -UFormat %m/%d
+	# Day/Month (DD/MM)
+	$TodayDayMonth = Get-Date -UFormat %d/%m
     
-    $Yesterday = (Get-Date).AddDays(-1)
-    Write-Verbose "Yesterday: $Yesterday"
+    $YesterdayDateTime = (Get-Date).AddDays(-1)
+    Write-Verbose "Yesterday: $YesterdayDateTime"
+	$YesterdayDoWLong = Get-Date -Date $YesterdayDateTime -UFormat %A
+	# Month/Day (MM/DD)
+	$YesterdayMonthDay = Get-Date -Date $YesterdayDateTime -UFormat %m/%d
+	# Day/Month (DD/MM)
+	$YesterdayDayMonth = Get-Date -Date $YesterdayDateTime -UFormat %d/%m
     
-    $Tomorrow = (Get-Date).AddDays(1)
-    Write-Verbose "Tomorrow: $Tomorrow"
-    
+    $TomorrowDateTime = (Get-Date).AddDays(1)
+    Write-Verbose "Tomorrow: $TomorrowDateTime"
+	$TomorrowDoWLong = Get-Date -Date $TomorrowDateTime -UFormat %A
+    # Month/Day (MM/DD)
+	$TomorrowMonthDay = Get-Date -Date $TomorrowDateTime -UFormat %m/%d
+	# Day/Month (DD/MM)
+	$TomorrowDayMonth = Get-Date -Date $TomorrowDateTime -UFormat %d/%m
+	
     #
     #=======================================================================================================================
 
     #
     If (!$Interactive) {
-        $DateTimeToLog = Get-Date
         Write-Host "Writing current TimeStamp '(Get-Date)' to log ($TimeLogFile) . . ."
-        $DateTimeToLog >> $TimeLogFile
+        $DateTimeToLog = Get-Date
+    } Else {
+        #
+        # Choose Date:
+        $DatePickerSimple = "@
+        Choose date:
+        
+        [T] - Today ($TodayMonthDay) - $TodayDoWLong
+        [Y] - Yesterday ($YesterdayMonthDay) - $YesterdayDoWLong
+
+        [P] - Pick a different date
+        @"
+        
+        Do {
+            Clear-Host
+            Start-Sleep -Milliseconds 100 #Bugfix: Clear-Host acts so quickly, sometimes it won't actually wipe the terminal properly. If you force it to wait, then after PowerShell will display any specially-formatted text properly.
+            Write-Host $DatePickerSimple
+            $UserResponse = Read-Host "Enter selection"
+        } until ($UserResponse -eq 't' -Or $UserResponse -eq 'y' -Or $UserResponse -eq 'p')
+        If ($UserResponse -eq 't') {
+            $DateToLog = Get-Date
+        } ElseIf ($UserResponse -eq 'y') {
+            $DateToLog = (Get-Date).AddDays(-1)
+        } ElseIf ($UserResponse -eq 'p') {
+            $DateToLog = PromptForChoice-DayDate # -Verbose
+        }
+
+        #
+        # Choose Time:
+            
     }
     #
     
+    
+    $UTCToLog = $DateTimeToLog.ToUniversalTime()
+    $LocalTimeZoneID = (Get-TimeZone).Id
+    $LocalTimeZoneName = (Get-TimeZone).DisplayName
+    $NewRecord = $UTCToLog,$LocalTimeZoneID,$LocalTimeZoneName,$BeginEnd,$TimeLogTag
+    $NewRecord >> $TimeLogFile
+
     #=======================================================================================================================
 	
 } # End Log-Time function ----------------------------------------------------------------------------------------------
@@ -264,9 +392,9 @@ Function Log-Time { #-----------------------------------------------------------
 
 #
 
-$TodayDay = Get-Date
+$TodayDateTime = Get-Date
 
-Write-Verbose "`rToday: $TodayDay`r"
+Write-Verbose "`rToday: $TodayDateTime`r"
 
 $Yesterday = (Get-Date).AddDays(-1)
 
