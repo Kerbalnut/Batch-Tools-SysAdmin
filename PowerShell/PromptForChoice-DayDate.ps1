@@ -984,8 +984,8 @@ $Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
 				Write-HorizontalRuleAdv -HRtype DashedLine
 			}
 		}
-		Write-Host "Answer is:"
-		Write-Host "$UserSelectedDateTime"
+		#Write-Host "Answer is:"
+		#Write-Host "$UserSelectedDateTime"
 	
 
 	} Until (!($UserSelectedDateTime -eq $null -Or $UserSelectedDateTime -eq "" -Or $UserSelectedDateTime -eq ''))
@@ -1034,7 +1034,7 @@ $Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
 } # End PromptForChoice-DayDate function -------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
-$SelectedDate = PromptForChoice-DayDate -Verbose
+#$SelectedDate = PromptForChoice-DayDate -Verbose
 #$SelectedDate = PromptForChoice-DayDate -TitleName Whatupadolfio # -Verbose
 
 

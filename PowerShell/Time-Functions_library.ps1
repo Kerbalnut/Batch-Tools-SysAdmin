@@ -722,7 +722,15 @@ Function Log-Time {
 	# -----------------------------------------------------------------------------------------------------------------------
 	
 	If (!$TimeLogFile) {
-		Write-Warning "Time-Log file does not exist: '$TimeLogFile' Create it?"
+		Write-Warning "Time-Log file does not exist: '$TimeLogFile'"
+        Do {
+            $UserInput = Read-Hose "Would you like to create it? [Y/N]"
+        } until ($UserInput -eq 'y' -Or $UserInput -eq 'n')
+        If ($UserInput -eq 'y') {
+            New-Item $UserInput #| Out-Null
+        } else {
+            Return
+        }
 	}
 	
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

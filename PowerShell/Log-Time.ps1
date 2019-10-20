@@ -9,6 +9,256 @@
 
 #=======================================================================================================================
 
+#
+
+#-----------------------------------------------------------------------------------------------------------------------
+Function Log-Time { #---------------------------------------------------------------------------------------------------
+	<#
+		.SYNOPSIS
+		Logs a timestamp to a .csv log file.
+
+		.DESCRIPTION
+		Logs a UTC/GMT (Coordinated Universal Time, Greenwich Mean Time) timestamp 'type' tag
+
+		.PARAMETER TimeLogFile
+		TimeLogFile
+
+		.PARAMETER TimeStampTag
+		TimeStampTag
+
+		.PARAMETER Interactive
+		Interactive
+
+		.PARAMETER ClockIn
+		ClockIn
+
+		.PARAMETER ClockOut
+		ClockOut
+
+		.PARAMETER TimeStamp
+		TimeStamp
+
+		.PARAMETER TaskStart
+		TaskStart
+
+		.PARAMETER TaskStop
+		TaskStop
+		
+		.PARAMETER BreakStart
+		BreakStart
+		
+		.PARAMETER BreakStop
+		BreakStop
+		
+		.PARAMETER PauseStart
+		PauseStart
+		
+		.PARAMETER PauseStop
+		PauseStop
+		
+		.PARAMETER Distraction
+		Distraction
+		
+		.EXAMPLE
+		C:\PS> Test-Param -A "Anne" -D "Dave" -F "Freddy"
+        
+        .NOTES
+        
+
+
+	#>
+    
+	#http://techgenix.com/powershell-functions-common-parameters/
+	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+	#[CmdletBinding()]
+	#Param()
+	
+	[CmdletBinding(DefaultParameterSetName='TimeStampTag')]
+	
+	Param (
+		#[CmdletBinding(DefaultParameterSetName="ByUserName")]
+		# Script parameters go here
+		#https://ss64.com/ps/syntax-args.html
+		#http://wahlnetwork.com/2017/07/10/powershell-aliases/
+		#https://www.jonathanmedd.net/2013/01/add-a-parameter-to-multiple-parameter-sets-in-powershell.html
+		[Parameter(Mandatory=$true,Position=0)]
+		[string]$TimeLogFile = '.\TimeLog.csv', 
+		
+		[Parameter(Mandatory=$false)]
+		[Alias('i','PickTime','Add')]
+		[switch]$Interactive = $false,
+		
+		[Parameter(Mandatory=$false,
+		Position=1,
+		ParameterSetName='CustomTag')]
+		[string]$TimeStampTag,
+		
+		[Parameter(Mandatory=$false,
+		ParameterSetName='ClockInTag')]
+		[switch]$ClockIn,
+		
+		[Parameter(Mandatory=$false,
+		ParameterSetName='ClockOutTag')]
+		[switch]$ClockOut,
+		
+		[Parameter(Mandatory=$false,
+		ParameterSetName='TimeStampTag')]
+		[switch]$TimeStamp,
+		
+		[Parameter(Mandatory=$false,
+		ParameterSetName='TaskStartTag')]
+		[string]$TaskStart,
+		
+		[Parameter(Mandatory=$false,
+		ParameterSetName='TaskStopTag')]
+		[switch]$TaskStop,
+		
+		[Parameter(Mandatory=$false,
+		ParameterSetName='BreakStartTag')]
+		[switch]$BreakStart,
+		
+		[Parameter(Mandatory=$false,
+		ParameterSetName='BreakStopTag')]
+		[switch]$BreakStop,
+		
+		[Parameter(Mandatory=$false,
+		ParameterSetName='PauseStartTag')]
+		[string]$PauseStart,
+		
+		[Parameter(Mandatory=$false,
+		ParameterSetName='PauseStopTag')]
+		[switch]$PauseStop,
+		
+		[Parameter(Mandatory=$false,
+		ParameterSetName='DistractionTag')]
+		[switch]$Distraction
+		
+	)
+	
+	# Function name:
+	# https://stackoverflow.com/questions/3689543/is-there-a-way-to-retrieve-a-powershell-function-name-from-within-a-function#3690830
+	#$FunctionName = (Get-PSCallStack | Select-Object FunctionName -Skip 1 -First 1).FunctionName
+	#$FunctionName = (Get-Variable MyInvocation -Scope 1).Value.MyCommand.Name
+	$FunctionName = $PSCmdlet.MyInvocation.MyCommand.Name
+	Write-Verbose "Running function: $FunctionName"
+	
+	#-----------------------------------------------------------------------------------------------------------------------
+	# Evaluate input parameters
+	#-----------------------------------------------------------------------------------------------------------------------
+	
+	If (!(Test-Path $TimeLogFile)) {
+		Write-Warning "Time-Log file does not exist: '$TimeLogFile'"
+        Do {
+            $UserInput = Read-Hose "Would you like to create it? [Y/N]"
+        } until ($UserInput -eq 'y' -Or $UserInput -eq 'n')
+        If ($UserInput -eq 'y') {
+            New-Item $UserInput #| Out-Null
+        } else {
+            Return
+        }
+	}
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	If ($TimeStampTag) {
+		$TimeLogTag = $TimeStampTag
+		$BeginEnd = "[TimeStamp]"
+	}
+	
+	If ($ClockIn) {
+		$TimeLogTag = "Clock-In"
+		$BeginEnd = "[Begin]"
+	}
+	
+	If ($ClockOut) {
+		$TimeLogTag = "Clock-Out"
+		$BeginEnd = "[End]"
+	}
+	
+	If ($TimeStamp) {
+		$TimeLogTag = "TimeStamp"
+		$BeginEnd = "[TimeStamp]"
+	}
+	
+	If ($TaskStart) {
+		$TimeLogTag = "Task-Start='$TaskStart'"
+		$BeginEnd = "[Begin]"
+	}
+	
+	If ($TaskStop) {
+		$TimeLogTag = "Task-Stop"
+		$BeginEnd = "[End]"
+	}
+	
+	If ($BreakStart) {
+		$TimeLogTag = "Break-Start"
+		$BeginEnd = "[Begin]"
+	}
+	
+	If ($BreakStop) {
+		$TimeLogTag = "Break-Stop"
+		$BeginEnd = "[End]"
+	}
+	
+	If ($PauseStart) {
+		$TimeLogTag = "Pause-Start='$PauseStart'"
+		$BeginEnd = "[Begin]"
+	}
+	
+	If ($PauseStop) {
+		$TimeLogTag = "Pause-Stop"
+		$BeginEnd = "[End]"
+	}
+	
+	If ($Distraction) {
+		$TimeLogTag = "Distraction"
+		$BeginEnd = "[TimeStamp]"
+	}
+
+	If (($TimeLogTag -eq $null -Or $TimeLogTag -eq "") -And ($TimeLogTag -eq $null -Or $TimeLogTag -eq "")) {
+		$TimeLogTag = "TimeStamp"
+		$BeginEnd = "[TimeStamp]"
+        Write-Warning "No type of timestamp tag selected. Default is `"TimeStamp`""
+	}
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#-----------------------------------------------------------------------------------------------------------------------
+	# Build Time-Log Entry
+	#-----------------------------------------------------------------------------------------------------------------------
+    
+    #=======================================================================================================================
+    #
+    
+    $TodayDay = Get-Date
+    Write-Verbose "`rToday: $TodayDay`r"
+    
+    $Yesterday = (Get-Date).AddDays(-1)
+    Write-Verbose "Yesterday: $Yesterday"
+    
+    $Tomorrow = (Get-Date).AddDays(1)
+    Write-Verbose "Tomorrow: $Tomorrow"
+    
+    #
+    #=======================================================================================================================
+
+    #
+    If (!$Interactive) {
+        $DateTimeToLog = Get-Date
+        Write-Host "Writing current TimeStamp '(Get-Date)' to log ($TimeLogFile) . . ."
+        $DateTimeToLog >> $TimeLogFile
+    }
+    #
+    
+    #=======================================================================================================================
+	
+} # End Log-Time function ----------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#
+
 #=======================================================================================================================
 #-----------------------------------------------------------------------------------------------------------------------
 
