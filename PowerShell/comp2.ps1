@@ -162,7 +162,8 @@ Function ReadPrompt-ValidateIntegerRange { #------------------------------------
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
 		# Check if $VarName input is integer using Validate-Integer function
-		try {
+		try { # help about_Try_Catch_Finally
+			#https://stackoverflow.com/questions/6430382/powershell-detecting-errors-in-script-functions
 			$VarInteger = Validate-Integer $VarSimplified -ErrorVariable ValidateIntError
 			# -ErrorVariable <variable_name> - Error is assigned to the variable name you specify. Even when you use the -ErrorVariable parameter, the $error variable is still updated.
 			# If you want to append an error to the variable instead of overwriting it, you can put a plus sign (+) in front of the variable name. E.g. -ErrorVariable +<variable_name>

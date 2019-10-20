@@ -3,6 +3,8 @@
 
 . "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1" -LoadFunctions
 
+. "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\PromptForChoice-DayDate.ps1"
+
 #
 
 #=======================================================================================================================
@@ -50,41 +52,35 @@ Write-Host "`r`n`r`n"
 
 #=======================================================================================================================
 
-#
+# Get Date to enter time for
+$PickedDate = PromptForChoice-DayDate -TitleName "Select day to enter times for:"
 
-Write-Host "`r`n# Start Time #`n`r`n" -ForegroundColor Yellow
+# Collect time
+Clear-Host
+Write-Host "`r`nSelected date: $($PickedDate.ToLongDateString())`n`r`n"
+Write-Host "# Start Time #`n`r`n" -ForegroundColor Yellow
 
-#Write-HorizontalRuleAdv -SingleLine
-
-PromptForChoice-DayDate
-
-#$StartHour = Read-Host -Prompt "Enter Start hour"
-#$StartHour = ReadPrompt-Hour -Verbose
+#Get Start time hour value
 $StartHour = ReadPrompt-Hour
 
-#Write-HorizontalRuleAdv -DashedLine
-
-#$StartMin = Read-Host -Prompt "Enter Start minute"
-#$StartMin = ReadPrompt-Minute -Verbose
+#Get Start time minute value
 $StartMin = ReadPrompt-Minute
 
-#Write-HorizontalRuleAdv -DashedLine
-
+# Check if we even need to prompt the user for AM/PM time
 If ($StartHour -gt 12 -Or $StartHour -eq 0) {
 	$StartAMPM = 24
 } else {
-	#$StartAMPM = ReadPrompt-AMPM24 -Verbose
-	$StartAMPM = ReadPrompt-AMPM24
+	$StartAMPM = ReadPrompt-AMPM24 # -Verbose
 }
 
 #Write-HorizontalRuleAdv -SingleLine
 
 If ($StartAMPM -eq "AM") {
-    #$24hour = Convert-AMPMhourTo24hour $StartHour -AM -Verbose
     $24hour = Convert-AMPMhourTo24hour $StartHour -AM
+    #$24hour = Convert-AMPMhourTo24hour $StartHour -AM -Verbose
 } elseif ($StartAMPM -eq "PM") {
-    #$24hour = Convert-AMPMhourTo24hour $StartHour -PM -Verbose
     $24hour = Convert-AMPMhourTo24hour $StartHour -PM
+    #$24hour = Convert-AMPMhourTo24hour $StartHour -PM -Verbose
 } elseif ($StartAMPM -eq 24) {
     $24hour = $StartHour
 } else {

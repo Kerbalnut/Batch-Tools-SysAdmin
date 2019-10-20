@@ -18,7 +18,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 		#Script parameters go here
 		[Parameter(Mandatory=$false,Position=0,
 		ValueFromPipeline = $true)]
-		[string]$TitleName,
+		[string]$TitleName = "Select day:",
 		
 		[Parameter(Mandatory=$false)]
 		[string]$InfoDescription,
@@ -514,12 +514,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	
 	$SatSunEnabled = $true
 	$SatSunEnabled = $false
-	
-	Write-Verbose "`$TitleName = `"$TitleName`""
-	If ($TitleName -ne $null -Or $TitleName -ne "" -Or $TitleName -ne $false) {
-		Write-Host "`$TitleName is set = `"$TitleName`""
-	}
-	
+    
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	# Build out currently selected week, out until Monday (Mon-Sun week display)
 	
@@ -752,7 +747,7 @@ Week #$WeekOfYear/53
 "@
 
 If ($SelectedWeek -eq 0) {
-$Info += "`r`n`r`nSelect day:"
+$Info += "`r`n`r`n$TitleName"
 }
 
 <#
@@ -986,10 +981,7 @@ $Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
 } # End PromptForChoice-DayDate function -------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
-$SelectedDate = PromptForChoice-DayDate # -Verbose
-
-$TestItString = "Is it working?"
-Write-Host "$TestItString"
-Write-Host "$SelectedDate"
+#$SelectedDate = PromptForChoice-DayDate # -Verbose
+#$SelectedDate = PromptForChoice-DayDate -TitleName Whatupadolfio # -Verbose
 
 
