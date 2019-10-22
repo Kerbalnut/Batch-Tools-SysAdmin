@@ -153,8 +153,8 @@ Function Log-Time { #-----------------------------------------------------------
 		#https://ss64.com/ps/syntax-args.html
 		#http://wahlnetwork.com/2017/07/10/powershell-aliases/
 		#https://www.jonathanmedd.net/2013/01/add-a-parameter-to-multiple-parameter-sets-in-powershell.html
-		[Parameter(Mandatory=$true,Position=0)]
-		[string]$TimeLogFile = '.\TimeLog.csv', 
+		[Parameter(Mandatory=$false,Position=0)]
+		[string]$TimeLogFile = "$env:USERPROFILE\Documents\TimeLog.csv", 
 		
 		[Parameter(Mandatory=$false)]
 		[Alias('i','PickTime','Add')]
@@ -219,14 +219,17 @@ Function Log-Time { #-----------------------------------------------------------
 	#-----------------------------------------------------------------------------------------------------------------------
 	# Evaluate input parameters
 	#-----------------------------------------------------------------------------------------------------------------------
-	
-	If (!(Test-Path $TimeLogFile)) {
+
+    Write-Verbose "`$TimeLogFile = $TimeLogFile"	
+
+	If ((Test-Path $TimeLogFile)) {
 		Write-Warning "Time-Log file does not exist: '$TimeLogFile'"
         Do {
-            $UserInput = Read-Hose "Would you like to create it? [Y/N]"
+            $UserInput = Read-Host "Would you like to create it? [Y/N]"
         } until ($UserInput -eq 'y' -Or $UserInput -eq 'n')
         If ($UserInput -eq 'y') {
-            New-Item $TimeLogFile #| Out-Null
+            #New-Item -Path $TimeLogFile -Credential (Get-Credential -Credential "$env:USERNAME") -ItemType "file" -Force #| Out-Null
+            New-Item -Path $TimeLogFile -ItemType "file" -Force #| Out-Null
             $CSVheaders = "TimeStampUT,TimeZoneID,TimeZoneName,[Begin/End/TimeStamp],Tag"
             $CSVheaders > $TimeLogFile
         } else {
@@ -342,20 +345,21 @@ Function Log-Time { #-----------------------------------------------------------
     } Else {
         #
         # Choose Date:
-        $DatePickerSimple = "@
-        Choose date:
+$DatePickerSimple = @"
+Choose date:
         
-        [T] - Today ($TodayMonthDay) - $TodayDoWLong
-        [Y] - Yesterday ($YesterdayMonthDay) - $YesterdayDoWLong
+[T] - Today ($TodayMonthDay) - $TodayDoWLong
+[Y] - Yesterday ($YesterdayMonthDay) - $YesterdayDoWLong
 
-        [P] - Pick a different date
-        @"
-        
+[P] - Pick a different date
+"@
+        PAUSE
+
         Do {
             Clear-Host
             Start-Sleep -Milliseconds 100 #Bugfix: Clear-Host acts so quickly, sometimes it won't actually wipe the terminal properly. If you force it to wait, then after PowerShell will display any specially-formatted text properly.
             Write-Host $DatePickerSimple
-            $UserResponse = Read-Host "Enter selection"
+            $UserResponse = Read-Host "`nEnter selection"
         } until ($UserResponse -eq 't' -Or $UserResponse -eq 'y' -Or $UserResponse -eq 'p')
         If ($UserResponse -eq 't') {
             $DateToLog = Get-Date
@@ -367,10 +371,53 @@ Function Log-Time { #-----------------------------------------------------------
 
         #
         # Choose Time:
-            
+        
+        # Collect time (display header)
+        Clear-Host
+        Start-Sleep -Milliseconds 100 #Bugfix: Clear-Host acts so quickly, sometimes it won't actually wipe the terminal properly. If you force it to wait, then after PowerShell will display any specially-formatted text properly.
+        Write-Host "`r`nSelected date: $($DateToLog.ToLongDateString())`n"
+        Write-Host "`r`n# Select Time #`n`r`n" -ForegroundColor Yellow
+
+        #Get Selected time hour value
+        $SelectedHour = ReadPrompt-Hour
+        
+        #Get Selected time minute value
+        $SelectedMin = ReadPrompt-Minute
+        
+        # Check if we even need to prompt the user for AM/PM time
+        If ($SelectedHour -gt 12 -Or $SelectedHour -eq 0) {
+	        $SelectedAMPM = 24
+        } else {
+	        $SelectedAMPM = ReadPrompt-AMPM24 # -Verbose
+        }
+        
+        #Write-HorizontalRuleAdv -SingleLine
+        
+        If ($SelectedAMPM -eq "AM") {
+            $24hour = Convert-AMPMhourTo24hour $SelectedHour -AM
+            #$24hour = Convert-AMPMhourTo24hour $SelectedHour -AM -Verbose
+        } elseif ($SelectedAMPM -eq "PM") {
+            $24hour = Convert-AMPMhourTo24hour $SelectedHour -PM
+            #$24hour = Convert-AMPMhourTo24hour $SelectedHour -PM -Verbose
+        } elseif ($SelectedAMPM -eq 24) {
+            $24hour = $SelectedHour
+        } else {
+	        Write-Error "AM/PM/24-hour time mode not recognized."
+        }
+        
+        $DateTimeObj = Get-Date -Date $DateToLog -Hour $24hour -Minute $SelectedMin -Second 0 -Millisecond 0
+        
+        Write-Verbose "DateTimeObj = $DateTimeObj"
+        
+        #https://ss64.com/ps/syntax-dateformats.html
+        #$Timestamp = Get-Date -Date $Timestamp -Format F
+
+        #Write-Host "Timestamp = $Timestamp"
+        
+        [DateTime]$DateTimeToLog = $Timestamp
+
     }
     #
-    
     
     $UTCToLog = $DateTimeToLog.ToUniversalTime()
     $LocalTimeZoneID = (Get-TimeZone).Id
@@ -412,52 +459,14 @@ Write-Verbose "Tomorrow: $Tomorrow"
 
 #=======================================================================================================================
 
-# Get Date to enter time for
-$PickedDate = PromptForChoice-DayDate -TitleName "Select day to enter times for:"
-
 # Collect time (display header)
 Clear-Host
 Start-Sleep -Milliseconds 100 #Bugfix: Clear-Host acts so quickly, sometimes it won't actually wipe the terminal properly. If you force it to wait, then after PowerShell will display any specially-formatted text properly.
-Write-Host "`r`nSelected date: $($PickedDate.ToLongDateString())`n"
 Write-Host "`r`n# Start Time #`n`r`n" -ForegroundColor Yellow
 
-#Get Start time hour value
-$StartHour = ReadPrompt-Hour
+PAUSE
 
-#Get Start time minute value
-$StartMin = ReadPrompt-Minute
-
-# Check if we even need to prompt the user for AM/PM time
-If ($StartHour -gt 12 -Or $StartHour -eq 0) {
-	$StartAMPM = 24
-} else {
-	$StartAMPM = ReadPrompt-AMPM24 # -Verbose
-}
-
-#Write-HorizontalRuleAdv -SingleLine
-
-If ($StartAMPM -eq "AM") {
-    $24hour = Convert-AMPMhourTo24hour $StartHour -AM
-    #$24hour = Convert-AMPMhourTo24hour $StartHour -AM -Verbose
-} elseif ($StartAMPM -eq "PM") {
-    $24hour = Convert-AMPMhourTo24hour $StartHour -PM
-    #$24hour = Convert-AMPMhourTo24hour $StartHour -PM -Verbose
-} elseif ($StartAMPM -eq 24) {
-    $24hour = $StartHour
-} else {
-	Write-Error "AM/PM/24-hour time mode not recognized."
-}
-
-$Timestamp = Get-Date -Date $PickedDate -Hour $24hour -Minute $StartMin -Second 0 -Millisecond 0
-
-Write-Host "Timestamp = $Timestamp"
-
-#https://ss64.com/ps/syntax-dateformats.html
-$Timestamp = Get-Date -Date $Timestamp -Format F
-
-Write-Host "Timestamp = $Timestamp"
-
-$StartTime = Get-Date -Date $PickedDate -Hour $24hour -Minute $StartMin -Second 0 -Millisecond 0
+$StartTime = Log-Time -Interactive -ClockIn -Verbose
 
 Write-Host "Start time = $StartTime"
 
@@ -474,45 +483,9 @@ Write-Host "Start time = $StartTime"
 
 Write-Host "`r`n# End Time #`n`r`n" -ForegroundColor Yellow
 
-#$EndHour = Read-Host -Prompt "Enter End hour"
-#$EndHour = ReadPrompt-Hour -Verbose
-$EndHour = ReadPrompt-Hour
+PAUSE
 
-#$EndMin = Read-Host -Prompt "Enter End minute"
-#$EndMin = ReadPrompt-Minute -Verbose
-$EndMin = ReadPrompt-Minute
-
-If ($EndHour -gt 12 -Or $EndHour -eq 0) {
-	$EndAMPM = 24
-} else {
-	#$EndAMPM = ReadPrompt-AMPM24 -Verbose
-    $EndAMPM = ReadPrompt-AMPM24
-}
-
-#Write-HorizontalRuleAdv -SingleLine
-
-If ($EndAMPM -eq "AM") {
-    #$24hour = Convert-AMPMhourTo24hour $EndHour -AM -Verbose
-    $24hour = Convert-AMPMhourTo24hour $EndHour -AM
-} elseif ($EndAMPM -eq "PM") {
-    #$24hour = Convert-AMPMhourTo24hour $EndHour -PM -Verbose
-    $24hour = Convert-AMPMhourTo24hour $EndHour -PM
-} elseif ($EndAMPM -eq 24) {
-    $24hour = $EndHour
-} else {
-	Write-Error "AM/PM/24-hour time mode not recognized."
-}
-
-$Timestamp = Get-Date -Hour $24hour -Minute $EndMin -Second 0 -Millisecond 0
-
-Write-Host "Timestamp = $Timestamp"
-
-#https://ss64.com/ps/syntax-dateformats.html
-$Timestamp = Get-Date -Date $Timestamp -Format F
-
-Write-Host "Timestamp = $Timestamp"
-
-$EndTime = Get-Date -Hour $24hour -Minute $EndMin -Second 0 -Millisecond 0
+$EndTime = Log-Time -Interactive -ClockOut -Verbose
 
 Write-Host "End time = $EndTime"
 
@@ -520,6 +493,8 @@ Write-Host "End time = $EndTime"
 #$EndTime = Get-Date -Date $EndTime -Format F
 
 #Write-Host "End time = $EndTime"
+
+PAUSE
 
 #
 
