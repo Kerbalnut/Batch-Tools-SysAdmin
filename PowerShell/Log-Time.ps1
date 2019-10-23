@@ -1,4 +1,6 @@
 ﻿
+#Requires -RunAsAdministrator
+
 #
 
 . "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1" -LoadFunctions
@@ -6,6 +8,35 @@
 . "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\PromptForChoice-DayDate.ps1"
 
 #
+
+if (test-path "$env:USERPROFILE\Documents\TimeLog.csv") {
+    del "$env:USERPROFILE\Documents\TimeLog.csv"
+    Write-Host "deleted." -ForegroundColor green
+    pause
+}
+
+
+if (test-path "$env:USERPROFILE\Documents\test.csv") {
+    del "$env:USERPROFILE\Documents\test.csv"
+    Write-Host "deleted." -ForegroundColor green
+    pause
+}
+
+function test-thisfunc {
+    new-item "$env:USERPROFILE\Documents\test.csv"
+    Write-Host "Func accessed." -ForegroundColor Yellow
+}
+
+test-thisfunc
+pause
+
+if (test-path "$env:USERPROFILE\Documents\test.csv") {
+    del "$env:USERPROFILE\Documents\test.csv"
+    Write-Host "deleted." -ForegroundColor green
+    #pause
+}
+
+pause
 
 #=======================================================================================================================
 
@@ -138,6 +169,8 @@ Function Log-Time { #-----------------------------------------------------------
 
 	#>
     
+#Requires -RunAsAdministrator
+
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	#http://techgenix.com/powershell-functions-common-parameters/
@@ -222,16 +255,20 @@ Function Log-Time { #-----------------------------------------------------------
 
     Write-Verbose "`$TimeLogFile = $TimeLogFile"	
 
-	If ((Test-Path $TimeLogFile)) {
+	If (!(Test-Path $TimeLogFile)) {
 		Write-Warning "Time-Log file does not exist: '$TimeLogFile'"
         Do {
             $UserInput = Read-Host "Would you like to create it? [Y/N]"
         } until ($UserInput -eq 'y' -Or $UserInput -eq 'n')
         If ($UserInput -eq 'y') {
             #New-Item -Path $TimeLogFile -Credential (Get-Credential -Credential "$env:USERNAME") -ItemType "file" -Force #| Out-Null
-            New-Item -Path $TimeLogFile -ItemType "file" -Force #| Out-Null
+            #Write-host "TROUBLESHOOTING 1"
+            New-Item -Path $TimeLogFile -ItemType "file" -Force
+            #Write-host "TROUBLESHOOTING 2"
             $CSVheaders = "TimeStampUT,TimeZoneID,TimeZoneName,[Begin/End/TimeStamp],Tag"
             $CSVheaders > $TimeLogFile
+            $TimeLogPath = Split-Path -Path $TimeLogFile -Parent
+            #dir $TimeLogPath
         } else {
             Return
         }
@@ -348,8 +385,8 @@ Function Log-Time { #-----------------------------------------------------------
 $DatePickerSimple = @"
 Choose date:
         
-[T] - Today ($TodayMonthDay) - $TodayDoWLong
-[Y] - Yesterday ($YesterdayMonthDay) - $YesterdayDoWLong
+[T] - ($TodayMonthDay) $TodayDoWLong - [T]oday
+[Y] - ($YesterdayMonthDay)$YesterdayDoWLong - [Y]esterday
 
 [P] - Pick a different date
 "@
@@ -410,11 +447,11 @@ Choose date:
         Write-Verbose "DateTimeObj = $DateTimeObj"
         
         #https://ss64.com/ps/syntax-dateformats.html
-        #$Timestamp = Get-Date -Date $Timestamp -Format F
+        #$DateTimeToLog = Get-Date -Date $DateTimeToLog -Format F
 
-        #Write-Host "Timestamp = $Timestamp"
+        #Write-Host "DateTimeToLog = $DateTimeToLog"
         
-        [DateTime]$DateTimeToLog = $Timestamp
+        [DateTime]$DateTimeToLog = $DateTimeObj
 
     }
     #
@@ -427,6 +464,8 @@ Choose date:
 
     #=======================================================================================================================
 	
+    Return $DateTimeToLog
+
 } # End Log-Time function ----------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
