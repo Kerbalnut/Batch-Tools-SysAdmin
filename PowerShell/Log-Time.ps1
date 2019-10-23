@@ -205,7 +205,7 @@ Function Log-Time { #-----------------------------------------------------------
         [DateTime]$Date,
 
 		[Parameter(Mandatory=$false)]
-        [switch]$PickTimeOnly,
+        [switch]$PickTimeOnly = $false,
 		
 		[Parameter(Mandatory=$false,
 		Position=1,
@@ -522,6 +522,71 @@ Choose date:
 } # End Log-Time function ----------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------------------------------------------------
+Function Log-PunchCardTimes { #-----------------------------------------------------------------------------------------
+
+
+    #
+
+    #=======================================================================================================================
+
+    # Select Day:
+    
+    #=======================================================================================================================
+    
+    # Collect time (display header)
+    Clear-Host
+    Start-Sleep -Milliseconds 100 #Bugfix: Clear-Host acts so quickly, sometimes it won't actually wipe the terminal properly. If you force it to wait, then after PowerShell will display any specially-formatted text properly.
+    Write-Host "`r`n# Start Time #`n`r`n" -ForegroundColor Yellow
+    
+    #PAUSE
+    
+    $StartTime = Log-Time -Interactive -ClockIn #-Verbose
+    
+    Write-Host "Start time = $StartTime"
+    
+    $StartTime | Get-Member | Out-Host
+    
+    #https://ss64.com/ps/syntax-dateformats.html
+    #$StartTime = Get-Date -Date $StartTime -Format F
+    
+    #Write-Host "Start time = $StartTime"
+    
+    #
+
+    #-----------------------------------------------------------------------------------------------------------------------
+
+    #
+
+    Write-Host "`r`n# End Time #`n`r`n" -ForegroundColor Yellow
+
+    #PAUSE
+
+    #$EndTime = Log-Time -Interactive -ClockOut -Verbose
+    $EndTime = ($StartTime).DateTime
+    $EndTime = Log-Time -Date $EndTime -PickTimeOnly -Interactive -ClockOut #-Verbose
+    
+    Write-Host "End time = $EndTime"
+    
+    #https://ss64.com/ps/syntax-dateformats.html
+    #$EndTime = Get-Date -Date $EndTime -Format F
+    
+    #Write-Host "End time = $EndTime"
+    
+    #PAUSE
+    
+    #
+    
+    #-----------------------------------------------------------------------------------------------------------------------
+    
+    #
+
+
+
+} # End Log-PunchCardTimes ---------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #
@@ -551,44 +616,7 @@ Write-Verbose "Tomorrow: $Tomorrow"
 
 #=======================================================================================================================
 
-# Collect time (display header)
-Clear-Host
-Start-Sleep -Milliseconds 100 #Bugfix: Clear-Host acts so quickly, sometimes it won't actually wipe the terminal properly. If you force it to wait, then after PowerShell will display any specially-formatted text properly.
-Write-Host "`r`n# Start Time #`n`r`n" -ForegroundColor Yellow
-
-PAUSE
-
-$StartTime = Log-Time -Interactive -ClockIn -Verbose
-
-Write-Host "Start time = $StartTime"
-
-$StartTime | Get-Member | Out-Host
-
-#https://ss64.com/ps/syntax-dateformats.html
-#$StartTime = Get-Date -Date $StartTime -Format F
-
-#Write-Host "Start time = $StartTime"
-
-#
-
-#-----------------------------------------------------------------------------------------------------------------------
-
-#
-
-Write-Host "`r`n# End Time #`n`r`n" -ForegroundColor Yellow
-
-PAUSE
-
-#$EndTime = Log-Time -Interactive -ClockOut -Verbose
-$EndTime = ($StartTime).DateTime
-$EndTime = Log-Time -Date $EndTime -PickTimeOnly -Interactive -ClockOut -Verbose
-
-Write-Host "End time = $EndTime"
-
-#https://ss64.com/ps/syntax-dateformats.html
-#$EndTime = Get-Date -Date $EndTime -Format F
-
-#Write-Host "End time = $EndTime"
+Log-PunchCardTimes
 
 PAUSE
 
@@ -702,6 +730,10 @@ Write-Host "Time left = $TimeRemaining (hours:minutes)"
 $TimeRemainingHours = $TimeRemaining.TotalHours
 
 Write-Host "Time left = $TimeRemainingHours (hours)"
+
+#
+
+#-----------------------------------------------------------------------------------------------------------------------
 
 #
 
