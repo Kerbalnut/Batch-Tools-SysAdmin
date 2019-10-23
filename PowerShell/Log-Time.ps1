@@ -9,6 +9,7 @@
 
 #
 
+<#
 if (test-path "$env:USERPROFILE\Documents\TimeLog.csv") {
     del "$env:USERPROFILE\Documents\TimeLog.csv"
     Write-Host "deleted." -ForegroundColor green
@@ -37,6 +38,7 @@ if (test-path "$env:USERPROFILE\Documents\test.csv") {
 }
 
 pause
+#>
 
 #=======================================================================================================================
 
@@ -123,11 +125,17 @@ Function Log-Time { #-----------------------------------------------------------
 		.PARAMETER TimeLogFile
 		TimeLogFile
 
-		.PARAMETER TimeStampTag
-		TimeStampTag
-
 		.PARAMETER Interactive
 		Interactive
+
+		.PARAMETER Date
+		Date
+
+		.PARAMETER PickTimeOnly
+		PickTimeOnly
+
+		.PARAMETER TimeStampTag
+		TimeStampTag
 
 		.PARAMETER ClockIn
 		ClockIn
@@ -192,6 +200,12 @@ Function Log-Time { #-----------------------------------------------------------
 		[Parameter(Mandatory=$false)]
 		[Alias('i','PickTime','Add')]
 		[switch]$Interactive = $false,
+
+		[Parameter(Mandatory=$false)]
+        [DateTime]$Date,
+
+		[Parameter(Mandatory=$false)]
+        [switch]$PickTimeOnly,
 		
 		[Parameter(Mandatory=$false,
 		Position=1,
@@ -246,12 +260,18 @@ Function Log-Time { #-----------------------------------------------------------
 	#$FunctionName = (Get-Variable MyInvocation -Scope 1).Value.MyCommand.Name
 	$FunctionName = $PSCmdlet.MyInvocation.MyCommand.Name
 	Write-Verbose "Running function: $FunctionName"
-	
+    
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	#-----------------------------------------------------------------------------------------------------------------------
 	# Evaluate input parameters
 	#-----------------------------------------------------------------------------------------------------------------------
+    
+    #Bugfix: Old outputs were coming out of the function as well as the new ones.
+    
+    Clear-Variable -Name DateTimeToLog -ErrorAction SilentlyContinue | Out-Null
+    
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     Write-Verbose "`$TimeLogFile = $TimeLogFile"	
 
@@ -265,7 +285,7 @@ Function Log-Time { #-----------------------------------------------------------
             #Write-host "TROUBLESHOOTING 1"
             New-Item -Path $TimeLogFile -ItemType "file" -Force
             #Write-host "TROUBLESHOOTING 2"
-            $CSVheaders = "TimeStampUT,TimeZoneID,TimeZoneName,[Begin/End/TimeStamp],Tag"
+            $CSVheaders = "TimeStampUT,TimeStampUT_Readable,TimeZoneID,TimeZoneName,[Begin/End/TimeStamp],Tag"
             $CSVheaders > $TimeLogFile
             $TimeLogPath = Split-Path -Path $TimeLogFile -Parent
             #dir $TimeLogPath
@@ -274,6 +294,15 @@ Function Log-Time { #-----------------------------------------------------------
         }
 	}
 	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+    If ($Date) {
+        #$DateInput = Get-Date -Date ((Get-Date -Date $Date).ToUniversalTime()) -Format FileDateUniversal
+        #$DateInput = Get-Date -Date $DateInput
+        $DateInput = Get-Date -Date $Date -Hour 0 -Minute 0 -Second 0 -Millisecond 0
+        Write-Verbose "Date input given = $DateInput"
+    }
+    
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	If ($TimeStampTag) {
@@ -380,37 +409,45 @@ Function Log-Time { #-----------------------------------------------------------
         Write-Host "Writing current TimeStamp '(Get-Date)' to log ($TimeLogFile) . . ."
         $DateTimeToLog = Get-Date
     } Else {
+        
         #
         # Choose Date:
 $DatePickerSimple = @"
 Choose date:
         
 [T] - ($TodayMonthDay) $TodayDoWLong - [T]oday
-[Y] - ($YesterdayMonthDay)$YesterdayDoWLong - [Y]esterday
+[Y] - ($YesterdayMonthDay) $YesterdayDoWLong - [Y]esterday
 
 [P] - Pick a different date
 "@
-        PAUSE
+        If (!$PickTimeOnly) {
+        
+            PAUSE
 
-        Do {
-            Clear-Host
-            Start-Sleep -Milliseconds 100 #Bugfix: Clear-Host acts so quickly, sometimes it won't actually wipe the terminal properly. If you force it to wait, then after PowerShell will display any specially-formatted text properly.
-            Write-Host $DatePickerSimple
-            $UserResponse = Read-Host "`nEnter selection"
-        } until ($UserResponse -eq 't' -Or $UserResponse -eq 'y' -Or $UserResponse -eq 'p')
-        If ($UserResponse -eq 't') {
-            $DateToLog = Get-Date
-        } ElseIf ($UserResponse -eq 'y') {
-            $DateToLog = (Get-Date).AddDays(-1)
-        } ElseIf ($UserResponse -eq 'p') {
-            $DateToLog = PromptForChoice-DayDate # -Verbose
+            Do {
+                #Clear-Host
+                Start-Sleep -Milliseconds 100 #Bugfix: Clear-Host acts so quickly, sometimes it won't actually wipe the terminal properly. If you force it to wait, then after PowerShell will display any specially-formatted text properly.
+                Write-Host $DatePickerSimple
+                $UserResponse = Read-Host "`nEnter selection"
+            } until ($UserResponse -eq 't' -Or $UserResponse -eq 'y' -Or $UserResponse -eq 'p')
+            If ($UserResponse -eq 't') {
+                $DateToLog = Get-Date
+            } ElseIf ($UserResponse -eq 'y') {
+                $DateToLog = (Get-Date).AddDays(-1)
+            } ElseIf ($UserResponse -eq 'p') {
+                $DateToLog = PromptForChoice-DayDate # -Verbose
+            }
+
+        } Else {
+            $DateToLog = Get-Date -Date $DateInput
         }
+
 
         #
         # Choose Time:
         
         # Collect time (display header)
-        Clear-Host
+        #Clear-Host
         Start-Sleep -Milliseconds 100 #Bugfix: Clear-Host acts so quickly, sometimes it won't actually wipe the terminal properly. If you force it to wait, then after PowerShell will display any specially-formatted text properly.
         Write-Host "`r`nSelected date: $($DateToLog.ToLongDateString())`n"
         Write-Host "`r`n# Select Time #`n`r`n" -ForegroundColor Yellow
@@ -457,14 +494,30 @@ Choose date:
     #
     
     $UTCToLog = $DateTimeToLog.ToUniversalTime()
+    # UniversalSortableDateTimePattern using the format for universal time display E.g. 2019-10-22 20:33:56Z
+    $UTCToLog_Readable = Get-Date -Date $UTCToLog -Format u
+    # FileDateTimeUniversal date and time in universal time (UTC), in 24-hour format. The format is yyyyMMddTHHmmssffffZ (case-sensitive, using a 4-digit year, 2-digit month, 2-digit day, the letter T as a time separator, 2-digit hour, 2-digit minute, 2-digit second, 4-digit millisecond, and the letter Z as the UTC indicator). For example: 20190627T1540500718Z.
+    $UTCToLog = Get-Date -Date $UTCToLog -Format FileDateTimeUniversal
     $LocalTimeZoneID = (Get-TimeZone).Id
     $LocalTimeZoneName = (Get-TimeZone).DisplayName
-    $NewRecord = $UTCToLog,$LocalTimeZoneID,$LocalTimeZoneName,$BeginEnd,$TimeLogTag
-    $NewRecord >> $TimeLogFile
+    $NewRecord = "$UTCToLog,$UTCToLog_Readable,$LocalTimeZoneID,$LocalTimeZoneName,$BeginEnd,$TimeLogTag"
+    $NewRecord >> $TimeLogFile | Out-Null
 
     #=======================================================================================================================
-	
-    Return $DateTimeToLog
+
+	Write-Host "DateTimeToLog = $DateTimeToLog"
+    $DateTimeToLog = Get-Date -Date $DateTimeToLog
+    
+	Write-Host "DateTimeToLog = $DateTimeToLog"
+    $DateTimeToLog = ($DateTimeToLog).DateTime
+
+	Write-Host "DateTimeToLog = $DateTimeToLog"
+    #$DateTimeToLog = [DateTime]$DateTimeToLog
+
+	#Write-Host "DateTimeToLog = $DateTimeToLog"
+
+    #Return $DateTimeToLog
+    Write-Output -InputObject $DateTimeToLog -NoEnumerate
 
 } # End Log-Time function ----------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
@@ -509,6 +562,8 @@ $StartTime = Log-Time -Interactive -ClockIn -Verbose
 
 Write-Host "Start time = $StartTime"
 
+$StartTime | Get-Member | Out-Host
+
 #https://ss64.com/ps/syntax-dateformats.html
 #$StartTime = Get-Date -Date $StartTime -Format F
 
@@ -524,7 +579,9 @@ Write-Host "`r`n# End Time #`n`r`n" -ForegroundColor Yellow
 
 PAUSE
 
-$EndTime = Log-Time -Interactive -ClockOut -Verbose
+#$EndTime = Log-Time -Interactive -ClockOut -Verbose
+$EndTime = ($StartTime).DateTime
+$EndTime = Log-Time -Date $EndTime -PickTimeOnly -Interactive -ClockOut -Verbose
 
 Write-Host "End time = $EndTime"
 
@@ -652,15 +709,12 @@ $AccumulatedTime = (Get-Date -Hour 8 -Minute 10 -Second 0 -Millisecond 0).TimeOf
 $AccumulatedTime += (Get-Date -Hour 8 -Minute 15 -Second 0 -Millisecond 0).TimeOfDay
 $AccumulatedTime += (Get-Date -Hour 8 -Minute 45 -Second 0 -Millisecond 0).TimeOfDay
 
-$TimeGoal = (Get-Date -Hour 33 -Minute 0 -Second 0 -Millisecond 0).TimeOfDay
+$TimeGoal = New-TimeSpan -Hour 33
 
 $TimeRemaining = $TimeGoal - $AccumulatedTime
 $TimeRemaining = 33 - $AccumulatedTime.TotalHours
 
 $AccumulatedTimeToday = (Get-Date -Hour 12 -Minute 25 -Second 0 -Millisecond 0).TimeOfDay - (Get-Date -Hour 8 -Minute 45 -Second 0 -Millisecond 0).TimeOfDay
-
-$HourFormatted = ReadPrompt-Hour
-
 
 $TimeRemainingToday = 33 - ($AccumulatedTime.TotalHours + $AccumulatedTimeToday.TotalHours)
 $TimeRemainingToday = $TimeRemainingToday
