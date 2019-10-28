@@ -9,13 +9,13 @@ Function Log-Time { #-----------------------------------------------------------
 		Logs a UTC/GMT (Coordinated Universal Time, Greenwich Mean Time) date & time value, the local timezone from where the entry was logged (ID and Name), a timestamp idenfitication 'type' tag, and a [Begin]/[End] tag for filtering purposes.
 		
 		.PARAMETER TimeLogFile
-		TimeLogFile
-
+		TimeLogFile = "$env:USERPROFILE\Documents\TimeLog.csv"
+		
 		.PARAMETER Interactive
 		Interactive
 		
 		.PARAMETER Date
-		Date
+		Date <date_time_object>
 		
 		.PARAMETER PickTimeOnly
 		PickTimeOnly

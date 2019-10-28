@@ -11,11 +11,11 @@ Function Log-Time { #-----------------------------------------------------------
 		.PARAMETER TimeLogFile
 		TimeLogFile = '.\TimeLog.csv'
 		
-		.PARAMETER DateTimeInput
-		DateTimeInput <date_time_object>
-		
 		.PARAMETER Interactive
 		Interactive = $false
+		
+		.PARAMETER DateTimeInput
+		DateTimeInput <date_time_object>
 		
 		.PARAMETER Description
 		Description <string>
@@ -90,12 +90,12 @@ Function Log-Time { #-----------------------------------------------------------
 		[string]$TimeLogFile = '.\TimeLog.csv', 
 		
 		[Parameter(Mandatory=$false)]
-		[Alias('Date','Time')]
-		[DateTime]$DateTimeInput,
-		
-		[Parameter(Mandatory=$false)]
 		[Alias('i','PickTime','Add')]
 		[switch]$Interactive = $false,
+		
+		[Parameter(Mandatory=$false)]
+		[Alias('Date','Time')]
+		[DateTime]$DateTimeInput,
 		
 		[Parameter(Mandatory=$false)]
 		[Alias('d')]
