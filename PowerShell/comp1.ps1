@@ -3,10 +3,10 @@
 Function Log-Time { #---------------------------------------------------------------------------------------------------
 	<#
 		.SYNOPSIS
-		Log-Time
+		Logs a timestamp to a .csv log file.
 		
 		.DESCRIPTION
-		Log-Time description.
+		Logs a UTC/GMT (Coordinated Universal Time, Greenwich Mean Time) date & time value, the local timezone from where the entry was logged (ID and Name), a timestamp idenfitication 'type' tag, and a [Begin]/[End] tag for filtering purposes.
 		
 		.PARAMETER TimeLogFile
 		TimeLogFile = '.\TimeLog.csv'
@@ -61,10 +61,23 @@ Function Log-Time { #-----------------------------------------------------------
 		
 		.EXAMPLE
 		Test-Param -A "Anne" -D "Dave" -F "Freddy"
-		C:\PS> 
+		C:\PS>
+		
+		.NOTES
+		CSV file format headers:
+
+		TimeStampUT,TimeZoneID,TimeZoneName,[Begin/End/TimeStamp],Tag
+
 	#>
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#http://techgenix.com/powershell-functions-common-parameters/
+	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+	#[CmdletBinding()]
+	#Param()
+	
+	[CmdletBinding(DefaultParameterSetName='TimeStampTag')]
 	
 	Param (
 		#[CmdletBinding(DefaultParameterSetName="ByUserName")]
