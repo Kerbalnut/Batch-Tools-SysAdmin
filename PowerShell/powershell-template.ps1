@@ -281,14 +281,26 @@ IF ($PSVersionTable.PSVersion.Major -lt $MinimumRequiredVersion) {
 #-----------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------[Modules]-------------------------------------------------------
 
-#Import Modules & Snap-ins
+#Import Modules
 Write-Verbose "Importing modules..."
 Write-Verbose `n # New line (carriage return and newline, `r`n)
 
 Import-Module PSLogging
+#Import-Module UserTimeFunctions
+Import-Module "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\modules\UserTimeFunctions.psm1"
 
 Write-Verbose `r`n
 Write-Verbose "Module import complete..."
+Write-Verbose `r`n
+
+#Dot-Source external functions
+Write-Verbose "Dot Sourcing external functions..."
+Write-Verbose `r`n
+
+. "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\modules\UserTimeFunctions.psm1"
+
+Write-Verbose `r`n
+Write-Verbose "Dot Sourcing complete..."
 
 #-----------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------------[Declarations]----------------------------------------------------
@@ -788,6 +800,122 @@ Function Write-HorizontalRuleAdv { #--------------------------------------------
   
 } # End Write-HorizontalRuleAdv function -------------------------------------------------------------------------------
 Set-Alias -Name "Write-HR" -Value "Write-HorizontalRuleAdv" # -Scope Global
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
+Function PromptForChoice-YesNoSectionSkip { #---------------------------------------------------------------------------
+	
+	Param (
+		#Script parameters go here
+		[Parameter(Mandatory=$false,Position=0,
+		ValueFromPipeline = $true)]
+		[string]$SectionName
+	)
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#-----------------------------------------------------------------------------------------------------------------------
+	# Build Choice Prompt
+	#-----------------------------------------------------------------------------------------------------------------------
+	$Title = "Skip this section?"
+	$Info = "$SectionName"
+	$ChoiceYes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "[Y]es, skip this section."
+	$ChoiceNo = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "[N]o, do not skip this section"
+	$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceYes, $ChoiceNo)
+	# default choice: 0 = first Option, 1 = second option, etc.
+	[int]$defaultchoice = 0
+	#-----------------------------------------------------------------------------------------------------------------------
+	# Execute Choice Prompt
+	#-----------------------------------------------------------------------------------------------------------------------
+	# PromptForChoice() output will always be integer: https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
+	If ($SectionName) {
+		$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
+	} else {
+		$answer = $host.UI.PromptForChoice($Title, "", $Options, $defaultchoice)
+	}
+	#-----------------------------------------------------------------------------------------------------------------------
+	# Interpret answer
+	#-----------------------------------------------------------------------------------------------------------------------
+	#help about_switch
+	#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
+	#Write-Verbose "Answer = $answer"
+	switch ($answer) {
+		0 { # Y - Yes
+			Write-Verbose "Yes ('$answer') option selected."
+			$ChoiceSkipSection = 'Y'
+		}
+		1 { # N - No
+			Write-Verbose "No ('$answer') option selected."
+			$ChoiceSkipSection = 'N'
+		}
+	}
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Return $ChoiceSkipSection
+
+} # End PromptForChoice-YesNoSectionSkip function ----------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
+Function PromptForChoice-YesNo { #--------------------------------------------------------------------------------------
+	
+	Param (
+		#Script parameters go here
+		[Parameter(Mandatory=$true,Position=0,
+		ValueFromPipeline = $true)]
+		[string]$TitleName,
+		
+		[Parameter(Mandatory=$false)]
+		[string]$InfoDescription,
+		
+		[Parameter(Mandatory=$false)]
+		[string]$HintPhrase
+	)
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#-----------------------------------------------------------------------------------------------------------------------
+	# Build Choice Prompt
+	#-----------------------------------------------------------------------------------------------------------------------
+	$Title = "$TitleName?"
+	$Info = "$InfoDescription"
+	$ChoiceYes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "[Y]es, $HintPhrase."
+	$ChoiceNo = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "[N]o, do not $HintPhrase."
+	$Options = [System.Management.Automation.Host.ChoiceDescription[]]($ChoiceYes, $ChoiceNo)
+	# default choice: 0 = first Option, 1 = second option, etc.
+	[int]$defaultchoice = 0
+	#-----------------------------------------------------------------------------------------------------------------------
+	# Execute Choice Prompt
+	#-----------------------------------------------------------------------------------------------------------------------
+	# PromptForChoice() output will always be integer: https://powershell.org/forums/topic/question-regarding-result-host-ui-promptforchoice/
+	If ($InfoDescription) {
+		$answer = $host.UI.PromptForChoice($Title, $Info, $Options, $defaultchoice)
+	} else {
+		$answer = $host.UI.PromptForChoice($Title, "", $Options, $defaultchoice)
+	}
+	#-----------------------------------------------------------------------------------------------------------------------
+	# Interpret answer
+	#-----------------------------------------------------------------------------------------------------------------------
+	#help about_switch
+	#https://powershellexplained.com/2018-01-12-Powershell-switch-statement/#switch-statement
+	#Write-Verbose "Answer = $answer"
+	switch ($answer) {
+		0 { # Y - Yes
+			Write-Verbose "Yes ('$answer') option selected."
+			$ChoiceResultVar = 'Y'
+		}
+		1 { # N - No
+			Write-Verbose "No ('$answer') option selected."
+			$ChoiceResultVar = 'N'
+		}
+	}
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Return $ChoiceResultVar
+
+} # End PromptForChoice-YesNo function ---------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 
