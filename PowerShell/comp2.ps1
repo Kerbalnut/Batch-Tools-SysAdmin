@@ -1,240 +1,420 @@
 ﻿
 #-----------------------------------------------------------------------------------------------------------------------
-Function ReadPrompt-ValidateIntegerRange { #----------------------------------------------------------------------------
+Function Log-Time { #---------------------------------------------------------------------------------------------------
 	<#
-	.PARAMETER HintMinMax
-	Extra hint text string you can add that displays as a warning if user enters an integer input outside of Min-Max range. 
-	
-	This only happens at the end, after integer validation. If user enters a non-integer, those errors & warnings will be thrown first instead.
-	
-	The default display text during the Min-Max validation failure is:
-	WARNING: $Label input must be between $MinInt-$MaxInt.
-	
-	If -HintMinMax is set, that string will also be displayed as a warning to help explain what the range is for.
+		.SYNOPSIS
+		Logs a timestamp to a .csv log file.
+
+		.DESCRIPTION
+		Logs a UTC/GMT (Coordinated Universal Time, Greenwich Mean Time) date & time value, the local timezone from where the entry was logged (ID and Name), a timestamp idenfitication 'type' tag, and a [Begin]/[End] tag for filtering purposes.
+
+		.PARAMETER TimeLogFile
+		TimeLogFile
+
+		.PARAMETER Interactive
+		Interactive
+
+		.PARAMETER Date
+		Date
+		
+		.PARAMETER PickTimeOnly
+		PickTimeOnly
+		
+		.PARAMETER OptionalDatePicker
+		OptionalDatePicker
+
+		.PARAMETER TimeStampTag
+		TimeStampTag
+
+		.PARAMETER ClockIn
+		ClockIn
+
+		.PARAMETER ClockOut
+		ClockOut
+
+		.PARAMETER TimeStamp
+		TimeStamp
+
+		.PARAMETER TaskStart
+		TaskStart
+
+		.PARAMETER TaskStop
+		TaskStop
+		
+		.PARAMETER BreakStart
+		BreakStart
+		
+		.PARAMETER BreakStop
+		BreakStop
+		
+		.PARAMETER PauseStart
+		PauseStart
+		
+		.PARAMETER PauseStop
+		PauseStop
+		
+		.PARAMETER Distraction
+		Distraction
+		
+		.EXAMPLE
+		C:\PS> Test-Param -A "Anne" -D "Dave" -F "Freddy"
+        
+        .NOTES
+        CSV file format headers:
+
+        TimeStampUT,TimeZoneID,TimeZoneName,[Begin/End/TimeStamp],Tag
+
 	#>
+    
+#Requires -RunAsAdministrator
+
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
 	#http://techgenix.com/powershell-functions-common-parameters/
 	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
-	#[cmdletbinding()]
+	#[CmdletBinding()]
 	#Param()
-	[cmdletbinding()]
-	Param(
-		[Parameter(Mandatory=$false,
-		ValueFromPipeline = $true)]
-		$ValueInput,
-		
-		[Parameter(Mandatory=$true,Position=0)]
-		[string]$Label,
-		
-		[Parameter(Mandatory=$true,Position=1)]
-		[int]$MinInt,
-		
-		[Parameter(Mandatory=$true,Position=2)]
-		[int]$MaxInt,
+	
+	[CmdletBinding(DefaultParameterSetName='TimeStampTag')]
+	
+	Param (
+		#[CmdletBinding(DefaultParameterSetName="ByUserName")]
+		# Script parameters go here
+		#https://ss64.com/ps/syntax-args.html
+		#http://wahlnetwork.com/2017/07/10/powershell-aliases/
+		#https://www.jonathanmedd.net/2013/01/add-a-parameter-to-multiple-parameter-sets-in-powershell.html
+		[Parameter(Mandatory=$false,Position=0)]
+		[string]$TimeLogFile = "$env:USERPROFILE\Documents\TimeLog.csv", 
 		
 		[Parameter(Mandatory=$false)]
-		[string]$HintMinMax
+		[Alias('i','PickTime','Add')]
+		[switch]$Interactive = $false,
+
+		[Parameter(Mandatory=$false,
+		ValueFromPipeline = $true)]
+        [DateTime]$Date,
+
+		[Parameter(Mandatory=$false)]
+        [switch]$PickTimeOnly = $false,
+		
+		[Parameter(Mandatory=$false)]
+        [switch]$OptionalDatePicker = $false,
+		
+		[Parameter(Mandatory=$false,
+		Position=1,
+		ParameterSetName='CustomTag')]
+		[string]$TimeStampTag,
+		
+		[Parameter(Mandatory=$false,
+		ParameterSetName='ClockInTag')]
+		[switch]$ClockIn,
+		
+		[Parameter(Mandatory=$false,
+		ParameterSetName='ClockOutTag')]
+		[switch]$ClockOut,
+		
+		[Parameter(Mandatory=$false,
+		ParameterSetName='TimeStampTag')]
+		[switch]$TimeStamp,
+		
+		[Parameter(Mandatory=$false,
+		ParameterSetName='TaskStartTag')]
+		[string]$TaskStart,
+		
+		[Parameter(Mandatory=$false,
+		ParameterSetName='TaskStopTag')]
+		[switch]$TaskStop,
+		
+		[Parameter(Mandatory=$false,
+		ParameterSetName='BreakStartTag')]
+		[switch]$BreakStart,
+		
+		[Parameter(Mandatory=$false,
+		ParameterSetName='BreakStopTag')]
+		[switch]$BreakStop,
+		
+		[Parameter(Mandatory=$false,
+		ParameterSetName='PauseStartTag')]
+		[string]$PauseStart,
+		
+		[Parameter(Mandatory=$false,
+		ParameterSetName='PauseStopTag')]
+		[switch]$PauseStop,
+		
+		[Parameter(Mandatory=$false,
+		ParameterSetName='DistractionTag')]
+		[switch]$Distraction
+		
 	)
 	
-	# Sub-functions:
-	#=======================================================================================================================
-	
-	#-----------------------------------------------------------------------------------------------------------------------
-	function Validate-Integer { #-------------------------------------------------------------------------------------------
-		Param (
-			#Script parameters go here
-			[Parameter(Mandatory=$true,Position=0,
-			ValueFromPipeline = $true)]
-			# Validate a positive integer (whole number) using Regular Expressions, thanks to:
-			#https://stackoverflow.com/questions/16774064/regular-expression-for-whole-numbers-and-integers
-			#-----------------------------------------------------------------------------------------------------------------------
-			#	(?<![-.])		# Assert that the previous character isn't a minus sign or a dot.
-			#	\b				# Anchor the match to the start of a number.
-			#	[0-9]+			# Match a number.
-			#	\b				# Anchor the match to the end of the number.
-			#	(?!\.[0-9])		# Assert that no decimal part follows.
-			#$RegEx = "(?<![-.])\b[0-9]+\b(?!\.[0-9])"
-			#[ValidatePattern("(?<![-.])\b[0-9]+\b(?!\.[0-9])")]
-			# This [ValidateScript({})] does the exact same thing as the [ValidatePattern("")] above, it just throws much nicer, customizable error messages that actually explain why if failed (rather than "(?<![-.])\b[0-9]+\b(?!\.[0-9])").
-			[ValidateScript({
-				If ($_ -match "(?<![-.])\b[0-9]+\b(?!\.[0-9])") {
-					$True
-				} else {
-					Throw "$_ must be a positive integer (whole number, no decimals). [ValidateScript({})] error."
-				}
-			})]
-			#-----------------------------------------------------------------------------------------------------------------------
-			# Bugfix: For the [ValidatePattern("")] or [ValidateScript({})] regex validation checks to work e.g. for strict integer validation (throw an error if a non-integer value is provided) do not define the var-type e.g. [int]$var since PowerShell will automatically round the input value to an integer BEFORE performing the regex comparisons. Instead, declare parameter without [int] defining the var-type e.g. $var,
-			$InputToValidate
-		)
-		
-		Return $InputToValidate
-		#Return [int]$InputToValidate
-	} # End Validate-Integer function --------------------------------------------------------------------------------------
-	#-----------------------------------------------------------------------------------------------------------------------
-	
-	#-----------------------------------------------------------------------------------------------------------------------
-	function Remove-LeadingZeros { #----------------------------------------------------------------------------------------
-		Param (
-			#Script parameters go here
-			[Parameter(Mandatory=$true,Position=0,
-			ValueFromPipeline = $true)]
-			$VarInput
-		)
-		$VarSimplified = $VarInput.TrimStart('0')
-		If ($VarSimplified -eq $null) {
-			Write-Verbose "$VarName is `$null after removing leading zeros."
-			$VarSimplified = '0'
-		}
-		If ($VarSimplified -eq "") {
-			Write-Verbose "$VarName is equal to `"`" after removing leading zeros."
-			$VarSimplified = '0'
-		}
-		If ($VarSimplified -eq '') {
-			Write-Verbose "$VarName is equal to `'`' after removing leading zeros."
-			$VarSimplified = '0'
-		}
-		
-		Return $VarSimplified
-	} # End Remove-LeadingZeros --------------------------------------------------------------------------------------------
-	#-----------------------------------------------------------------------------------------------------------------------
-	
-	#=======================================================================================================================
-	# /Sub-functions
-	
+	# Function name:
+	# https://stackoverflow.com/questions/3689543/is-there-a-way-to-retrieve-a-powershell-function-name-from-within-a-function#3690830
+	#$FunctionName = (Get-PSCallStack | Select-Object FunctionName -Skip 1 -First 1).FunctionName
+	#$FunctionName = (Get-Variable MyInvocation -Scope 1).Value.MyCommand.Name
+	$FunctionName = $PSCmdlet.MyInvocation.MyCommand.Name
+	Write-Verbose "Running function: $FunctionName"
+    
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	$VarInput = $ValueInput
-	
-	$VarName = $Label
-	
+	#-----------------------------------------------------------------------------------------------------------------------
+	# Evaluate input parameters
+	#-----------------------------------------------------------------------------------------------------------------------
+    
+    #Bugfix: Old outputs were coming out of the function as well as the new ones.
+    
+    Clear-Variable -Name DateTimeToLog -ErrorAction SilentlyContinue | Out-Null
+    
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
-	# Check if we have a value sent in from an external variable (parameter) first
-	If ($VarInput -eq $null -or $VarInput -eq "") {
-		$PipelineInput = $false
-	} else {
-		$PipelineInput = $true
-		Write-Verbose "Piped-in content = $VarInput"
-		$VarInput = [string]$VarInput #Bugfix: convert input from an object to a string
+
+    Write-Verbose "`$TimeLogFile = $TimeLogFile"	
+
+	If (!(Test-Path $TimeLogFile)) {
+		Write-Warning "Time-Log file does not exist: '$TimeLogFile'"
+        Do {
+            $UserInput = Read-Host "Would you like to create it? [Y/N]"
+        } until ($UserInput -eq 'y' -Or $UserInput -eq 'n')
+        If ($UserInput -eq 'y') {
+            #New-Item -Path $TimeLogFile -Credential (Get-Credential -Credential "$env:USERNAME") -ItemType "file" -Force #| Out-Null
+            #Write-host "TROUBLESHOOTING 1"
+            New-Item -Path $TimeLogFile -ItemType "file" -Force
+            #Write-host "TROUBLESHOOTING 2"
+            $CSVheaders = "TimeStampUT,TimeStampUT_Readable,TimeZoneID,TimeZoneName,[Begin/End/TimeStamp],Tag"
+            $CSVheaders > $TimeLogFile
+            $TimeLogPath = Split-Path -Path $TimeLogFile -Parent
+            #dir $TimeLogPath
+        } else {
+            Return
+        }
 	}
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	# Initialize test verification vars
-	$IntegerValidation = $false
-	$RangeValidation = $false
+    If ($Date) {
+        #$DateInput = Get-Date -Date ((Get-Date -Date $Date).ToUniversalTime()) -Format FileDateUniversal
+        #$DateInput = Get-Date -Date $DateInput
+		If ($PickTimeOnly -eq $true) {
+			$DateInput = Get-Date -Date $Date -Hour 0 -Minute 0 -Second 0 -Millisecond 0
+		} Else {
+			$DateInput = Get-Date -Date $Date
+		}
+        Write-Verbose "Date input given = $DateInput"
+    }
+    
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	# Begin loop to validate Input, and request new input from user if it fails validation.
-	while ($IntegerValidation -eq $false -Or $RangeValidation -eq $false) {
-		
-		# Initialize test verification vars (at the start of each loop)
-		$IntegerValidation = $false
-		$RangeValidation = $false
-		
-		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		
-		# Prompt user for $VarName value input
-		If ($PipelineInput -ne $true) {
-			Write-Verbose "No values piped-in from external sources (parameters)"
-			$VarInput = Read-Host -Prompt "Enter $VarName"
-			Write-Verbose "Entered value = $VarInput"
-		} else {
-			Write-Verbose "Using piped-in value from parameter = $VarInput"
-			$PipelineInput = $false
-		}
-		
-		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		
-		# Check if input is null
-		If ($VarInput -eq $null -or $VarInput -eq "") {
-			Write-HorizontalRuleAdv -DashedLine -IsWarning
-			Write-Warning "$VarName input is null."
-			#PAUSE
-			Write-Host `r`n
-			Continue #help about_Continue
-		}
-		
-		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		
-		# Remove leading zeros (0)
-		$VarSimplified = Remove-LeadingZeros $VarInput
-		Write-Verbose "Remove leading zeros (0) = $VarSimplified"
-		
-		# Remove leading zeros (0)
-		<#
-		$VarSimplified = $VarInput.TrimStart('0')
-		If ($VarSimplified -eq $null) {
-			Write-Verbose "$VarName is `$null after removing leading zeros."
-			$VarSimplified = '0'
-		}
-		If ($VarSimplified -eq "") {
-			Write-Verbose "$VarName is equal to `"`" after removing leading zeros."
-			$VarSimplified = '0'
-		}
-		If ($VarSimplified -eq '') {
-			Write-Verbose "$VarName is equal to `'`' after removing leading zeros."
-			$VarSimplified = '0'
-		}
-		Write-Verbose "Remove leading zeros (0) = $VarSimplified"
-		#>
-		
-		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		
-		# Check if $VarName input is integer using Validate-Integer function
-		try { # help about_Try_Catch_Finally
-			#https://stackoverflow.com/questions/6430382/powershell-detecting-errors-in-script-functions
-			$VarInteger = Validate-Integer $VarSimplified -ErrorVariable ValidateIntError
-			# -ErrorVariable <variable_name> - Error is assigned to the variable name you specify. Even when you use the -ErrorVariable parameter, the $error variable is still updated.
-			# If you want to append an error to the variable instead of overwriting it, you can put a plus sign (+) in front of the variable name. E.g. -ErrorVariable +<variable_name>
-			#https://devblogs.microsoft.com/scripting/handling-errors-the-powershell-way/
-		}
-		catch {
-			Write-HorizontalRuleAdv -DashedLine -IsVerbose
-			Write-Verbose "`$ValidateIntError:" # Error variable set using the -ErrorVariable "common parameter": Get-Help -Name about_CommonParameters
-			Write-Verbose "$ValidateIntError" -ErrorAction 'SilentlyContinue' # Error variable set using the -ErrorVariable "common parameter": Get-Help -Name about_CommonParameters
-			#Write-HorizontalRuleAdv -SingleLine -IsVerbose
-			#Write-Verbose "`$error:" # Command's error record will be appended to the "automatic variable" named $error
-			#Write-HorizontalRuleAdv -DashedLine -IsVerbose
-			#Write-Verbose "$error" -ErrorAction 'SilentlyContinue' # Command's error record will be appended to the "automatic variable" named $error
-			Write-HorizontalRuleAdv -DashedLine -IsWarning
-			Write-Warning "$VarName input must be an integer. (Whole numbers only, no decimals, no negatives.)"
-			#PAUSE
-			Write-Host `r`n
-			Continue #help about_Continue
-		}
-		
-		$IntegerValidation = $true
-		
-		Write-Verbose "Integer validation success = $VarInteger"
-		
-		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		
-		# Check if $VarName input is between $MinInt and $MaxInt
-		If ([int]$VarInteger -ge [int]$MinInt -And [int]$VarInteger -le [int]$MaxInt) {
-			$VarRange = [int]$VarInteger
-			$RangeValidation = $true
-		} else {
-			Write-HorizontalRuleAdv -DashedLine -IsWarning
-			Write-Warning "$VarName input must be between $MinInt-$MaxInt."
-			If (!($HintMinMax -eq $null -Or $HintMinMax -eq "")) {
-				Write-Warning $HintMinMax
-			}
-			#PAUSE
-			Write-Host `r`n
-			Continue #help about_Continue
-		}
-		
-		Write-Verbose "$VarName value range validation = $VarRange"
-		
-		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		
+	If ($TimeStampTag) {
+		$TimeLogTag = $TimeStampTag
+		$BeginEnd = "[TimeStamp]"
+	}
+	
+	If ($ClockIn) {
+		$TimeLogTag = "Clock-In"
+		$BeginEnd = "[Begin]"
+	}
+	
+	If ($ClockOut) {
+		$TimeLogTag = "Clock-Out"
+		$BeginEnd = "[End]"
+	}
+	
+	If ($TimeStamp) {
+		$TimeLogTag = "TimeStamp"
+		$BeginEnd = "[TimeStamp]"
+	}
+	
+	If ($TaskStart) {
+		$TimeLogTag = "Task-Start='$TaskStart'"
+		$BeginEnd = "[Begin]"
+	}
+	
+	If ($TaskStop) {
+		$TimeLogTag = "Task-Stop"
+		$BeginEnd = "[End]"
+	}
+	
+	If ($BreakStart) {
+		$TimeLogTag = "Break-Start"
+		$BeginEnd = "[Begin]"
+	}
+	
+	If ($BreakStop) {
+		$TimeLogTag = "Break-Stop"
+		$BeginEnd = "[End]"
+	}
+	
+	If ($PauseStart) {
+		$TimeLogTag = "Pause-Start='$PauseStart'"
+		$BeginEnd = "[Begin]"
+	}
+	
+	If ($PauseStop) {
+		$TimeLogTag = "Pause-Stop"
+		$BeginEnd = "[End]"
+	}
+	
+	If ($Distraction) {
+		$TimeLogTag = "Distraction"
+		$BeginEnd = "[TimeStamp]"
+	}
+    
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	If (($TimeLogTag -eq $null -Or $TimeLogTag -eq "") -And ($TimeLogTag -eq $null -Or $TimeLogTag -eq "")) {
+		$TimeLogTag = "TimeStamp"
+		$BeginEnd = "[TimeStamp]"
+        Write-Warning "No type of timestamp tag selected. Default is `"TimeStamp`""
 	}
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	Write-Verbose "$VarName value $VarRange validation complete."
+	#-----------------------------------------------------------------------------------------------------------------------
+	# Build Time-Log Entry
+	#-----------------------------------------------------------------------------------------------------------------------
+    
+    #=======================================================================================================================
+    #
+    
+    $TodayDateTime = Get-Date
+    Write-Verbose "`rToday: $TodayDateTime`r"
+	$TodayDoWLong = Get-Date -UFormat %A
+	# Month/Day (MM/DD)
+	$TodayMonthDay = Get-Date -UFormat %m/%d
+	# Day/Month (DD/MM)
+	$TodayDayMonth = Get-Date -UFormat %d/%m
+    
+    $YesterdayDateTime = (Get-Date).AddDays(-1)
+    Write-Verbose "Yesterday: $YesterdayDateTime"
+	$YesterdayDoWLong = Get-Date -Date $YesterdayDateTime -UFormat %A
+	# Month/Day (MM/DD)
+	$YesterdayMonthDay = Get-Date -Date $YesterdayDateTime -UFormat %m/%d
+	# Day/Month (DD/MM)
+	$YesterdayDayMonth = Get-Date -Date $YesterdayDateTime -UFormat %d/%m
+    
+    $TomorrowDateTime = (Get-Date).AddDays(1)
+    Write-Verbose "Tomorrow: $TomorrowDateTime"
+	$TomorrowDoWLong = Get-Date -Date $TomorrowDateTime -UFormat %A
+    # Month/Day (MM/DD)
+	$TomorrowMonthDay = Get-Date -Date $TomorrowDateTime -UFormat %m/%d
+	# Day/Month (DD/MM)
+	$TomorrowDayMonth = Get-Date -Date $TomorrowDateTime -UFormat %d/%m
 	
-	Return [int]$VarRange
-	
-} # End ReadPrompt-ValidateIntegerRange function -----------------------------------------------------------------------
+    #
+    #=======================================================================================================================
+
+    #
+    If (!$Interactive) {
+        Write-Host "Writing current TimeStamp '(Get-Date)' to log ($TimeLogFile) . . ."
+        $DateTimeToLog = Get-Date
+    } Else {
+        
+        #
+        # Choose Date:
+$DatePickerSimple = @"
+Choose date:
+        
+[T] - ($TodayMonthDay) $TodayDoWLong - [T]oday
+[Y] - ($YesterdayMonthDay) $YesterdayDoWLong - [Y]esterday
+
+[P] - Pick a different date
+"@
+        If (!$PickTimeOnly) {
+        
+            #PAUSE
+
+            Do {
+                #Clear-Host
+                Start-Sleep -Milliseconds 100 #Bugfix: Clear-Host acts so quickly, sometimes it won't actually wipe the terminal properly. If you force it to wait, then after PowerShell will display any specially-formatted text properly.
+                Write-Host $DatePickerSimple
+                $UserResponse = Read-Host "`nEnter selection"
+            } until ($UserResponse -eq 't' -Or $UserResponse -eq 'y' -Or $UserResponse -eq 'p')
+            If ($UserResponse -eq 't') {
+                $DateToLog = Get-Date
+            } ElseIf ($UserResponse -eq 'y') {
+                $DateToLog = (Get-Date).AddDays(-1)
+            } ElseIf ($UserResponse -eq 'p') {
+                $DateToLog = PromptForChoice-DayDate # -Verbose
+            }
+
+        } Else {
+            $DateToLog = Get-Date -Date $DateInput
+        }
+
+
+        #
+        # Choose Time:
+        
+        # Collect time (display header)
+        #Clear-Host
+        Start-Sleep -Milliseconds 100 #Bugfix: Clear-Host acts so quickly, sometimes it won't actually wipe the terminal properly. If you force it to wait, then after PowerShell will display any specially-formatted text properly.
+        Write-Host "`r`nSelected date: $($DateToLog.ToLongDateString())`n"
+        Write-Host "`r`n# Select Time #`n`r`n" -ForegroundColor Yellow
+
+        #Get Selected time hour value
+        $SelectedHour = ReadPrompt-Hour
+        
+        #Get Selected time minute value
+        $SelectedMin = ReadPrompt-Minute
+        
+        # Check if we even need to prompt the user for AM/PM time
+        If ($SelectedHour -gt 12 -Or $SelectedHour -eq 0) {
+	        $SelectedAMPM = 24
+        } else {
+	        $SelectedAMPM = ReadPrompt-AMPM24 # -Verbose
+        }
+        
+        #Write-HorizontalRuleAdv -SingleLine
+        
+        If ($SelectedAMPM -eq "AM") {
+            $24hour = Convert-AMPMhourTo24hour $SelectedHour -AM
+            #$24hour = Convert-AMPMhourTo24hour $SelectedHour -AM -Verbose
+        } elseif ($SelectedAMPM -eq "PM") {
+            $24hour = Convert-AMPMhourTo24hour $SelectedHour -PM
+            #$24hour = Convert-AMPMhourTo24hour $SelectedHour -PM -Verbose
+        } elseif ($SelectedAMPM -eq 24) {
+            $24hour = $SelectedHour
+        } else {
+	        Write-Error "AM/PM/24-hour time mode not recognized."
+        }
+        
+        $DateTimeObj = Get-Date -Date $DateToLog -Hour $24hour -Minute $SelectedMin -Second 0 -Millisecond 0
+        
+        Write-Verbose "DateTimeObj = $DateTimeObj"
+        
+        #https://ss64.com/ps/syntax-dateformats.html
+        #$DateTimeToLog = Get-Date -Date $DateTimeToLog -Format F
+
+        #Write-Host "DateTimeToLog = $DateTimeToLog"
+        
+        [DateTime]$DateTimeToLog = $DateTimeObj
+
+    }
+    #
+    
+    $UTCToLog = $DateTimeToLog.ToUniversalTime()
+    # UniversalSortableDateTimePattern using the format for universal time display E.g. 2019-10-22 20:33:56Z
+    $UTCToLog_Readable = Get-Date -Date $UTCToLog -Format u
+    # FileDateTimeUniversal date and time in universal time (UTC), in 24-hour format. The format is yyyyMMddTHHmmssffffZ (case-sensitive, using a 4-digit year, 2-digit month, 2-digit day, the letter T as a time separator, 2-digit hour, 2-digit minute, 2-digit second, 4-digit millisecond, and the letter Z as the UTC indicator). For example: 20190627T1540500718Z.
+    $UTCToLog = Get-Date -Date $UTCToLog -Format FileDateTimeUniversal
+    $LocalTimeZoneID = (Get-TimeZone).Id
+    $LocalTimeZoneName = (Get-TimeZone).DisplayName
+    $NewRecord = "$UTCToLog,$UTCToLog_Readable,$LocalTimeZoneID,$LocalTimeZoneName,$BeginEnd,$TimeLogTag"
+    $NewRecord >> $TimeLogFile | Out-Null
+
+    #=======================================================================================================================
+
+	Write-Host "DateTimeToLog = $DateTimeToLog"
+    $DateTimeToLog = Get-Date -Date $DateTimeToLog
+    
+	Write-Host "DateTimeToLog = $DateTimeToLog"
+    $DateTimeToLog = ($DateTimeToLog).DateTime
+
+	Write-Host "DateTimeToLog = $DateTimeToLog"
+    #$DateTimeToLog = [DateTime]$DateTimeToLog
+
+	#Write-Host "DateTimeToLog = $DateTimeToLog"
+
+    #Return $DateTimeToLog
+    Write-Output -InputObject $DateTimeToLog -NoEnumerate
+
+} # End Log-Time function ----------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
