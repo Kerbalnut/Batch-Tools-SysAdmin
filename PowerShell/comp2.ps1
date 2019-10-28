@@ -96,7 +96,7 @@ Function Log-Time { #-----------------------------------------------------------
 		[Parameter(Mandatory=$false)]
 		[Alias('i','PickTime','Add')]
 		[switch]$Interactive = $false,
-
+		
 		[Parameter(Mandatory=$false,
 		ValueFromPipeline = $true)]
 		[DateTime]$Date,
@@ -170,6 +170,15 @@ Function Log-Time { #-----------------------------------------------------------
 	#$FunctionName = (Get-Variable MyInvocation -Scope 1).Value.MyCommand.Name
 	$FunctionName = $PSCmdlet.MyInvocation.MyCommand.Name
 	Write-Verbose "Running function: $FunctionName"
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	$TimeLogColumns = "DateTime"
+	$TimeLogColumns += ",BeginEnd"
+	$TimeLogColumns += ",TimeLogTag"
+	$TimeLogColumns += ",Description"
+	
+	Write-Verbose "Log columns:`r`n'$TimeLogColumns'"
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
@@ -436,14 +445,15 @@ Choose date:
 	
 	Write-Host "DateTimeToLog = $DateTimeToLog"
 	$DateTimeToLog = ($DateTimeToLog).DateTime
-
+	
 	Write-Host "DateTimeToLog = $DateTimeToLog"
 	#$DateTimeToLog = [DateTime]$DateTimeToLog
-
+	
 	#Write-Host "DateTimeToLog = $DateTimeToLog"
-
+	
 	#Return $DateTimeToLog
 	Write-Output -InputObject $DateTimeToLog -NoEnumerate
-
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
 } # End Log-Time function ----------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
