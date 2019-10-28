@@ -130,9 +130,12 @@ Function Log-Time { #-----------------------------------------------------------
 
 		.PARAMETER Date
 		Date
-
+		
 		.PARAMETER PickTimeOnly
 		PickTimeOnly
+		
+		.PARAMETER OptionalDatePicker
+		OptionalDatePicker
 
 		.PARAMETER TimeStampTag
 		TimeStampTag
@@ -201,11 +204,15 @@ Function Log-Time { #-----------------------------------------------------------
 		[Alias('i','PickTime','Add')]
 		[switch]$Interactive = $false,
 
-		[Parameter(Mandatory=$false)]
+		[Parameter(Mandatory=$false,
+		ValueFromPipeline = $true)]
         [DateTime]$Date,
 
 		[Parameter(Mandatory=$false)]
         [switch]$PickTimeOnly = $false,
+		
+		[Parameter(Mandatory=$false)]
+        [switch]$OptionalDatePicker = $false,
 		
 		[Parameter(Mandatory=$false,
 		Position=1,
@@ -299,7 +306,11 @@ Function Log-Time { #-----------------------------------------------------------
     If ($Date) {
         #$DateInput = Get-Date -Date ((Get-Date -Date $Date).ToUniversalTime()) -Format FileDateUniversal
         #$DateInput = Get-Date -Date $DateInput
-        $DateInput = Get-Date -Date $Date -Hour 0 -Minute 0 -Second 0 -Millisecond 0
+		If ($PickTimeOnly -eq $true) {
+			$DateInput = Get-Date -Date $Date -Hour 0 -Minute 0 -Second 0 -Millisecond 0
+		} Else {
+			$DateInput = Get-Date -Date $Date
+		}
         Write-Verbose "Date input given = $DateInput"
     }
     
@@ -422,7 +433,7 @@ Choose date:
 "@
         If (!$PickTimeOnly) {
         
-            PAUSE
+            #PAUSE
 
             Do {
                 #Clear-Host
@@ -564,7 +575,7 @@ Function Log-PunchCardTimes { #-------------------------------------------------
 
     #$EndTime = Log-Time -Interactive -ClockOut -Verbose
     $EndTime = ($StartTime).DateTime
-    $EndTime = Log-Time -Date $EndTime -PickTimeOnly -Interactive -ClockOut #-Verbose
+    $EndTime = Log-Time -Date $EndTime -OptionalDatePicker -Interactive -ClockOut #-Verbose
     
     Write-Host "End time = $EndTime"
     
