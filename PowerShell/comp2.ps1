@@ -173,10 +173,18 @@ Function Log-Time { #-----------------------------------------------------------
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	$TimeLogColumns = "DateTime"
-	$TimeLogColumns += ",BeginEnd"
-	$TimeLogColumns += ",TimeLogTag"
+	<#
+	$TimeLogColumns = "TimeStampUT"
+	$TimeLogColumns += ",TimeStampUT_Human-Readable"
+	$TimeLogColumns += ",TimeZoneID"
+	$TimeLogColumns += ",TimeZoneName"
+	$TimeLogColumns += ",[Begin/End/TimeStamp]"
+	$TimeLogColumns += ",Tag"
 	$TimeLogColumns += ",Description"
+	Write-Verbose "Log columns:`r`n'$TimeLogColumns'"
+	#>
+	
+	$TimeLogColumns = "TimeStampUT,TimeStampUT_Human-Readable,TimeZoneID,TimeZoneName,[Begin/End/TimeStamp],Tag,Description"
 	
 	Write-Verbose "Log columns:`r`n'$TimeLogColumns'"
 	
@@ -207,7 +215,7 @@ Function Log-Time { #-----------------------------------------------------------
 			#Write-host "TROUBLESHOOTING 1"
 			New-Item -Path $TimeLogFile -ItemType "file" -Force
 			#Write-host "TROUBLESHOOTING 2"
-			$CSVheaders = "TimeStampUT,TimeStampUT_Readable,TimeZoneID,TimeZoneName,[Begin/End/TimeStamp],Tag"
+			$CSVheaders = $TimeLogColumns
 			$CSVheaders > $TimeLogFile
 			$TimeLogPath = Split-Path -Path $TimeLogFile -Parent
 			#dir $TimeLogPath
@@ -363,7 +371,15 @@ Function Log-Time { #-----------------------------------------------------------
 	
 	#
 	#=======================================================================================================================
-
+	
+	#-----------------------------------------------------------------------------------------------------------------------
+	# Collect Date/Time value if interactive mode is set
+	#-----------------------------------------------------------------------------------------------------------------------
+	
+	If ($DateTimeMode -eq 'Interactive') {
+		Write-Host "Choose Day and Time . . . "
+	}
+	
 	#
 	If (!$Interactive) {
 		Write-Host "Writing current TimeStamp '(Get-Date)' to log ($TimeLogFile) . . ."
@@ -453,6 +469,10 @@ Choose date:
 	}
 	#
 	
+	#-----------------------------------------------------------------------------------------------------------------------
+	# Write Time-Log Entry
+	#-----------------------------------------------------------------------------------------------------------------------
+	
 	$UTCToLog = $DateTimeToLog.ToUniversalTime()
 	# UniversalSortableDateTimePattern using the format for universal time display E.g. 2019-10-22 20:33:56Z
 	$UTCToLog_Readable = Get-Date -Date $UTCToLog -Format u
@@ -460,11 +480,35 @@ Choose date:
 	$UTCToLog = Get-Date -Date $UTCToLog -Format FileDateTimeUniversal
 	$LocalTimeZoneID = (Get-TimeZone).Id
 	$LocalTimeZoneName = (Get-TimeZone).DisplayName
-	$NewRecord = "$UTCToLog,$UTCToLog_Readable,$LocalTimeZoneID,$LocalTimeZoneName,$BeginEnd,$TimeLogTag"
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	<#
+	$TimeLogColumns = "TimeStampUT"
+	$TimeLogColumns += ",TimeStampUT_Human-Readable"
+	$TimeLogColumns += ",TimeZoneID"
+	$TimeLogColumns += ",TimeZoneName"
+	$TimeLogColumns += ",[Begin/End/TimeStamp]"
+	$TimeLogColumns += ",Tag"
+	$TimeLogColumns += ",Description"
+	Write-Verbose "Log columns:`r`n'$TimeLogColumns'"
+	#>
+	
+	$TimeLogEntry = "$UTCToLog" #DateTime
+	$TimeLogEntry += ",$UTCToLog_Readable"
+	$TimeLogEntry += ",$LocalTimeZoneID"
+	$TimeLogEntry += ",$LocalTimeZoneName"
+	$TimeLogEntry += ",$BeginEnd"
+	$TimeLogEntry += ",$TimeLogTag"
+	$TimeLogEntry += ",$Description"
+	
+	$NewRecord = $TimeLogEntry
+	
+	$NewRecord = "$UTCToLog,$UTCToLog_Readable,$LocalTimeZoneID,$LocalTimeZoneName,$BeginEnd,$TimeLogTag,$Description"
 	$NewRecord >> $TimeLogFile | Out-Null
 
 	#=======================================================================================================================
-
+	
 	Write-Host "DateTimeToLog = $DateTimeToLog"
 	$DateTimeToLog = Get-Date -Date $DateTimeToLog
 	
