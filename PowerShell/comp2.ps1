@@ -14,8 +14,8 @@ Function Log-Time { #-----------------------------------------------------------
 		.PARAMETER Interactive
 		Interactive
 		
-		.PARAMETER Date
-		Date <date_time_object>
+		.PARAMETER DateTimeInput
+		DateTimeInput <date_time_object>
 		
 		.PARAMETER PickTimeOnly
 		PickTimeOnly
@@ -73,8 +73,6 @@ Function Log-Time { #-----------------------------------------------------------
 
 	#>
 	
-#Requires -RunAsAdministrator
-
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	#http://techgenix.com/powershell-functions-common-parameters/
@@ -90,7 +88,8 @@ Function Log-Time { #-----------------------------------------------------------
 		#https://ss64.com/ps/syntax-args.html
 		#http://wahlnetwork.com/2017/07/10/powershell-aliases/
 		#https://www.jonathanmedd.net/2013/01/add-a-parameter-to-multiple-parameter-sets-in-powershell.html
-		[Parameter(Mandatory=$false,Position=0)]
+		[Parameter(Mandatory=$true,Position=0)]
+		[Alias('File','Path','FilePath')]
 		[string]$TimeLogFile = "$env:USERPROFILE\Documents\TimeLog.csv", 
 		
 		[Parameter(Mandatory=$false)]
@@ -99,7 +98,8 @@ Function Log-Time { #-----------------------------------------------------------
 		
 		[Parameter(Mandatory=$false,
 		ValueFromPipeline = $true)]
-		[DateTime]$Date,
+		[Alias('Date','Time')]
+		[DateTime]$DateTimeInput,
 		
 		[Parameter(Mandatory=$false)]
 		[switch]$PickTimeOnly = $false,
@@ -192,9 +192,12 @@ Function Log-Time { #-----------------------------------------------------------
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	Write-Verbose "`$TimeLogFile = $TimeLogFile"	
+	# Evaluate log file input parameter
+	
+	Write-Verbose "`$TimeLogFile = $TimeLogFile"
 	
 	If (!(Test-Path $TimeLogFile)) {
+		Write-HR -IsWarning
 		Write-Warning "Time-Log file does not exist: '$TimeLogFile'"
 		Do {
 			$UserInput = Read-Host "Would you like to create it? [Y/N]"
@@ -209,22 +212,39 @@ Function Log-Time { #-----------------------------------------------------------
 			$TimeLogPath = Split-Path -Path $TimeLogFile -Parent
 			#dir $TimeLogPath
 		} else {
+			# No, do not create new file
 			Return
 		}
 	}
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	If ($Date) {
-		#$DateInput = Get-Date -Date ((Get-Date -Date $Date).ToUniversalTime()) -Format FileDateUniversal
+	# Evaluate -Interactive/-DateTimeInput parameters
+	
+	If ($DateTimeInput) {
+		Write-Verbose "DateTimeInput = $DateTimeInput"
+		Write-Host "DateTimeInput = $DateTimeInput"
+		$DateTimeMode = 'InputProvided'
+		$DateTimeValue = $DateTimeInput
+		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		#$DateInput = Get-Date -Date ((Get-Date -Date $DateTimeInput).ToUniversalTime()) -Format FileDateUniversal
 		#$DateInput = Get-Date -Date $DateInput
 		If ($PickTimeOnly -eq $true) {
-			$DateInput = Get-Date -Date $Date -Hour 0 -Minute 0 -Second 0 -Millisecond 0
+			$DateInput = Get-Date -Date $DateTimeInput -Hour 0 -Minute 0 -Second 0 -Millisecond 0
 		} Else {
-			$DateInput = Get-Date -Date $Date
+			$DateInput = Get-Date -Date $DateTimeInput
 		}
 		Write-Verbose "Date input given = $DateInput"
+	} elseif ($Interactive) {
+		Write-Verbose "Interactive mode selected"
+		Write-Host "Interactive mode selected"
+		$DateTimeMode = 'Interactive'
+	} else {
+		Write-HR -IsWarning
+		Write-Warning "No -DateTimeInput or -Interactive mode selected. Defaulting to -Interactive"
+		$DateTimeMode = 'Interactive'
 	}
+	Write-Verbose "Date/Time mode selected = $DateTimeMode"
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
@@ -297,10 +317,15 @@ Function Log-Time { #-----------------------------------------------------------
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
+	# Default to [TimeStamp] tag if nothing else is selected.
+	
+	#If ($TimeLogTag -eq $null -Or $TimeLogTag -eq "") {
 	If (($TimeLogTag -eq $null -Or $TimeLogTag -eq "") -And ($TimeLogTag -eq $null -Or $TimeLogTag -eq "")) {
-		$TimeLogTag = "TimeStamp"
-		$BeginEnd = "[TimeStamp]"
+		Write-HR -IsWarning
+		Write-Warning "No TimeStampTag seleceted. Defaulting to [TimeStamp]"
 		Write-Warning "No type of timestamp tag selected. Default is `"TimeStamp`""
+		$TimeLogTag = "TimeStamp='defaultNoTagSelected'"
+		$BeginEnd = "[TimeStamp]"
 	}
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
