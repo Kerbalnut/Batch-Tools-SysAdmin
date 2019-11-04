@@ -286,8 +286,9 @@ Write-Verbose "Importing modules..."
 Write-Verbose `n # New line (carriage return and newline, `r`n)
 
 Import-Module PSLogging
+
 #Import-Module UserTimeFunctions
-Import-Module "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\modules\UserTimeFunctions.psm1"
+Import-Module "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\modules\TimeFunctions\TimeFunctions.psm1"
 
 Write-Verbose `r`n
 Write-Verbose "Module import complete..."
@@ -297,7 +298,7 @@ Write-Verbose `r`n
 Write-Verbose "Dot Sourcing external functions..."
 Write-Verbose `r`n
 
-. "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\modules\UserTimeFunctions.psm1"
+#. "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\modules\TimeFunctions\TimeFunctions.psm1"
 
 Write-Verbose `r`n
 Write-Verbose "Dot Sourcing complete..."

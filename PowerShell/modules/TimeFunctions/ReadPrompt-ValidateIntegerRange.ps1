@@ -10,7 +10,10 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 	Param(
 		[Parameter(Mandatory=$false,Position=0,
 		ValueFromPipeline = $true)]
-		$VarInput
+		$VarInput,
+
+        [Parameter(Mandatory=$false)]
+        [switch]$DoNotPromptUser
 	)
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -32,12 +35,20 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 	#Check if we have a value sent in from an external variable (parameter) first
 	If ($VarInput -eq $null -or $VarInput -eq "") {
 		$PipelineInput = $false
-		$OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText
+        If ($DoNotPromptUser) {
+		    $OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText -DoNotPromptUser
+        } Else {
+		    $OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText
+        }
 	} else {
 		$PipelineInput = $true
 		Write-Verbose "Piped-in content = $VarInput"
 		$VarInput = [string]$VarInput #Bugfix: convert input from an object to a string
-		$OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText
+        If ($DoNotPromptUser) {
+		    $OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText -DoNotPromptUser
+        } Else {
+		    $OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText
+        }
 	}
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -82,7 +93,10 @@ Function ReadPrompt-ValidateIntegerRange { #------------------------------------
 		[int]$MaxInt,
 		
 		[Parameter(Mandatory=$false)]
-		[string]$HintMinMax
+		[string]$HintMinMax,
+
+        [Parameter(Mandatory=$false)]
+        [switch]$DoNotPromptUser
 	)
 	
 	# Sub-functions:
@@ -300,7 +314,10 @@ Function ReadPrompt-Minute { #--------------------------------------------------
 	Param(
 		[Parameter(Mandatory=$false,Position=0,
 		ValueFromPipeline = $true)]
-		$VarInput
+		$VarInput,
+
+        [Parameter(Mandatory=$false)]
+        [switch]$DoNotPromptUser
 	)
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -318,12 +335,20 @@ Function ReadPrompt-Minute { #--------------------------------------------------
 	#Check if we have a value sent in from an external variable (parameter) first
 	If ($VarInput -eq $null -or $VarInput -eq "") {
 		$PipelineInput = $false
-		$OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt
+        If ($DoNotPromptUser) {
+		    $OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -DoNotPromptUser
+        } Else {
+		    $OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt
+        }
 	} else {
 		$PipelineInput = $true
 		Write-Verbose "Piped-in content = $VarInput"
 		$VarInput = [string]$VarInput #Bugfix: convert input from an object to a string
-		$OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt
+        If ($DoNotPromptUser) {
+		    $OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -DoNotPromptUser
+        } Else {
+		    $OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt
+        }
 	}
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

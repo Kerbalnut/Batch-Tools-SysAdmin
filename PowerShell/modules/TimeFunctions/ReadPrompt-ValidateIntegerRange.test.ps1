@@ -3,6 +3,7 @@
 
 # Dot source our function(s) to test.
 
+. "C:\Users\Grant\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1" -LoadFunctions
 . "$env:USERPROFILE\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\modules\TimeFunctions\ReadPrompt-ValidateIntegerRange.ps1"
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -17,33 +18,25 @@
 #https://bitsofknowledge.net/2018/03/24/powershell-must-have-tools-for-development/
 #https://devblogs.microsoft.com/scripting/what-is-pester-and-why-should-i-care/
 
-Describe {
+Describe 'Test' {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     #-----------------------------------------------------------------------------------------------------------------------
     
-    It {
+    It 'Test1' {
         $true | Should Be $true
     }
 
-    It {
-       $true | Should Be $false
+    It 'Test2' {
+       $False | Should Be $false
     }
 
-
-
-
-
-
-    <#
-    It  {
-    #It 'Integer, within range, with leading zeros (no quotes)' {
-        (0000004 | ReadPrompt-Hour) | Should Be $true
+    #It 'Test3' {
+    It 'Integer, within range, with leading zeros (no quotes)' {
+        0000004 | ReadPrompt-Hour | Should Be $true
     }
-    #>
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    <#
 
     It 'Integer, within range, with leading zeros (single quotes)' {
         '0000004' | ReadPrompt-Hour | Should Be $true
@@ -52,21 +45,19 @@ Describe {
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
     It 'Integer, out-of-range' {
-        24 | ReadPrompt-Hour | Should Be $false
+        24 | ReadPrompt-Hour -DoNotPromptUser | Should Be $false
     }
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
     It 'Decimal value, within range' {
-        2.4 | ReadPrompt-Hour | Should Be $false
+        2.4 | ReadPrompt-Hour | Should Throw
     }
     
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    #>
 
     #-----------------------------------------------------------------------------------------------------------------------
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -3,6 +3,12 @@
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+# Verify currently running PowerShell version:
+
+$PSVersionTable.PSVersion
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 # Update-Help requires -RunAsAdministrator privileges in order to run properly. 
 
 Update-Help
@@ -25,8 +31,13 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
 #https://bitsofknowledge.net/2018/03/24/powershell-must-have-tools-for-development/
 #https://devblogs.microsoft.com/scripting/what-is-pester-and-why-should-i-care/
 
-# Pester comes pre-installed with Windows 10, but we recommend updating, by running this PowerShell command as administrator:
+# Get currently installed version of Pester.
+Get-Module -Name Pester
 
+# If you already have it installed and just want to update:
+Update-Module -Name Pester
+
+# Pester comes pre-installed with Windows 10, but we recommend updating, by running this PowerShell command as administrator:w
 Install-Module -Name Pester -Force
 
 # Facing problems?
