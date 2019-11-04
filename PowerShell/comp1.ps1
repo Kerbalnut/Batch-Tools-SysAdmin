@@ -20,6 +20,12 @@ Function Log-Time { #-----------------------------------------------------------
 		.PARAMETER Description
 		Description <string>
 		
+		.PARAMETER PickTimeOnly
+		PickTimeOnly
+		
+		.PARAMETER OptionalDatePicker
+		OptionalDatePicker
+		
 		.PARAMETER TimeStampTag
 		TimeStampTag <custom_tag>
 		
@@ -101,6 +107,12 @@ Function Log-Time { #-----------------------------------------------------------
 		[Parameter(Mandatory=$false)]
 		[Alias('d')]
 		[string]$Description,
+		
+		[Parameter(Mandatory=$false)]
+		[switch]$PickTimeOnly = $false,
+		
+		[Parameter(Mandatory=$false)]
+		[switch]$OptionalDatePicker = $false,
 		
 		[Parameter(Mandatory=$false,
 		Position=1,

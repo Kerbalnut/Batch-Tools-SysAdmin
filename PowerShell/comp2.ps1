@@ -17,6 +17,9 @@ Function Log-Time { #-----------------------------------------------------------
 		.PARAMETER DateTimeInput
 		DateTimeInput <date_time_object>
 		
+		.PARAMETER Description
+		Description <string>
+		
 		.PARAMETER PickTimeOnly
 		PickTimeOnly
 		
@@ -100,6 +103,10 @@ Function Log-Time { #-----------------------------------------------------------
 		ValueFromPipeline = $true)]
 		[Alias('Date','Time')]
 		[DateTime]$DateTimeInput,
+		
+		[Parameter(Mandatory=$false)]
+		[Alias('d')]
+		[string]$Description,
 		
 		[Parameter(Mandatory=$false)]
 		[switch]$PickTimeOnly = $false,
