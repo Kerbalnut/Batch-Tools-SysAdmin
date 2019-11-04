@@ -1,4 +1,4 @@
-
+    
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # Dot source our function(s) to test.
@@ -20,24 +20,53 @@
 Describe {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     #-----------------------------------------------------------------------------------------------------------------------
+    
+    It {
+        $true | Should Be $true
+    }
 
-    It 'Integer, within range, with leading zeros (no surrounding quotes)' {
-        Write-Host "Success:" -ForegroundColor Green
-        $StartHour = (0000004 | ReadPrompt-Hour -Verbose)
+    It {
+       $true | Should Be $false
+    }
+
+
+
+
+
+
+    <#
+    It  {
+    #It 'Integer, within range, with leading zeros (no quotes)' {
+        (0000004 | ReadPrompt-Hour) | Should Be $true
+    }
+    #>
+
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    <#
+
+    It 'Integer, within range, with leading zeros (single quotes)' {
+        '0000004' | ReadPrompt-Hour | Should Be $true
     }
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    It 'Integer, within range, with leading zeros (no surrounding quotes)' {
-        Write-Host "Success:" -ForegroundColor Green
-        $StartHour = ('0000004' | ReadPrompt-Hour -Verbose)
+    
+    It 'Integer, out-of-range' {
+        24 | ReadPrompt-Hour | Should Be $false
     }
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    
+    It 'Decimal value, within range' {
+        2.4 | ReadPrompt-Hour | Should Be $false
+    }
+    
+    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+    #>
 
     #-----------------------------------------------------------------------------------------------------------------------
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -45,7 +74,7 @@ Describe {
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-If ($ChoiceSkip -eq 'N') {
+If ($true -eq $false) {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #
