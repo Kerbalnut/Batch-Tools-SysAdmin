@@ -12,8 +12,8 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 		ValueFromPipeline = $true)]
 		$VarInput,
 
-        [Parameter(Mandatory=$false)]
-        [switch]$DoNotPromptUser
+		[Parameter(Mandatory=$false)]
+		[switch]$DoNotPromptUser
 	)
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -35,20 +35,20 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 	#Check if we have a value sent in from an external variable (parameter) first
 	If ($VarInput -eq $null -or $VarInput -eq "") {
 		$PipelineInput = $false
-        If ($DoNotPromptUser) {
-		    $OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText -DoNotPromptUser
-        } Else {
-		    $OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText
-        }
+		If ($DoNotPromptUser) {
+			$OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText -DoNotPromptUser
+		} Else {
+			$OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText
+		}
 	} else {
 		$PipelineInput = $true
 		Write-Verbose "Piped-in content = $VarInput"
 		$VarInput = [string]$VarInput #Bugfix: convert input from an object to a string
-        If ($DoNotPromptUser) {
-		    $OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText -DoNotPromptUser
-        } Else {
-		    $OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText
-        }
+		If ($DoNotPromptUser) {
+			$OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText -DoNotPromptUser
+		} Else {
+			$OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText
+		}
 	}
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -95,8 +95,8 @@ Function ReadPrompt-ValidateIntegerRange { #------------------------------------
 		[Parameter(Mandatory=$false)]
 		[string]$HintMinMax,
 
-        [Parameter(Mandatory=$false)]
-        [switch]$DoNotPromptUser
+		[Parameter(Mandatory=$false)]
+		[switch]$DoNotPromptUser
 	)
 	
 	# Sub-functions:
@@ -316,8 +316,8 @@ Function ReadPrompt-Minute { #--------------------------------------------------
 		ValueFromPipeline = $true)]
 		$VarInput,
 
-        [Parameter(Mandatory=$false)]
-        [switch]$DoNotPromptUser
+		[Parameter(Mandatory=$false)]
+		[switch]$DoNotPromptUser
 	)
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -335,20 +335,20 @@ Function ReadPrompt-Minute { #--------------------------------------------------
 	#Check if we have a value sent in from an external variable (parameter) first
 	If ($VarInput -eq $null -or $VarInput -eq "") {
 		$PipelineInput = $false
-        If ($DoNotPromptUser) {
-		    $OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -DoNotPromptUser
-        } Else {
-		    $OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt
-        }
+		If ($DoNotPromptUser) {
+			$OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -DoNotPromptUser
+		} Else {
+			$OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt
+		}
 	} else {
 		$PipelineInput = $true
 		Write-Verbose "Piped-in content = $VarInput"
 		$VarInput = [string]$VarInput #Bugfix: convert input from an object to a string
-        If ($DoNotPromptUser) {
-		    $OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -DoNotPromptUser
-        } Else {
-		    $OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt
-        }
+		If ($DoNotPromptUser) {
+			$OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -DoNotPromptUser
+		} Else {
+			$OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt
+		}
 	}
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -433,8 +433,8 @@ Function Read-ValidateInteger { #-----------------------------------------------
 			$VarInput
 		)
 		
-        $VarSimplified = $VarInput.ToString().TrimStart('0')
-        
+		$VarSimplified = $VarInput.ToString().TrimStart('0')
+		
 		If ($VarSimplified -eq $null) {
 			Write-Verbose "$VarName is `$null after removing leading zeros."
 			$VarSimplified = '0'
@@ -502,7 +502,7 @@ Function Read-ValidateInteger { #-----------------------------------------------
 			Write-Verbose "`$ValidateIntError:" # Error variable set using the -ErrorVariable "common parameter": Get-Help -Name about_CommonParameters
 			Write-Verbose "$ValidateIntError" -ErrorAction 'SilentlyContinue' # Error variable set using the -ErrorVariable "common parameter": Get-Help -Name about_CommonParameters
 			Throw "`$ValueInput must be an integer. (Whole numbers only, no decimals, no negatives.)"
-            Return
+			Return
 		}
 		
 		Write-Verbose "Integer validation success = $VarInteger"
