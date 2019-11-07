@@ -18,50 +18,92 @@
 #https://bitsofknowledge.net/2018/03/24/powershell-must-have-tools-for-development/
 #https://devblogs.microsoft.com/scripting/what-is-pester-and-why-should-i-care/
 
-Describe 'Test' {
+#=======================================================================================================================
+Describe 'Testing ReadPrompt-Hour' {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     #-----------------------------------------------------------------------------------------------------------------------
     
-    It 'Test1' {
-        $true | Should Be $true
-    }
+    Context ':: Foobar ::' {
 
-    It 'Test2' {
-       $False | Should Be $false
+        It 'Test1' {
+            $true | Should Be $true
+        }
+        
+        It 'Test2' {
+            $False | Should Be $false
+        }
     }
-
-    #It 'Test3' {
-    It 'Integer, within range, with leading zeros (no quotes)' {
-        0000004 | ReadPrompt-Hour | Should Be $true
-    }
-
+    
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    
+    Context ':: Piping in valid integer ranges. No user prompt should be expected. ::' {
 
+        #It 'Test3' {
+        It 'Integer, within range, with leading zeros (no quotes)' {
+            0000004 | ReadPrompt-Hour | Should Be 4
+        }
+        
+        #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    It 'Integer, within range, with leading zeros (single quotes)' {
-        '0000004' | ReadPrompt-Hour | Should Be $true
+        It 'Integer, within range, with leading zeros (single quotes)' {
+            '0000004' | ReadPrompt-Hour | Should Be 4
+        }
+        
+        #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        It 'Integer, within range, with leading zeros (single quotes)' {
+            '0000004' | ReadPrompt-Hour | Should Be 4
+        }
+        
+$StartHour = ("0000000" | ReadPrompt-Hour -Verbose)
+
     }
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
-    It 'Integer, out-of-range' {
-        24 | ReadPrompt-Hour -DoNotPromptUser | Should Be $false
-    }
+    Context ':: Negative tests, which will trigger Read-Host user input prompt ::' {
+        
+        #Mocks
+        
+        Mock ReadPrompt-Hour { Return 0..23 }
 
-    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    
-    It 'Decimal value, within range' {
-        2.4 | ReadPrompt-Hour | Should Throw
-    }
-    
-    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        It 'Integer, out-of-range' {
+            24 | ReadPrompt-Hour | Out-Null | Should Be $null
+            
+        }
+        
+        It 'Integer, out-of-range' {
+            21 | ReadPrompt-Hour | Should Be $null
+            
+        }
+            <#
+Context 'MyModule' {
+    Mock -ModuleName MyModule Test-Foo { return 'C:\example' }
 
+    It 'gets user input' {
+        Test-Foo | Should -Be 'C:\example'
+    }
+}
+            #>
+
+
+
+        #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    
+        It 'Decimal value, within range' {
+            2.4 | ReadPrompt-Hour | Should Throw
+        }
+    
+        #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    }
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     #-----------------------------------------------------------------------------------------------------------------------
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 }
+#=======================================================================================================================
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
