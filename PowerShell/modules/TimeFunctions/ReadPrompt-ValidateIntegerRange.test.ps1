@@ -39,23 +39,23 @@ Describe 'Testing ReadPrompt-Hour' {
     Context ':: Piping in valid integer ranges. No user prompt should be expected. ::' {
 
         #It 'Test3' {
-        It 'Integer, within range, with leading zeros (no quotes)' {
+        It 'Integer 4, within range, with leading zeros (no quotes)' {
             0000004 | ReadPrompt-Hour | Should Be 4
         }
         
         #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        It 'Integer, within range, with leading zeros (single quotes)' {
+        It 'Integer 4, within range, with leading zeros (single quotes)' {
             '0000004' | ReadPrompt-Hour | Should Be 4
         }
         
         #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        It 'Integer, within range, with leading zeros (single quotes)' {
-            '0000004' | ReadPrompt-Hour | Should Be 4
+        It 'Integer 0, within range, with leading zeros (double quotes)' {
+            "0000000" | ReadPrompt-Hour | Should Be 0
         }
         
-$StartHour = ("0000000" | ReadPrompt-Hour -Verbose)
+
 
     }
 
@@ -63,6 +63,12 @@ $StartHour = ("0000000" | ReadPrompt-Hour -Verbose)
     
     Context ':: Negative tests, which will trigger Read-Host user input prompt ::' {
         
+        It "Read-ValidateInteger - Has a Mandatory 'ValueInput' parameter. If no input is given, PowerShell will prompt user for the missing parameter." {
+            #https://stackoverflow.com/questions/45935954/testing-for-mandatory-parameters-with-pester
+            #https://github.com/PowerShell/PowerShell/issues/2408#issuecomment-251140889
+            ((Get-Command Read-ValidateInteger).Parameters['ValueInput'].Attributes | ? { $_ -is [parameter] }).Mandatory | Should Be $true
+        }
+
         #Mocks
         
         Mock ReadPrompt-Hour { Return 0..23 }
