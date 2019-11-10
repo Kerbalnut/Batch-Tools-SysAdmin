@@ -1796,10 +1796,12 @@ https://www.gngrninja.com/script-ninja/2016/5/15/powershell-getting-started-part
 		
 		[Parameter(Mandatory=$true,
 		ParameterSetName='AMtag')]
+		[Alias('a')]
 		[switch]$AM = $false,
 		
 		[Parameter(Mandatory=$true,
 		ParameterSetName='PMtag')]
+		[Alias('p')]
 		[switch]$PM = $false
 	)
 	
