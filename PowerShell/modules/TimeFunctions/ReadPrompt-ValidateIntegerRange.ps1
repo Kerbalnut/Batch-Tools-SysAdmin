@@ -459,8 +459,6 @@ Function Read-ValidateInteger { #-----------------------------------------------
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
 	# Check if input is null
 	If ($ValueInput -eq $null -Or $ValueInput -eq "" -Or $ValueInput -eq '') {
 		Throw "`$ValueInput is either Null or an empty string."
@@ -471,24 +469,6 @@ Function Read-ValidateInteger { #-----------------------------------------------
 	# Remove leading zeros (0)
 	$VarSimplified = Remove-LeadingZeros -VarInput $ValueInput
 	Write-Verbose "Remove leading zeros (0) = $VarSimplified"
-	
-	# Remove leading zeros (0)
-	<#
-	$VarSimplified = $ValueInput.TrimStart('0')
-	If ($VarSimplified -eq $null) {
-		Write-Verbose "$VarName is `$null after removing leading zeros."
-		$VarSimplified = '0'
-	}
-	If ($VarSimplified -eq "") {
-		Write-Verbose "$VarName is equal to `"`" after removing leading zeros."
-		$VarSimplified = '0'
-	}
-	If ($VarSimplified -eq '') {
-		Write-Verbose "$VarName is equal to `'`' after removing leading zeros."
-		$VarSimplified = '0'
-	}
-	Write-Verbose "Remove leading zeros (0) = $VarSimplified"
-	#>
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
@@ -509,22 +489,17 @@ Function Read-ValidateInteger { #-----------------------------------------------
 	
 	Write-Verbose "Integer validation success = $VarInteger"
 	
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
 	Write-Verbose "`"$ValueInput`" value $VarInteger validation complete."
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	Return [int]$VarInteger
 	
 } # End ReadPrompt-ValidateIntegerRange function -----------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
-
 #-----------------------------------------------------------------------------------------------------------------------
-Function Read-ValidateIntegerRange { #----------------------------------------------------------------------------
+Function Read-PromptIntegerRange { #----------------------------------------------------------------------------
 	<#
 	.PARAMETER HintMinMax
 	Extra hint text string you can add that displays as a warning if user enters an integer input outside of Min-Max range. 
@@ -536,17 +511,21 @@ Function Read-ValidateIntegerRange { #------------------------------------------
 	
 	If -HintMinMax is set, that string will also be displayed as a warning to help explain what the range is for.
 	#>
+	
 	#http://techgenix.com/powershell-functions-common-parameters/
 	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
 	#[cmdletbinding()]
 	#Param()
+	
 	[cmdletbinding()]
 	Param(
 		[Parameter(Mandatory=$false,
 		ValueFromPipeline = $true)]
+		[Alias('VarInput')]
 		$ValueInput,
 		
 		[Parameter(Mandatory=$true,Position=0)]
+		[Alias('VarName')]
 		[string]$Label,
 		
 		[Parameter(Mandatory=$true,Position=1)]
@@ -556,27 +535,18 @@ Function Read-ValidateIntegerRange { #------------------------------------------
 		[int]$MaxInt,
 		
 		[Parameter(Mandatory=$false)]
-		[string]$HintMinMax,
-		
-		[Parameter(Mandatory=$false)]
-		[switch]$DoNotPromptUser
+		[string]$HintMinMax
 	)
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	$VarInput = $ValueInput
-	
-	$VarName = $Label
-	
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
 	# Check if we have a value sent in from an external variable (parameter) first
-	If ($VarInput -eq $null -or $VarInput -eq "") {
+	If ($ValueInput -eq $null -or $ValueInput -eq "") {
 		$PipelineInput = $false
 	} else {
 		$PipelineInput = $true
-		Write-Verbose "Piped-in content = $VarInput"
-		$VarInput = [string]$VarInput #Bugfix: convert input from an object to a string
+		Write-Verbose "Piped-in content = $ValueInput"
+		$ValueInput = [string]$ValueInput #Bugfix: convert input from an object to a string
 	}
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -594,13 +564,13 @@ Function Read-ValidateIntegerRange { #------------------------------------------
 		
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
-		# Prompt user for $VarName value input
+		# Prompt user for $Label value input
 		If ($PipelineInput -ne $true) {
 			Write-Verbose "No values piped-in from external sources (parameters)"
-			$VarInput = Read-Host -Prompt "Enter $VarName"
-			Write-Verbose "Entered value = $VarInput"
+			$ValueInput = Read-Host -Prompt "Enter $Label"
+			Write-Verbose "Entered value = $ValueInput"
 		} else {
-			Write-Verbose "Using piped-in value from parameter = $VarInput"
+			Write-Verbose "Using piped-in value from parameter = $ValueInput"
 			$PipelineInput = $false
 		}
 		
@@ -611,16 +581,21 @@ Function Read-ValidateIntegerRange { #------------------------------------------
 		# Check if $ValueInput is integer using Read-ValidateInteger function
 		try { # help about_Try_Catch_Finally
 			#https://stackoverflow.com/questions/6430382/powershell-detecting-errors-in-script-functions
-			$VarInteger = Read-ValidateInteger $VarInput -ErrorVariable ValidateIntError
+			$VarInteger = Read-ValidateInteger $ValueInput -ErrorVariable ValidateIntError
 			# -ErrorVariable <variable_name> - Error is assigned to the variable name you specify. Even when you use the -ErrorVariable parameter, the $error variable is still updated.
 			# If you want to append an error to the variable instead of overwriting it, you can put a plus sign (+) in front of the variable name. E.g. -ErrorVariable +<variable_name>
 			#https://devblogs.microsoft.com/scripting/handling-errors-the-powershell-way/
 		}
 		catch {
+			#Write-HorizontalRuleAdv -DashedLine -IsVerbose
 			Write-Verbose "`$ValidateIntError:" # Error variable set using the -ErrorVariable "common parameter": Get-Help -Name about_CommonParameters
 			Write-Verbose "$ValidateIntError" -ErrorAction 'SilentlyContinue' # Error variable set using the -ErrorVariable "common parameter": Get-Help -Name about_CommonParameters
-			Throw "`$ValueInput must be an integer. (Whole numbers only, no decimals, no negatives.)"
-			Return
+			#Write-Verbose "$error" -ErrorAction 'SilentlyContinue' # Command's error record will be appended to the "automatic variable" named $error
+			#Write-HorizontalRuleAdv -DashedLine -IsWarning
+			Write-Warning "$Label input must be an integer. (Whole numbers only, no decimals, no negatives.)"
+			#PAUSE
+			Write-Host `r`n
+			Continue #help about_Continue
 		}
 		
 		$IntegerValidation = $true
@@ -629,13 +604,15 @@ Function Read-ValidateIntegerRange { #------------------------------------------
 		
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
-		# Check if $VarName input is between $MinInt and $MaxInt
+		# Input range validation
+		
+		# Check if $Label input is between $MinInt and $MaxInt
 		If ([int]$VarInteger -ge [int]$MinInt -And [int]$VarInteger -le [int]$MaxInt) {
 			$VarRange = [int]$VarInteger
 			$RangeValidation = $true
 		} else {
-			Write-HorizontalRuleAdv -DashedLine -IsWarning
-			Write-Warning "$VarName input must be between $MinInt-$MaxInt."
+			#Write-HorizontalRuleAdv -DashedLine -IsWarning
+			Write-Warning "$Label input must be between $MinInt-$MaxInt."
 			If (!($HintMinMax -eq $null -Or $HintMinMax -eq "")) {
 				Write-Warning $HintMinMax
 			}
@@ -644,19 +621,55 @@ Function Read-ValidateIntegerRange { #------------------------------------------
 			Continue #help about_Continue
 		}
 		
-		Write-Verbose "$VarName value range validation = $VarRange"
-		
-		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		Write-Verbose "$Label value range validation = $VarRange"
 		
 	}
 	
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	Write-Verbose "$Label value $VarRange validation complete."
 	
-	Write-Verbose "$VarName value $VarRange validation complete."
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	Return [int]$VarRange
 	
-} # End Read-ValidateIntegerRange function -----------------------------------------------------------------------
+} # End Read-PromptIntegerRange function -----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------------------------------------------------
+Function Read-PromptHour { #--------------------------------------------------------------------------------------------
+	
+	#http://techgenix.com/powershell-functions-common-parameters/
+	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+	#[cmdletbinding()]
+	#Param()
+	[cmdletbinding()]
+	Param(
+		[Parameter(Mandatory=$false,Position=0,
+		ValueFromPipeline = $true)]
+		$VarInput
+	)
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Make function more customizable by condensing hard-coded values to the top
+	
+	$VarName = "Hour"
+	
+	$MinInt = 0
+	
+	$MaxInt = 23
+	
+	# since 24-hour time values are valid hour values
+	
+	$RangeFailureHintText = "$VarName input must be between 1-12 for AM/PM time, or 0-23 for 24-hour time."
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	$OutputValue = Read-PromptIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText -ValueInput $VarInput
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Return [int]$OutputValue
+	
+} # End Read-PromptHour function ---------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
 
