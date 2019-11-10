@@ -372,7 +372,7 @@ Function ReadPrompt-Minute { #--------------------------------------------------
 
 
 #-----------------------------------------------------------------------------------------------------------------------
-Function Read-ValidateInteger { #----------------------------------------------------------------------------
+Function Test-ValidateInteger { #----------------------------------------------------------------------------
 	<#
 	.PARAMETER ValueInput
 	#>
@@ -576,12 +576,12 @@ Function Read-PromptIntegerRange { #--------------------------------------------
 		
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
-		# Call Read-ValidateInteger function
+		# Call Test-ValidateInteger function
 		
-		# Check if $ValueInput is integer using Read-ValidateInteger function
+		# Check if $ValueInput is integer using Test-ValidateInteger function
 		try { # help about_Try_Catch_Finally
 			#https://stackoverflow.com/questions/6430382/powershell-detecting-errors-in-script-functions
-			$VarInteger = Read-ValidateInteger $ValueInput -ErrorVariable ValidateIntError
+			$VarInteger = Test-ValidateInteger $ValueInput -ErrorVariable ValidateIntError
 			# -ErrorVariable <variable_name> - Error is assigned to the variable name you specify. Even when you use the -ErrorVariable parameter, the $error variable is still updated.
 			# If you want to append an error to the variable instead of overwriting it, you can put a plus sign (+) in front of the variable name. E.g. -ErrorVariable +<variable_name>
 			#https://devblogs.microsoft.com/scripting/handling-errors-the-powershell-way/
@@ -650,8 +650,6 @@ Function Read-PromptHour { #----------------------------------------------------
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	# Make function more customizable by condensing hard-coded values to the top
-	
 	$VarName = "Hour"
 	
 	$MinInt = 0
@@ -673,3 +671,38 @@ Function Read-PromptHour { #----------------------------------------------------
 } # End Read-PromptHour function ---------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------------------------------------------------
+Function Read-PromptMinute { #------------------------------------------------------------------------------------------
+	
+	#http://techgenix.com/powershell-functions-common-parameters/
+	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+	#[cmdletbinding()]
+	#Param()
+	[cmdletbinding()]
+	Param(
+		[Parameter(Mandatory=$false,Position=0,
+		ValueFromPipeline = $true)]
+		$VarInput
+	)
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	$VarName = "Minute"
+	
+	$MinInt = 0
+	
+	$MaxInt = 59
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	$OutputValue = Read-PromptIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText -ValueInput $VarInput
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Return [int]$OutputValue
+	
+} # End Read-PromptMinute function -------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+
+	
