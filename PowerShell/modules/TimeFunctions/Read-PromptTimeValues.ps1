@@ -695,7 +695,7 @@ Function Read-PromptMinute { #--------------------------------------------------
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	$OutputValue = Read-PromptIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText -ValueInput $VarInput
+	$OutputValue = Read-PromptIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -ValueInput $VarInput
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
@@ -703,6 +703,107 @@ Function Read-PromptMinute { #--------------------------------------------------
 	
 } # End Read-PromptMinute function -------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
+Function Read-PromptDayOfMonth { #------------------------------------------------------------------------------------------
+	
+	#http://techgenix.com/powershell-functions-common-parameters/
+	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+	#[cmdletbinding()]
+	#Param()
+	[cmdletbinding()]
+	Param(
+		[Parameter(Mandatory=$false,Position=0,
+		ValueFromPipeline = $true)]
+		$VarInput
+	)
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	$VarName = "DayOfMonth"
+	
+	$MinInt = 1
+	
+	$MaxInt = 31
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	$OutputValue = Read-PromptIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -ValueInput $VarInput
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Return [int]$OutputValue
+	
+} # End Read-PromptDayOfMonth function -------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
+Function Read-PromptMonth { #------------------------------------------------------------------------------------------
+	
+	#http://techgenix.com/powershell-functions-common-parameters/
+	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+	#[cmdletbinding()]
+	#Param()
+	[cmdletbinding()]
+	Param(
+		[Parameter(Mandatory=$false,Position=0,
+		ValueFromPipeline = $true)]
+		$VarInput
+	)
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	$VarName = "Month"
+	
+	$MinInt = 1
+	
+	$MaxInt = 12
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	$OutputValue = Read-PromptIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -ValueInput $VarInput
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Return [int]$OutputValue
+	
+} # End Read-PromptMonth function -------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
+Function Read-PromptYear { #------------------------------------------------------------------------------------------
+	
+	#http://techgenix.com/powershell-functions-common-parameters/
+	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+	#[cmdletbinding()]
+	#Param()
+	[cmdletbinding()]
+	Param(
+		[Parameter(Mandatory=$false,Position=0,
+		ValueFromPipeline = $true)]
+		$VarInput
+	)
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	$VarName = "Year"
+	
+	$MinInt = 0
+	
+	$MaxInt = 9999
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	$OutputValue = Read-PromptIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -ValueInput $VarInput
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Return [int]$OutputValue
+	
+} # End Read-PromptYear function -------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+
 
 
 	
