@@ -11,7 +11,7 @@ Function ReadPrompt-Hour { #----------------------------------------------------
 		[Parameter(Mandatory=$false,Position=0,
 		ValueFromPipeline = $true)]
 		$VarInput,
-
+		
 		[Parameter(Mandatory=$false)]
 		[switch]$DoNotPromptUser
 	)
@@ -94,7 +94,7 @@ Function ReadPrompt-ValidateIntegerRange { #------------------------------------
 		
 		[Parameter(Mandatory=$false)]
 		[string]$HintMinMax,
-
+		
 		[Parameter(Mandatory=$false)]
 		[switch]$DoNotPromptUser
 	)
@@ -315,7 +315,7 @@ Function ReadPrompt-Minute { #--------------------------------------------------
 		[Parameter(Mandatory=$false,Position=0,
 		ValueFromPipeline = $true)]
 		$VarInput,
-
+		
 		[Parameter(Mandatory=$false)]
 		[switch]$DoNotPromptUser
 	)
@@ -557,7 +557,7 @@ Function Read-ValidateIntegerRange { #------------------------------------------
 		
 		[Parameter(Mandatory=$false)]
 		[string]$HintMinMax,
-
+		
 		[Parameter(Mandatory=$false)]
 		[switch]$DoNotPromptUser
 	)
@@ -605,6 +605,23 @@ Function Read-ValidateIntegerRange { #------------------------------------------
 		}
 		
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		
+		# Call Read-ValidateInteger function
+		
+		# Check if $ValueInput is integer using Read-ValidateInteger function
+		try { # help about_Try_Catch_Finally
+			#https://stackoverflow.com/questions/6430382/powershell-detecting-errors-in-script-functions
+			$VarInteger = Read-ValidateInteger $VarInput -ErrorVariable ValidateIntError
+			# -ErrorVariable <variable_name> - Error is assigned to the variable name you specify. Even when you use the -ErrorVariable parameter, the $error variable is still updated.
+			# If you want to append an error to the variable instead of overwriting it, you can put a plus sign (+) in front of the variable name. E.g. -ErrorVariable +<variable_name>
+			#https://devblogs.microsoft.com/scripting/handling-errors-the-powershell-way/
+		}
+		catch {
+			Write-Verbose "`$ValidateIntError:" # Error variable set using the -ErrorVariable "common parameter": Get-Help -Name about_CommonParameters
+			Write-Verbose "$ValidateIntError" -ErrorAction 'SilentlyContinue' # Error variable set using the -ErrorVariable "common parameter": Get-Help -Name about_CommonParameters
+			Throw "`$ValueInput must be an integer. (Whole numbers only, no decimals, no negatives.)"
+			Return
+		}
 		
 		$IntegerValidation = $true
 		
