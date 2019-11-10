@@ -98,7 +98,7 @@ Function ReadPrompt-ValidateIntegerRange { #------------------------------------
 		[Parameter(Mandatory=$false)]
 		[switch]$DoNotPromptUser
 	)
-    
+	
 	# Sub-functions:
 	#=======================================================================================================================
 	
@@ -389,6 +389,7 @@ Function Read-ValidateInteger { #-----------------------------------------------
 	
 	# Sub-functions:
 	#=======================================================================================================================
+	#=======================================================================================================================
 	
 	#-----------------------------------------------------------------------------------------------------------------------
 	function Validate-Integer { #-------------------------------------------------------------------------------------------
@@ -453,64 +454,65 @@ Function Read-ValidateInteger { #-----------------------------------------------
 	#-----------------------------------------------------------------------------------------------------------------------
 	
 	#=======================================================================================================================
+	#=======================================================================================================================
 	# /Sub-functions
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		
-		# Check if input is null
-		If ($ValueInput -eq $null -Or $ValueInput -eq "" -Or $ValueInput -eq '') {
-			Throw "`$ValueInput is either Null or an empty string."
-		}
-		
-		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		
-		# Remove leading zeros (0)
-		$VarSimplified = Remove-LeadingZeros -VarInput $ValueInput
-		Write-Verbose "Remove leading zeros (0) = $VarSimplified"
-		
-		# Remove leading zeros (0)
-		<#
-		$VarSimplified = $ValueInput.TrimStart('0')
-		If ($VarSimplified -eq $null) {
-			Write-Verbose "$VarName is `$null after removing leading zeros."
-			$VarSimplified = '0'
-		}
-		If ($VarSimplified -eq "") {
-			Write-Verbose "$VarName is equal to `"`" after removing leading zeros."
-			$VarSimplified = '0'
-		}
-		If ($VarSimplified -eq '') {
-			Write-Verbose "$VarName is equal to `'`' after removing leading zeros."
-			$VarSimplified = '0'
-		}
-		Write-Verbose "Remove leading zeros (0) = $VarSimplified"
-		#>
-		
-		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		
-		# Check if $ValueInput is integer using Validate-Integer function
-		try { # help about_Try_Catch_Finally
-			#https://stackoverflow.com/questions/6430382/powershell-detecting-errors-in-script-functions
-			$VarInteger = Validate-Integer $VarSimplified -ErrorVariable ValidateIntError
-			# -ErrorVariable <variable_name> - Error is assigned to the variable name you specify. Even when you use the -ErrorVariable parameter, the $error variable is still updated.
-			# If you want to append an error to the variable instead of overwriting it, you can put a plus sign (+) in front of the variable name. E.g. -ErrorVariable +<variable_name>
-			#https://devblogs.microsoft.com/scripting/handling-errors-the-powershell-way/
-		}
-		catch {
-			Write-Verbose "`$ValidateIntError:" # Error variable set using the -ErrorVariable "common parameter": Get-Help -Name about_CommonParameters
-			Write-Verbose "$ValidateIntError" -ErrorAction 'SilentlyContinue' # Error variable set using the -ErrorVariable "common parameter": Get-Help -Name about_CommonParameters
-			Throw "`$ValueInput must be an integer. (Whole numbers only, no decimals, no negatives.)"
-			Return
-		}
-		
-		Write-Verbose "Integer validation success = $VarInteger"
-		
-		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		
-		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Check if input is null
+	If ($ValueInput -eq $null -Or $ValueInput -eq "" -Or $ValueInput -eq '') {
+		Throw "`$ValueInput is either Null or an empty string."
+	}
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Remove leading zeros (0)
+	$VarSimplified = Remove-LeadingZeros -VarInput $ValueInput
+	Write-Verbose "Remove leading zeros (0) = $VarSimplified"
+	
+	# Remove leading zeros (0)
+	<#
+	$VarSimplified = $ValueInput.TrimStart('0')
+	If ($VarSimplified -eq $null) {
+		Write-Verbose "$VarName is `$null after removing leading zeros."
+		$VarSimplified = '0'
+	}
+	If ($VarSimplified -eq "") {
+		Write-Verbose "$VarName is equal to `"`" after removing leading zeros."
+		$VarSimplified = '0'
+	}
+	If ($VarSimplified -eq '') {
+		Write-Verbose "$VarName is equal to `'`' after removing leading zeros."
+		$VarSimplified = '0'
+	}
+	Write-Verbose "Remove leading zeros (0) = $VarSimplified"
+	#>
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Check if $ValueInput is integer using Validate-Integer function
+	try { # help about_Try_Catch_Finally
+		#https://stackoverflow.com/questions/6430382/powershell-detecting-errors-in-script-functions
+		$VarInteger = Validate-Integer $VarSimplified -ErrorVariable ValidateIntError
+		# -ErrorVariable <variable_name> - Error is assigned to the variable name you specify. Even when you use the -ErrorVariable parameter, the $error variable is still updated.
+		# If you want to append an error to the variable instead of overwriting it, you can put a plus sign (+) in front of the variable name. E.g. -ErrorVariable +<variable_name>
+		#https://devblogs.microsoft.com/scripting/handling-errors-the-powershell-way/
+	}
+	catch {
+		Write-Verbose "`$ValidateIntError:" # Error variable set using the -ErrorVariable "common parameter": Get-Help -Name about_CommonParameters
+		Write-Verbose "$ValidateIntError" -ErrorAction 'SilentlyContinue' # Error variable set using the -ErrorVariable "common parameter": Get-Help -Name about_CommonParameters
+		Throw "`$ValueInput must be an integer. (Whole numbers only, no decimals, no negatives.)"
+		Return
+	}
+	
+	Write-Verbose "Integer validation success = $VarInteger"
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	Write-Verbose "`"$ValueInput`" value $VarInteger validation complete."
@@ -603,64 +605,6 @@ Function Read-ValidateIntegerRange { #------------------------------------------
 		}
 		
 		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		
-		# Check if input is null
-		If ($VarInput -eq $null -or $VarInput -eq "") {
-			Write-HorizontalRuleAdv -DashedLine -IsWarning
-			Write-Warning "$VarName input is null."
-			#PAUSE
-			Write-Host `r`n
-			Continue #help about_Continue
-		}
-		
-		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		
-		# Remove leading zeros (0)
-		$VarSimplified = Remove-LeadingZeros $VarInput
-		Write-Verbose "Remove leading zeros (0) = $VarSimplified"
-		
-		# Remove leading zeros (0)
-		<#
-		$VarSimplified = $VarInput.TrimStart('0')
-		If ($VarSimplified -eq $null) {
-			Write-Verbose "$VarName is `$null after removing leading zeros."
-			$VarSimplified = '0'
-		}
-		If ($VarSimplified -eq "") {
-			Write-Verbose "$VarName is equal to `"`" after removing leading zeros."
-			$VarSimplified = '0'
-		}
-		If ($VarSimplified -eq '') {
-			Write-Verbose "$VarName is equal to `'`' after removing leading zeros."
-			$VarSimplified = '0'
-		}
-		Write-Verbose "Remove leading zeros (0) = $VarSimplified"
-		#>
-		
-		#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		
-		# Check if $VarName input is integer using Validate-Integer function
-		try { # help about_Try_Catch_Finally
-			#https://stackoverflow.com/questions/6430382/powershell-detecting-errors-in-script-functions
-			$VarInteger = Validate-Integer $VarSimplified -ErrorVariable ValidateIntError
-			# -ErrorVariable <variable_name> - Error is assigned to the variable name you specify. Even when you use the -ErrorVariable parameter, the $error variable is still updated.
-			# If you want to append an error to the variable instead of overwriting it, you can put a plus sign (+) in front of the variable name. E.g. -ErrorVariable +<variable_name>
-			#https://devblogs.microsoft.com/scripting/handling-errors-the-powershell-way/
-		}
-		catch {
-			Write-HorizontalRuleAdv -DashedLine -IsVerbose
-			Write-Verbose "`$ValidateIntError:" # Error variable set using the -ErrorVariable "common parameter": Get-Help -Name about_CommonParameters
-			Write-Verbose "$ValidateIntError" -ErrorAction 'SilentlyContinue' # Error variable set using the -ErrorVariable "common parameter": Get-Help -Name about_CommonParameters
-			#Write-HorizontalRuleAdv -SingleLine -IsVerbose
-			#Write-Verbose "`$error:" # Command's error record will be appended to the "automatic variable" named $error
-			#Write-HorizontalRuleAdv -DashedLine -IsVerbose
-			#Write-Verbose "$error" -ErrorAction 'SilentlyContinue' # Command's error record will be appended to the "automatic variable" named $error
-			Write-HorizontalRuleAdv -DashedLine -IsWarning
-			Write-Warning "$VarName input must be an integer. (Whole numbers only, no decimals, no negatives.)"
-			#PAUSE
-			Write-Host `r`n
-			Continue #help about_Continue
-		}
 		
 		$IntegerValidation = $true
 		

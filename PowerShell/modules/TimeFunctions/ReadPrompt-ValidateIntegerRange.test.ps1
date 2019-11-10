@@ -59,7 +59,7 @@ Describe 'Read-ValidateInteger' {
 			#https://github.com/PowerShell/PowerShell/issues/2408#issuecomment-251140889
 			((Get-Command Read-ValidateInteger).Parameters['ValueInput'].Attributes | ? { $_ -is [parameter] }).Mandatory | Should Be $true
 		}
-    }
+	}
 		
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
