@@ -347,111 +347,90 @@ Describe 'Convert-AMPMhourTo24hour Examples' {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	#-----------------------------------------------------------------------------------------------------------------------
 	
-	Context ':: Foobar ::' {
+	Context ':: Exampe #1: ::' {
 		
-		It 'Test1' {
-			$true | Should Be $true
+		It 'Help example:' {
+            $AMPMhour = 4
+            $OutputVar = Convert-AMPMhourTo24hour $AMPMhour -PM
+            $OutputVar | Should -Be 16
 		}
 		
-		It 'Test2' {
-			$False | Should Be $false
+		It 'Variation #1: AM' {
+            $AMPMhour = 4
+            $OutputVar = Convert-AMPMhourTo24hour $AMPMhour -AM
+            $OutputVar | Should -Be 4
 		}
+		
 	}
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	Context ':: Foobar ::' {
+	Context ':: Exampe #2: ::' {
 		
-		It 'Test1' {
-			$true | Should Be $true
+        Mock Get-Date { return "01" } -Verifiable -ParameterFilter {$UFormat -match "%I"}
+        
+		It 'Help example: Pt. 1' {
+            Get-Date -UFormat %I | Convert-AMPMhourTo24hour -PM | Should -Be 13
+		}
+
+        $NowHour = Get-Date -UFormat %I
+
+		It 'Help example: Pt. 2' {
+            $NowHour | Should -Be 1
+		}
+
+        $OutputVar = (Get-Date -UFormat %I | Convert-AMPMhourTo24hour -PM)
+
+		It 'Help example: Pt. 3' {
+            $OutputVar | Should -Be 13
+		}
+
+		It 'Help example: Pt. 4.a' {
+            Write-Output "$NowHour PM = $OutputVar           (24-hour)" | Should -Be "01 PM = 13           (24-hour)"
+		}
+
+		It 'Help example: Pt. 4.b' {
+            Write-Output "$(Get-Date -UFormat %I) PM = $OutputVar           (24-hour)" | Should -Be "01 PM = 13           (24-hour)"
 		}
 		
-		It 'Test2' {
-			$False | Should Be $false
-		}
 	}
 	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Context ':: Exampe #3: ::' {
+		
+        Mock Get-Random { return "1" } -Verifiable
+        
+		It 'Help example: Pt. 1' {
+            Get-Random -Minimum 1 -Maximum 12 | Convert-AMPMhourTo24hour -PM | Should -Be 13
+		}
+
+		It 'Help example: Pt. 2' {
+            Get-Random -Minimum 1 -Maximum 12 | Tee-Object -Variable Randomvar | Convert-AMPMhourTo24hour -PM | Should -Be 13
+            $Randomvar | Should -Be 1
+		}
+
+		It 'Help example: Pt. 3' {
+            Get-Random -Minimum 1 -Maximum 12 | Tee-Object -Variable Randomvar | Convert-AMPMhourTo24hour -PM | Should -Be 13
+            $Randomvar | Should -Be 1
+		}
+        
+        $OutputVar = (Get-Random -Minimum 1 -Maximum 12 | Tee-Object -Variable Randomvar | Convert-AMPMhourTo24hour -PM)
+        
+		It 'Help example: Pt. 4.a' {
+            $OutputVar | Should -Be 13
+		}
+        
+		It 'Help example: Pt. 4.b' {
+            $Randomvar | Should -Be 1
+		}
+        
+    }
+
+    
 	#-----------------------------------------------------------------------------------------------------------------------
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 }
 #=======================================================================================================================
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-#=======================================================================================================================
-#1. Testing Convert-AMPMhourTo24hour
-#=======================================================================================================================
-
-If ($true -eq $false) {
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-#
-
-Write-Host `r`n
-
-Write-Host "Example #1:"
-
-$AMPMhour = 4
-
-$OutputVar = Convert-AMPMhourTo24hour $AMPMhour -PM
-
-Write-Host "$AMPMhour PM = $OutputVar           (24-hour)"
-
-Write-Host `r`n
-
-#
-
-Write-Host "--------------------------------------------------------------------------------------------------"
-
-#
-
-Write-Host `r`n
-
-Write-Host "Example #2:"
-
-Get-Date -UFormat %I | Convert-AMPMhourTo24hour -PM
-
-$NowHour = Get-Date -UFormat %I
-Write-Host "`$NowHour = $NowHour"
-
-$OutputVar = (Get-Date -UFormat %I | Convert-AMPMhourTo24hour -PM)
-Write-Host "`$OutputVar = $OutputVar"
-
-Write-Host "$NowHour PM = $OutputVar           (24-hour)"
-Write-Host "$(Get-Date -UFormat %I) PM = $OutputVar           (24-hour)"
-
-Write-Host `r`n
-
-#
-
-Write-Host "--------------------------------------------------------------------------------------------------"
-
-#
-
-Write-Host `r`n
-
-Write-Host "Example #3:"
-
-Get-Random -Minimum 1 -Maximum 12 | Convert-AMPMhourTo24hour -PM
-
-Get-Random -Minimum 1 -Maximum 12 | Tee-Object -Variable Randomvar | Convert-AMPMhourTo24hour -PM
-Write-Host "`$Randomvar = $Randomvar"
-
-$OutputVar = (Get-Random -Minimum 1 -Maximum 12 | Tee-Object -Variable Randomvar | Convert-AMPMhourTo24hour -PM)
-Write-Host "$Randomvar PM = $OutputVar           (24-hour)"
-
-Write-Host `r`n
-
-#
-
-Write-Host "--------------------------------------------------------------------------------------------------"
-
-#
-
-PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-}
-
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
