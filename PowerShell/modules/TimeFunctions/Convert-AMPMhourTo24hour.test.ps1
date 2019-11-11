@@ -40,8 +40,24 @@ Describe 'Convert-AMPMhourTo24hour' {
 			Convert-AMPMhourTo24hour 1 -AM | Should Be 1
 		}
 		
+		It 'Valid integer input using positional parameters, single-quotes, AM' {
+			Convert-AMPMhourTo24hour '1' -AM | Should Be 1
+		}
+		
+		It 'Valid integer input using positional parameters, double-quotes, AM' {
+			Convert-AMPMhourTo24hour "1" -AM | Should Be 1
+		}
+		
 		It 'Valid integer input using piped-in parameters, AM' {
 			1 | Convert-AMPMhourTo24hour -AM | Should Be 1
+		}
+		
+		It 'Valid integer input using piped-in parameters, single-quotes, AM' {
+			'1' | Convert-AMPMhourTo24hour -AM | Should Be 1
+		}
+		
+		It 'Valid integer input using piped-in parameters, double-quotes, AM' {
+			"1" | Convert-AMPMhourTo24hour -AM | Should Be 1
 		}
 		
 	}
@@ -125,7 +141,7 @@ Describe 'Convert-AMPMhourTo24hour' {
 			Convert-AMPMhourTo24hour 1 -AM | Should Be 1
 		}
 		
-		It '11 within range 1-12 for AM/PM hours, should pass 0 back' {
+		It '11 within range 1-12 for AM/PM hours, should pass 11 back' {
 			Convert-AMPMhourTo24hour 11 -AM | Should Be 11
 		}
         
@@ -252,30 +268,113 @@ Describe 'Convert-AMPMhourTo24hour' {
 		}
 		
     }
-
+    
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Context ':: Failure tests, decimal input, AM/PM ::' {
+		
+		It 'Positional parameter: 12.1 is a decimal, not an integer, not within the 1-12 range of AM/PM hour values. Should fail.' {
+			{Convert-AMPMhourTo24hour 12.1 -AM} | Should Throw
+		}
+		
+		It 'Positional parameter: 11.6 is a decimal, not an integer. Should fail.' {
+			{Convert-AMPMhourTo24hour 11.6 -AM} | Should Throw
+		}
+		
+		It 'Positional parameter: 9.4 is a decimal, not an integer. Should fail.' {
+			{Convert-AMPMhourTo24hour 9.4 -AM} | Should Throw
+		}
+		
+		It 'Positional parameter: .9 is a decimal, not an integer, not within the 1-12 range of AM/PM hour values.. Should fail.' {
+			{Convert-AMPMhourTo24hour .9 -AM} | Should Throw
+		}
+		
+		It 'Positional parameter: .0 is a decimal, not an integer, not within the 1-12 range of AM/PM hour values.. Should fail.' {
+			{Convert-AMPMhourTo24hour .0 -AM} | Should Throw
+		}
+		
+    }
+    
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	Context ':: Failure tests, decimal input w/ leading zeros, AM/PM ::' {
 		
-		It 'Positional parameter: -012 is not positive, not an integer, not within the 1-12 range of AM/PM hour values. Should fail.' {
-			{Convert-AMPMhourTo24hour -012 -AM} | Should Throw
+		It 'Positional parameter: 09.6 is a decimal, not an integer. Should fail.' {
+			{Convert-AMPMhourTo24hour 09.6 -AM} | Should Throw
 		}
 		
-        
+		It 'Positional parameter: 09.4 is a decimal, not an integer. Should fail.' {
+			{Convert-AMPMhourTo24hour 09.4 -AM} | Should Throw
+		}
+		
+		It 'Positional parameter: 0.9 is a decimal, not an integer, not within the 1-12 range of AM/PM hour values. Should fail.' {
+			{Convert-AMPMhourTo24hour 0.9 -AM} | Should Throw
+		}
+		
+		It 'Positional parameter: 0.0 is a decimal, not an integer, not within the 1-12 range of AM/PM hour values. Should fail.' {
+			{Convert-AMPMhourTo24hour 0.0 -AM} | Should Throw
+		}
+		
     }
 
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-    
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
-	
+	Context ':: Failure tests, negative decimal w/ leading zeros, AM/PM ::' {
+		
+		It 'Positional parameter: -09.6 is a decimal, not an integer. Should fail.' {
+			{Convert-AMPMhourTo24hour -09.6 -AM} | Should Throw
+		}
+		
+		It 'Positional parameter: -09.4 is a decimal, not an integer. Should fail.' {
+			{Convert-AMPMhourTo24hour -09.4 -AM} | Should Throw
+		}
+		
+		It 'Positional parameter: 0.9 is a decimal, not an integer, not within the 1-12 range of AM/PM hour values. Should fail.' {
+			{Convert-AMPMhourTo24hour -00000.00010 -AM} | Should Throw
+		}
+		
+    }
+
 	#-----------------------------------------------------------------------------------------------------------------------
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 }
 #=======================================================================================================================
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#=======================================================================================================================
+Describe 'Convert-AMPMhourTo24hour Examples' {
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	#-----------------------------------------------------------------------------------------------------------------------
+	
+	Context ':: Foobar ::' {
+		
+		It 'Test1' {
+			$true | Should Be $true
+		}
+		
+		It 'Test2' {
+			$False | Should Be $false
+		}
+	}
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Context ':: Foobar ::' {
+		
+		It 'Test1' {
+			$true | Should Be $true
+		}
+		
+		It 'Test2' {
+			$False | Should Be $false
+		}
+	}
+	
+	#-----------------------------------------------------------------------------------------------------------------------
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+}
+#=======================================================================================================================
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -285,86 +384,6 @@ Describe 'Convert-AMPMhourTo24hour' {
 
 If ($true -eq $false) {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-#
-
-Write-Host "--------------------------------------------------------------------------------------------------"
-
-#
-
-<#
-12.1
-11.6
-11.4
-11
-011
-9.6
-9.4
-09
-9
--9
-.9
-0.9
-.0
-0.0
-#>
-
-Write-Host "--------------------------------------------------------------------------------------------------"
-
-Write-Host "Failure:"
-Convert-AMPMhourTo24hour 09.6 -AM
-
-Write-Host "--------------------------------------------------------------------------------------------------"
-
-Write-Host "Failure:"
-Convert-AMPMhourTo24hour 09.4 -AM
-
-Write-Host "--------------------------------------------------------------------------------------------------"
-
-Write-Host "Failure:"
-Convert-AMPMhourTo24hour 12.1 -AM
-
-Write-Host "--------------------------------------------------------------------------------------------------"
-
-Write-Host "Failure:"
-Convert-AMPMhourTo24hour 11.6 -AM
-
-Write-Host "--------------------------------------------------------------------------------------------------"
-
-Write-Host "Failure:"
-Convert-AMPMhourTo24hour 11.4 -AM
-
-Write-Host "--------------------------------------------------------------------------------------------------"
-
-Write-Host "Failure:"
-Convert-AMPMhourTo24hour 9.6 -AM
-
-Write-Host "--------------------------------------------------------------------------------------------------"
-
-Write-Host "Failure:"
-Convert-AMPMhourTo24hour 9.4 -AM
-
-Write-Host "--------------------------------------------------------------------------------------------------"
-
-Write-Host "Failure:"
-Convert-AMPMhourTo24hour .9 -AM
-
-Write-Host "--------------------------------------------------------------------------------------------------"
-
-Write-Host "Failure:"
-Convert-AMPMhourTo24hour 0.9 -AM
-
-Write-Host "--------------------------------------------------------------------------------------------------"
-
-Write-Host "Failure:"
-Convert-AMPMhourTo24hour .0 -AM
-
-Write-Host "--------------------------------------------------------------------------------------------------"
-
-Write-Host "Failure:"
-Convert-AMPMhourTo24hour 0.0 -AM
-
-Write-Host "--------------------------------------------------------------------------------------------------"
 
 #
 
