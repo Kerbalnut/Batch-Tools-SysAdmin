@@ -1107,56 +1107,6 @@ Function ReadPrompt-AMPM24 { #--------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
-Function ReadPrompt-Hour { #--------------------------------------------------------------------------------------------
-	
-	#http://techgenix.com/powershell-functions-common-parameters/
-	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
-	#[cmdletbinding()]
-	#Param()
-	[cmdletbinding()]
-	Param(
-		[Parameter(Mandatory=$false,Position=0,
-		ValueFromPipeline = $true)]
-		$VarInput
-	)
-	
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
-	# Make function more customizable by condensing hard-coded values to the top
-	
-	$VarName = "Hour"
-	
-	$MinInt = 0
-	
-	$MaxInt = 23
-	
-	# since 24-hour time values are valid hour values
-	
-	$RangeFailureHintText = "$VarName input must be between 1-12 for AM/PM time, or 0-23 for 24-hour time."
-	
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
-	#Check if we have a value sent in from an external variable (parameter) first
-	If ($VarInput -eq $null -or $VarInput -eq "") {
-		$PipelineInput = $false
-		$OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText
-	} else {
-		$PipelineInput = $true
-		Write-Verbose "Piped-in content = $VarInput"
-		$VarInput = [string]$VarInput #Bugfix: convert input from an object to a string
-		$OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText
-	}
-	
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
-	Write-Verbose "$VarName value $OutputValue validation complete."
-	
-	Return $OutputValue
-	
-} # End ReadPrompt-Hour function ---------------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------------------------------------------------
 Function ReadPrompt-ValidateIntegerRange { #----------------------------------------------------------------------------
 	<#
 	.PARAMETER HintMinMax
@@ -1394,6 +1344,56 @@ Function ReadPrompt-ValidateIntegerRange { #------------------------------------
 	Return [int]$VarRange
 	
 } # End ReadPrompt-ValidateIntegerRange function -----------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
+Function ReadPrompt-Hour { #--------------------------------------------------------------------------------------------
+	
+	#http://techgenix.com/powershell-functions-common-parameters/
+	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+	#[cmdletbinding()]
+	#Param()
+	[cmdletbinding()]
+	Param(
+		[Parameter(Mandatory=$false,Position=0,
+		ValueFromPipeline = $true)]
+		$VarInput
+	)
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Make function more customizable by condensing hard-coded values to the top
+	
+	$VarName = "Hour"
+	
+	$MinInt = 0
+	
+	$MaxInt = 23
+	
+	# since 24-hour time values are valid hour values
+	
+	$RangeFailureHintText = "$VarName input must be between 1-12 for AM/PM time, or 0-23 for 24-hour time."
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#Check if we have a value sent in from an external variable (parameter) first
+	If ($VarInput -eq $null -or $VarInput -eq "") {
+		$PipelineInput = $false
+		$OutputValue = ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText
+	} else {
+		$PipelineInput = $true
+		Write-Verbose "Piped-in content = $VarInput"
+		$VarInput = [string]$VarInput #Bugfix: convert input from an object to a string
+		$OutputValue = $VarInput | ReadPrompt-ValidateIntegerRange -Label $VarName -MinInt $MinInt -MaxInt $MaxInt -HintMinMax $RangeFailureHintText
+	}
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Write-Verbose "$VarName value $OutputValue validation complete."
+	
+	Return $OutputValue
+	
+} # End ReadPrompt-Hour function ---------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
