@@ -1107,6 +1107,133 @@ Function ReadPrompt-AMPM24 { #--------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
+Function Test-ValidateInteger { #---------------------------------------------------------------------------------------
+	<#
+	.PARAMETER ValueInput
+	#>
+	#http://techgenix.com/powershell-functions-common-parameters/
+	# To enable common parameters in functions (-Verbose, -Debug, etc. See 'help about_CommonParameters') the following 2 lines must be present:
+	#[CdmdletBinding()]
+	#Param()
+	[CmdletBinding()]
+	Param(
+		[Parameter(Mandatory=$true,Position=0,
+		ValueFromPipeline = $true)]
+		$ValueInput
+	)
+	
+	# Sub-functions:
+	#=======================================================================================================================
+	#=======================================================================================================================
+	
+	#-----------------------------------------------------------------------------------------------------------------------
+	function Validate-Integer { #-------------------------------------------------------------------------------------------
+		Param (
+			#Script parameters go here
+			[Parameter(Mandatory=$true,Position=0,
+			ValueFromPipeline = $true)]
+			# Validate a positive integer (whole number) using Regular Expressions, thanks to:
+			#https://stackoverflow.com/questions/16774064/regular-expression-for-whole-numbers-and-integers
+			#-----------------------------------------------------------------------------------------------------------------------
+			#	(?<![-.])		# Assert that the previous character isn't a minus sign or a dot.
+			#	\b				# Anchor the match to the start of a number.
+			#	[0-9]+			# Match a number.
+			#	\b				# Anchor the match to the end of the number.
+			#	(?!\.[0-9])		# Assert that no decimal part follows.
+			#$RegEx = "(?<![-.])\b[0-9]+\b(?!\.[0-9])"
+			#[ValidatePattern("(?<![-.])\b[0-9]+\b(?!\.[0-9])")]
+			# This [ValidateScript({})] does the exact same thing as the [ValidatePattern("")] above, it just throws much nicer, customizable error messages that actually explain why if failed (rather than "(?<![-.])\b[0-9]+\b(?!\.[0-9])").
+			[ValidateScript({
+				If ($_ -match "(?<![-.])\b[0-9]+\b(?!\.[0-9])") {
+					$True
+				} else {
+					Throw "$_ must be a positive integer (whole number, no decimals). [ValidateScript({})] error."
+				}
+			})]
+			#-----------------------------------------------------------------------------------------------------------------------
+			# Bugfix: For the [ValidatePattern("")] or [ValidateScript({})] regex validation checks to work e.g. for strict integer validation (throw an error if a non-integer value is provided) do not define the var-type e.g. [int]$var since PowerShell will automatically round the input value to an integer BEFORE performing the regex comparisons. Instead, declare parameter without [int] defining the var-type e.g. $var,
+			$InputToValidate
+		)
+		
+		Return $InputToValidate
+		#Return [int]$InputToValidate
+	} # End Validate-Integer function --------------------------------------------------------------------------------------
+	#-----------------------------------------------------------------------------------------------------------------------
+	
+	#-----------------------------------------------------------------------------------------------------------------------
+	function Remove-LeadingZeros { #----------------------------------------------------------------------------------------
+		Param (
+			#Script parameters go here
+			[Parameter(Mandatory=$true,Position=0,
+			ValueFromPipeline = $true)]
+			$VarInput
+		)
+		
+		$VarSimplified = $VarInput.ToString().TrimStart('0')
+		
+		If ($VarSimplified -eq $null) {
+			Write-Verbose "$VarName is `$null after removing leading zeros."
+			$VarSimplified = '0'
+		}
+		If ($VarSimplified -eq "") {
+			Write-Verbose "$VarName is equal to `"`" after removing leading zeros."
+			$VarSimplified = '0'
+		}
+		If ($VarSimplified -eq '') {
+			Write-Verbose "$VarName is equal to `'`' after removing leading zeros."
+			$VarSimplified = '0'
+		}
+		
+		Return $VarSimplified
+	} # End Remove-LeadingZeros --------------------------------------------------------------------------------------------
+	#-----------------------------------------------------------------------------------------------------------------------
+	
+	#=======================================================================================================================
+	#=======================================================================================================================
+	# /Sub-functions
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Check if input is null
+	If ($ValueInput -eq $null -Or $ValueInput -eq "" -Or $ValueInput -eq '') {
+		Throw "`$ValueInput is either Null or an empty string."
+	}
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Remove leading zeros (0)
+	$VarSimplified = Remove-LeadingZeros -VarInput $ValueInput
+	Write-Verbose "Remove leading zeros (0) = $VarSimplified"
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Check if $ValueInput is integer using Validate-Integer function
+	try { # help about_Try_Catch_Finally
+		#https://stackoverflow.com/questions/6430382/powershell-detecting-errors-in-script-functions
+		$VarInteger = Validate-Integer $VarSimplified -ErrorVariable ValidateIntError
+		# -ErrorVariable <variable_name> - Error is assigned to the variable name you specify. Even when you use the -ErrorVariable parameter, the $error variable is still updated.
+		# If you want to append an error to the variable instead of overwriting it, you can put a plus sign (+) in front of the variable name. E.g. -ErrorVariable +<variable_name>
+		#https://devblogs.microsoft.com/scripting/handling-errors-the-powershell-way/
+	}
+	catch {
+		Write-Verbose "`$ValidateIntError:" # Error variable set using the -ErrorVariable "common parameter": Get-Help -Name about_CommonParameters
+		Write-Verbose "$ValidateIntError" -ErrorAction 'SilentlyContinue' # Error variable set using the -ErrorVariable "common parameter": Get-Help -Name about_CommonParameters
+		Throw "`$ValueInput must be an integer. (Whole numbers only, no decimals, no negatives.)"
+		Return
+	}
+	
+	Write-Verbose "Integer validation success = $VarInteger"
+	
+	Write-Verbose "`"$ValueInput`" value $VarInteger validation complete."
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Return [int]$VarInteger
+	
+} # End Test-ValidateInteger function ----------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
 Function ReadPrompt-ValidateIntegerRange { #----------------------------------------------------------------------------
 	<#
 	.PARAMETER HintMinMax
