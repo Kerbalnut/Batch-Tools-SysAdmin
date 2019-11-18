@@ -1,9 +1,35 @@
 @ECHO OFF
 
+SET "_PREV_COMMITS_TO_GET=8"
+
 REM -------------------------------------------------------------------------------
 REM ===============================================================================
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :Main
+
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+::Thanks to:
+::https://git-scm.com/book/en/v2/Git-Basics-Viewing-the-Commit-History
+ECHO:
+ECHO Last %_PREV_COMMITS_TO_GET% commits in the local repository:
+ECHO:
+
+:: Natural command:
+::git log -6 --pretty=format:"%h - %an, %ar : %s"
+:: This will work from the command line, but in batch script percentage signs % must be doubled-up to be literal %%
+
+git log -%_PREV_COMMITS_TO_GET% --pretty=format:"%%h - %%an, %%ar : %%s"
+
+ECHO:
+PAUSE
+
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ECHO:
+
+ECHO:
+PAUSE
 
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
