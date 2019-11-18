@@ -33,7 +33,7 @@ ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ::Thanks to:
 ::https://stackoverflow.com/questions/180272/how-to-preview-git-pull-without-doing-fetch
 
-::git fetch
+git fetch
 
 ECHO:
 ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -139,7 +139,7 @@ EXPLORER "%CD%"
 ECHO:
 
 :RequireConfirmation
-SET /P "_CONFIRM_DONE=Edit files that are in conflict with a text editor, then type DONE:"
+SET /P "_CONFIRM_DONE=Edit files that are in conflict with a text editor, then type DONE: "
 IF /I NOT "%_CONFIRM_DONE%"=="DONE" GOTO RequireConfirmation
 
 ECHO:
