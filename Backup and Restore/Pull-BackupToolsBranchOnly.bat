@@ -6,7 +6,7 @@ REM ----------------------------------------------------------------------------
 
 :: Param1 = Folder location to pull branch to
 
-SET "_FOLDER_LOCATION=E:\Backup And Restore Tools2"
+SET "_FOLDER_LOCATION=E:\testing\demo\test\Backup And Restore Tools2"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -108,13 +108,13 @@ REM ECHO DEBUGGING: Beginning Main execution block.
 
 :: Create directory if it doesn't exist
 
-IF NOT EXIST "%_BRANCH%" MKDIR "%_BRANCH%"
+IF NOT EXIST "%_FOLDER_LOCATION%" MKDIR "%_FOLDER_LOCATION%"
 
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :: Navigate to directory
 
-CD "%_BRANCH%"
+CD "%_FOLDER_LOCATION%"
 
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -127,9 +127,19 @@ CD "%_BRANCH%"
 ::git remote add -t %_BRANCH% -f origin %_GITHUB_REPO%
 ::git checkout %_BRANCH%
 
+ECHO DEBUGGING: New pull location = "%_FOLDER_LOCATION%"
+ECHO DEBUGGING: _GIT_EXE = "%_GIT_EXE%"
+PAUSE
+
 "%_GIT_EXE%" init
 "%_GIT_EXE%" remote add -t %_BRANCH% -f origin %_GITHUB_REPO%
 "%_GIT_EXE%" checkout %_BRANCH%
+
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+:: Open the newly pulled folder
+
+"%_FOLDER_LOCATION%"
 
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
