@@ -51,3 +51,12 @@ PowerShell/Task Tracker/Twilio-Auth.ps1
 *.bak
 Linux/password.txt
 Linux/TEMPORARY_DELETE_ASAP.txt
+
+# =========================
+# Backup And Restore Branch
+# =========================
+/*.*
+BoxstarterInstall-NetworkingUtilities.bat
+WireShark/*
+
+# =========================
