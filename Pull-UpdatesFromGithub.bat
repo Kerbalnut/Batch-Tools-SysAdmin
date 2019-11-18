@@ -125,9 +125,7 @@ git -P diff --color-words
 ECHO:
 ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ECHO:
-ECHO Conflicting files:
-ECHO:
-ECHO "%CD%"
+ECHO Conflicting files ^("%CD%"^):
 ECHO:
 
 git -P diff --name-status
