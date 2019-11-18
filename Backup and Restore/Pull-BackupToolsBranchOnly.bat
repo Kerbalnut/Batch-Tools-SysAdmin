@@ -132,6 +132,8 @@ CD /D "%_FOLDER_LOCATION%"
 ::git remote add -t %_BRANCH% -f origin %_GITHUB_REPO%
 ::git checkout %_BRANCH%
 
+:: ### DEMO LINE, ADDED FROM FLASH DRIVE ### ::
+
 ECHO DEBUGGING: New pull location = "%_FOLDER_LOCATION%"
 ECHO DEBUGGING: Current location = "%CD%"
 ECHO DEBUGGING: _GIT_EXE = "%_GIT_EXE%"
