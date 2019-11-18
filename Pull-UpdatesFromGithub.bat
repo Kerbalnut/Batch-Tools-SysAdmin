@@ -133,14 +133,19 @@ ECHO:
 git -P diff --name-status
 
 ECHO:
-ECHO Edit files that are in conflict with a text editor:"
-PAUSE
+:: https://ss64.com/nt/choice.html
+CHOICE /M "Edit files that are in conflict with a text editor?"
+IF ERRORLEVEL 2 GOTO NoEditPrompt & REM No.
+IF ERRORLEVEL 1 REM Yes.
+:NOCHOICE
 EXPLORER "%CD%"
 ECHO:
 
 :RequireConfirmation
 SET /P "_CONFIRM_DONE=Edit files that are in conflict with a text editor, then type DONE: "
 IF /I NOT "%_CONFIRM_DONE%"=="DONE" GOTO RequireConfirmation
+
+:NoEditPrompt
 
 ECHO:
 ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
