@@ -91,7 +91,56 @@ ECHO:
 PAUSE
 ECHO:
 
-git merge
+git -P merge
+
+ECHO:
+ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ECHO:
+ECHO Conflicting commits:
+ECHO:
+PAUSE
+ECHO:
+
+git -P log --merge
+
+ECHO:
+ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ECHO:
+ECHO Conflicting files:
+ECHO:
+ECHO:
+
+git -P diff --name-status
+
+ECHO:
+ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ECHO:
+ECHO Details of file conflicts:
+ECHO:
+PAUSE
+ECHO:
+
+git -P diff --color-words
+
+ECHO:
+ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ECHO:
+ECHO Conflicting files:
+ECHO:
+ECHO "%CD%"
+ECHO:
+
+git -P diff --name-status
+
+ECHO:
+ECHO Edit files that are in conflict with a text editor:"
+PAUSE
+EXPLORER "%CD%"
+ECHO:
+
+:RequireConfirmation
+SET /P "_CONFIRM_DONE=Edit files that are in conflict with a text editor, then type DONE:"
+IF /I NOT "%_CONFIRM_DONE%"=="DONE" GOTO RequireConfirmation
 
 ECHO:
 ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
