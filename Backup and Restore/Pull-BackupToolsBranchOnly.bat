@@ -7,7 +7,7 @@ REM ----------------------------------------------------------------------------
 :: Param1 = Folder location to pull branch to
 
 SET "_FOLDER_LOCATION=E:\testing\demo\test\Backup And Restore Tools2"
-::SET "_FOLDER_LOCATION=%UserProfile%\Desktop\DEMO\foo\bar"
+SET "_FOLDER_LOCATION=%UserProfile%\Desktop\DEMO\foo\bar"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -151,7 +151,7 @@ ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :: Open the newly pulled folder
 
-"%_FOLDER_LOCATION%"
+EXPLORER "%_FOLDER_LOCATION%"
 
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

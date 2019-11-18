@@ -2,8 +2,11 @@
 
 SET "_PREV_COMMITS_TO_GET=8"
 
+<<<<<<< HEAD
 SET "_BRANCH=backup-and-restore"
 
+=======
+>>>>>>> refs/remotes/origin/backup-and-restore
 REM -------------------------------------------------------------------------------
 REM ===============================================================================
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -11,12 +14,19 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+<<<<<<< HEAD
 ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ::Thanks to:
 ::https://git-scm.com/book/en/v2/Git-Basics-Viewing-the-Commit-History
 ECHO:
 ECHO Last %_PREV_COMMITS_TO_GET% commits known in the local repository:
+=======
+::Thanks to:
+::https://git-scm.com/book/en/v2/Git-Basics-Viewing-the-Commit-History
+ECHO:
+ECHO Last %_PREV_COMMITS_TO_GET% commits in the local repository:
+>>>>>>> refs/remotes/origin/backup-and-restore
 ECHO:
 
 :: Natural command:
@@ -26,6 +36,7 @@ ECHO:
 git log -%_PREV_COMMITS_TO_GET% --pretty=format:"%%h - %%an, %%ar : %%s"
 
 ECHO:
+<<<<<<< HEAD
 ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -149,6 +160,18 @@ ECHO Pull:
 ECHO:
 PAUSE
 ECHO:
+=======
+PAUSE
+
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ECHO:
+
+ECHO:
+PAUSE
+
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+>>>>>>> refs/remotes/origin/backup-and-restore
 
 git pull
 
