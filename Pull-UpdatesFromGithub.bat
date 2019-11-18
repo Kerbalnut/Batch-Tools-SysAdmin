@@ -23,7 +23,7 @@ ECHO:
 ::git log -6 --pretty=format:"%h - %an, %ar : %s"
 :: This will work from the command line, but in batch script percentage signs % must be doubled-up to be literal %%
 
-:: ### DEMO LINE, ADDED FROM GITHUB ### ::
+git log -%_PREV_COMMITS_TO_GET% --pretty=format:"%%h - %%an, %%ar : %%s"
 
 ECHO:
 ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
