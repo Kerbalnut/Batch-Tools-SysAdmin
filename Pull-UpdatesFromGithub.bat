@@ -91,7 +91,9 @@ ECHO:
 PAUSE
 ECHO:
 
-git -P merge
+::file:///C:/Program%20Files/Git/mingw64/share/doc/git-doc/git-merge.html
+
+git -P merge -m "CMDLINE AUTO-MERGE: %_COMMIT_MESSAGE%"
 
 ECHO:
 ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -144,6 +146,8 @@ SET /P "_CONFIRM_DONE=Edit files that are in conflict with a text editor, then t
 IF /I NOT "%_CONFIRM_DONE%"=="DONE" GOTO RequireConfirmation
 
 :NoEditPrompt
+
+git -P merge --continue
 
 ECHO:
 ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
