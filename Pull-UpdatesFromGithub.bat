@@ -2,6 +2,8 @@
 
 SET "_PREV_COMMITS_TO_GET=8"
 
+SET "_BRANCH=backup-and-restore"
+
 REM -------------------------------------------------------------------------------
 REM ===============================================================================
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -27,6 +29,10 @@ PAUSE
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ECHO:
+
+::https://stackoverflow.com/questions/180272/how-to-preview-git-pull-without-doing-fetch
+
+git -P log HEAD..origin/%_BRANCH%
 
 ECHO:
 PAUSE
