@@ -4,8 +4,8 @@
 . C:\Users\Grant\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1 -LoadFunctions
 
 Function Get-UserInputDateTime {
-    $UserInputDate = PromptForChoice-DayDate -Verbose
-    Write-Host "`$UserInputDate = $UserInputDate"
+    $UserInputDate = PromptForChoice-DayDate #-Verbose
+    #Write-Host "`$UserInputDate = $UserInputDate"
     #Pause
 
     $UserInputHour = ReadPrompt-Hour
