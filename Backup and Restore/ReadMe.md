@@ -1,3 +1,14 @@
+#### Index:
+
+- **Full Backup & Restoration Plan: (Example)**
+- **Method 1: Windows Image backup**
+- **Method 2: Separate Data backup**
+- **Windows Installers:**
+- **Complete Backup & Restoration Plan steps in order**
+- **1. Initial Backup**
+- **2. Scheduled Backups**
+- **3. Maintain & Verify Backup health**
+- **4. Recovery Process**
 
 A full backup & restoration plan should also include the configuration of applications that were just installed by the Boxstarter script, such as importing bookmarks, setting themes, adding email accounts, etc.; and OS customizations that cannot be performed by Boxstarter, such as customizing the Taskbar, Start Menu, Desktop, etc.
 
