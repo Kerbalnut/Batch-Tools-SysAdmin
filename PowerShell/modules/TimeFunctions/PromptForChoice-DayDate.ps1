@@ -1,5 +1,220 @@
 
 #-----------------------------------------------------------------------------------------------------------------------
+function Convert-DoWNumberToMonSun { #----------------------------------------------------------------------------------
+	<#
+	.NOTES
+	Converts the PowerShell default:
+	
+	Day-of-Week in number format, (Sun-Sat = 0-6):
+	
+	0 = Sunday
+	1 = Monday
+	2 = Tuesday
+	3 = Wednesday
+	4 = Thursday
+	5 = Friday
+	6 = Saturday
+	
+	to
+    
+	Day-of-Week in number format, (Mon-Sun = 1-7):
+    
+	1 = Monday    - Dow = $default
+	2 = Tuesday   - Dow = $default
+	3 = Wednesday - Dow = $default
+	4 = Thursday  - Dow = $default
+	5 = Friday    - Dow = $default
+	6 = Saturday  - Dow = $default
+	7 = Sunday    - Dow = 7
+	#>
+	param(
+		[parameter(Position=0)]
+		[DateTime]$InputVal
+	)
+	$DoWNumberOneThruSeven = (Get-Date -Date $InputVal -UFormat %u)
+	If ([int]$DoWNumberOneThruSeven -eq 0) {$DoWNumberOneThruSeven = 7}
+	Write-Verbose "`$DoWNumberOneThruSeven = $DoWNumberOneThruSeven"
+	Return [int]$DoWNumberOneThruSeven
+} # End Convert-DoWNumberToMonSun function -----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
+function Convert-DoWNumberToSunSat { #----------------------------------------------------------------------------------
+	<#
+	.NOTES
+	Day-of-Week in number format, (Sun-Sat = 0-6):
+	
+	0 = Sunday
+	1 = Monday
+	2 = Tuesday
+	3 = Wednesday
+	4 = Thursday
+	5 = Friday
+	6 = Saturday
+	#>
+	param(
+		[parameter(Position=0)]
+		[DateTime]$InputVal
+	)
+	$DoWNumberZeroThruSix = Get-Date -Date $InputVal -UFormat %u
+	If ([int]$DoWNumberZeroThruSix -eq 7) {$DoWNumberZeroThruSix = 0}
+	Write-Verbose "`$DoWNumberZeroThruSix = $DoWNumberZeroThruSix"
+	Return [int]$DoWNumberZeroThruSix
+} # End Convert-DoWNumberToSunSat function -----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+   
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Get beginning of current week
+
+#-----------------------------------------------------------------------------------------------------------------------
+function Get-MondayOfWeekInt { #----------------------------------------------------------------------------------------
+	<#	
+	.SYNOPSIS
+	Get Monday of current week
+
+	.NOTES
+	Day-of-Week in number format, (Mon-Sun = 1-7):
+
+	1 = Monday    - Monday is 1 - 0 = 1
+	2 = Tuesday   - Monday is 2 - 1 = 1
+	3 = Wednesday - Monday is 3 - 2 = 1
+	4 = Thursday  - Monday is 4 - 3 = 1
+	5 = Friday    - Monday is 5 - 4 = 1
+	6 = Saturday  - Monday is 6 - 5 = 1
+	7 = Sunday    - Monday is 7 - 6 = 1
+	
+	
+	1 = Monday    - Monday is $Input - 0 = 1
+	2 = Tuesday   - Monday is $Input - 1 = 1
+	3 = Wednesday - Monday is $Input - 2 = 1
+	4 = Thursday  - Monday is $Input - 3 = 1
+	5 = Friday    - Monday is $Input - 4 = 1
+	6 = Saturday  - Monday is $Input - 5 = 1
+	7 = Sunday    - Monday is $Input - 6 = 1
+	#>
+	param(
+		[parameter(Position=0)]
+		[int]$DoWInput
+	)
+	$ModifyBy = [int]$DoWInput - 1
+	$MondayOfWeek = [int]$DoWInput - [int]$ModifyBy
+	Return [int]$MondayOfWeek
+} # End Get-MondayOfWeekInt function -----------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
+function Get-SundayOfWeek { #-------------------------------------------------------------------------------------------
+	<#	
+	.SYNOPSIS
+	Get Sunday of current week (Sun-Mon)
+
+	.NOTES
+	Day-of-Week in number format, (Sun-Mon = 0-6):
+	
+	0 = Sunday
+	1 = Monday
+	2 = Tuesday
+	3 = Wednesday
+	4 = Thursday
+	5 = Friday
+	6 = Saturday
+
+	0 = Monday    - Monday is $Input - 0 = 0
+	1 = Tuesday   - Monday is $Input - 1 = 0
+	2 = Wednesday - Monday is $Input - 2 = 0
+	3 = Thursday  - Monday is $Input - 3 = 0
+	4 = Friday    - Monday is $Input - 4 = 0
+	5 = Saturday  - Monday is $Input - 5 = 0
+	6 = Sunday    - Monday is $Input - 6 = 0
+	#>
+	param(
+		[parameter(Position=0)]
+		[DateTime]$DoWInput
+	)
+	$ModifyBy = [int](Get-Date -Date $DoWInput -UFormat %u) * -1
+	$MondayOfWeek = (Get-Date -Date $DoWInput).AddDays($ModifyBy)
+	Return [DateTime]$MondayOfWeek
+} # End Get-SundayOfWeek function --------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Get end of current week
+
+#-----------------------------------------------------------------------------------------------------------------------
+function Get-SundayOfWeekInt { #----------------------------------------------------------------------------------------
+	<#
+	.SYNOPSIS
+	Get Sunday of current week (Mon-Sun)
+
+	.NOTES
+	Day-of-Week in number format, (Mon-Sun = 1-7):
+
+	1 = Monday    - Sunday is 1 + 6 = 7
+	2 = Tuesday   - Sunday is 2 + 5 = 7
+	3 = Wednesday - Sunday is 3 + 4 = 7
+	4 = Thursday  - Sunday is 4 + 3 = 7
+	5 = Friday    - Sunday is 5 + 2 = 7
+	6 = Saturday  - Sunday is 6 + 1 = 7
+	7 = Sunday    - Sunday is 7 + 0 = 7
+		
+	1 = Monday    - Sunday is $Input + 6 = 7
+	2 = Tuesday   - Sunday is $Input + 5 = 7
+	3 = Wednesday - Sunday is $Input + 4 = 7
+	4 = Thursday  - Sunday is $Input + 3 = 7
+	5 = Friday    - Sunday is $Input + 2 = 7
+	6 = Saturday  - Sunday is $Input + 1 = 7
+	7 = Sunday    - Sunday is $Input + 0 = 7
+	#>
+	param(
+		[parameter(Position=0)]
+		[int]$DoWInput
+	)
+	[int]$ModifyBy = 7 - [int]$DoWInput
+	[int]$SundayOfWeek = [int]$DoWInput + [int]$ModifyBy
+	Return [int]$SundayOfWeek
+} # End Get-SundayOfWeekInt function -----------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
+function Get-SaturdayOfWeek { #-----------------------------------------------------------------------------------------
+	<#
+	.SYNOPSIS
+	Get Sunday of current week (Sun-Sat)
+
+	.NOTES
+	Day-of-Week in number format, (Sun-Sat = 0-6):
+	
+	0 = Sunday
+	1 = Monday
+	2 = Tuesday
+	3 = Wednesday
+	4 = Thursday
+	5 = Friday
+	6 = Saturday
+	
+	0 = Monday    - Sunday is $Input + 6 = 6
+	1 = Tuesday   - Sunday is $Input + 5 = 6
+	2 = Wednesday - Sunday is $Input + 4 = 6
+	3 = Thursday  - Sunday is $Input + 3 = 6
+	4 = Friday    - Sunday is $Input + 2 = 6
+	5 = Saturday  - Sunday is $Input + 1 = 6
+	6 = Sunday    - Sunday is $Input + 0 = 6
+	#>
+	param(
+		[parameter(Position=0)]
+		[DateTime]$DoWInput
+	)
+	$ModifyBy = 6 - [int](Get-Date -Date $DoWInput -UFormat %u)
+	$SundayOfWeek = (Get-Date -Date $DoWInput).AddDays($ModifyBy)
+	Return [DateTime]$SundayOfWeek
+} # End Get-SaturdayOfWeek function ------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#-----------------------------------------------------------------------------------------------------------------------
 Function PromptForChoice-DayDate { #------------------------------------------------------------------------------------
 	
 	<#
@@ -26,229 +241,6 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 		[Parameter(Mandatory=$false)]
 		[string]$HintPhrase
 	)
-	
-	# Sub-functions:
-	#=======================================================================================================================
-	#=======================================================================================================================
-	
-	#-----------------------------------------------------------------------------------------------------------------------
-	function Convert-DoWNumberToMonSun { #----------------------------------------------------------------------------------
-		<#
-		.NOTES
-		Converts the PowerShell default:
-		
-		Day-of-Week in number format, (Sun-Sat = 0-6):
-		
-		0 = Sunday
-		1 = Monday
-		2 = Tuesday
-		3 = Wednesday
-		4 = Thursday
-		5 = Friday
-		6 = Saturday
-		
-		to
-
-		Day-of-Week in number format, (Mon-Sun = 1-7):
-		
-		1 = Monday    - Dow = $default
-		2 = Tuesday   - Dow = $default
-		3 = Wednesday - Dow = $default
-		4 = Thursday  - Dow = $default
-		5 = Friday    - Dow = $default
-		6 = Saturday  - Dow = $default
-		7 = Sunday    - Dow = 7
-		#>
-		param(
-			[parameter(Position=0)]
-			[DateTime]$InputVal
-		)
-		$DoWNumberOneThruSeven = (Get-Date -Date $InputVal -UFormat %u)
-		If ([int]$DoWNumberOneThruSeven -eq 0) {$DoWNumberOneThruSeven = 7}
-		Write-Verbose "`$DoWNumberOneThruSeven = $DoWNumberOneThruSeven"
-		Return [int]$DoWNumberOneThruSeven
-	} # End Convert-DoWNumberToMonSun function -----------------------------------------------------------------------------
-	#-----------------------------------------------------------------------------------------------------------------------
-	
-	#-----------------------------------------------------------------------------------------------------------------------
-	function Convert-DoWNumberToSunSat { #----------------------------------------------------------------------------------
-		<#
-		.NOTES
-		Day-of-Week in number format, (Sun-Sat = 0-6):
-		
-		0 = Sunday
-		1 = Monday
-		2 = Tuesday
-		3 = Wednesday
-		4 = Thursday
-		5 = Friday
-		6 = Saturday
-		#>
-		param(
-			[parameter(Position=0)]
-			[DateTime]$InputVal
-		)
-		$DoWNumberZeroThruSix = Get-Date -Date $InputVal -UFormat %u
-		If ([int]$DoWNumberZeroThruSix -eq 7) {$DoWNumberZeroThruSix = 0}
-		Write-Verbose "`$DoWNumberZeroThruSix = $DoWNumberZeroThruSix"
-		Return [int]$DoWNumberZeroThruSix
-	} # End Convert-DoWNumberToSunSat function -----------------------------------------------------------------------------
-	#-----------------------------------------------------------------------------------------------------------------------
-    
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
-	# Get beginning of current week
-	
-	#-----------------------------------------------------------------------------------------------------------------------
-	function Get-MondayOfWeekInt { #----------------------------------------------------------------------------------------
-		<#	
-		.SYNOPSIS
-		Get Monday of current week
-	
-		.NOTES
-		Day-of-Week in number format, (Mon-Sun = 1-7):
-	
-		1 = Monday    - Monday is 1 - 0 = 1
-		2 = Tuesday   - Monday is 2 - 1 = 1
-		3 = Wednesday - Monday is 3 - 2 = 1
-		4 = Thursday  - Monday is 4 - 3 = 1
-		5 = Friday    - Monday is 5 - 4 = 1
-		6 = Saturday  - Monday is 6 - 5 = 1
-		7 = Sunday    - Monday is 7 - 6 = 1
-		
-		
-		1 = Monday    - Monday is $Input - 0 = 1
-		2 = Tuesday   - Monday is $Input - 1 = 1
-		3 = Wednesday - Monday is $Input - 2 = 1
-		4 = Thursday  - Monday is $Input - 3 = 1
-		5 = Friday    - Monday is $Input - 4 = 1
-		6 = Saturday  - Monday is $Input - 5 = 1
-		7 = Sunday    - Monday is $Input - 6 = 1
-		#>
-		param(
-			[parameter(Position=0)]
-			[int]$DoWInput
-		)
-		$ModifyBy = [int]$DoWInput - 1
-		$MondayOfWeek = [int]$DoWInput - [int]$ModifyBy
-		Return [int]$MondayOfWeek
-	} # End Get-MondayOfWeekInt function -----------------------------------------------------------------------------------
-	#-----------------------------------------------------------------------------------------------------------------------
-
-	#-----------------------------------------------------------------------------------------------------------------------
-	function Get-SundayOfWeek { #-------------------------------------------------------------------------------------------
-		<#	
-		.SYNOPSIS
-		Get Sunday of current week (Sun-Mon)
-	
-		.NOTES
-		Day-of-Week in number format, (Sun-Mon = 0-6):
-		
-		0 = Sunday
-		1 = Monday
-		2 = Tuesday
-		3 = Wednesday
-		4 = Thursday
-		5 = Friday
-		6 = Saturday
-	
-		0 = Monday    - Monday is $Input - 0 = 0
-		1 = Tuesday   - Monday is $Input - 1 = 0
-		2 = Wednesday - Monday is $Input - 2 = 0
-		3 = Thursday  - Monday is $Input - 3 = 0
-		4 = Friday    - Monday is $Input - 4 = 0
-		5 = Saturday  - Monday is $Input - 5 = 0
-		6 = Sunday    - Monday is $Input - 6 = 0
-		#>
-		param(
-			[parameter(Position=0)]
-			[DateTime]$DoWInput
-		)
-		$ModifyBy = [int](Get-Date -Date $DoWInput -UFormat %u) * -1
-		$MondayOfWeek = (Get-Date -Date $DoWInput).AddDays($ModifyBy)
-		Return [DateTime]$MondayOfWeek
-	} # End Get-SundayOfWeek function --------------------------------------------------------------------------------------
-	#-----------------------------------------------------------------------------------------------------------------------
-	
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
-	# Get end of current week
-
-	#-----------------------------------------------------------------------------------------------------------------------
-	function Get-SundayOfWeekInt { #----------------------------------------------------------------------------------------
-		<#
-		.SYNOPSIS
-		Get Sunday of current week (Mon-Sun)
-	
-		.NOTES
-		Day-of-Week in number format, (Mon-Sun = 1-7):
-	
-		1 = Monday    - Sunday is 1 + 6 = 7
-		2 = Tuesday   - Sunday is 2 + 5 = 7
-		3 = Wednesday - Sunday is 3 + 4 = 7
-		4 = Thursday  - Sunday is 4 + 3 = 7
-		5 = Friday    - Sunday is 5 + 2 = 7
-		6 = Saturday  - Sunday is 6 + 1 = 7
-		7 = Sunday    - Sunday is 7 + 0 = 7
-			
-		1 = Monday    - Sunday is $Input + 6 = 7
-		2 = Tuesday   - Sunday is $Input + 5 = 7
-		3 = Wednesday - Sunday is $Input + 4 = 7
-		4 = Thursday  - Sunday is $Input + 3 = 7
-		5 = Friday    - Sunday is $Input + 2 = 7
-		6 = Saturday  - Sunday is $Input + 1 = 7
-		7 = Sunday    - Sunday is $Input + 0 = 7
-		#>
-		param(
-			[parameter(Position=0)]
-			[int]$DoWInput
-		)
-		[int]$ModifyBy = 7 - [int]$DoWInput
-		[int]$SundayOfWeek = [int]$DoWInput + [int]$ModifyBy
-		Return [int]$SundayOfWeek
-	} # End Get-SundayOfWeekInt function -----------------------------------------------------------------------------------
-	#-----------------------------------------------------------------------------------------------------------------------
-
-	#-----------------------------------------------------------------------------------------------------------------------
-	function Get-SaturdayOfWeek { #-----------------------------------------------------------------------------------------
-		<#
-		.SYNOPSIS
-		Get Sunday of current week (Sun-Sat)
-	
-		.NOTES
-		Day-of-Week in number format, (Sun-Sat = 0-6):
-		
-		0 = Sunday
-		1 = Monday
-		2 = Tuesday
-		3 = Wednesday
-		4 = Thursday
-		5 = Friday
-		6 = Saturday
-		
-		0 = Monday    - Sunday is $Input + 6 = 6
-		1 = Tuesday   - Sunday is $Input + 5 = 6
-		2 = Wednesday - Sunday is $Input + 4 = 6
-		3 = Thursday  - Sunday is $Input + 3 = 6
-		4 = Friday    - Sunday is $Input + 2 = 6
-		5 = Saturday  - Sunday is $Input + 1 = 6
-		6 = Sunday    - Sunday is $Input + 0 = 6
-		#>
-		param(
-			[parameter(Position=0)]
-			[DateTime]$DoWInput
-		)
-		$ModifyBy = 6 - [int](Get-Date -Date $DoWInput -UFormat %u)
-		$SundayOfWeek = (Get-Date -Date $DoWInput).AddDays($ModifyBy)
-		Return [DateTime]$SundayOfWeek
-	} # End Get-SaturdayOfWeek function ------------------------------------------------------------------------------------
-	#-----------------------------------------------------------------------------------------------------------------------
-	
-	#=======================================================================================================================
-	#=======================================================================================================================
-	# /Sub-functions
-	
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
