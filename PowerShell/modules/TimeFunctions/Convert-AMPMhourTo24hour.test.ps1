@@ -115,15 +115,15 @@ Describe 'Convert-AMPMhourTo24hour Success/Failure Tests' {
 			((Get-Command Convert-AMPMhourTo24hour).Parameters['Hours'].Attributes | ? { $_ -is [parameter] }).Mandatory | Should Be $true
 		}
 		
-		It 'Cannot be both AM and PM, should fail' {
+		It 'Cannot be both AM and PM, should fail (no value)' {
 			{Convert-AMPMhourTo24hour -AM -PM} | Should Throw
 		}
 		
-		It 'Cannot be both AM and PM, should fail' {
+		It 'Cannot be both AM and PM, should fail (valid positional parameter)' {
 			{Convert-AMPMhourTo24hour 1 -AM -PM} | Should Throw
 		}
 		
-		It 'Cannot be both AM and PM, should fail' {
+		It 'Cannot be both AM and PM, should fail (valid piped-in parameter)' {
 			{1 | Convert-AMPMhourTo24hour -AM -PM} | Should Throw
 		}
 		
@@ -442,8 +442,9 @@ Describe 'Convert-AMPMhourTo24hour 0 thru 23 conversion test' {
 	
 	Context ':: 24-hour range input = result check ::' {
 		
-<#
---AM/PM----24-hr--------------------------------------------------------------------------------
+<#Conversion table between AM/PM hours and 24-hour time format:
+
+--AM/PM----24-hr-------------------------------------------------------------------------------------
 12:00 AM = 00:00____*** exception: if AM-hours = 12, then 24-hours = 0			\--------  (Midnight)
  1:00 AM = 01:00	\															 |
  2:00 AM = 02:00	 |															 |
@@ -455,7 +456,7 @@ Describe 'Convert-AMPMhourTo24hour 0 thru 23 conversion test' {
  8:00 AM = 08:00	 |															 |
  9:00 AM = 09:00	 |															 |
 10:00 AM = 10:00	 |															 |
-11:00 AM = 11:00____/___________________________________________________________/_______________
+11:00 AM = 11:00____/___________________________________________________________/____________________
 12:00 PM = 12:00____*** exception: if PM-hours = 12, then 24-hours = 12			\--------  (Noon)
  1:00 PM = 13:00	\															 |
  2:00 PM = 14:00	 |															 |
@@ -467,8 +468,9 @@ Describe 'Convert-AMPMhourTo24hour 0 thru 23 conversion test' {
  8:00 PM = 20:00	 |															 |
  9:00 PM = 21:00	 |															 |
 10:00 PM = 22:00	 |															 |
-11:00 PM = 23:00____/															/
-------------------------------------------------------------------------------------------------
+11:00 PM = 23:00____/___________________________________________________________/
+12:00 AM = 00:00____*** exception: if AM-hours = 12, then 24-hours = 0			\--------  (Midnight)
+-----------------------------------------------------------------------------------------------------
 #>
         
 		It '12:00 AM = 00:00 (Midnight)' {
@@ -533,7 +535,7 @@ Describe 'Convert-AMPMhourTo24hour 0 thru 23 conversion test' {
 		
 		It '12:00 PM = 12:00 (Noon)' {
             # (PM hour + 12) = 24-hour, EXCEPT if PM-hours = 12, then 24-hours = 12
-            Convert-AMPMhourTo24hour 12 -AM | Should -Be 12
+            Convert-AMPMhourTo24hour 12 -PM | Should -Be 12
 		}
         
 		It '1:00 PM = 13:00' {
