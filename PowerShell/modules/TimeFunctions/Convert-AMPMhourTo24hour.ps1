@@ -121,7 +121,7 @@ Returns a [int32] integer number (whole number, not decimal, not negative) betwe
 Conversion table between AM/PM hours and 24-hour time format:
 
 --AM/PM----24-hr--------------------------------------------------------------------------------
-12:00 AM = 00:00____*** exception: if AM-hours = 12, then 24-hours = 0			\
+12:00 AM = 00:00____*** exception: if AM-hours = 12, then 24-hours = 0			\--------  (Midnight)
  1:00 AM = 01:00	\															 |
  2:00 AM = 02:00	 |															 |
  3:00 AM = 03:00	 |															 |
@@ -133,7 +133,7 @@ Conversion table between AM/PM hours and 24-hour time format:
  9:00 AM = 09:00	 |															 |
 10:00 AM = 10:00	 |															 |
 11:00 AM = 11:00____/___________________________________________________________/_______________
-12:00 PM = 12:00____*** exception: if PM-hours = 12, then 24-hours = 12			\
+12:00 PM = 12:00____*** exception: if PM-hours = 12, then 24-hours = 12			\--------  (Noon)
  1:00 PM = 13:00	\															 |
  2:00 PM = 14:00	 |															 |
  3:00 PM = 15:00	 |															 |
