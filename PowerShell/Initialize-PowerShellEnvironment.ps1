@@ -70,6 +70,27 @@ Update-Module -Name Pester
 
 #-----------------------------------------------------------------------------------------------------------------------
 
+# Invoke-Build module
+
+#https://www.powershellgallery.com/packages/InvokeBuild
+# Invoke-Build is distributed as the module InvokeBuild. In PowerShell 5.0 or with PowerShellGet you can install it by this command
+
+Install-Module InvokeBuild
+
+# To install the module with Chocolatey, run the following command. NOTE: This package is maintained by its owner, see package info.
+
+choco install invoke-build -y
+
+# Module commands: Invoke-Build, Build-Checkpoint, Build-Parallel. Import the module in order to make them available:
+
+Import-Module InvokeBuild
+
+#-----------------------------------------------------------------------------------------------------------------------
+
+
+
+#-----------------------------------------------------------------------------------------------------------------------
+
 
 
 #-----------------------------------------------------------------------------------------------------------------------
