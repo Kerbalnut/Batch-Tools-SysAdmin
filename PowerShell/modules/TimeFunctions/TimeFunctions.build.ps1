@@ -10,3 +10,5 @@ https://github.com/nightroman/Invoke-Build
 http://duffney.io/GettingStartedWithInvokeBuild#powershell-module-development-workflow
 #>
 
+Invoke-Pester 
+
