@@ -1801,7 +1801,7 @@ Set-Alias -Value "Read-PromptMinute" -Name "ReadPrompt-Minute" # -Scope Global
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
-Function Read-PromptDayOfMonth { #------------------------------------------------------------------------------------------
+Function Read-PromptDayOfMonth { #--------------------------------------------------------------------------------------
 	
 	#http://techgenix.com/powershell-functions-common-parameters/
 	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
@@ -1830,12 +1830,12 @@ Function Read-PromptDayOfMonth { #----------------------------------------------
 	
 	Return [int]$OutputValue
 	
-} # End Read-PromptDayOfMonth function -------------------------------------------------------------------------------------
+} # End Read-PromptDayOfMonth function ---------------------------------------------------------------------------------
 Set-Alias -Value "Read-PromptDayOfMonth" -Name "ReadPrompt-DayOfMonth" # -Scope Global
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
-Function Read-PromptMonth { #------------------------------------------------------------------------------------------
+Function Read-PromptMonth { #-------------------------------------------------------------------------------------------
 	
 	#http://techgenix.com/powershell-functions-common-parameters/
 	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
@@ -1864,12 +1864,12 @@ Function Read-PromptMonth { #---------------------------------------------------
 	
 	Return [int]$OutputValue
 	
-} # End Read-PromptMonth function -------------------------------------------------------------------------------------
+} # End Read-PromptMonth function --------------------------------------------------------------------------------------
 Set-Alias -Value "Read-PromptMonth" -Name "ReadPrompt-Month" # -Scope Global
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
-Function Read-PromptYear { #------------------------------------------------------------------------------------------
+Function Read-PromptYear { #--------------------------------------------------------------------------------------------
 	
 	#http://techgenix.com/powershell-functions-common-parameters/
 	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
@@ -1898,6 +1898,6 @@ Function Read-PromptYear { #----------------------------------------------------
 	
 	Return [int]$OutputValue
 	
-} # End Read-PromptYear function -------------------------------------------------------------------------------------
+} # End Read-PromptYear function ---------------------------------------------------------------------------------------
 Set-Alias -Value "Read-PromptYear" -Name "ReadPrompt-Year" # -Scope Global
 #-----------------------------------------------------------------------------------------------------------------------
