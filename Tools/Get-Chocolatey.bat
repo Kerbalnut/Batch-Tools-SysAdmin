@@ -4,6 +4,7 @@
 
 :: RUNAS /noprofile /user:[DOMAIN]\[USERNAME] "CMD.EXE /C ".\Get-Chocolatey.bat""
 
+:RunAsAdministrator
 :: BatchGotAdmin International-Fix Code
 :: https://sites.google.com/site/eneerge/home/BatchGotAdmin
 :-------------------------------------------------------------------------------
@@ -28,8 +29,14 @@ IF '%ERRORLEVEL%' NEQ '0' (
     IF EXIST "%Temp%\getadmin.vbs" ( DEL "%Temp%\getadmin.vbs" )
     PUSHD "%CD%"
     CD /D "%~dp0"
+	ECHO BatchGotAdmin Permissions set.
 :-------------------------------------------------------------------------------
+:: End Run-As-Administrator function
 
+
+::@powershell -NoProfile -ExecutionPolicy Unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))" && SET PATH=%PATH%;%SYSTEMDRIVE%\chocolatey\bin;%ALLUSERSPROFILE%\chocolatey\bin
+
+::@powershell -NoProfile -ExecutionPolicy unrestricted -Command "(iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))) >$null 2>&1" && SET PATH="%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
 
 @powershell -NoProfile -ExecutionPolicy Unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))" && SET PATH=%PATH%;%SYSTEMDRIVE%\chocolatey\bin;%ALLUSERSPROFILE%\chocolatey\bin
 :: @powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))" && SET PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin

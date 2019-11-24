@@ -44,6 +44,26 @@ pause
 
 #
 
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#-----------------------------------------------------------------------------------------------------------------------
+Function DateToIso($Zeit) { #-------------------------------------------------------------------------------------------
+  <#
+  .NOTES
+  Source Dr J R Stockton 
+  .LINK
+  https://ss64.com/ps/syntax-dateformats.htmls
+  #>
+  "Returns an array containing the ISO Year, Week and DayofWeek"
+  $DayofWeek = +$Zeit.DayofWeek
+  if ($DayofWeek -eq 0) { $DayofWeek = 7 }           # Mon=1..Sun=7
+  $Thursday = $Zeit.AddDays(4 - $DayofWeek)          # Go to nearest Thursday
+  $Week = 1+[Math]::Floor(($Thursday.DayOfYear-1)/7) # Adjusted seventh
+  $Year = $Thursday.Year         # Needed
+  $Year, $Week, $DayofWeek
+} # End DateToIso function ---------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
 #-----------------------------------------------------------------------------------------------------------------------
 Function Pick-TimeStampTag { #---------------------------------------------------------------------------------------------------
 	<#

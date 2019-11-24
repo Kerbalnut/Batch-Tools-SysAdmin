@@ -4,6 +4,7 @@
 
 :: RUNAS /noprofile /user:[DOMAIN]\[USERNAME] "CMD.EXE /C ".\Get-Chocolatey.bat""
 
+:RunAsAdministrator
 :: BatchGotAdmin International-Fix Code
 :: https://sites.google.com/site/eneerge/home/BatchGotAdmin
 :-------------------------------------------------------------------------------
@@ -28,7 +29,9 @@ IF '%ERRORLEVEL%' NEQ '0' (
     IF EXIST "%Temp%\getadmin.vbs" ( DEL "%Temp%\getadmin.vbs" )
     PUSHD "%CD%"
     CD /D "%~dp0"
+	ECHO BatchGotAdmin Permissions set.
 :-------------------------------------------------------------------------------
+:: End Run-As-Administrator function
 
 :: https://chocolatey.org/packages/win2003-mklink
 ECHO If you install Chocolatey on Windows 2003, you should choose another location over the default install (in this case, preferably one without spaces in the path). 

@@ -194,6 +194,7 @@ There are 2 different Run-As-Administrator functions in use. **#1** uses a `cacl
 
 **#1** [BatchGotAdmin International-Fix Code](https://sites.google.com/site/eneerge/home/BatchGotAdmin) does not forward any parameters to the elevated script. Always elevates a script when the **:RunAsAdministrator** block is the first code execution added to the top. 
 
+- functions > RunAsAdministrator > BatchGotAdmin International-Fix Code.bat
 - Tools > Get-Chocolatey.bat
 - Tools > Install-Chocolatey.bat
 - Tools > Install-XPChocolatey.bat
@@ -204,6 +205,7 @@ There are 2 different Run-As-Administrator functions in use. **#1** uses a `cacl
 
 **#2** [SS64 Run with elevated permissions script (ElevateMe.vbs)](http://ss64.com/vb/syntax-elevate.html) can accept parameters and pass them along to the elevated script. Includes structure to prompt user for elevation, automatically elevate always, or skip elevation always. 
 
+- functions > RunAsAdministrator > SS64 Run with elevated permissions (ElevateMe.vbs).bat
 - Tools > CompareTo-Parent.bat
 - Tools > Debug-TroubleshootBatchFile.bat
 - functions-template.bat

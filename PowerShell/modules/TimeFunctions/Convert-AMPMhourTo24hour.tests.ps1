@@ -13,7 +13,7 @@
 #https://devblogs.microsoft.com/scripting/what-is-pester-and-why-should-i-care/
 
 #=======================================================================================================================
-Describe 'Convert-AMPMhourTo24hour' {
+Describe 'Convert-AMPMhourTo24hour Success/Failure Tests' {
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	#-----------------------------------------------------------------------------------------------------------------------
 	
@@ -115,15 +115,15 @@ Describe 'Convert-AMPMhourTo24hour' {
 			((Get-Command Convert-AMPMhourTo24hour).Parameters['Hours'].Attributes | ? { $_ -is [parameter] }).Mandatory | Should Be $true
 		}
 		
-		It 'Cannot be both AM and PM, should fail' {
+		It 'Cannot be both AM and PM, should fail (no value)' {
 			{Convert-AMPMhourTo24hour -AM -PM} | Should Throw
 		}
 		
-		It 'Cannot be both AM and PM, should fail' {
+		It 'Cannot be both AM and PM, should fail (valid positional parameter)' {
 			{Convert-AMPMhourTo24hour 1 -AM -PM} | Should Throw
 		}
 		
-		It 'Cannot be both AM and PM, should fail' {
+		It 'Cannot be both AM and PM, should fail (valid piped-in parameter)' {
 			{1 | Convert-AMPMhourTo24hour -AM -PM} | Should Throw
 		}
 		
@@ -427,6 +427,178 @@ Describe 'Convert-AMPMhourTo24hour Examples' {
 		
 	}
 	
+	
+	#-----------------------------------------------------------------------------------------------------------------------
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+}
+#=======================================================================================================================
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#=======================================================================================================================
+Describe 'Convert-AMPMhourTo24hour 0 thru 23 conversion test' {
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	#-----------------------------------------------------------------------------------------------------------------------
+	
+	Context ':: 24-hour range input = result check ::' {
+		
+<#Conversion table between AM/PM hours and 24-hour time format:
+
+--AM/PM----24-hr-------------------------------------------------------------------------------------
+12:00 AM = 00:00____*** exception: if AM-hours = 12, then 24-hours = 0			\--------  (Midnight)
+ 1:00 AM = 01:00	\															 |
+ 2:00 AM = 02:00	 |															 |
+ 3:00 AM = 03:00	 |															 |
+ 4:00 AM = 04:00	 |															 |
+ 5:00 AM = 05:00	 |															 |
+ 6:00 AM = 06:00	 |------- AM-hour = 24-hours								 |-------  AM
+ 7:00 AM = 07:00	 |															 |
+ 8:00 AM = 08:00	 |															 |
+ 9:00 AM = 09:00	 |															 |
+10:00 AM = 10:00	 |															 |
+11:00 AM = 11:00____/___________________________________________________________/____________________
+12:00 PM = 12:00____*** exception: if PM-hours = 12, then 24-hours = 12			\--------  (Noon)
+ 1:00 PM = 13:00	\															 |
+ 2:00 PM = 14:00	 |															 |
+ 3:00 PM = 15:00	 |															 |
+ 4:00 PM = 16:00	 |															 |
+ 5:00 PM = 17:00	 |															 |
+ 6:00 PM = 18:00	 |------- (PM-hours + 12) = 24-hours						 |-------  PM
+ 7:00 PM = 19:00	 |															 |
+ 8:00 PM = 20:00	 |															 |
+ 9:00 PM = 21:00	 |															 |
+10:00 PM = 22:00	 |															 |
+11:00 PM = 23:00____/___________________________________________________________/
+12:00 AM = 00:00____*** exception: if AM-hours = 12, then 24-hours = 0			\--------  (Midnight)
+-----------------------------------------------------------------------------------------------------
+#>
+        
+		It '12:00 AM = 00:00 (Midnight)' {
+            # AM hour = 24-hour, EXCEPT if AM-hours = 12, then 24-hours = 0
+            Convert-AMPMhourTo24hour 12 -AM | Should -Be 0
+		}
+		
+		It '1:00 AM = 01:00' {
+            # AM hour = 24-hour
+            Convert-AMPMhourTo24hour 1 -AM | Should -Be 1
+		}
+		
+		It '2:00 AM = 02:00' {
+            # AM hour = 24-hour
+            Convert-AMPMhourTo24hour 2 -AM | Should -Be 2
+		}
+		
+		It '3:00 AM = 03:00' {
+            # AM hour = 24-hour
+            Convert-AMPMhourTo24hour 3 -AM | Should -Be 3
+		}
+		
+		It '4:00 AM = 04:00' {
+            # AM hour = 24-hour
+            Convert-AMPMhourTo24hour 4 -AM | Should -Be 4
+		}
+		
+		It '5:00 AM = 05:00' {
+            # AM hour = 24-hour
+            Convert-AMPMhourTo24hour 5 -AM | Should -Be 5
+		}
+		
+		It '6:00 AM = 06:00' {
+            # AM hour = 24-hour
+            Convert-AMPMhourTo24hour 6 -AM | Should -Be 6
+		}
+		
+		It '7:00 AM = 07:00' {
+            # AM hour = 24-hour
+            Convert-AMPMhourTo24hour 7 -AM | Should -Be 7
+		}
+		
+		It '8:00 AM = 08:00' {
+            # AM hour = 24-hour
+            Convert-AMPMhourTo24hour 8 -AM | Should -Be 8
+		}
+		
+		It '9:00 AM = 09:00' {
+            # AM hour = 24-hour
+            Convert-AMPMhourTo24hour 9 -AM | Should -Be 9
+		}
+		
+		It '10:00 AM = 10:00' {
+            # AM hour = 24-hour
+            Convert-AMPMhourTo24hour 10 -AM | Should -Be 10
+		}
+		
+		It '11:00 AM = 11:00' {
+            # AM hour = 24-hour
+            Convert-AMPMhourTo24hour 11 -AM | Should -Be 11
+		}
+		
+		It '12:00 PM = 12:00 (Noon)' {
+            # (PM hour + 12) = 24-hour, EXCEPT if PM-hours = 12, then 24-hours = 12
+            Convert-AMPMhourTo24hour 12 -PM | Should -Be 12
+		}
+        
+		It '1:00 PM = 13:00' {
+            # (PM hour + 12) = 24-hour
+            Convert-AMPMhourTo24hour 1 -PM | Should -Be 13
+		}
+		
+		It '2:00 PM = 14:00' {
+            # (PM hour + 12) = 24-hour
+            Convert-AMPMhourTo24hour 2 -PM | Should -Be 14
+		}
+		
+		It '3:00 PM = 15:00' {
+            # (PM hour + 12) = 24-hour
+            Convert-AMPMhourTo24hour 3 -PM | Should -Be 15
+		}
+		
+		It '4:00 PM = 16:00' {
+            # (PM hour + 12) = 24-hour
+            Convert-AMPMhourTo24hour 4 -PM | Should -Be 16
+		}
+		
+		It '5:00 PM = 17:00' {
+            # (PM hour + 12) = 24-hour
+            Convert-AMPMhourTo24hour 5 -PM | Should -Be 17
+		}
+		
+		It '6:00 PM = 18:00' {
+            # (PM hour + 12) = 24-hour
+            Convert-AMPMhourTo24hour 6 -PM | Should -Be 18
+		}
+		
+		It '7:00 PM = 19:00' {
+            # (PM hour + 12) = 24-hour
+            Convert-AMPMhourTo24hour 7 -PM | Should -Be 19
+		}
+		
+		It '8:00 PM = 20:00' {
+            # (PM hour + 12) = 24-hour
+            Convert-AMPMhourTo24hour 8 -PM | Should -Be 20
+		}
+		
+		It '9:00 PM = 21:00' {
+            # (PM hour + 12) = 24-hour
+            Convert-AMPMhourTo24hour 9 -PM | Should -Be 21
+		}
+		
+		It '10:00 PM = 22:00' {
+            # (PM hour + 12) = 24-hour
+            Convert-AMPMhourTo24hour 10 -PM | Should -Be 22
+		}
+		
+		It '11:00 PM = 23:00' {
+            # (PM hour + 12) = 24-hour
+            Convert-AMPMhourTo24hour 11 -PM | Should -Be 23
+		}
+		
+		It '12:00 AM = 00:00 (Midnight)' {
+            # AM hour = 24-hour, EXCEPT if AM-hours = 12, then 24-hours = 0
+            Convert-AMPMhourTo24hour 12 -AM | Should -Be 0
+		}
+		
+	}
 	
 	#-----------------------------------------------------------------------------------------------------------------------
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
