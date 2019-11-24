@@ -4,6 +4,12 @@
 #-----------------------------------------------------------------------------------------------------------------------
 function Convert-DoWNumberToMonSun { #----------------------------------------------------------------------------------
 	<#
+	.INPUTS
+	Input
+	
+	.OUTPUTS
+	Output
+	
 	.NOTES
 	Converts the PowerShell default:
 	
@@ -18,9 +24,9 @@ function Convert-DoWNumberToMonSun { #------------------------------------------
 	6 = Saturday
 	
 	to
-    
+	
 	Day-of-Week in number format, (Mon-Sun = 1-7):
-    
+	
 	1 = Monday    - Dow = $default
 	2 = Tuesday   - Dow = $default
 	3 = Wednesday - Dow = $default
@@ -43,6 +49,12 @@ function Convert-DoWNumberToMonSun { #------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 function Convert-DoWNumberToSunSat { #----------------------------------------------------------------------------------
 	<#
+	.INPUTS
+	Input
+	
+	.OUTPUTS
+	Output
+	
 	.NOTES
 	Day-of-Week in number format, (Sun-Sat = 0-6):
 	
@@ -71,10 +83,16 @@ function Get-MondayOfWeekInt { #------------------------------------------------
 	<#	
 	.SYNOPSIS
 	Get Monday of current week
-
+	
+	.INPUTS
+	Input
+	
+	.OUTPUTS
+	Output
+	
 	.NOTES
 	Day-of-Week in number format, (Mon-Sun = 1-7):
-
+	
 	1 = Monday    - Monday is 1 - 0 = 1
 	2 = Tuesday   - Monday is 2 - 1 = 1
 	3 = Wednesday - Monday is 3 - 2 = 1
@@ -82,7 +100,6 @@ function Get-MondayOfWeekInt { #------------------------------------------------
 	5 = Friday    - Monday is 5 - 4 = 1
 	6 = Saturday  - Monday is 6 - 5 = 1
 	7 = Sunday    - Monday is 7 - 6 = 1
-	
 	
 	1 = Monday    - Monday is $Input - 0 = 1
 	2 = Tuesday   - Monday is $Input - 1 = 1
@@ -108,7 +125,13 @@ function Get-SundayOfWeek { #---------------------------------------------------
 	<#	
 	.SYNOPSIS
 	Get Sunday of current week (Sun-Mon)
-
+	
+	.INPUTS
+	Input
+	
+	.OUTPUTS
+	Output
+	
 	.NOTES
 	Day-of-Week in number format, (Sun-Mon = 0-6):
 	
@@ -119,7 +142,7 @@ function Get-SundayOfWeek { #---------------------------------------------------
 	4 = Thursday
 	5 = Friday
 	6 = Saturday
-
+	
 	0 = Monday    - Monday is $Input - 0 = 0
 	1 = Tuesday   - Monday is $Input - 1 = 0
 	2 = Wednesday - Monday is $Input - 2 = 0
@@ -144,10 +167,16 @@ function Get-SundayOfWeekInt { #------------------------------------------------
 	<#
 	.SYNOPSIS
 	Get Sunday of current week (Mon-Sun)
-
+	
+	.INPUTS
+	Input
+	
+	.OUTPUTS
+	Output
+	
 	.NOTES
 	Day-of-Week in number format, (Mon-Sun = 1-7):
-
+	
 	1 = Monday    - Sunday is 1 + 6 = 7
 	2 = Tuesday   - Sunday is 2 + 5 = 7
 	3 = Wednesday - Sunday is 3 + 4 = 7
@@ -180,7 +209,13 @@ function Get-SaturdayOfWeek { #-------------------------------------------------
 	<#
 	.SYNOPSIS
 	Get Sunday of current week (Sun-Sat)
-
+	
+	.INPUTS
+	Input
+	
+	.OUTPUTS
+	Output
+	
 	.NOTES
 	Day-of-Week in number format, (Sun-Sat = 0-6):
 	
@@ -212,8 +247,13 @@ function Get-SaturdayOfWeek { #-------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
 Function PromptForChoice-DayDate { #------------------------------------------------------------------------------------
-	
 	<#
+	.INPUTS
+	Input
+	
+	.OUTPUTS
+	Output
+	
 	.LINK
 	https://ss64.com/ps/syntax-dateformats.html
 	#>
@@ -222,9 +262,8 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
 	#[CmdletBinding()]
 	#Param()
-		
-	[CmdletBinding()]
 	
+	[CmdletBinding()]
 	Param (
 		#Script parameters go here
 		[Parameter(Mandatory=$false,Position=0,
@@ -481,7 +520,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    # / removed funcs /
+	# / removed funcs /
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -523,7 +562,6 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	# Build week info.
 	
 	$SelectedWeek = 0
-	$PresentWeekSelected = $true
 	$TodayDateTime = Get-Date
 	#Test case
 	#$TodayDateTime = Get-Date -Day 28
@@ -590,9 +628,9 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 				6 = Saturday
 				
 				If $Today is Sunday, asking Get-SaturdayOfWeek using $Today will count all the way out to next Saturday, 6 days ahead.
-
+				
 				This is because if it is Sunday, the new week has already started. But we want to use:
-		
+				
 				Day-of-Week in number format, (Mon-Sun = 1-7):
 				
 				1 = Monday    - Dow = $default
@@ -602,7 +640,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 				5 = Friday    - Dow = $default
 				6 = Saturday  - Dow = $default
 				7 = Sunday    - Dow = 7
-
+				
 				where Sunday is just the last day of THIS week, we don't need to ask Get-SaturdayOfWeek anything.
 				#>
 			}
@@ -992,7 +1030,7 @@ $Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
 		#Write-Host "$UserSelectedDateTime"
 	
 
-	} Until (!($UserSelectedDateTime -eq $null -Or $UserSelectedDateTime -eq "" -Or $UserSelectedDateTime -eq ''))
+	} Until (!($null -eq $UserSelectedDateTime -Or $UserSelectedDateTime -eq "" -Or $UserSelectedDateTime -eq ''))
 
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
@@ -1021,7 +1059,7 @@ $Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	If ($UserSelectedDateTime -eq $null -Or $UserSelectedDateTime -eq "" -Or $UserSelectedDateTime -eq '') {
+	If ($null -eq $UserSelectedDateTime -Or $UserSelectedDateTime -eq "" -Or $UserSelectedDateTime -eq '') {
 		Write-Host "Is this the pause you're looking for?"
 		PAUSE
 	}
