@@ -5,10 +5,12 @@
 function Convert-DoWNumberToMonSun { #----------------------------------------------------------------------------------
 	<#
 	.INPUTS
-	Input
+	Accepts a DateTime format variable. For example:
+	
+	[DateTime]$var = Get-Date
 	
 	.OUTPUTS
-	Output
+	Returns and integer between 1 and 7, representing Monday thru Sunday. 
 	
 	.NOTES
 	Converts the PowerShell default:
@@ -34,6 +36,10 @@ function Convert-DoWNumberToMonSun { #------------------------------------------
 	5 = Friday    - Dow = $default
 	6 = Saturday  - Dow = $default
 	7 = Sunday    - Dow = 7
+	
+	.EXAMPLE
+	Example
+	Line2
 	#>
 	param(
 		[parameter(Position=0)]
