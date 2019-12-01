@@ -1,0 +1,13 @@
+@startuml Demo Networking Diagram
+
+object "Router" as router
+router : <img:"networking_icons/router_circle-with-four-arrow-incoming-inside_128px.png">
+router : IP Addr: **192.168.0.1**
+
+object "Wi-Fi AP" as wifiap
+wifiap : <img:"networking_icons/antenna_tower-3-legs-omni-signal_128px.png">
+wifiap : IP Addr: **192.168.0.2**
+
+router "eth1" <-- wifiap
+
+@enduml
