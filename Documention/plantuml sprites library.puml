@@ -34,6 +34,24 @@ sprite $disk {
 	39AAAAABBBBBBC1
 }
 
+sprite $wifi [15x15/16] {
+000000000000000
+000000000000000
+00000BEFEB00000
+009FFFFFFFFF900
+0FFFFFFFFFFFFF0
+BFFE8000008EFFB
+0D900CFFFC009D0
+000CFFFFFFFC000
+000DFFCBCFFD000
+000080000080000
+000000EFE000000
+000000DFD000000
+000000000000000
+000000000000000
+000000000000000
+}
+
 object "Sprites Library:" as foobar1
 foobar1 : Gradient: <$gradient>
 foobar1 : <$gradient{scale=3}>
@@ -43,5 +61,7 @@ foobar1 : Bug: <$bug>
 foobar1 : <$bug{scale=3}>
 foobar1 : Printer: <$printer>
 foobar1 : <$printer{scale=3}>
+foobar1 : Wifi: <$wifi>
+foobar1 : <$wifi{scale=3}>
 
 @enduml
