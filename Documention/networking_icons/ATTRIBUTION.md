@@ -6,7 +6,7 @@ Attributing credit to the content creators:
 
 [Search: antenna](https://www.freepik.com/search?dates=any&format=search&page=1&query=antenna&selection=1&sort=popular&type=icon)
 
-> https://support.flaticon.com/hc/en-us/articles/207248209-How-I-must-insert-the-attribution-
+> [https://support.flaticon.com/hc/en-us/articles/207248209-How-I-must-insert-the-attribution-](https://support.flaticon.com/hc/en-us/articles/207248209-How-I-must-insert-the-attribution-)
 >
 > Icon made by [Freepik](https://www.freepik.com/home) from [www.flaticon.com](www.flaticon.com)
 
@@ -434,7 +434,14 @@ Icons made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flat
 
 [Flaticon source](https://www.flaticon.com/free-icon/hosting_59844)
 
-
+- **cloud_storage-network-drives.svg**
+- **cloud_storage-network-drives_016px.png**
+- **cloud_storage-network-drives_024px.png**
+- **cloud_storage-network-drives_032px.png**
+- **cloud_storage-network-drives_064px.png**
+- **cloud_storage-network-drives_128px.png**
+- **cloud_storage-network-drives_256px.png**
+- **cloud_storage-network-drives_512px.png**
 
 Icons made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/)
 
@@ -444,17 +451,167 @@ Icons made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flat
 
 [Freepik source](https://www.freepik.com/free-icon/computing-cloud_914021.htm#page=1&query=cloud&position=22)
 
-[Flaticon source]()
+[Flaticon source](https://www.flaticon.com/free-icon/exchanging-symbol_16109)
+
+- **cloud_computing-nodes.svg**
+- **cloud_computing-nodes_016px.png**
+- **cloud_computing-nodes_024px.png**
+- **cloud_computing-nodes_032px.png**
+- **cloud_computing-nodes_064px.png**
+- **cloud_computing-nodes_128px.png**
+- **cloud_computing-nodes_256px.png**
+- **cloud_computing-nodes_512px.png**
+
+Icons made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/)
+
+<div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+
+### Switch symbol, black & white, IOS 7 interface symbol
+
+[Freepik source](https://www.freepik.com/free-icon/ios-7-interface-symbol-switch_754164.htm#page=1&query=switch&position=8)
+
+[Flaticon source](https://www.flaticon.com/free-icon/exchanging-symbol_16109)
+
+- **switch_symbol-bw-ios-7.svg**
+- **switch_symbol-bw-ios-7_016px.png**
+- **switch_symbol-bw-ios-7_024px.png**
+- **switch_symbol-bw-ios-7_032px.png**
+- **switch_symbol-bw-ios-7_064px.png**
+- **switch_symbol-bw-ios-7_128px.png**
+- **switch_symbol-bw-ios-7_256px.png**
+- **switch_symbol-bw-ios-7_512px.png**
+
+Icons made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/)
+
+<div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+
+### Switch symbol, black inverted, IOS 7 interface symbol
+
+[Freepik source](https://www.freepik.com/free-icon/switch-ios-7-interface-symbol_751970.htm#page=1&query=switch&position=19)
+
+[Flaticon source](https://www.flaticon.com/free-icon/switching-button_17426)
+
+- **switch_symbol-black-inverted-ios-7.svg**
+- **switch_symbol-black-inverted-ios-7_016px.png**
+- **switch_symbol-black-inverted-ios-7_024px.png**
+- **switch_symbol-black-inverted-ios-7_032px.png**
+- **switch_symbol-black-inverted-ios-7_064px.png**
+- **switch_symbol-black-inverted-ios-7_128px.png**
+- **switch_symbol-black-inverted-ios-7_256px.png**
+- **switch_symbol-black-inverted-ios-7_512px.png**
+
+Icons made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/)
+
+<div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+
+### Switch symbol, solid black, IOS 7 interface symbol
+
+[Freepik source](https://www.freepik.com/free-icon/switch-arrows-ios-7-interface-symbol_707808.htm#page=2&query=switch&position=0)
+
+[Flaticon source](https://www.flaticon.com/free-icon/switch-arrows-button_20467)
+
+- **switch_symbol-black-ios-7.svg**
+- **switch_symbol-black-ios-7_016px.png**
+- **switch_symbol-black-ios-7_024px.png**
+- **switch_symbol-black-ios-7_032px.png**
+- **switch_symbol-black-ios-7_064px.png**
+- **switch_symbol-black-ios-7_128px.png**
+- **switch_symbol-black-ios-7_256px.png**
+- **switch_symbol-black-ios-7_512px.png**
+
+Icons made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/)
+
+<div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+
+### Smartphone, black & white
+
+[Freepik source](https://www.freepik.com/free-icon/smartphone_753930.htm#page=1&query=phone&position=4)
+
+[Flaticon source](https://www.flaticon.com/free-icon/smartphone-call_15874)
+
+- **smartphone_bw.svg**
+- **smartphone_bw_016px.png**
+- **smartphone_bw_024px.png**
+- **smartphone_bw_032px.png**
+- **smartphone_bw_064px.png**
+- **smartphone_bw_128px.png**
+- **smartphone_bw_256px.png**
+- **smartphone_bw_512px.png**
+
+Icons made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/)
+
+<div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+
+### Server Desktop, black front, IOS 7
+
+[Freepik source](https://www.freepik.com/free-icon/server-ios-7-interface-symbol_751775.htm#page=2&query=server&position=8)
+
+[Flaticon source](https://www.flaticon.com/free-icon/computer-tower_17231)
+
+- **server-desktop_black-front-ios-7.svg**
+- **server-desktop_black-front-ios-7_016px.png**
+- **server-desktop_black-front-ios-7_024px.png**
+- **server-desktop_black-front-ios-7_032px.png**
+- **server-desktop_black-front-ios-7_064px.png**
+- **server-desktop_black-front-ios-7_128px.png**
+- **server-desktop_black-front-ios-7_256px.png**
+- **server-desktop_black-front-ios-7_512px.png**
+
+Icons made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/)
+
+<div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+
+### Media icon, Video movie film, click on demand
+
+[Freepik source](https://www.freepik.com/free-icon/video-player_768848.htm#page=1&query=media&position=0)
+
+[Flaticon source](https://www.flaticon.com/free-icon/video-player_69112)
+
+- **media_icon-video-player-film-click.svg**
+- **media_icon-video-player-film-click_016px.png**
+- **media_icon-video-player-film-click_024px.png**
+- **media_icon-video-player-film-click_032px.png**
+- **media_icon-video-player-film-click_064px.png**
+- **media_icon-video-player-film-click_128px.png**
+- **media_icon-video-player-film-click_256px.png**
+- **media_icon-video-player-film-click_512px.png**
+
+Icons made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/)
+
+<div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+
+### Laptop, black keyboard white frame with touchpad
+
+[Freepik source](https://www.freepik.com/free-icon/laptop_751211.htm#page=1&query=laptop&position=14)
+
+[Flaticon source](https://www.flaticon.com/free-icon/laptop-computer_16665)
+
+- **laptop_black-keyboard-white-touchpad.svg**
+- **laptop_black-keyboard-white-touchpad_016px.png**
+- **laptop_black-keyboard-white-touchpad_024px.png**
+- **laptop_black-keyboard-white-touchpad_032px.png**
+- **laptop_black-keyboard-white-touchpad_064px.png**
+- **laptop_black-keyboard-white-touchpad_128px.png**
+- **laptop_black-keyboard-white-touchpad_256px.png**
+- **laptop_black-keyboard-white-touchpad_512px.png**
+
+Icons made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/)
+
+<div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+
+### Firewall icon
+
+[Freepik source](https://www.freepik.com/free-icon/brickwall_739059.htm#query=firewall&position=6)
+
+[Flaticon source](https://www.flaticon.com/free-icon/brickwall_31071)
+
+
+
+Icons made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/)
+
+<div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
 
 ### 
-
-[Freepik source]()
-
-[Flaticon source]()
-
-
-
-
 
 
 
