@@ -9,6 +9,7 @@ $plantuml_path = "C:\ProgramData\chocolatey\lib\plantuml\tools\plantuml.jar"
 $plantuml_path = "$env:ChocolateyInstall\lib\plantuml\tools\plantuml.jar"
 
 $input_image = "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\Documention\networking_icons\wifi-signal-symbol_square-bars_015px.png"
+$input_image = "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\Documention\networking_icons\wifi-signal-symbol_square-bars_015px_white-bkgd.png"
 
 #http://plantuml.com/guide
 # 17 Defining and using sprites
@@ -19,3 +20,4 @@ $input_image = "$env:UserProfile\Documents\GitHub\Batch-Tools-SysAdmin\Documenti
 #$java_filepath -jar $plantuml_path -encodesprite 16z $input_image
 Invoke-Command -FilePath "$java_filepath" -ArgumentList "-jar $plantuml_path -encodesprite 16 $input_image"
 
+java -jar $plantuml_path -encodesprite 16 "networking_icons\wifi-signal-symbol_square-bars_015px_white-bkgd.png"
