@@ -6,9 +6,32 @@
 The following are examples pulled from the PlantUML PDF guide, here:
 
 http://plantuml.com/guide
-
-under the "17. Defining and using sprites" section, and copied & pasted them below:
 '/
+
+' 6. Component Diagram -> 6.10 Using Sprite in Stereotype
+
+@startuml
+sprite $businessProcess [16x16/16] {
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFF0FFFFF
+FFFFFFFFFF00FFFF
+FF00000000000FFF
+FF000000000000FF
+FF00000000000FFF
+FFFFFFFFFF00FFFF
+FFFFFFFFFF0FFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+}
+
+
+' 17. Defining and using sprites
 
 sprite $gradient {
 	FFFFFFFFFFFFFFF

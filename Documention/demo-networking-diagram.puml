@@ -1,4 +1,4 @@
-@startuml Demo Networking Diagram
+@startuml Demo_Networking_Diagram
 
 object "Internet" as internet
 internet : <img:"networking_icons/cloud_internet_128px.png">
@@ -34,11 +34,16 @@ object "Laptop" as laptop1
 laptop1 : <img:"networking_icons/laptop_black-keyboard-white-touchpad_064px.png">
 laptop1 : Hostname: **<Name>**
 
-internet <- "F-Type" modem : RG-6
-modem <-- router : Cat6
+internet "WAN" <- "F-Type" modem : "    RG-6    "
+' modem "F-Type" <-- internet : RG-6
+modem <- router : Cat6
+'router --> modem : Cat6
 router "eth1" <-- switch1
 switch1 <-> switch2
+'switch2 <-> switch1
 switch2 <-> wifiap1
+'switch2 -> speaker1
+'wifiap1 <-> switch2
 wifiap1 <..> laptop1 : <img:"networking_icons/wifi-signal-symbol_square-bars_016px.png">5GHz
 
 @enduml
