@@ -1,12 +1,25 @@
 @startuml Demo_Networking_Diagram
 
+' skinparam componentStyle uml2
+
+/'
+http://plantuml.com/guide
+21 Standard Library
+'/
+
 !include <tupadr3/common>
+'https://github.com/tupadr3/plantuml-icon-font-sprites
 !include <tupadr3/font-awesome/server>
 !include <tupadr3/font-awesome/database>
 !include <tupadr3/material/phone_android>
 !include <tupadr3/devicons/raspberry_pi>
+'https://github.com/Roemer/plantuml-office
+!include <office/Servers/application_server_blue>
+!include <office/Servers/file_server>
+' OFF_FILE_SERVER(fileserver1,File Server)
+!include <office/Devices/switch>
+'OFF_SWITCH(dumbswitch2,Dumb Switch)
 
-' skinparam componentStyle uml2
 
 rectangle internet [
 <img:"networking_icons/cloud_internet_128px.png">
@@ -49,6 +62,11 @@ rectangle laptop1 [
 Hostname: **<Name>**
 ]
 
+rectangle mediaserver [
+OFF_FILE_SERVER(fileserver1,File Server)
+OFF_APPLICATION_SERVER_BLUE(appserverblue,Media Server)
+]
+
 /'
 <PREFIX>_<NAME>(alias)
 <PREFIX>_<NAME>(alias,label)
@@ -76,6 +94,7 @@ switch1 <- jump1A
 jump1A - jump1B : "In-Wall Cat6"
 jump1B -> switch2
 switch1 <--> raspberrypi1
+mediaserver <-> switch1
 switch2 <-> wifiap1
 'switch2 -> speaker1
 'wifiap1 <-> switch2
