@@ -6,6 +6,7 @@ REM ----------------------------------------------------------------------------
 
 :: Param1 = Folder location to pull branch to
 
+SET "_FOLDER_LOCATION=E:\Backup And Restore Tools2"
 SET "_FOLDER_LOCATION=E:\testing\demo\test\Backup And Restore Tools2"
 SET "_FOLDER_LOCATION=%UserProfile%\Desktop\DEMO\foo\bar"
 

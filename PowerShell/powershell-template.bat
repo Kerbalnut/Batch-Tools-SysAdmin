@@ -98,7 +98,14 @@ REM ----------------------------------------------------------------------------
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-:: Param1 = ExecutionPolicy
+:: Param1 = Full path to PowerShell file to run
+
+SET "_PowerShellFile=%~dpn0.ps1"
+SET "_PowerShellFile=%~dp0Get-RepoLists.ps1"
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+:: Param2 = ExecutionPolicy
 
 :: Alternate ExecutionPolicy = Bypass
 ::https://www.howtogeek.com/204088/how-to-use-a-batch-file-to-make-powershell-scripts-easier-to-run/
@@ -107,13 +114,13 @@ SET "_batExecutionPolicy=RemoteSigned"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-:: Param2 = Example Help Command
+:: Param3 = Example Help Command
 
 SET "_EXAMPLE_HELP_COMMAND=Get-ChildItem"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-:: Param3 = PowerShell Script Parameters
+:: Param4 = PowerShell Script Parameters
 
 SET "_POSH_PARAMS="
 
@@ -146,14 +153,24 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 :: Phase 1: Evaluate Parameters
 ::===============================================================================
 
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+:: Get _PowerShellFile Name & eXtention, Drive letter & Path, siZe
+FOR %%G IN ("%_PowerShellFile%") DO SET "_PowerShellFile_NAME=%%~nxG"
+FOR %%G IN ("%_PowerShellFile%") DO SET "_PowerShellFile_PATH=%%~dpG"
+FOR %%G IN ("%_PowerShellFile%") DO SET "_PowerShellFile_SIZE=%%~zG"
+SET /A "_PowerShellFile_SIZE_KB=%_PowerShellFile_SIZE%/1024"
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 :: Check if out target file exists
-IF NOT EXIST "%~dpn0.ps1" (
+IF NOT EXIST "%_PowerShellFile%" (
 	ECHO:
 	ECHO -------------------------------------------------------------------------------
 	ECHO WARNING:
 	ECHO -------------------------------------------------------------------------------
 	ECHO:
-	ECHO "%~dpn0.ps1" not found.
+	ECHO "%_PowerShellFile%" not found.
 	ECHO:
 	PAUSE
 	EXIT
@@ -188,18 +205,18 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 :ScriptHelp
 :: Skip Help lookup
-::ECHO Skipping %~n0.ps1 help command & GOTO MainMenu & REM Comment out this line to display help before loading script
+::ECHO Skipping %_PowerShellFile_NAME% help command & GOTO MainMenu & REM Comment out this line to display help before loading script
 
 ECHO -------------------------------------------------------------------------------
 ECHO:
 ECHO Full script help:
 ECHO:
-ECHO %~dpn0.ps1
-ECHO Get-Help .\%~n0.ps1
+ECHO %_PowerShellFile%
+ECHO Get-Help .\%_PowerShellFile_NAME%
 ECHO:
 :: https://ss64.com/nt/syntax-args.html
-::PowerShell.exe -NoProfile -Command Get-Help %~dpn0.ps1 -Full
-PowerShell.exe -NoProfile -Command Get-Help .\%~n0.ps1 -Full
+::PowerShell.exe -NoProfile -Command Get-Help %_PowerShellFile% -Full
+PowerShell.exe -NoProfile -Command Get-Help .\%_PowerShellFile_NAME% -Full
 ECHO:
 ECHO -------------------------------------------------------------------------------
 
@@ -216,7 +233,7 @@ REM ============================================================================
 
 :MainMenu
 ECHO:
-ECHO %~n0.ps1
+ECHO %_PowerShellFile_NAME%
 ECHO:
 ECHO Detecting Windows OS version compatibility . . . 
 ECHO:
@@ -246,47 +263,47 @@ GOTO MainMenu
 
 
 :RunScript
-::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command . '%~dpn0.ps1' -LaunchedInCmd
+::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command . '%_PowerShellFile%' -LaunchedInCmd
 IF %_WindowsVersion% EQU 10 (
 	REM Windows 10 has PowerShell width CMD.exe windows.
-	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%~dpn0.ps1"
+	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%"
 ) ELSE (
-	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%~dpn0.ps1" -LaunchedInCmd
+	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd
 )
-::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command "& '%~dpn0.ps1'"
+::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command "& '%_PowerShellFile%'"
 GOTO End
 
 :VerboseRun
-::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command . '%~dpn0.ps1' -LaunchedInCmd -Verbose
+::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command . '%_PowerShellFile%' -LaunchedInCmd -Verbose
 IF %_WindowsVersion% EQU 10 (
 	REM Windows 10 has PowerShell width CMD.exe windows.
-	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%~dpn0.ps1" -Verbose
+	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Verbose
 ) ELSE (
-	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%~dpn0.ps1" -LaunchedInCmd -Verbose
+	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd -Verbose
 )
-::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command "& '%~dpn0.ps1' -LaunchedInCmd -Verbose"
+::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command "& '%_PowerShellFile%' -LaunchedInCmd -Verbose"
 GOTO End
 
 :DebugScript
-::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command . '%~dpn0.ps1' -LaunchedInCmd -Debug
+::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command . '%_PowerShellFile%' -LaunchedInCmd -Debug
 IF %_WindowsVersion% EQU 10 (
 	REM Windows 10 has PowerShell width CMD.exe windows.
-	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%~dpn0.ps1" -Debug
+	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Debug
 ) ELSE (
-	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%~dpn0.ps1" -LaunchedInCmd -Debug
+	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd -Debug
 )
-::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command & '%~dpn0.ps1' -LaunchedInCmd -Debug
+::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command & '%_PowerShellFile%' -LaunchedInCmd -Debug
 GOTO End
 
 :DebugAndVerbose 
-::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command . '%~dpn0.ps1' -LaunchedInCmd -Verbose -Debug
+::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command . '%_PowerShellFile%' -LaunchedInCmd -Verbose -Debug
 IF %_WindowsVersion% EQU 10 (
 	REM Windows 10 has PowerShell width CMD.exe windows.
-	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%~dpn0.ps1" -Verbose -Debug
+	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Verbose -Debug
 ) ELSE (
-	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%~dpn0.ps1" -LaunchedInCmd -Verbose -Debug
+	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd -Verbose -Debug
 )
-::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command & '%~dpn0.ps1' -LaunchedInCmd -Verbose -Debug
+::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command & '%_PowerShellFile%' -LaunchedInCmd -Verbose -Debug
 GOTO End
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -296,12 +313,12 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ::===============================================================================
 
 :AdminRunScript
-PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%~dpn0.ps1""' -Verb RunAs}"
+PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%""' -Verb RunAs}"
 GOTO End
 
 :AdminVerboseRun
-::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%~dpn0.ps1"" -Verbose' -Verb RunAs}"
-PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File """"%~dpn0.ps1"""" -Verbose' -Verb RunAs}"
+::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%"" -Verbose' -Verb RunAs}"
+PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File """"%_PowerShellFile%"""" -Verbose' -Verb RunAs}"
 GOTO End
 
 

@@ -22,6 +22,8 @@ REM ECHO DEBUGGING: Begin RunAsAdministrator block.
 FSUTIL dirty query %SystemDrive% >nul
 IF %ERRORLEVEL% EQU 0 GOTO START
 
+::GOTO START & REM <-- Leave this line in to always skip Elevation Prompt -->
+::GOTO NOCHOICE & REM <-- Leave this line in to always Elevate to Administrator (skip choice) -->
 ECHO:
 ECHO CHOICE Loading...
 ECHO:
@@ -29,6 +31,7 @@ ECHO:
 CHOICE /M "Run as Administrator?"
 IF ERRORLEVEL 2 GOTO START & REM No.
 IF ERRORLEVEL 1 REM Yes.
+:NOCHOICE
 
 :: wait 2 seconds, in case this user is not in Administrators group. (To prevent an infinite loop of UAC admin requests on a restricted user account.)
 ECHO Requesting administrative privileges... ^(waiting 2 seconds^)
