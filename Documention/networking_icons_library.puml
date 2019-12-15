@@ -1,0 +1,21 @@
+@startuml networking_icons Library
+
+object "Dipole Antenna" as antenna_dipole
+antenna_dipole : <img:"networking_icons/antenna_dipole_512px.png"> <img:"networking_icons/antenna_dipole_256px.png"> <img:"networking_icons/antenna_dipole_128px.png"> <img:"networking_icons/antenna_dipole_064px.png"> <img:"networking_icons/antenna_dipole_032px.png"> <img:"networking_icons/antenna_dipole_024px.png"> <img:"networking_icons/antenna_dipole_016px.png">
+antenna_dipole : **"antenna_dipole.svg"**
+antenna_dipole : **"antenna_dipole_512px.png"**, **"antenna_dipole_256px.png"**, **"antenna_dipole_128px.png"**, **"antenna_dipole_064px.png"**, **"antenna_dipole_032px.png"**, **"antenna_dipole_024px.png"**, **"antenna_dipole_016px.png"**
+
+object "Antenna Tower - Solid Triangle" as antenna_solid_triangle_tower
+antenna_solid_triangle_tower : <img:"networking_icons/antenna_solid-triangle-tower-flat-signal-thick-lines_512px.png"> <img:"networking_icons/antenna_solid-triangle-tower-flat-signal-thick-lines_256px.png"> <img:"networking_icons/antenna_solid-triangle-tower-flat-signal-thick-lines_128px.png"> <img:"networking_icons/antenna_solid-triangle-tower-flat-signal-thick-lines_064px.png"> <img:"networking_icons/antenna_solid-triangle-tower-flat-signal-thick-lines_032px.png"> <img:"networking_icons/antenna_solid-triangle-tower-flat-signal-thick-lines_024px.png"> <img:"networking_icons/antenna_solid-triangle-tower-flat-signal-thick-lines_016px.png">
+antenna_solid_triangle_tower : **"antenna_solid_triangle_tower-flat-signal-thick-lines.svg"**
+antenna_solid_triangle_tower : **"antenna_solid-triangle-tower-flat-signal-thick-lines_512px.png"**
+antenna_solid_triangle_tower : **"antenna_solid-triangle-tower-flat-signal-thick-lines_256px.png"**
+antenna_solid_triangle_tower : **"antenna_solid-triangle-tower-flat-signal-thick-lines_128px.png"**
+antenna_solid_triangle_tower : **"antenna_solid-triangle-tower-flat-signal-thick-lines_064px.png"**
+antenna_solid_triangle_tower : **"antenna_solid-triangle-tower-flat-signal-thick-lines_032px.png"**
+antenna_solid_triangle_tower : **"antenna_solid-triangle-tower-flat-signal-thick-lines_024px.png"**
+antenna_solid_triangle_tower : **"antenna_solid-triangle-tower-flat-signal-thick-lines_016px.png"**
+
+antenna_dipole -- antenna_solid_triangle_tower
+
+@enduml

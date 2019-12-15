@@ -269,6 +269,34 @@ IF "%_LinkState%"=="down" (
 
 REM -------------------------------------------------------------------------------
 
+:: If Chocolatey Packages list mode is enabled, stretch it out into a multi-line list
+
+:: Method #1: FOR Loop
+SET "_CHOCO_PKG_LIST_FILE=%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"
+IF %_BoxstarterSource% EQU 3 (
+	FOR %%G IN (%_ChocolateyPackages%) DO (
+		REM ECHO   - %%G
+		ECHO   - %%G>> "%_CHOCO_PKG_LIST_FILE%"
+	)
+	REM ECHO Type file:
+	REM TYPE "%_CHOCO_PKG_LIST_FILE%"
+	REM DEL /Q "%_CHOCO_PKG_LIST_FILE%" & REM Clean-up temp file ASAP.
+)
+
+:: Method #2: Replace character with newline character
+IF %_BoxstarterSource% EQU 3 (
+	REM Thanks to:
+	REM https://stackoverflow.com/questions/24877969/replace-string-with-a-new-line-in-batch
+	SET "_ChocolateyPackages_InitialSpaces=  - %_ChocolateyPackages%"
+	SET "_ChocolateyPackages_Spaces=!_ChocolateyPackages_InitialSpaces:,=,  - !"
+SET _ChocolateyPackages_List=!_ChocolateyPackages_Spaces:,=^
+
+!
+	REM ECHO !_ChocolateyPackages_List!
+)
+
+REM -------------------------------------------------------------------------------
+
 :: Get _LocalScriptPckg Name & eXtention, Drive letter & folder Path
 FOR %%G IN ("%_LocalScriptPckg%") DO SET "_LocalFileName=%%~nxG"
 FOR %%G IN ("%_LocalScriptPckg%") DO SET "_LocalFolderPath=%%~dpG"
@@ -288,7 +316,10 @@ ECHO:
 IF %_BoxstarterSource% EQU 3 (
 ECHO   The following Chocolatey packages will be installed:
 ECHO:
-ECHO   %_ChocolateyPackages%
+REM ECHO   %_ChocolateyPackages%
+REM ECHO !_ChocolateyPackages_List!
+TYPE "%_CHOCO_PKG_LIST_FILE%"
+DEL /Q "%_CHOCO_PKG_LIST_FILE%" & REM Clean-up temp file ASAP.
 ) ELSE IF %_BoxstarterSource% EQU 2 (
 ECHO   Boxstarter source: Text File
 ECHO   "%_LocalFileName%"
