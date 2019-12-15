@@ -55,7 +55,8 @@ Linux/TEMPORARY_DELETE_ASAP.txt
 # =========================
 # Backup And Restore Branch
 # =========================
+/*.*
+BoxstarterInstall-NetworkingUtilities.bat
 WireShark/*
-functions-template.bat
 
 # =========================
