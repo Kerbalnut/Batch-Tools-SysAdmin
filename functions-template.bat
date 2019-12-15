@@ -233,13 +233,11 @@ IF EXIST "%ChocolateyInstall%" (
 :-------------------------------------------------------------------------------
 ::"%_PSCP_EXE%" (help function is just the command alone)
 ::IF "%_PSCP_INSTALLED%"=="YES" "%_PSCP_EXE%"
-::-------------------------------------------------------------------------------
-:: Parameters
 ::GOTO SkipPscpFunction
-SET "_QUIET_ERRORS=NO"
-::SET "_QUIET_ERRORS=YES"
 ::-------------------------------------------------------------------------------
 SET "_PSCP_INSTALLED=NO"
+SET "_QUIET_ERRORS=NO"
+::SET "_QUIET_ERRORS=YES"
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Check if the just the command succeeds (same as help function in this case). Redirect text output to NULL but redirect error output to temp file.
 SET "_ERROR_OUTPUT_FILE=%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"

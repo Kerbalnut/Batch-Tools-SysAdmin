@@ -162,6 +162,8 @@ SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Get-Choco
 ::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare2.txt"
 SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare2.bat"
 
+SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Backup and Restore\Pull-BackupToolsBranchOnly.bat"
+
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :: Param2 = File B
@@ -222,6 +224,8 @@ SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Install-C
 SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\functions\RunAsAdministrator\SS64 Run with elevated permissions (ElevateMe.vbs).bat"
 
 ::SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\functions\RunAsAdministrator\BatchGotAdmin International-Fix Code.bat"
+
+SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Backup and Restore\Clone-BackupRestoreBranchOnly.bat"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
