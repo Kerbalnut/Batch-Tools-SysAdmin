@@ -4,16 +4,22 @@ Function Test-ValidateInteger { #-----------------------------------------------
 	<#
 	.PARAMETER ValueInput
 	#>
+
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
 	#http://techgenix.com/powershell-functions-common-parameters/
 	# To enable common parameters in functions (-Verbose, -Debug, etc. See 'help about_CommonParameters') the following 2 lines must be present:
 	#[CmdletBinding()]
 	#Param()
+
 	[CmdletBinding()]
 	Param(
 		[Parameter(Mandatory=$true,Position=0,
 		ValueFromPipeline = $true)]
 		$ValueInput
 	)
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	# Sub-functions:
 	#=======================================================================================================================
