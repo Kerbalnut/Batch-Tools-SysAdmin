@@ -10,7 +10,6 @@ http://plantuml.com/guide
 
 ' 6. Component Diagram -> 6.10 Using Sprite in Stereotype
 
-@startuml
 sprite $businessProcess [16x16/16] {
 FFFFFFFFFFFFFFFF
 FFFFFFFFFFFFFFFF
@@ -29,7 +28,6 @@ FFFFFFFFFFFFFFFF
 FFFFFFFFFFFFFFFF
 FFFFFFFFFFFFFFFF
 }
-
 
 ' 17. Defining and using sprites
 
