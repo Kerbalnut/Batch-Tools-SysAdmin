@@ -9,42 +9,42 @@
 . "$env:USERPROFILE\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\modules\TimeFunctions\PromptForChoice-DayDate.ps1"
 
 Function Get-UserInputDateTime {
-    $UserInputDate = PromptForChoice-DayDate #-Verbose
-    #Write-Host "`$UserInputDate = $UserInputDate"
-    #Pause
-
-    $UserInputHour = ReadPrompt-Hour
-
-    $UserInputMinute = ReadPrompt-Minute
-
-    # Check if we even need to prompt the user for AM/PM time
-    If ($UserInputHour -gt 12 -Or $UserInputHour -eq 0) {
-	    $AMPM24mode = 24
-    } else {
-	    $AMPM24mode = ReadPrompt-AMPM24 # -Verbose
-    }
-
-    If ($AMPM24mode -eq "AM") {
-        $24hour = Convert-AMPMhourTo24hour $UserInputHour -AM
-        #$24hour = Convert-AMPMhourTo24hour $UserInputHour -AM -Verbose
-    } elseif ($AMPM24mode -eq "PM") {
-        $24hour = Convert-AMPMhourTo24hour $UserInputHour -PM
-        #$24hour = Convert-AMPMhourTo24hour $UserInputHour -PM -Verbose
-    } elseif ($AMPM24mode -eq 24) {
-        $24hour = $UserInputHour
-    } else {
-	    Write-Error "AM/PM/24-hour time mode not recognized."
-        Return
-    }
-
-    $UserPickedDateTime = Get-Date -Date $UserInputDate -Hour $24hour -Minute $UserInputMinute -Second 0 -Millisecond 0
-
-    #https://ss64.com/ps/syntax-dateformats.html
-    #$UserPickedDateTime = Get-Date -Date $UserPickedDateTime -Format F
-
-    #
-
-    Return $UserPickedDateTime
+	$UserInputDate = PromptForChoice-DayDate #-Verbose
+	#Write-Host "`$UserInputDate = $UserInputDate"
+	#Pause
+	
+	$UserInputHour = ReadPrompt-Hour
+	
+	$UserInputMinute = ReadPrompt-Minute
+	
+	# Check if we even need to prompt the user for AM/PM time
+	If ($UserInputHour -gt 12 -Or $UserInputHour -eq 0) {
+		$AMPM24mode = 24
+	} else {
+		$AMPM24mode = ReadPrompt-AMPM24 # -Verbose
+	}
+	
+	If ($AMPM24mode -eq "AM") {
+		$24hour = Convert-AMPMhourTo24hour $UserInputHour -AM
+		#$24hour = Convert-AMPMhourTo24hour $UserInputHour -AM -Verbose
+	} elseif ($AMPM24mode -eq "PM") {
+		$24hour = Convert-AMPMhourTo24hour $UserInputHour -PM
+		#$24hour = Convert-AMPMhourTo24hour $UserInputHour -PM -Verbose
+	} elseif ($AMPM24mode -eq 24) {
+		$24hour = $UserInputHour
+	} else {
+		Write-Error "AM/PM/24-hour time mode not recognized."
+		Return
+	}
+	
+	$UserPickedDateTime = Get-Date -Date $UserInputDate -Hour $24hour -Minute $UserInputMinute -Second 0 -Millisecond 0
+	
+	#https://ss64.com/ps/syntax-dateformats.html
+	#$UserPickedDateTime = Get-Date -Date $UserPickedDateTime -Format F
+	
+	#
+	
+	Return $UserPickedDateTime
 }
 
 

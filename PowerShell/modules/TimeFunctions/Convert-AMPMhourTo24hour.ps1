@@ -73,29 +73,29 @@ PS C:\> $StartMin = Read-Host -Prompt "Enter Start minute"
 PS C:\> do {
 PS C:\>   $ChoiceAMPM24hour = Read-Host -Prompt "[A]M, [P]M, or [2]4 hour? [A\P\2]"
 PS C:\>   switch ($ChoiceAMPM24hour) {
-PS C:\> 	'A' { # A - AM time
-PS C:\>            $AntePost = "AM"
-PS C:\>            Write-Verbose "AM time ('$ChoiceAMPM24hour') option selected."
-PS C:\>            $24hourFormat = Convert-AMPMhourTo24hour -Hours $StartHour -AM
+PS C:\>     'A' { # A - AM time
+PS C:\>         $AntePost = "AM"
+PS C:\>         Write-Verbose "AM time ('$ChoiceAMPM24hour') option selected."
+PS C:\>         $24hourFormat = Convert-AMPMhourTo24hour -Hours $StartHour -AM
 PS C:\>     }
 PS C:\>     'P' { # P - PM time
-PS C:\>            $AntePost = "PM"
-PS C:\>            Write-Verbose "PM time ('$ChoiceAMPM24hour') option selected."
-PS C:\>            $24hourFormat = Convert-AMPMhourTo24hour -Hours $StartHour -PM
+PS C:\>         $AntePost = "PM"
+PS C:\>         Write-Verbose "PM time ('$ChoiceAMPM24hour') option selected."
+PS C:\>         $24hourFormat = Convert-AMPMhourTo24hour -Hours $StartHour -PM
 PS C:\>     }
 PS C:\>     2 { # 2 - 24-hour time
-PS C:\>            $AntePost = "(24-hour)"
-PS C:\>            Write-Verbose "24-hour time ('$ChoiceAMPM24hour') option selected."
-PS C:\>            $24hourFormat = $StartHour
+PS C:\>         $AntePost = "(24-hour)"
+PS C:\>         Write-Verbose "24-hour time ('$ChoiceAMPM24hour') option selected."
+PS C:\>         $24hourFormat = $StartHour
 PS C:\>     }
 PS C:\>     default { # Choice not recognized.
-PS C:\>            Write-Host `r`n
-PS C:\>            Write-Warning "Choice `"$ChoiceAMPM24hour`" not recognized. Options must be AM, PM, or 24-hour."
-PS C:\>            Write-Host `r`n
-PS C:\>            PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
-PS C:\>            #Clear-Host # or alias CLS
-PS C:\>            #Break #help about_Break
-PS C:\>            Write-Host `r`n
+PS C:\>         Write-Host `r`n
+PS C:\>         Write-Warning "Choice `"$ChoiceAMPM24hour`" not recognized. Options must be AM, PM, or 24-hour."
+PS C:\>         Write-Host `r`n
+PS C:\>         PAUSE # PAUSE (alias for Read-Host) Prints "Press Enter to continue...: "
+PS C:\>         #Clear-Host # or alias CLS
+PS C:\>         #Break #help about_Break
+PS C:\>         Write-Host `r`n
 PS C:\>     }
 PS C:\>   }
 PS C:\> } until ($ChoiceAMPM24hour -eq 'A' -Or $ChoiceAMPM24hour -eq 'P' -Or $ChoiceAMPM24hour -eq 2)

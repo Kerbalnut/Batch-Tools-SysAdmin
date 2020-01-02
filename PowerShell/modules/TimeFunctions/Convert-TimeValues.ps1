@@ -77,13 +77,13 @@ If ($StartHour -gt 12 -Or $StartHour -eq 0) {
 #Write-HorizontalRuleAdv -SingleLine
 
 If ($StartAMPM -eq "AM") {
-    $24hour = Convert-AMPMhourTo24hour $StartHour -AM
-    #$24hour = Convert-AMPMhourTo24hour $StartHour -AM -Verbose
+	$24hour = Convert-AMPMhourTo24hour $StartHour -AM
+	#$24hour = Convert-AMPMhourTo24hour $StartHour -AM -Verbose
 } elseif ($StartAMPM -eq "PM") {
-    $24hour = Convert-AMPMhourTo24hour $StartHour -PM
-    #$24hour = Convert-AMPMhourTo24hour $StartHour -PM -Verbose
+	$24hour = Convert-AMPMhourTo24hour $StartHour -PM
+	#$24hour = Convert-AMPMhourTo24hour $StartHour -PM -Verbose
 } elseif ($StartAMPM -eq 24) {
-    $24hour = $StartHour
+	$24hour = $StartHour
 } else {
 	Write-Error "AM/PM/24-hour time mode not recognized."
 }
@@ -126,19 +126,19 @@ If ($EndHour -gt 12 -Or $EndHour -eq 0) {
 	$EndAMPM = 24
 } else {
 	#$EndAMPM = ReadPrompt-AMPM24 -Verbose
-    $EndAMPM = ReadPrompt-AMPM24
+	$EndAMPM = ReadPrompt-AMPM24
 }
 
 #Write-HorizontalRuleAdv -SingleLine
 
 If ($EndAMPM -eq "AM") {
-    #$24hour = Convert-AMPMhourTo24hour $EndHour -AM -Verbose
-    $24hour = Convert-AMPMhourTo24hour $EndHour -AM
+	#$24hour = Convert-AMPMhourTo24hour $EndHour -AM -Verbose
+	$24hour = Convert-AMPMhourTo24hour $EndHour -AM
 } elseif ($EndAMPM -eq "PM") {
-    #$24hour = Convert-AMPMhourTo24hour $EndHour -PM -Verbose
-    $24hour = Convert-AMPMhourTo24hour $EndHour -PM
+	#$24hour = Convert-AMPMhourTo24hour $EndHour -PM -Verbose
+	$24hour = Convert-AMPMhourTo24hour $EndHour -PM
 } elseif ($EndAMPM -eq 24) {
-    $24hour = $EndHour
+	$24hour = $EndHour
 } else {
 	Write-Error "AM/PM/24-hour time mode not recognized."
 }

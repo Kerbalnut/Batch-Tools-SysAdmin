@@ -11,30 +11,30 @@
 
 <#
 if (test-path "$env:USERPROFILE\Documents\TimeLog.csv") {
-    del "$env:USERPROFILE\Documents\TimeLog.csv"
-    Write-Host "deleted." -ForegroundColor green
-    pause
+	del "$env:USERPROFILE\Documents\TimeLog.csv"
+	Write-Host "deleted." -ForegroundColor green
+	pause
 }
 
 
 if (test-path "$env:USERPROFILE\Documents\test.csv") {
-    del "$env:USERPROFILE\Documents\test.csv"
-    Write-Host "deleted." -ForegroundColor green
-    pause
+	del "$env:USERPROFILE\Documents\test.csv"
+	Write-Host "deleted." -ForegroundColor green
+	pause
 }
 
 function test-thisfunc {
-    new-item "$env:USERPROFILE\Documents\test.csv"
-    Write-Host "Func accessed." -ForegroundColor Yellow
+	new-item "$env:USERPROFILE\Documents\test.csv"
+	Write-Host "Func accessed." -ForegroundColor Yellow
 }
 
 test-thisfunc
 pause
 
 if (test-path "$env:USERPROFILE\Documents\test.csv") {
-    del "$env:USERPROFILE\Documents\test.csv"
-    Write-Host "deleted." -ForegroundColor green
-    #pause
+	del "$env:USERPROFILE\Documents\test.csv"
+	Write-Host "deleted." -ForegroundColor green
+	#pause
 }
 
 pause
@@ -65,31 +65,31 @@ Function DateToIso($Zeit) { #---------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
-Function Pick-TimeStampTag { #---------------------------------------------------------------------------------------------------
+Function Pick-TimeStampTag { #------------------------------------------------------------------------------------------
 	<#
-    #>
-    
+	#>
+	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	#http://techgenix.com/powershell-functions-common-parameters/
 	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
 	#[CmdletBinding()]
 	#Param()
-    
-    Param(
-        
+	
+	Param(
+		
 		[Parameter(Mandatory=$false)]
 		[Alias('i','PickTime','Add')]
 		[switch]$BeginEndOutput = $false
 		
-    )
-    
+	)
+	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	$TimeLogTag = $TimeStampTag
 	$BeginEnd = "[TimeStamp]"
-	    
-    $TimeLogTag = "Clock-In"
+	
+	$TimeLogTag = "Clock-In"
 	$BeginEnd = "[Begin]"
 	
 	$TimeLogTag = "Clock-Out"
@@ -119,18 +119,18 @@ Function Pick-TimeStampTag { #--------------------------------------------------
 	$TimeLogTag = "Distraction"
 	$BeginEnd = "[TimeStamp]"
 	
-    
+	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-    If ($BeginEndOutput -eq $false) {
-        Return $TimeLogTag
-    } ElseIf ($BeginEndOutput -eq $true) {
-        Return $BeginEnd
-    }
-    
+	If ($BeginEndOutput -eq $false) {
+		Return $TimeLogTag
+	} ElseIf ($BeginEndOutput -eq $true) {
+		Return $BeginEnd
+	}
+	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-} # End 
+} # End Pick-TimeStampTag function -------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -670,65 +670,65 @@ Choose date:
 
 #-----------------------------------------------------------------------------------------------------------------------
 Function Log-PunchCardTimes { #-----------------------------------------------------------------------------------------
-
-
-    #
-
-    #=======================================================================================================================
-
-    # Select Day:
-    
-    #=======================================================================================================================
-    
-    # Collect time (display header)
-    Clear-Host
-    Start-Sleep -Milliseconds 100 #Bugfix: Clear-Host acts so quickly, sometimes it won't actually wipe the terminal properly. If you force it to wait, then after PowerShell will display any specially-formatted text properly.
-    Write-Host "`r`n# Start Time #`n`r`n" -ForegroundColor Yellow
-    
-    #PAUSE
-    
-    $StartTime = Log-Time -Interactive -ClockIn #-Verbose
-    
-    Write-Host "Start time = $StartTime"
-    
-    $StartTime | Get-Member | Out-Host
-    
-    #https://ss64.com/ps/syntax-dateformats.html
-    #$StartTime = Get-Date -Date $StartTime -Format F
-    
-    #Write-Host "Start time = $StartTime"
-    
-    #
-
-    #-----------------------------------------------------------------------------------------------------------------------
-
-    #
-
-    Write-Host "`r`n# End Time #`n`r`n" -ForegroundColor Yellow
-
-    #PAUSE
-
-    #$EndTime = Log-Time -Interactive -ClockOut -Verbose
-    $EndTime = ($StartTime).DateTime
-    $EndTime = Log-Time -Date $EndTime -OptionalDatePicker -Interactive -ClockOut #-Verbose
-    
-    Write-Host "End time = $EndTime"
-    
-    #https://ss64.com/ps/syntax-dateformats.html
-    #$EndTime = Get-Date -Date $EndTime -Format F
-    
-    #Write-Host "End time = $EndTime"
-    
-    #PAUSE
-    
-    #
-    
-    #-----------------------------------------------------------------------------------------------------------------------
-    
-    #
-
-
-
+	
+	
+	#
+	
+	#=======================================================================================================================
+	
+	# Select Day:
+	
+	#=======================================================================================================================
+	
+	# Collect time (display header)
+	Clear-Host
+	Start-Sleep -Milliseconds 100 #Bugfix: Clear-Host acts so quickly, sometimes it won't actually wipe the terminal properly. If you force it to wait, then after PowerShell will display any specially-formatted text properly.
+	Write-Host "`r`n# Start Time #`n`r`n" -ForegroundColor Yellow
+	
+	#PAUSE
+	
+	$StartTime = Log-Time -Interactive -ClockIn #-Verbose
+	
+	Write-Host "Start time = $StartTime"
+	
+	$StartTime | Get-Member | Out-Host
+	
+	#https://ss64.com/ps/syntax-dateformats.html
+	#$StartTime = Get-Date -Date $StartTime -Format F
+	
+	#Write-Host "Start time = $StartTime"
+	
+	#
+	
+	#-----------------------------------------------------------------------------------------------------------------------
+	
+	#
+	
+	Write-Host "`r`n# End Time #`n`r`n" -ForegroundColor Yellow
+	
+	#PAUSE
+	
+	#$EndTime = Log-Time -Interactive -ClockOut -Verbose
+	$EndTime = ($StartTime).DateTime
+	$EndTime = Log-Time -Date $EndTime -OptionalDatePicker -Interactive -ClockOut #-Verbose
+	
+	Write-Host "End time = $EndTime"
+	
+	#https://ss64.com/ps/syntax-dateformats.html
+	#$EndTime = Get-Date -Date $EndTime -Format F
+	
+	#Write-Host "End time = $EndTime"
+	
+	#PAUSE
+	
+	#
+	
+	#-----------------------------------------------------------------------------------------------------------------------
+	
+	#
+	
+	
+	
 } # End Log-PunchCardTimes ---------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
