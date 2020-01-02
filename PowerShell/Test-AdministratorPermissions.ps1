@@ -17,7 +17,7 @@ function Test-IsAdmin { #-------------------------------------------------------
 
 #=======================================================================================================================
 
-If (!(Test-IsAdmin)) {
+If ((Test-IsAdmin)) {
 	Write-Host "Script is running with Administrator permissions!" -ForegroundColor "White" -BackgroundColor "Red"
 } Else {
 	Write-Host "Script running with non-elevated permissions." -ForegroundColor "White" -BackgroundColor "Black"

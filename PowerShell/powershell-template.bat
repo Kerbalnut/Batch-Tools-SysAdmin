@@ -20,7 +20,7 @@ REM ECHO DEBUGGING: Begin RunAsAdministrator block.
 FSUTIL dirty query %SystemDrive% >nul
 IF %ERRORLEVEL% EQU 0 GOTO START
 
-GOTO START & REM <-- Leave this line in to always skip Elevation Prompt -->
+::GOTO START & REM <-- Leave this line in to always skip Elevation Prompt -->
 ::GOTO NOCHOICE & REM <-- Leave this line in to always Elevate to Administrator (skip choice) -->
 :: <-- Remove this block to always RunAs Administrator -->
 ECHO:
@@ -124,10 +124,10 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 :: Set as Blank String to always prompt user
 SET "_RUN_OPTIONS=Run"
-SET "_RUN_OPTIONS=Verbose"
-SET "_RUN_OPTIONS=Debug"
-SET "_RUN_OPTIONS=VerboseDebug"
-SET "_RUN_OPTIONS="
+::SET "_RUN_OPTIONS=Verbose"
+::SET "_RUN_OPTIONS=Debug"
+::SET "_RUN_OPTIONS=VerboseDebug"
+::SET "_RUN_OPTIONS="
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -136,14 +136,14 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 :: Set as Blank String to always prompt user
 SET "_ADMIN_OPTION=RunNonElevated"
 ::SET "_ADMIN_OPTION=RunAsAdministrator"
-::SET "_ADMIN_OPTION="
+SET "_ADMIN_OPTION="
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :: Param6 = Skip Help commands
 
 SET "_SHOW_HELP=No"
-SET "_SHOW_HELP=Yes"
+::SET "_SHOW_HELP=Yes"
 
 SET "_SHOW_EXAMPLE_HELP=No"
 ::SET "_SHOW_EXAMPLE_HELP=Yes"
@@ -276,6 +276,11 @@ ECHO:
 :ChooseAdminOptions
 IF /I "%_ADMIN_OPTION%"=="RunNonElevated" GOTO ChooseRunOptions
 IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" GOTO ChooseRunOptions
+CALL :GetIfAdmin NoEcho
+IF /I "%_IS_ADMIN%"=="Yes" (
+	SET "_ADMIN_OPTION=RunAsAdministrator"
+	GOTO ChooseRunOptions
+)
 ECHO CHOICE Loading...
 :: https://ss64.com/nt/choice.html
 CHOICE /M "Run as Administrator?"
@@ -306,12 +311,14 @@ GOTO MainMenu
 :: The dot sourcing feature lets you run a script in the current scope instead of in the script scope.
 :: https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_scripts?view=powershell-6&viewFallbackFrom=powershell-Microsoft.PowerShell.Core
 
-:: Call operator (&) allows you to execute a command, script or function. 
+:: Call operator (&) allows you to execute a command, script or functiActive 
 :: https://ss64.com/ps/call.html
 
 :RunScript
 :: First check if we are running As Admin/Elevated
 CALL :GetIfAdmin
+::CALL :GetIfAdmin NoEcho
+::ECHO Got Admin permissions: %_IS_ADMIN%
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command . '%_PowerShellFile%' -LaunchedInCmd
 IF %_WindowsVersion% EQU 10 (
 	REM Windows 10 has PowerShell width CMD.exe windows.
@@ -319,14 +326,16 @@ IF %_WindowsVersion% EQU 10 (
 		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%"
 	)
 	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
-		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%"
+		REM PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%"
+		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%""' -Verb RunAs}"
 	)
 ) ELSE (
 	IF /I "%_ADMIN_OPTION%"=="RunNonElevated" (
 		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd
 	)
 	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
-		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd
+		REM PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd
+		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%""' -LaunchedInCmd -Verb RunAs}"
 	)
 )
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command "& '%_PowerShellFile%'"
@@ -335,6 +344,8 @@ GOTO Footer
 :VerboseRun
 :: First check if we are running As Admin/Elevated
 CALL :GetIfAdmin
+::CALL :GetIfAdmin NoEcho
+::ECHO Got Admin permissions: %_IS_ADMIN%
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command . '%_PowerShellFile%' -LaunchedInCmd -Verbose
 IF %_WindowsVersion% EQU 10 (
 	REM Windows 10 has PowerShell width CMD.exe windows.
@@ -358,6 +369,8 @@ GOTO Footer
 :DebugScript
 :: First check if we are running As Admin/Elevated
 CALL :GetIfAdmin
+::CALL :GetIfAdmin NoEcho
+::ECHO Got Admin permissions: %_IS_ADMIN%
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command . '%_PowerShellFile%' -LaunchedInCmd -Debug
 IF %_WindowsVersion% EQU 10 (
 	REM Windows 10 has PowerShell width CMD.exe windows.
@@ -381,6 +394,8 @@ GOTO Footer
 :DebugAndVerbose
 :: First check if we are running As Admin/Elevated
 CALL :GetIfAdmin
+::CALL :GetIfAdmin NoEcho
+::ECHO Got Admin permissions: %_IS_ADMIN%
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command . '%_PowerShellFile%' -LaunchedInCmd -Verbose -Debug
 IF %_WindowsVersion% EQU 10 (
 	REM Windows 10 has PowerShell width CMD.exe windows.
@@ -481,29 +496,28 @@ GOTO SkipFunctions
 :: "%_IS_ADMIN%" will be either "Yes" or "No"
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 @ECHO OFF
-SETLOCAL
+SETLOCAL EnableDelayedExpansion
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-SET "_NO_OUTPUT=%~1"
-SET "_NO_ECHO=Off."
-IF /I "%_NO_OUTPUT%"=="NoEcho" ( SET "_NO_ECHO=On."
-) ELSE IF /I "%_NO_OUTPUT%"=="NoOutput" ( SET "_NO_ECHO=On."
-) ELSE IF /I "%_NO_OUTPUT%"=="No" ( SET "_NO_ECHO=On."
-) ELSE IF /I "%_NO_OUTPUT%"=="N" ( SET "_NO_ECHO=On."
-) ELSE ( SET "_NO_ECHO=Off." )
+SET "_NO_OUTPUT=%1"
+SET "_NO_ECHO=Inactive"
+IF /I "%_NO_OUTPUT%"=="NoEcho" SET "_NO_ECHO=Active"
+IF /I "%_NO_OUTPUT%"=="NoOutput" SET "_NO_ECHO=Active"
+IF /I "%_NO_OUTPUT%"=="No" SET "_NO_ECHO=Active"
+IF /I "%_NO_OUTPUT%"=="N" SET "_NO_ECHO=Active"
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Check if we are running As Admin/Elevated
 FSUTIL dirty query %SystemDrive% >nul
 IF %ERRORLEVEL% EQU 0 (
 	REM Yes, we have admin.
 	SET "_IS_ADMIN=Yes"
-	IF /I "%_NO_ECHO%"=="On." (
-		ECHO This batch file "nx0" is running with Administrator permissions
+	IF /I "%_NO_ECHO%"=="Inactive" (
+		ECHO This batch file "%~nx0" is running with Administrator permissions
 	)
 ) ELSE (
 	REM No, we do not have admin.
 	SET "_IS_ADMIN=No"
-	IF /I "%_NO_ECHO%"=="On." (
-		ECHO This batch file "nx0" is running non-Elevated.
+	IF /I "%_NO_ECHO%"=="Inactive" (
+		ECHO This batch file "%~nx0" is running non-Elevated.
 	)
 )	
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
