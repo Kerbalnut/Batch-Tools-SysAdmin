@@ -116,13 +116,13 @@ SET "_FILE_A=%UserProfile%\Documents\SpiderOak Hive\SysAdmin\Flash Drive\Build-G
 
 SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-template.bat"
 
-::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-template (2).bat"
+SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-template (2).bat"
 
 SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\powershell-template.ps1"
 
-::SET "_FILE_A=\\gammafox\C$\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.bat"
+SET "_FILE_A=\\gammafox\C$\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.bat"
 
-::SET "_FILE_A=\\gammafox\C$\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.ps1"
+SET "_FILE_A=\\gammafox\C$\Users\G\Documents\SpiderOak Hive\Programming\Powershell\Templates\powershell-template.ps1"
 
 SET "_FILE_A=%UserProfile%\Documents\Resume\2 - Resume\Resume SPEC.txt"
 
@@ -132,39 +132,47 @@ SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Linux\Backup an
 
 SET "_FILE_A=%UserProfile%\Documents\GitHub\Sanitize-PDF\Sanitize-PDF.bat"
 
-::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\functions-template.bat"
+SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\functions-template.bat"
 
 SET "_FILE_A=%UserProfile%\Nextcloud\Documents\Backups\Thunderbird Profiles\Message Filters\grant-james@hotmail.com\msgFilterRules.dat"
 
-::SET "_FILE_A=%UserProfile%\Nextcloud\Documents\Backups\Thunderbird Profiles\Message Filters\inventergrant@msn.com\msgFilterRules.dat"
+SET "_FILE_A=%UserProfile%\Nextcloud\Documents\Backups\Thunderbird Profiles\Message Filters\inventergrant@msn.com\msgFilterRules.dat"
 
 SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Task Tracker\Twilio-Auth.ps1"
 
 SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1"
 
-::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-AMPMfunc.ps1"
+SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-AMPMfunc.ps1"
 
-::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1"
+SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1"
 
 SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp1.ps1"
 
-::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp2.ps1"
-
-::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\modules\TimeFunctions\TimeFunctions.psm1"
+SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp2.ps1"
 
 SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\modules\TimeFunctions\TimeFunctions.psm1"
 
 SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Get-Chocolatey.bat"
 
-::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare1.txt"
-::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare1.bat"
+SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare1.txt"
 
-::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare2.txt"
+SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare1.bat"
+
+SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare2.txt"
+
 SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare2.bat"
 
 SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Backup and Restore\Pull-BackupToolsBranchOnly.bat"
 
 SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\BoxstarterInstall-template.bat"
+
+SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\CompareTo-Parent.bat"
+
+SET "_FILE_A=%UserProfile%\Nextcloud\Documents\Hg\Backup_and_Restore\Tools\Compare To\CompareTo-Parent.bat"
+
+::SET "_FILE_A=%UserProfile%\Documents\SpiderOak Hive\SysAdmin\Configuring Systems\Boxstarter\Troubleshoot-BatchScript.bat"
+
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp1.bat"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -194,11 +202,11 @@ SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Linux\functions
 
 SET "_FILE_B=%UserProfile%\Nextcloud\Documents\Hg\Resume\Portfolio Finals\Sanitize-PDF.bat"
 
-::SET "_FILE_B=%UserProfile%\Documents\GitHub\Sanitize-PDF\Sanitize-PDF_func.bat"
+SET "_FILE_B=%UserProfile%\Documents\GitHub\Sanitize-PDF\Sanitize-PDF_func.bat"
 
 SET "_FILE_B=%UserProfile%\AppData\Roaming\Thunderbird\Profiles\4hlqta0q.default\ImapMail\outlook.office365.com\msgFilterRules.dat"
 
-::SET "_FILE_B=%UserProfile%\AppData\Roaming\Thunderbird\Profiles\4hlqta0q.default\ImapMail\outlook.office365-1.com\msgFilterRules.dat"
+SET "_FILE_B=%UserProfile%\AppData\Roaming\Thunderbird\Profiles\4hlqta0q.default\ImapMail\outlook.office365-1.com\msgFilterRules.dat"
 
 SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Task Tracker\Twilio-Auth_template.ps1"
 
@@ -206,30 +214,37 @@ SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Conv
 
 SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1"
 
-::SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1.orig"
+SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1.orig"
 
 SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp2.ps1"
 
-::SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp1.ps1"
+SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp1.ps1"
 
-::SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\PromptForChoice-DayDate.ps1"
+SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\PromptForChoice-DayDate.ps1"
 
-::SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\modules\TimeFunctions\Log-Time.ps1"
+SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\modules\TimeFunctions\Log-Time.ps1"
 
 SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\modules\TimeFunctions\ReadPrompt-ValidateIntegerRange.ps1"
 
 SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Install-Chocolatey.bat"
 
-::SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare2.txt"
-::SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare2.bat"
+SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare2.txt"
+
+SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare2.bat"
 
 SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\functions\RunAsAdministrator\SS64 Run with elevated permissions (ElevateMe.vbs).bat"
 
-::SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\functions\RunAsAdministrator\BatchGotAdmin International-Fix Code.bat"
+SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\functions\RunAsAdministrator\BatchGotAdmin International-Fix Code.bat"
 
 SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Backup and Restore\Clone-BackupRestoreBranchOnly.bat"
 
 SET "_FILE_B=D:\READ_ME\Install-Dependencies.bat"
+
+SET "_FILE_B=%UserProfile%\Documents\HgMercurial\Backup_and_Restore\Tools\Compare To\CompareTo-Parent.bat"
+
+::SET "_FILE_B=%UserProfile%\Documents\SpiderOak Hive\Programming\Batch\+Function Library\Debug-TroubleshootBatchFile.bat"
+
+::SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp2.bat"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -273,58 +288,72 @@ REM ECHO DEBUGGING: Begin ExternalFunctions block.
 :: Compatible characters: 0-9 Hyphen "-" Period "." Comma "," At "@" A-Z (Caps only) Space " "
 :: Requires SETLOCAL EnableDelayedExpansion
 ::-------------------------------------------------------------------------------
-SET "_BANNER_FOUND=YARP"
-::SET "_ORIG_DIR=%CD%"
+::SET "_BANNER_FOUND=YARP"
+SET "_BANNER_FOUND=NOPE"
+SET "_ORIG_DIR=%CD%"
 SET "_ORIG_DIR=%~dp0"
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Just the command
 SET "_BANNER_FUNC=Banner.cmd"
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Relative locations:
 :: Same directory
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	SET "_BANNER_FUNC=%CD%\Banner.cmd"
 )
-:: One directory down
-IF NOT EXIST "%_BANNER_FUNC%" (
+:: One directory down, into functions folder
+IF /I NOT EXIST "%_BANNER_FUNC%" (
+	SET "_BANNER_FUNC=%CD%\functions\Banner.cmd"
+)
+:: One directory down, into Banner folder
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	SET "_BANNER_FUNC=%CD%\Banner\Banner.cmd"
 )
 :: One directory up
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	CD ..
 	SET "_BANNER_FUNC=!CD!\Banner.cmd"
 	CD %_ORIG_DIR%
 )
 :: One directory up, into functions folder
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	CD ..
 	SET "_BANNER_FUNC=!CD!\functions\Banner.cmd"
 	CD %_ORIG_DIR%
 )
 :: Two directories up
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	CD ..
 	CD ..
 	SET "_BANNER_FUNC=!CD!\Banner.cmd"
 	CD %_ORIG_DIR%
 )
 :: SodaLake Flash Drive relative path
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	CD ..
 	SET "_BANNER_FUNC=!CD!\Banner\Banner.cmd"
 	CD %_ORIG_DIR%
 )
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	CD ..
 	CD ..
 	SET "_BANNER_FUNC=!CD!\Batch\Banner\Banner.cmd"
 	CD %_ORIG_DIR%
 )
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Hard-coded locations:
 :: SpiderOak Hive location
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	REM SET "_BANNER_FUNC=%USERPROFILE%\Documents\__\Banner\Banner.cmd"
 	SET "_BANNER_FUNC=%USERPROFILE%\Documents\SpiderOak Hive\Programming\Batch\+Function Library\Banner\Banner.cmd"
 )
+:: GitHub location
+IF /I NOT EXIST "%_BANNER_FUNC%" (
+	REM SET "_BANNER_FUNC=%USERPROFILE%\Documents\__\Banner\Banner.cmd"
+	SET "_BANNER_FUNC=%USERPROFILE%\Documents\GitHub\Batch-Tools-SysAdmin\functions\Banner.cmd"
+)
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	SET "_BANNER_FOUND=NOPE"
 	ECHO:
 	ECHO EXTERNAL FUNCTION NOT FOUND
@@ -339,6 +368,8 @@ IF NOT EXIST "%_BANNER_FUNC%" (
 	ECHO:
 	REM GOTO END
 	GOTO SkipBannerFunc
+) ELSE (
+	SET "_BANNER_FOUND=YARP"
 )
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Script name & extention

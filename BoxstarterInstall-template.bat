@@ -102,7 +102,7 @@ SET "_LocalScriptPckg=%~dpn0.txt" & REM %~dpn0.txt = This script's [D]rive lette
 :: Separate multiple packages with a single comma e.g. http://boxstarter.org/package/nr/firefox,googlechrome,wincdemu
 
 :: 3
-SET "_ChocolateyPackages=ubiquiti-unifi-controller,angryip,nmap,wireshark,notepadplusplus,keepass,ccleaner,adwcleaner,malwarebytes,windirstat"
+SET "_ChocolateyPackages=adobereader,adwcleaner,angryip,ccleaner,keepass,malwarebytes,nmap,notepadplusplus,ubiquiti-unifi-controller,wincdemu,windirstat,wireshark"
 
 :: Choose which Boxstarter source mode to use: 
 SET "_BoxstarterSource=2" & REM : 1 = Gist address, 2 = Local file, 3 = Package list

@@ -16,4 +16,4 @@ ECHO:
 
 PAUSE
 
-EXIT
+EXIT /B

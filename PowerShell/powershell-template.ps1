@@ -209,8 +209,7 @@ If (-Not $LoadFunctions) {
 
 # Script name (including extension)
 $ScriptName = $MyInvocation.MyCommand.Name
-Write-Verbose "Script name:"
-Write-Verbose "$ScriptName"
+Write-Verbose "Script name: `"$ScriptName`""
 Write-Verbose `r`n # New line (carriage return and newline (CRLF), `r`n)
 
 # Script dir (home directory of script)
@@ -228,6 +227,11 @@ Write-Verbose `r`n # New line (carriage return and newline (CRLF), `r`n)
 $ScriptPath = $MyInvocation.MyCommand.Path
 Write-Verbose "Script full path:"
 Write-Verbose "$ScriptPath"
+Write-Verbose `r`n # New line (carriage return and newline (CRLF), `r`n)
+
+# Check if script is being Run as Administrator or not
+$SessionIsAdminElevated = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
+Write-Verbose "Session is running as Admin: $SessionIsAdminElevated"
 Write-Verbose `r`n # New line (carriage return and newline (CRLF), `r`n)
 
 #Set Error Action to Silently Continue
@@ -344,20 +348,21 @@ If (!($sLogPath)) { Start-Log -LogPath $sLogPath -LogName $sLogName -ScriptVersi
 #Index of functions:
 # 1. <FunctionName> (Example Function)
 # 2. Start-PSAdmin
-# 3. Get-ScriptDirectory1
-# 4. Get-ScriptDirectory2
-# 5. Get-ScriptDirectory3
-# 6. Write-HorizontalRule
-# 7. Write-HorizontalRuleAdv (Aliases: "Write-HR")
-# 8. PromptForChoice-YesNoSectionSkip
-# 9. ReadPrompt-AMPM24
-# 10. ReadPrompt-Hour
-# 11. ReadPrompt-ValidateIntegerRange
-# 12. ReadPrompt-Minute 
-# 13. ReadPrompt-DayOfMonth
-# 14. ReadPrompt-Month
-# 15. Convert-AMPMhourTo24hour
-# 16. Convert-TimeZone
+# 3. Test-IsAdmin
+# 4. Get-ScriptDirectory1
+# 5. Get-ScriptDirectory2
+# 6. Get-ScriptDirectory3
+# 7. Write-HorizontalRule
+# 8. Write-HorizontalRuleAdv (Aliases: "Write-HR")
+# 9. PromptForChoice-YesNoSectionSkip
+# 10. ReadPrompt-AMPM24
+# 11. ReadPrompt-Hour
+# 12. ReadPrompt-ValidateIntegerRange
+# 13. ReadPrompt-Minute 
+# 14. ReadPrompt-DayOfMonth
+# 15. ReadPrompt-Month
+# 16. Convert-AMPMhourTo24hour
+# 17. Convert-TimeZone
 
 #-----------------------------------------------------------------------------------------------------------------------
 <# Function <FunctionName> {
@@ -389,6 +394,12 @@ If (!($sLogPath)) { Start-Log -LogPath $sLogPath -LogName $sLogName -ScriptVersi
 
 #-----------------------------------------------------------------------------------------------------------------------
 function Start-PSAdmin {Start-Process PowerShell -Verb RunAs}
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
+function Test-IsAdmin { #-----------------------------------------------------------------------------------------------
+	([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
+} #---------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -1288,6 +1299,7 @@ If ($LoadFunctions) {
 #
 #
 ##Script MAIN Execution goes here
+PAUSE
 Clear-Host # CLS
 Start-Sleep -Milliseconds 100 #Bugfix: Clear-Host acts so quickly, sometimes it won't actually wipe the terminal properly. If you force it to wait, then after PowerShell will display any specially-formatted text properly.
 Write-Verbose `n
