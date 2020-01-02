@@ -170,9 +170,9 @@ SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\CompareTo
 
 SET "_FILE_A=%UserProfile%\Nextcloud\Documents\Hg\Backup_and_Restore\Tools\Compare To\CompareTo-Parent.bat"
 
-SET "_FILE_A=%UserProfile%\Documents\SpiderOak Hive\SysAdmin\Configuring Systems\Boxstarter\Troubleshoot-BatchScript.bat"
+::SET "_FILE_A=%UserProfile%\Documents\SpiderOak Hive\SysAdmin\Configuring Systems\Boxstarter\Troubleshoot-BatchScript.bat"
 
-SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp1.bat"
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp1.bat"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -242,11 +242,9 @@ SET "_FILE_B=D:\READ_ME\Install-Dependencies.bat"
 
 SET "_FILE_B=%UserProfile%\Documents\HgMercurial\Backup_and_Restore\Tools\Compare To\CompareTo-Parent.bat"
 
-SET "_FILE_B=%UserProfile%\Documents\SpiderOak Hive\Programming\Batch\+Function Library\Debug-TroubleshootBatchFile.bat"
+::SET "_FILE_B=%UserProfile%\Documents\SpiderOak Hive\Programming\Batch\+Function Library\Debug-TroubleshootBatchFile.bat"
 
-SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp2.bat"
-
-SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\modules\TimeFunctions\TimeFunctions.psm1.OLD"
+::SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp2.bat"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
