@@ -101,7 +101,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 :: Param1 = Full path to PowerShell file to run
 
 SET "_PowerShellFile=%~dpn0.ps1"
-SET "_PowerShellFile=%~dp0Test-AdministratorPermissions.ps1"
+::SET "_PowerShellFile=%~dp0Test-AdministratorPermissions.ps1"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -136,7 +136,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 :: Set as Blank String to always prompt user
 SET "_ADMIN_OPTION=RunNonElevated"
 ::SET "_ADMIN_OPTION=RunAsAdministrator"
-SET "_ADMIN_OPTION="
+::SET "_ADMIN_OPTION="
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
