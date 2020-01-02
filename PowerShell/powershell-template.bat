@@ -101,7 +101,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 :: Param1 = Full path to PowerShell file to run
 
 SET "_PowerShellFile=%~dpn0.ps1"
-SET "_PowerShellFile=%~dp0Get-RepoLists.ps1"
+SET "_PowerShellFile=%~dp0Test-AdministratorPermissions.ps1"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -272,6 +272,7 @@ ECHO Detecting Windows OS version compatibility . . .
 ECHO:
 CALL :GetWindowsVersion
 ECHO:
+
 :ChooseAdminOptions
 IF /I "%_ADMIN_OPTION%"=="RunNonElevated" GOTO ChooseRunOptions
 IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" GOTO ChooseRunOptions
@@ -280,6 +281,7 @@ ECHO CHOICE Loading...
 CHOICE /M "Run as Administrator?"
 IF ERRORLEVEL 2 SET "_ADMIN_OPTION=RunNonElevated" & GOTO ChooseRunOptions & REM No.
 IF ERRORLEVEL 1 SET "_ADMIN_OPTION=RunAsAdministrator" & REM Yes.
+
 :ChooseRunOptions
 IF /I "%_RUN_OPTIONS%"=="Run" GOTO RunScript
 IF /I "%_RUN_OPTIONS%"=="Verbose" GOTO VerboseRun
@@ -308,6 +310,8 @@ GOTO MainMenu
 :: https://ss64.com/ps/call.html
 
 :RunScript
+:: First check if we are running As Admin/Elevated
+CALL :GetIfAdmin
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command . '%_PowerShellFile%' -LaunchedInCmd
 IF %_WindowsVersion% EQU 10 (
 	REM Windows 10 has PowerShell width CMD.exe windows.
@@ -329,6 +333,8 @@ IF %_WindowsVersion% EQU 10 (
 GOTO Footer
 
 :VerboseRun
+:: First check if we are running As Admin/Elevated
+CALL :GetIfAdmin
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command . '%_PowerShellFile%' -LaunchedInCmd -Verbose
 IF %_WindowsVersion% EQU 10 (
 	REM Windows 10 has PowerShell width CMD.exe windows.
@@ -350,6 +356,8 @@ IF %_WindowsVersion% EQU 10 (
 GOTO Footer
 
 :DebugScript
+:: First check if we are running As Admin/Elevated
+CALL :GetIfAdmin
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command . '%_PowerShellFile%' -LaunchedInCmd -Debug
 IF %_WindowsVersion% EQU 10 (
 	REM Windows 10 has PowerShell width CMD.exe windows.
@@ -370,7 +378,9 @@ IF %_WindowsVersion% EQU 10 (
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command & '%_PowerShellFile%' -LaunchedInCmd -Debug
 GOTO Footer
 
-:DebugAndVerbose 
+:DebugAndVerbose
+:: First check if we are running As Admin/Elevated
+CALL :GetIfAdmin
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command . '%_PowerShellFile%' -LaunchedInCmd -Verbose -Debug
 IF %_WindowsVersion% EQU 10 (
 	REM Windows 10 has PowerShell width CMD.exe windows.
@@ -459,13 +469,51 @@ REM ECHO DEBUGGING: Begin DefineFunctions block.
 :: Declare Functions
 
 ::Index of functions: 
-:: 1. :GetWindowsVersion
+:: 1. :GetIfAdmin
+:: 2. :GetWindowsVersion
 
 GOTO SkipFunctions
+:-------------------------------------------------------------------------------
+:GetIfAdmin [NoEcho]
+::CALL :GetIfAdmin [NoEcho]
+:: Check if we have elevated/Administrator permissions in this session.
+:: Outputs:
+:: "%_IS_ADMIN%" will be either "Yes" or "No"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+@ECHO OFF
+SETLOCAL
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+SET "_NO_OUTPUT=%~1"
+SET "_NO_ECHO=Off."
+IF /I "%_NO_OUTPUT%"=="NoEcho" ( SET "_NO_ECHO=On."
+) ELSE IF /I "%_NO_OUTPUT%"=="NoOutput" ( SET "_NO_ECHO=On."
+) ELSE IF /I "%_NO_OUTPUT%"=="No" ( SET "_NO_ECHO=On."
+) ELSE IF /I "%_NO_OUTPUT%"=="N" ( SET "_NO_ECHO=On."
+) ELSE ( SET "_NO_ECHO=Off." )
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Check if we are running As Admin/Elevated
+FSUTIL dirty query %SystemDrive% >nul
+IF %ERRORLEVEL% EQU 0 (
+	REM Yes, we have admin.
+	SET "_IS_ADMIN=Yes"
+	IF /I "%_NO_ECHO%"=="On." (
+		ECHO This batch file "nx0" is running with Administrator permissions
+	)
+) ELSE (
+	REM No, we do not have admin.
+	SET "_IS_ADMIN=No"
+	IF /I "%_NO_ECHO%"=="On." (
+		ECHO This batch file "nx0" is running non-Elevated.
+	)
+)	
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ENDLOCAL & SET "_IS_ADMIN=%_IS_ADMIN%"
+EXIT /B
 :-------------------------------------------------------------------------------
 :GetWindowsVersion
 @ECHO OFF
 SETLOCAL
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 FOR /F "tokens=4-7 delims=[.] " %%i IN ('ver') DO (
 	IF %%i == Version SET "_winversion=%%j.%%k"
 	IF %%i neq Version SET "_winversion=%%i.%%j"
@@ -523,6 +571,7 @@ IF "%_winversion%" == "10.0" (
 		)
 	)
 )
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ENDLOCAL & SET "_WindowsVersion=%_winversion%" & SET "_WindowsName=%_winvername%" & SET "_WindowsEasyName=%_easyname%"
 EXIT /B
 :-------------------------------------------------------------------------------

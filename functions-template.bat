@@ -1765,33 +1765,34 @@ REM ECHO DEBUGGING: Begin DefineFunctions block.
 :: 1. :SampleFunction
 :: 2. :DisplayHelp
 :: 3. :Wait
-:: 4. :ElevateMe
-:: 5. :GetAdmin
-:: 6. :Download
-:: 7. :PSDownload
-:: 8. :AddToPATH
-:: 9. :RemoveFromPATH
-:: 10. :GetTerminalWidth
-:: 11. :StrLen
-:: 12. :GenerateBlankSpace
-:: 13. :FormatTextLine
-:: 14. :LoCase
-:: 15. :UpCase
-:: 16. :TCase
-:: 17. :CheckLink
-:: 18. :GetWindowsVersion
-:: 19. :GetIfPathIsDriveRoot
-:: 20. :CreateShortcut
-:: 21. :CreateSymbolicLink
-:: 22. :CreateSymbolicDirLink
-:: 23. :GetDate
-:: 24. :ConvertTimeToSeconds
-:: 25. :ConvertSecondsToTime
-:: 26. :InitLogOriginal
-:: 27. :InitLog
-:: 28. :SplashLogoKdiff
-:: 29. :SplashLogoMerge
-:: 30. :SplashLogoMergeComplete
+:: 4. :GetIfAdmin
+:: 5. :ElevateMe
+:: 6. :GetAdmin
+:: 7. :Download
+:: 8. :PSDownload
+:: 9. :AddToPATH
+:: 10. :RemoveFromPATH
+:: 11. :GetTerminalWidth
+:: 12. :StrLen
+:: 13. :GenerateBlankSpace
+:: 14. :FormatTextLine
+:: 15. :LoCase
+:: 16. :UpCase
+:: 17. :TCase
+:: 18. :CheckLink
+:: 19. :GetWindowsVersion
+:: 20. :GetIfPathIsDriveRoot
+:: 21. :CreateShortcut
+:: 22. :CreateSymbolicLink
+:: 23. :CreateSymbolicDirLink
+:: 24. :GetDate
+:: 25. :ConvertTimeToSeconds
+:: 26. :ConvertSecondsToTime
+:: 27. :InitLogOriginal
+:: 28. :InitLog
+:: 29. :SplashLogoKdiff
+:: 30. :SplashLogoMerge
+:: 31. :SplashLogoMergeComplete
 
 GOTO SkipFunctions
 :-------------------------------------------------------------------------------
@@ -2046,6 +2047,42 @@ IF "%_MATRIX_FOUND%"=="YARP" (
 )
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ENDLOCAL
+EXIT /B
+:-------------------------------------------------------------------------------
+:GetIfAdmin [NoEcho]
+::CALL :GetIfAdmin [NoEcho]
+:: Check if we have elevated/Administrator permissions in this session.
+:: Outputs:
+:: "%_IS_ADMIN%" will be either "Yes" or "No"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+@ECHO OFF
+SETLOCAL
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+SET "_NO_OUTPUT=%~1"
+SET "_NO_ECHO=Off."
+IF /I "%_NO_OUTPUT%"=="NoEcho" ( SET "_NO_ECHO=On."
+) ELSE IF /I "%_NO_OUTPUT%"=="NoOutput" ( SET "_NO_ECHO=On."
+) ELSE IF /I "%_NO_OUTPUT%"=="No" ( SET "_NO_ECHO=On."
+) ELSE IF /I "%_NO_OUTPUT%"=="N" ( SET "_NO_ECHO=On."
+) ELSE ( SET "_NO_ECHO=Off." )
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Check if we are running As Admin/Elevated
+FSUTIL dirty query %SystemDrive% >nul
+IF %ERRORLEVEL% EQU 0 (
+	REM Yes, we have admin.
+	SET "_IS_ADMIN=Yes"
+	IF /I "%_NO_ECHO%"=="On." (
+		ECHO This batch file "nx0" is running with Administrator permissions
+	)
+) ELSE (
+	REM No, we do not have admin.
+	SET "_IS_ADMIN=No"
+	IF /I "%_NO_ECHO%"=="On." (
+		ECHO This batch file "nx0" is running non-Elevated.
+	)
+)	
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ENDLOCAL & SET "_IS_ADMIN=%_IS_ADMIN%"
 EXIT /B
 :-------------------------------------------------------------------------------
 :ElevateMe
@@ -2426,6 +2463,7 @@ EXIT /B
 :GetWindowsVersion
 @ECHO OFF
 SETLOCAL
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 FOR /F "tokens=4-7 delims=[.] " %%i IN ('ver') DO (
 	IF %%i == Version SET "_winversion=%%j.%%k"
 	IF %%i neq Version SET "_winversion=%%i.%%j"
@@ -2483,6 +2521,7 @@ IF "%_winversion%" == "10.0" (
 		)
 	)
 )
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ENDLOCAL & SET "_WindowsVersion=%_winversion%" & SET "_WindowsName=%_winvername%" & SET "_WindowsEasyName=%_easyname%"
 EXIT /B
 :-------------------------------------------------------------------------------
