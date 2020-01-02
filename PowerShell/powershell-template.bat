@@ -126,7 +126,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 SET "_RUN_OPTIONS=Run"
 SET "_RUN_OPTIONS=Verbose"
 SET "_RUN_OPTIONS=Debug"
-::SET "_RUN_OPTIONS=VerboseDebug"
+SET "_RUN_OPTIONS=VerboseDebug"
 ::SET "_RUN_OPTIONS="
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -376,10 +376,7 @@ IF %_WindowsVersion% EQU 10 (
 		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Debug
 	)
 	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
-		REM PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%""' -Debug -Verb RunAs}"
 		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File "%_PowerShellFile%" -Debug'}"
-		
-		REM PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File "C:\Users\Grant\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Test-AdministratorPermissions.ps1" -Debug'}"
 		
 	)
 ) ELSE (
@@ -387,7 +384,8 @@ IF %_WindowsVersion% EQU 10 (
 		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd -Debug
 	)
 	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
-		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd -Debug
+		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File "%_PowerShellFile%" -LaunchedInCmd -Debug'}"
+		
 	)
 )
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command & '%_PowerShellFile%' -LaunchedInCmd -Debug
@@ -405,7 +403,10 @@ IF %_WindowsVersion% EQU 10 (
 		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Verbose -Debug
 	)
 	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
-		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Verbose -Debug
+		REM PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Verbose -Debug
+		
+		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File "%_PowerShellFile%" -Verbose -Debug'}"
+		
 	)
 ) ELSE (
 	IF /I "%_ADMIN_OPTION%"=="RunNonElevated" (
