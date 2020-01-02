@@ -16,6 +16,8 @@ SET "_ORIG_DIR=%~dp0"
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Just the command
 SET "_BANNER_FUNC=Banner.cmd"
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Relative locations:
 :: Same directory
 IF /I NOT EXIST "%_BANNER_FUNC%" (
 	SET "_BANNER_FUNC=%CD%\Banner.cmd"
@@ -59,10 +61,17 @@ IF /I NOT EXIST "%_BANNER_FUNC%" (
 	SET "_BANNER_FUNC=!CD!\Batch\Banner\Banner.cmd"
 	CD %_ORIG_DIR%
 )
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Hard-coded locations:
 :: SpiderOak Hive location
 IF /I NOT EXIST "%_BANNER_FUNC%" (
 	REM SET "_BANNER_FUNC=%USERPROFILE%\Documents\__\Banner\Banner.cmd"
 	SET "_BANNER_FUNC=%USERPROFILE%\Documents\SpiderOak Hive\Programming\Batch\+Function Library\Banner\Banner.cmd"
+)
+:: GitHub location
+IF /I NOT EXIST "%_BANNER_FUNC%" (
+	REM SET "_BANNER_FUNC=%USERPROFILE%\Documents\__\Banner\Banner.cmd"
+	SET "_BANNER_FUNC=%USERPROFILE%\Documents\GitHub\Batch-Tools-SysAdmin\functions\Banner.cmd"
 )
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 IF /I NOT EXIST "%_BANNER_FUNC%" (
