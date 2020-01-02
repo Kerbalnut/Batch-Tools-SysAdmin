@@ -273,58 +273,72 @@ REM ECHO DEBUGGING: Begin ExternalFunctions block.
 :: Compatible characters: 0-9 Hyphen "-" Period "." Comma "," At "@" A-Z (Caps only) Space " "
 :: Requires SETLOCAL EnableDelayedExpansion
 ::-------------------------------------------------------------------------------
-SET "_BANNER_FOUND=YARP"
-::SET "_ORIG_DIR=%CD%"
+::SET "_BANNER_FOUND=YARP"
+SET "_BANNER_FOUND=NOPE"
+SET "_ORIG_DIR=%CD%"
 SET "_ORIG_DIR=%~dp0"
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Just the command
 SET "_BANNER_FUNC=Banner.cmd"
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Relative locations:
 :: Same directory
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	SET "_BANNER_FUNC=%CD%\Banner.cmd"
 )
-:: One directory down
-IF NOT EXIST "%_BANNER_FUNC%" (
+:: One directory down, into functions folder
+IF /I NOT EXIST "%_BANNER_FUNC%" (
+	SET "_BANNER_FUNC=%CD%\functions\Banner.cmd"
+)
+:: One directory down, into Banner folder
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	SET "_BANNER_FUNC=%CD%\Banner\Banner.cmd"
 )
 :: One directory up
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	CD ..
 	SET "_BANNER_FUNC=!CD!\Banner.cmd"
 	CD %_ORIG_DIR%
 )
 :: One directory up, into functions folder
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	CD ..
 	SET "_BANNER_FUNC=!CD!\functions\Banner.cmd"
 	CD %_ORIG_DIR%
 )
 :: Two directories up
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	CD ..
 	CD ..
 	SET "_BANNER_FUNC=!CD!\Banner.cmd"
 	CD %_ORIG_DIR%
 )
 :: SodaLake Flash Drive relative path
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	CD ..
 	SET "_BANNER_FUNC=!CD!\Banner\Banner.cmd"
 	CD %_ORIG_DIR%
 )
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	CD ..
 	CD ..
 	SET "_BANNER_FUNC=!CD!\Batch\Banner\Banner.cmd"
 	CD %_ORIG_DIR%
 )
+::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Hard-coded locations:
 :: SpiderOak Hive location
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	REM SET "_BANNER_FUNC=%USERPROFILE%\Documents\__\Banner\Banner.cmd"
 	SET "_BANNER_FUNC=%USERPROFILE%\Documents\SpiderOak Hive\Programming\Batch\+Function Library\Banner\Banner.cmd"
 )
+:: GitHub location
+IF /I NOT EXIST "%_BANNER_FUNC%" (
+	REM SET "_BANNER_FUNC=%USERPROFILE%\Documents\__\Banner\Banner.cmd"
+	SET "_BANNER_FUNC=%USERPROFILE%\Documents\GitHub\Batch-Tools-SysAdmin\functions\Banner.cmd"
+)
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-IF NOT EXIST "%_BANNER_FUNC%" (
+IF /I NOT EXIST "%_BANNER_FUNC%" (
 	SET "_BANNER_FOUND=NOPE"
 	ECHO:
 	ECHO EXTERNAL FUNCTION NOT FOUND
@@ -339,6 +353,8 @@ IF NOT EXIST "%_BANNER_FUNC%" (
 	ECHO:
 	REM GOTO END
 	GOTO SkipBannerFunc
+) ELSE (
+	SET "_BANNER_FOUND=YARP"
 )
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Script name & extention
