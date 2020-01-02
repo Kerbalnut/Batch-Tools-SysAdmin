@@ -2058,27 +2058,26 @@ EXIT /B
 @ECHO OFF
 SETLOCAL
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-SET "_NO_OUTPUT=%~1"
-SET "_NO_ECHO=Off."
-IF /I "%_NO_OUTPUT%"=="NoEcho" ( SET "_NO_ECHO=On."
-) ELSE IF /I "%_NO_OUTPUT%"=="NoOutput" ( SET "_NO_ECHO=On."
-) ELSE IF /I "%_NO_OUTPUT%"=="No" ( SET "_NO_ECHO=On."
-) ELSE IF /I "%_NO_OUTPUT%"=="N" ( SET "_NO_ECHO=On."
-) ELSE ( SET "_NO_ECHO=Off." )
+SET "_NO_OUTPUT=%1"
+SET "_NO_ECHO=Inactive"
+IF /I "%_NO_OUTPUT%"=="NoEcho" SET "_NO_ECHO=Active"
+IF /I "%_NO_OUTPUT%"=="NoOutput" SET "_NO_ECHO=Active"
+IF /I "%_NO_OUTPUT%"=="No" SET "_NO_ECHO=Active"
+IF /I "%_NO_OUTPUT%"=="N" SET "_NO_ECHO=Active"
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Check if we are running As Admin/Elevated
 FSUTIL dirty query %SystemDrive% >nul
 IF %ERRORLEVEL% EQU 0 (
 	REM Yes, we have admin.
 	SET "_IS_ADMIN=Yes"
-	IF /I "%_NO_ECHO%"=="On." (
-		ECHO This batch file "nx0" is running with Administrator permissions
+	IF /I "%_NO_ECHO%"=="Inactive" (
+		ECHO This batch file "%~nx0" is running with Administrator permissions
 	)
 ) ELSE (
 	REM No, we do not have admin.
 	SET "_IS_ADMIN=No"
-	IF /I "%_NO_ECHO%"=="On." (
-		ECHO This batch file "nx0" is running non-Elevated.
+	IF /I "%_NO_ECHO%"=="Inactive" (
+		ECHO This batch file "%~nx0" is running non-Elevated.
 	)
 )	
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
