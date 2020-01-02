@@ -29,6 +29,8 @@ function Test-IsAdmin { #-------------------------------------------------------
 
 Write-Verbose "Begining of Main Execution block."
 
+Write-Debug 'About to run "Test-IsAdmin" function and check output.'
+
 If ((Test-IsAdmin)) {
 	Write-Host "Script is running with Administrator permissions!" -ForegroundColor "White" -BackgroundColor "Red"
 } Else {

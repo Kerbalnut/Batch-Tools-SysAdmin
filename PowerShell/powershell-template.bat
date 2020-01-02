@@ -20,7 +20,7 @@ REM ECHO DEBUGGING: Begin RunAsAdministrator block.
 FSUTIL dirty query %SystemDrive% >nul
 IF %ERRORLEVEL% EQU 0 GOTO START
 
-GOTO START & REM <-- Leave this line in to always skip Elevation Prompt -->
+::GOTO START & REM <-- Leave this line in to always skip Elevation Prompt -->
 ::GOTO NOCHOICE & REM <-- Leave this line in to always Run As Administrator (skip choice) -->
 :: <-- Remove this block to always RunAs Administrator -->
 ECHO:
@@ -125,7 +125,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 :: Set as Blank String to always prompt user
 SET "_RUN_OPTIONS=Run"
 SET "_RUN_OPTIONS=Verbose"
-::SET "_RUN_OPTIONS=Debug"
+SET "_RUN_OPTIONS=Debug"
 ::SET "_RUN_OPTIONS=VerboseDebug"
 ::SET "_RUN_OPTIONS="
 
@@ -351,21 +351,14 @@ IF %_WindowsVersion% EQU 10 (
 		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Verbose
 	)
 	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
-		REM PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Verbose
-		
-		ECHO PowerShell.exe -NoProfile -ExecutionPolicy Bypass -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%""' -Verbose -Verb RunAs}"
-		
-		PowerShell.exe -NoProfile -ExecutionPolicy Bypass -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%""' -Verbose -Verb RunAs}"
-		
-		REM PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%"" -Verbose' -Verb RunAs}"
-		REM PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File """"%_PowerShellFile%"""" -Verbose' -Verb RunAs}"
+		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%""' -Verbose -Verb RunAs}"
 	)
 ) ELSE (
 	IF /I "%_ADMIN_OPTION%"=="RunNonElevated" (
 		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd -Verbose
 	)
 	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
-		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd -Verbose
+		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%"" -LaunchedInCmd' -Verbose -Verb RunAs}"
 	)
 )
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command "& '%_PowerShellFile%' -LaunchedInCmd -Verbose"
@@ -383,7 +376,11 @@ IF %_WindowsVersion% EQU 10 (
 		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Debug
 	)
 	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
-		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Debug
+		REM PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%""' -Debug -Verb RunAs}"
+		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File "%_PowerShellFile%" -Debug'}"
+		
+		REM PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File "C:\Users\Grant\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Test-AdministratorPermissions.ps1" -Debug'}"
+		
 	)
 ) ELSE (
 	IF /I "%_ADMIN_OPTION%"=="RunNonElevated" (
