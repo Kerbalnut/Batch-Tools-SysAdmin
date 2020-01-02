@@ -230,6 +230,9 @@ Write-Verbose "Script full path:"
 Write-Verbose "$ScriptPath"
 Write-Verbose `r`n # New line (carriage return and newline (CRLF), `r`n)
 
+# Check if script is being Run as Administrator or not
+
+
 #Set Error Action to Silently Continue
 $ErrorActionPreference = 'SilentlyContinue'
 #Set Error Action to Continue
