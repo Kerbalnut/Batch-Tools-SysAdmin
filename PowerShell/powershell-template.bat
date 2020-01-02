@@ -114,15 +114,45 @@ SET "_batExecutionPolicy=RemoteSigned"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-:: Param3 = Example Help Command
+:: Param3 = PowerShell Script Parameters
 
-SET "_EXAMPLE_HELP_COMMAND=Get-ChildItem"
+SET "_POSH_PARAMS="
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-:: Param4 = PowerShell Script Parameters
+:: Param4 = Run options, Override user-prompt with default choice: 
 
-SET "_POSH_PARAMS="
+:: Set as Blank String to always prompt user
+SET "_RUN_OPTIONS=Run"
+SET "_RUN_OPTIONS=Verbose"
+SET "_RUN_OPTIONS=Debug"
+SET "_RUN_OPTIONS=VerboseDebug"
+SET "_RUN_OPTIONS="
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+:: Param5 = Run-as-administrator, Override user-prompt with default choice: 
+
+:: Set as Blank String to always prompt user
+SET "_ADMIN_OPTION=RunNonElevated"
+::SET "_ADMIN_OPTION=RunAsAdministrator"
+::SET "_ADMIN_OPTION="
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+:: Param6 = Skip Help commands
+
+SET "_SHOW_HELP=No"
+SET "_SHOW_HELP=Yes"
+
+SET "_SHOW_EXAMPLE_HELP=No"
+::SET "_SHOW_EXAMPLE_HELP=Yes"
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+:: Param7 = Example Help Command
+
+SET "_EXAMPLE_HELP_COMMAND=Get-ChildItem"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -144,7 +174,7 @@ REM ECHO DEBUGGING: Beginning Main execution block.
 :: Phase 2: Example PowerShell help command
 :: Phase 3: PowerShell script help command
 :: Phase 4: Main Menu
-:: Phase 5: Run PowerShell script as Administrator
+:: Phase 5: Run PowerShell script as Administrator (Examples)
 ::===============================================================================
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -152,14 +182,6 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ::===============================================================================
 :: Phase 1: Evaluate Parameters
 ::===============================================================================
-
-REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-:: Get _PowerShellFile Name & eXtention, Drive letter & Path, siZe
-FOR %%G IN ("%_PowerShellFile%") DO SET "_PowerShellFile_NAME=%%~nxG"
-FOR %%G IN ("%_PowerShellFile%") DO SET "_PowerShellFile_PATH=%%~dpG"
-FOR %%G IN ("%_PowerShellFile%") DO SET "_PowerShellFile_SIZE=%%~zG"
-SET /A "_PowerShellFile_SIZE_KB=%_PowerShellFile_SIZE%/1024"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -172,9 +194,16 @@ IF NOT EXIST "%_PowerShellFile%" (
 	ECHO:
 	ECHO "%_PowerShellFile%" not found.
 	ECHO:
-	PAUSE
-	EXIT
+	GOTO Footer
 )
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+:: Get _PowerShellFile Name & eXtention, Drive letter & Path, siZe
+FOR %%G IN ("%_PowerShellFile%") DO SET "_PowerShellFile_NAME=%%~nxG"
+FOR %%G IN ("%_PowerShellFile%") DO SET "_PowerShellFile_PATH=%%~dpG"
+FOR %%G IN ("%_PowerShellFile%") DO SET "_PowerShellFile_SIZE=%%~zG"
+SET /A "_PowerShellFile_SIZE_KB=%_PowerShellFile_SIZE%/1024"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -184,8 +213,10 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 :ExampleHelp
 :: Skip Example Help lookup
-ECHO Skipping %_EXAMPLE_HELP_COMMAND% example help command & GOTO ScriptHelp & REM Comment out this line to display help before loading script
-
+IF /I "%_SHOW_EXAMPLE_HELP%"=="No" (
+	ECHO Skipping %_EXAMPLE_HELP_COMMAND% example help command 
+	GOTO ScriptHelp & REM Comment out this line to display help before loading script
+)
 ECHO -------------------------------------------------------------------------------
 ECHO:
 ECHO Example help:
@@ -205,8 +236,10 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 :ScriptHelp
 :: Skip Help lookup
-::ECHO Skipping %_PowerShellFile_NAME% help command & GOTO MainMenu & REM Comment out this line to display help before loading script
-
+IF /I "%_SHOW_HELP%"=="No" (
+	ECHO Skipping %_PowerShellFile_NAME% help command 
+	GOTO MainMenu & REM Comment out this line to display help before loading script
+)
 ECHO -------------------------------------------------------------------------------
 ECHO:
 ECHO Full script help:
@@ -239,6 +272,19 @@ ECHO Detecting Windows OS version compatibility . . .
 ECHO:
 CALL :GetWindowsVersion
 ECHO:
+:ChooseAdminOptions
+IF /I "%_ADMIN_OPTION%"=="RunNonElevated" GOTO ChooseRunOptions
+IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" GOTO ChooseRunOptions
+ECHO CHOICE Loading...
+:: https://ss64.com/nt/choice.html
+CHOICE /M "Run as Administrator?"
+IF ERRORLEVEL 2 SET "_ADMIN_OPTION=RunNonElevated" & GOTO ChooseRunOptions & REM No.
+IF ERRORLEVEL 1 SET "_ADMIN_OPTION=RunAsAdministrator" & REM Yes.
+:ChooseRunOptions
+IF /I "%_RUN_OPTIONS%"=="Run" GOTO RunScript
+IF /I "%_RUN_OPTIONS%"=="Verbose" GOTO VerboseRun
+IF /I "%_RUN_OPTIONS%"=="Debug" GOTO DebugScript
+IF /I "%_RUN_OPTIONS%"=="VerboseDebug" GOTO DebugAndVerbose
 :: https://ss64.com/nt/choice.html
 ECHO CHOICE Loading...
 ::CHOICE /C LDWE /N /M "|  L - Log Times  |  D - Stats by Day  |  W - by Week  |  -----  |  E - Exit  |"
@@ -261,65 +307,104 @@ GOTO MainMenu
 :: Call operator (&) allows you to execute a command, script or function. 
 :: https://ss64.com/ps/call.html
 
-
 :RunScript
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command . '%_PowerShellFile%' -LaunchedInCmd
 IF %_WindowsVersion% EQU 10 (
 	REM Windows 10 has PowerShell width CMD.exe windows.
-	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%"
+	IF /I "%_ADMIN_OPTION%"=="RunNonElevated" (
+		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%"
+	)
+	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
+		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%"
+	)
 ) ELSE (
-	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd
+	IF /I "%_ADMIN_OPTION%"=="RunNonElevated" (
+		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd
+	)
+	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
+		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd
+	)
 )
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command "& '%_PowerShellFile%'"
-GOTO End
+GOTO Footer
 
 :VerboseRun
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command . '%_PowerShellFile%' -LaunchedInCmd -Verbose
 IF %_WindowsVersion% EQU 10 (
 	REM Windows 10 has PowerShell width CMD.exe windows.
-	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Verbose
+	IF /I "%_ADMIN_OPTION%"=="RunNonElevated" (
+		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Verbose
+	)
+	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
+		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Verbose
+	)
 ) ELSE (
-	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd -Verbose
+	IF /I "%_ADMIN_OPTION%"=="RunNonElevated" (
+		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd -Verbose
+	)
+	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
+		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd -Verbose
+	)
 )
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command "& '%_PowerShellFile%' -LaunchedInCmd -Verbose"
-GOTO End
+GOTO Footer
 
 :DebugScript
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command . '%_PowerShellFile%' -LaunchedInCmd -Debug
 IF %_WindowsVersion% EQU 10 (
 	REM Windows 10 has PowerShell width CMD.exe windows.
-	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Debug
+	IF /I "%_ADMIN_OPTION%"=="RunNonElevated" (
+		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Debug
+	)
+	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
+		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Debug
+	)
 ) ELSE (
-	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd -Debug
+	IF /I "%_ADMIN_OPTION%"=="RunNonElevated" (
+		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd -Debug
+	)
+	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
+		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd -Debug
+	)
 )
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command & '%_PowerShellFile%' -LaunchedInCmd -Debug
-GOTO End
+GOTO Footer
 
 :DebugAndVerbose 
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command . '%_PowerShellFile%' -LaunchedInCmd -Verbose -Debug
 IF %_WindowsVersion% EQU 10 (
 	REM Windows 10 has PowerShell width CMD.exe windows.
-	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Verbose -Debug
+	IF /I "%_ADMIN_OPTION%"=="RunNonElevated" (
+		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Verbose -Debug
+	)
+	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
+		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Verbose -Debug
+	)
 ) ELSE (
-	PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd -Verbose -Debug
+	IF /I "%_ADMIN_OPTION%"=="RunNonElevated" (
+		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd -Verbose -Debug
+	)
+	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
+		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd -Verbose -Debug
+	)
 )
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command & '%_PowerShellFile%' -LaunchedInCmd -Verbose -Debug
-GOTO End
+GOTO Footer
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ::===============================================================================
-:: Phase 5: Run PowerShell script as Administrator
+:: Phase 5: Run PowerShell script as Administrator (Examples)
 ::===============================================================================
 
 :AdminRunScript
 PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%""' -Verb RunAs}"
-GOTO End
+GOTO Footer
 
 :AdminVerboseRun
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%"" -Verbose' -Verb RunAs}"
 PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File """"%_PowerShellFile%"""" -Verbose' -Verb RunAs}"
-GOTO End
+GOTO Footer
 
 
 ::http://blog.danskingdom.com/allow-others-to-run-your-powershell-scripts-from-a-batch-file-they-will-love-you-for-it/
