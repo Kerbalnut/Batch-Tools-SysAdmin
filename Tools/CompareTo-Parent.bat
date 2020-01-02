@@ -164,6 +164,8 @@ SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare2.
 
 SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Backup and Restore\Pull-BackupToolsBranchOnly.bat"
 
+SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\BoxstarterInstall-template.bat"
+
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :: Param2 = File B
@@ -226,6 +228,8 @@ SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\functions\RunAs
 ::SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\functions\RunAsAdministrator\BatchGotAdmin International-Fix Code.bat"
 
 SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Backup and Restore\Clone-BackupRestoreBranchOnly.bat"
+
+SET "_FILE_B=D:\READ_ME\Install-Dependencies.bat"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

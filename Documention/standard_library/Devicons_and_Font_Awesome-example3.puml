@@ -1,0 +1,54 @@
+@startuml Devicons_and_Font_Awesome-example3
+
+skinparam defaultTextAlignment center
+
+!include <tupadr3/common>
+!include <tupadr3/font-awesome-5/server.puml>
+!include <tupadr3/font-awesome-5/gitlab.puml>
+!include <tupadr3/font-awesome/gears.puml>
+!include <tupadr3/font-awesome/fire.puml>
+!include <tupadr3/font-awesome/clock_o.puml>
+!include <tupadr3/font-awesome/lock.puml>
+!include <tupadr3/font-awesome/cloud.puml>
+
+!include <tupadr3/devicons/nginx.puml>
+!include <tupadr3/devicons/mysql.puml>
+!include <tupadr3/devicons/redis.puml>
+!include <tupadr3/devicons/docker.puml>
+!include <tupadr3/devicons/linux.puml>
+
+FA_CLOUD(internet,internet,cloud) #White {
+
+}
+
+
+
+DEV_LINUX(debian,Linux,node){
+
+	FA_CLOCK_O(crond,crond) #White
+	FA_FIRE(iptables,iptables) #White
+
+	DEV_DOCKER(docker,docker,node)  {
+		DEV_NGINX(nginx,nginx,node) #White
+		DEV_MYSQL(mysql,mysql,node) #White
+		DEV_REDIS(redis,redis,node) #White
+		FA5_SERVER(nexus,nexus3,node) #White
+		FA5_GITLAB(gitlab,gitlab,node) #White
+		FA_GEARS(gitlabci,gitlab-ci-runner,node) #White
+
+		FA_LOCK(letsencrypt,letsencrypt-client,node) #White
+	}
+}
+
+internet ..> iptables : http
+
+iptables ..> nginx : http
+nginx ..> nexus : http
+nginx ..> gitlab : http
+gitlabci ..> gitlab : http
+gitlab ..> mysql : tcp/ip
+gitlab ..> redis : tcp/ip
+
+crond --> letsencrypt : starts every month
+
+@enduml

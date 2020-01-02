@@ -199,15 +199,74 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 :Main
 
 ::===============================================================================
-:: Phase 1: Check system compatibility & internet connection
-:: Phase 2: Prompt user to review install package & choose reboot options
-:: Phase 3: Run Boxstarter with provided parameters
+:: Phase 1: Evaluate Parameters
+:: Phase 2: Check system compatibility & internet connection
+:: Phase 3: Prompt user to review install package & choose reboot options
+:: Phase 4: Run Boxstarter with provided parameters
 ::===============================================================================
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ::===============================================================================
-:: Phase 1: Check system compatibility & internet connection
+:: Phase 1: Evaluate Parameters
+::===============================================================================
+
+:: Activate help function
+IF NOT "%~1"=="" (
+	REM Debugging: cannot use :: for comments within IF statement, instead use REM
+	IF /I "%~1"=="help" (
+		CALL :DisplayHelp
+		GOTO END
+		REM ENDLOCAL & EXIT /B
+	)
+	IF /I "%~1"=="-h" (
+		CALL :DisplayHelp
+		GOTO END
+		REM ENDLOCAL & EXIT /B
+	)
+	IF /I "%~1"=="-help" (
+		CALL :DisplayHelp
+		GOTO END
+		REM ENDLOCAL & EXIT /B
+	)
+	IF /I "%~1"=="--help" (
+		CALL :DisplayHelp
+		GOTO END
+		REM ENDLOCAL & EXIT /B
+	)
+	IF /I "%~1"=="/?" (
+		CALL :DisplayHelp
+		GOTO END
+		REM ENDLOCAL & EXIT /B
+	)
+	IF /I "%~1"=="/h" (
+		CALL :DisplayHelp
+		GOTO END
+		REM ENDLOCAL & EXIT /B
+	)
+	IF /I "%~1"=="/help" (
+		CALL :DisplayHelp
+		GOTO END
+		REM ENDLOCAL & EXIT /B
+	)
+)
+
+REM ECHO DEBUGGING: Finished help evaluation.
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+:: Always prefer parameters passed via command line over hard-coded vars.
+SET "_CALLED_FROM_SCRIPT=DISABLED"
+IF NOT "%~1"=="" (
+	SET "_CALLED_FROM_SCRIPT=ACTIVE"
+)
+
+::IF /I NOT "%_CALLED_FROM_SCRIPT%"=="ACTIVE" CLS
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+::===============================================================================
+:: Phase 2: Check system compatibility & internet connection
 ::===============================================================================
 
 ECHO(
@@ -264,7 +323,7 @@ IF "%_LinkState%"=="down" (
 )
 
 ::===============================================================================
-:: Phase 2: Prompt user to review install package & choose reboot options
+:: Phase 3: Prompt user to review install package & choose reboot options
 ::===============================================================================
 
 REM -------------------------------------------------------------------------------
@@ -380,7 +439,7 @@ PAUSE
 ECHO(
 
 ::===============================================================================
-:: Phase 3: Run Boxstarter with provided parameters
+:: Phase 4: Run Boxstarter with provided parameters
 ::===============================================================================
 
 :: Boxstarter Source
@@ -490,12 +549,164 @@ REM ----------------------------------------------------------------------------
 REM ECHO DEBUGGING: Begin DefineFunctions block.
 
 ::Index of functions: 
-:: 1. :CheckLink
-:: 2. :GetWindowsVersion
+:: 1. :DisplayHelp
+:: 2. :CheckLink
+:: 3. :GetWindowsVersion
 
 GOTO SkipFunctions
 :: Declare Functions
 :DefineFunctions
+:-------------------------------------------------------------------------------
+:DisplayHelp
+::CALL :DisplayHelp
+:: Display help splash text.
+@ECHO OFF
+SETLOCAL
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+::C:\Users\[Username]>ipconfig /?
+::
+::USAGE:
+::    ipconfig [/allcompartments] [/? | /all |
+::                                 /renew [adapter] | /release [adapter] |
+::                                 /renew6 [adapter] | /release6 [adapter] |
+::                                 /flushdns | /displaydns | /registerdns |
+::                                 /showclassid adapter |
+::                                 /setclassid adapter [classid] |
+::                                 /showclassid6 adapter |
+::                                 /setclassid6 adapter [classid] ]
+::
+::where
+::    adapter             Connection name
+::                       (wildcard characters * and ? allowed, see examples)
+::
+::    Options:
+::       /?               Display this help message
+::       /all             Display full configuration information.
+::       /release         Release the IPv4 address for the specified adapter.
+::       /release6        Release the IPv6 address for the specified adapter.
+::       /renew           Renew the IPv4 address for the specified adapter.
+::       /renew6          Renew the IPv6 address for the specified adapter.
+::       /flushdns        Purges the DNS Resolver cache.
+::       /registerdns     Refreshes all DHCP leases and re-registers DNS names
+::       /displaydns      Display the contents of the DNS Resolver Cache.
+::       /showclassid     Displays all the dhcp class IDs allowed for adapter.
+::       /setclassid      Modifies the dhcp class id.
+::       /showclassid6    Displays all the IPv6 DHCP class IDs allowed for adapter.
+::       /setclassid6     Modifies the IPv6 DHCP class id.
+::
+::
+::The default is to display only the IP address, subnet mask and
+::default gateway for each adapter bound to TCP/IP.
+::
+::For Release and Renew, if no adapter name is specified, then the IP address
+::leases for all adapters bound to TCP/IP will be released or renewed.
+::
+::For Setclassid and Setclassid6, if no ClassId is specified, then the ClassId is removed.
+::
+::Examples:
+::    > ipconfig                       ... Show information
+::    > ipconfig /all                  ... Show detailed information
+::    > ipconfig /renew                ... renew all adapters
+::    > ipconfig /renew EL*            ... renew any connection that has its
+::                                         name starting with EL
+::    > ipconfig /release *Con*        ... release all matching connections,
+::                                         eg. "Wired Ethernet Connection 1" or
+::                                             "Wired Ethernet Connection 2"
+::    > ipconfig /allcompartments      ... Show information about all
+::                                         compartments
+::    > ipconfig /allcompartments /all ... Show detailed information about all
+::                                         compartments
+::
+::C:\Users\[Username]>_
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+::C:\Users\[Username]>tracert /?
+::
+::Usage: tracert [-d] [-h maximum_hops] [-j host-list] [-w timeout]
+::               [-R] [-S srcaddr] [-4] [-6] target_name
+::
+::Options:
+::    -d                 Do not resolve addresses to hostnames.
+::    -h maximum_hops    Maximum number of hops to search for target.
+::    -j host-list       Loose source route along host-list (IPv4-only).
+::    -w timeout         Wait timeout milliseconds for each reply.
+::    -R                 Trace round-trip path (IPv6-only).
+::    -S srcaddr         Source address to use (IPv6-only).
+::    -4                 Force using IPv4.
+::    -6                 Force using IPv6.
+::
+::C:\Users\[Username]>_
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ECHO:
+ECHO ===============================================================================
+::ECHO:
+ECHO Called from: "%~dp0"
+ECHO:
+ECHO %~n0 command-line help.
+::ECHO:
+ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ECHO:
+ECHO USAGE: .\%~nx0 "path_to_file_a" "path_to_file_b" [banner]
+ECHO:
+::ECHO EXAMPLE:
+::ECHO .\%~nx0 "path_to_file_a" "path_to_file_b" [BANNER]
+::ECHO:
+::ECHO where
+::ECHO     banner      =       QUIET - for minimal output
+::ECHO                         SIMPLE - for a small banner during start.
+::ECHO                         FANCY - for a custom banner during start ^& end.
+::ECHO                         (If no option is selected, the default is FANCY.)
+::ECHO:
+::ECHO OPTIONS:
+ECHO PARAMETERS:
+ECHO    "path_to_file_a"   - Full file path pointing to the first file.
+ECHO    "path_to_file_b"   - Full file path pointing to the second file.
+ECHO    banner             - If no option is selected, the default is FANCY.
+ECHO                           + QUIET - for minimal output
+ECHO                           + SIMPLE - for a small banner during start.
+ECHO                           + FANCY - for a custom banner during start ^& end.
+ECHO:
+ECHO DESCRIPTION:
+ECHO Uses kdiff3 to merge changes between two different files or folders.
+ECHO:
+ECHO "File_A" will always be updated first from "File_B", then "File_B" will be
+ECHO will be updated from "File_A".
+ECHO:
+ECHO Any file that gets updated will have a backup saved called "File_A.orig"
+ECHO                                                         or "File_B.orig"
+ECHO:
+ECHO Paramters can be passed via command line, or hard-coded into this script.
+ECHO If no parameters are provided, default is to use the hard-coded variables.
+ECHO:
+ECHO You can also drag-and-drop files on this script one at a time to merge them.
+ECHO:
+ECHO EXAMPLE:
+ECHO     ^> .\%~nx0 "^%USERPROFILE^%\Documents\file_1.txt" "^%USERPROFILE^%\Dropbox\file_1.txt"
+ECHO:
+ECHO EXAMPLE:
+ECHO     ^> .\%~nx0 "^%USERPROFILE^%\Documents\Folder1" "\\^%server_name^%\packages\Folder1" fancy
+ECHO:
+ECHO EXAMPLE:
+ECHO     ^> .\%~nx0 "^%USERPROFILE^%\Desktop\file_2.json" "G:\Data\file_2.json" quiet
+ECHO:
+::ECHO     > ipconfig                       ... Show information
+::ECHO     > ipconfig /all                  ... Show detailed information
+::ECHO     > ipconfig /renew                ... renew all adapters
+::ECHO     > ipconfig /renew EL*            ... renew any connection that has its
+::ECHO                                          name starting with EL
+::ECHO     > ipconfig /release *Con*        ... release all matching connections,
+::ECHO                                          eg. "Wired Ethernet Connection 1" or
+::ECHO                                              "Wired Ethernet Connection 2"
+::ECHO     > ipconfig /allcompartments      ... Show information about all
+::ECHO                                          compartments
+::ECHO     > ipconfig /allcompartments /all ... Show detailed information about all
+::ECHO                                          compartments
+::ECHO 
+::ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ECHO -------------------------------------------------------------------------------
+::ECHO:
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ENDLOCAL
+EXIT /B
 :-------------------------------------------------------------------------------
 :CheckLink IPorDNSaddress
 :: Check address for ICMP ping response packets

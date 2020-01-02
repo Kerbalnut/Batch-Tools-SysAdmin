@@ -1175,11 +1175,11 @@ ECHO:
 
 CALL :UpCase "%_TEST_STRING%"
 
-ECHO Uppercase:  "%_UPCASE_STRING%"
+ECHO UPPERCASE:  "%_UPCASE_STRING%"
 
 CALL :LoCase "%_TEST_STRING%"
 
-ECHO Lowercase:  "%_LOCASE_STRING%"
+ECHO lowercase:  "%_LOCASE_STRING%"
 
 CALL :TCase "%_TEST_STRING%"
 
