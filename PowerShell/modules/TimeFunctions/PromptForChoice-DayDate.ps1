@@ -544,7 +544,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	# 'Today' and 'Yesterday' will be constant. But we'll fill in every day earlier as an option, up to Monday. So starting at Wednesday and later, we'll calculate those values. And to do that we'll need the Day-of-Week as an integer value for Monday through Sunday.
 	
 	#-----------------------------------------------------------------------------------------------------------------------
-
+	
 	Write-HR -IsVerbose -DashedLine
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -594,7 +594,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 	
 	[int]$SelectedDoW = [int]$TodayDoWNumberOneThruSeven
 	[int]$TodayDoW = [int]$TodayDoWNumberOneThruSeven
-
+	
 	[DateTime]$SelectedDateTime = [DateTime]$TodayDateTime
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -610,7 +610,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 		Start-Sleep -Milliseconds 100 #Bugfix: Clear-Host acts so quickly, sometimes it won't actually wipe the terminal properly. If you force it to wait, then after PowerShell will display any specially-formatted text properly.
 		
 		Write-HR -IsVerbose -DoubleLine
-
+		
 		If ($SelectedWeek -eq 0) {
 			$ConvertedDoWMonSun = (Convert-DoWNumberToMonSun -Input $TodayDateTime)
 			[int]$SelectedDoW = (Get-SundayOfWeekInt -DoWInput $ConvertedDoWMonSun)
@@ -669,9 +669,9 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 			Write-Verbose "`$DaysToCountBackward = $DaysToCountBackward"
 			
 			$SelectedDateTime = $TodayDateTime.AddDays($DaysToCountBackward)
-		
+			
 			$SelectedDoW = 7
-		
+			
 		}
 		
 		#$StartOfWeekMonthLong = Get-Date -Date (Get-MondayOfWeekInt -DoWInput $SelectedDoW) -UFormat %B
@@ -720,9 +720,9 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 		Write-Verbose "`$PreviousWeekOfYear (01-53) = $PreviousWeekOfYear"
 		
 		Write-HR -IsVerbose -DashedLine
-	
-		Do {
 		
+		Do {
+			
 			If ($SelectedDateTime -eq $TodayDateTime) {
 				$TodayLabel = " (Today)"
 			} Else {
@@ -734,7 +734,7 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 			} Else {
 				$YesterdayLabel = ""
 			}
-		
+			
 			#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 			
 			If ($SelectedDoW -eq 7) { # Sunday
@@ -824,9 +824,9 @@ Function PromptForChoice-DayDate { #--------------------------------------------
 			
 			$SelectedDoW = $SelectedDoW - 1
 			$SelectedDateTime = ($SelectedDateTime).AddDays(-1)
-		
+			
 		} until ($SelectedDoW -lt 1)
-	
+		
 		If ($StartOfWeekMonSunMonthLong -ne $EndOfWeekMonSunMonthLong) {
 			$MonthLabel = "$StartOfWeekMonSunMonthShort-$EndOfWeekMonSunMonthShort"
 			Write-Verbose   "Month (Mon-Sun): $MonthLabel"
@@ -1020,7 +1020,7 @@ $Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
 			'Q' { # Q - Quit
 				$UserSelectedDateTime = 'Quit/End/Exit'
 			}
-
+			
 			default { # Choice not recognized.
 				Write-Host `r`n
 				Write-Host "Choice `"$Answer`" not recognized. Options must be one of the above."
@@ -1034,10 +1034,10 @@ $Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
 		}
 		#Write-Host "Answer is:"
 		#Write-Host "$UserSelectedDateTime"
-	
-
+		
+		
 	} Until (!($null -eq $UserSelectedDateTime -Or $UserSelectedDateTime -eq "" -Or $UserSelectedDateTime -eq ''))
-
+	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1078,7 +1078,7 @@ $Info += "`r`n`r`n[Q] - Quit`r`n`n`n"
 	
 	#Return $UserSelectedDateTime
 	Write-Output $UserSelectedDateTime
-
+	
 } # End PromptForChoice-DayDate function -------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
