@@ -1,4 +1,3 @@
-
 <#
 .SYNOPSIS
 Build script for the TimeFunctions module.
@@ -28,6 +27,18 @@ Run the build command, "Invoke-Build"
 
 PS:\> Invoke-Build
 
+.EXAMPLE
+Invoke-Build
+
+.EXAMPLE
+CD "$Home\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\modules\TimeFunctions"
+PS:\> Invoke-Build
+
+.EXAMPLE
+Install-Module InvokeBuild
+PS:\> CD "$Home\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\modules\TimeFunctions"
+PS:\> Invoke-Build
+
 .LINK
 https://bitsofknowledge.net/2018/03/24/powershell-must-have-tools-for-development/
 
@@ -37,6 +48,8 @@ https://github.com/nightroman/Invoke-Build
 .LINK
 http://duffney.io/GettingStartedWithInvokeBuild#powershell-module-development-workflow
 #>
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #-----------------------------------------------------------------------------------------------------------------------
 #=======================================================================================================================
@@ -52,10 +65,10 @@ Start-Sleep -Milliseconds 100 #Bugfix: Clear-Host acts so quickly, sometimes it 
 
 # Run chosen tasks for this build script
 
-#task . InstallDependencies, Analyze, Test, UpdateVersion, Clean, Archive
-#task . InstallDependencies, Test, IntegrateFunctions, BuildModule
-#task . Test, IntegrateFunctions, BuildModule
-task . IntegrateFunctions, BuildModule
+#task . InstallDependencies, ResetLogFile, Analyze, Test, UpdateVersion, Clean, Archive, IntegrateFunctions, BuildModule
+#task . InstallDependencies, ResetLogFile, Test, IntegrateFunctions, BuildModule
+#task . ResetLogFile, Test, IntegrateFunctions, BuildModule
+task . ResetLogFile, IntegrateFunctions, BuildModule
 
 #=======================================================================================================================
 
@@ -64,8 +77,16 @@ task . IntegrateFunctions, BuildModule
 # Install the dependencies required to perform the rest of this build script.
 
 task InstallDependencies {
-	Install-Module PSScriptAnalyzer  #-Force
+	Install-Module PSScriptAnalyzer #-Force
 	Install-Module Pester #-Force
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
+
+# Reset the build log file
+
+task ResetLogFile {
+	#
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
