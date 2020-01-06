@@ -51,6 +51,16 @@ http://duffney.io/GettingStartedWithInvokeBuild#powershell-module-development-wo
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+#http://techgenix.com/powershell-functions-common-parameters/
+# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+#[cmdletbinding()]
+#Param()
+
+[cmdletbinding()]
+Param()
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 #-----------------------------------------------------------------------------------------------------------------------
 #=======================================================================================================================
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
