@@ -67,6 +67,10 @@ task InstallDependencies {
 
 #-----------------------------------------------------------------------------------------------------------------------
 
+# Use PSScriptAnalyzer to "lint" PowerShell code, a static code checker that uses a set of rules to check for common errors and style
+#https://github.com/PowerShell/PSScriptAnalyzer
+#https://www.powershellgallery.com/packages/PSScriptAnalyzer
+
 task Analyze {
     $scriptAnalyzerParams = @{
         Path = "$BuildRoot\DSCClassResources\TeamCityAgent\"
@@ -86,9 +90,10 @@ task Analyze {
 
 #-----------------------------------------------------------------------------------------------------------------------
 
-# Test our cmdlets/libraries
+# Run Pester Tests on our cmdlets/libraries
 
 task Test {
+    # Build Pester Parameters list via hash table
     $invokePesterParams = @{
         Strict = $true
         PassThru = $true
@@ -99,13 +104,16 @@ task Test {
     # Publish Test Results as NUnitXml
     $testResults = Invoke-Pester @invokePesterParams;
     
+    # Write test results to log file
+    
+    # Assert how many failed tests are allowed before failing the build
     $numberFails = $testResults.FailedCount
     assert($numberFails -eq 0) ('Failed "{0}" unit tests.' -f $numberFails)
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
 
-# Build a dot-source .ps1 function script by combining all the different function/library scripts saved individually into one script
+# Build a 'dot-source'-able .ps1 functions library file, by combining all the different function scripts saved individually into one script
 
 task IntegrateFunctions {
     
@@ -125,7 +133,7 @@ task IntegrateFunctions {
 
 #-----------------------------------------------------------------------------------------------------------------------
 
-# Build the .psm1 module by 
+# Build the PowerShell .psm1 module
 
 task BuildModule {
     
