@@ -64,8 +64,8 @@ task . IntegrateFunctions, BuildModule
 # Install the dependencies required to perform the rest of this build script.
 
 task InstallDependencies {
-    Install-Module PSScriptAnalyzer  #-Force
-    Install-Module Pester #-Force
+	Install-Module PSScriptAnalyzer  #-Force
+	Install-Module Pester #-Force
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ task InstallDependencies {
 #https://www.powershellgallery.com/packages/PSScriptAnalyzer
 
 task Analyze {
-    $scriptAnalyzerParams = @{
+	$scriptAnalyzerParams = @{
 		Path = "$BuildRoot\DSCClassResources\TeamCityAgent\"
 		Severity = @('Error', 'Warning')
 		Recurse = $true
