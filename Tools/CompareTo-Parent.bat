@@ -536,6 +536,14 @@ REM ECHO DEBUGGING: _FILE_A evaluation finished.
 
 REM -------------------------------------------------------------------------------
 
+REM ECHO DEBUGGING: Getting file Name ^& eXtention, Drive letter & Path
+
+:: Get _FILE_A Name & eXtention, Drive letter & Path
+FOR %%G IN ("%_FILE_A%") DO SET "_FILE_A_NAME=%%~nxG"
+FOR %%G IN ("%_FILE_A%") DO SET "_FILE_A_PATH=%%~dpG"
+
+REM -------------------------------------------------------------------------------
+
 :: Request _FILE_B if it was not also provided
 IF NOT "%~2"=="" (
 	SET "_FILE_B=%~2"
@@ -582,6 +590,8 @@ ECHO Merge differences between two text files using kdiff3.
 ECHO:
 ECHO  _FILE_A: ^(Already Selected^)
 ECHO "%_FILE_A%"
+ECHO "%_FILE_A_PATH%"
+ECHO "%_FILE_A_NAME%"
 ECHO -------------------------------------------------------------------------------
 SET /P "_FILE_B=Please drag-and-drop _FILE_B onto the prompt and press ENTER: "
 REM Remove any surrounding quotes.
@@ -655,10 +665,6 @@ IF "%_FILE_A%"=="%_FILE_B%" (
 REM -------------------------------------------------------------------------------
 
 REM ECHO DEBUGGING: Getting file Name ^& eXtention, Drive letter & Path
-
-:: Get _FILE_A Name & eXtention, Drive letter & Path
-FOR %%G IN ("%_FILE_A%") DO SET "_FILE_A_NAME=%%~nxG"
-FOR %%G IN ("%_FILE_A%") DO SET "_FILE_A_PATH=%%~dpG"
 
 :: Get _FILE_B Name & eXtention, Drive letter & Path
 FOR %%G IN ("%_FILE_B%") DO SET "_FILE_B_NAME=%%~nxG"
