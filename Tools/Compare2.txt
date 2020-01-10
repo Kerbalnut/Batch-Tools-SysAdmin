@@ -1,3 +1,4 @@
+<<<<<<< working copy
 		Write-Host "Repo name: $($obj.RepositoryName) `t`t`tType: $($obj.RepositoryType)`t`tSize: $($obj.Size)"
 		$DestinationRepo = $Destination + "\" + $obj.RepositoryName
 		If ($obj.RepositoryType -like "*Hg*") {
@@ -20,31 +21,3 @@
 			Write-Host "GitRepo"
 			If (($obj.SourceUrlPath) -eq "" -or $null -eq ($obj.SourceUrlPath) -or ($obj.SourceUrlPath) -eq '') {
 =======
-		Write-Host "Repo name: $($obj.RepositoryName) `t`t`tType: $($obj.RepositoryType)"
-		$DestinationRepo = $Destination + "\" + $obj.RepositoryName
-		If ($obj.RepositoryType -like "*Hg*") {
-			Write-Host "HgRepo"
-			hg clone -y $Source $DestinationRepo
-			
-			# Add remote sync paths.
-			$CurrentDir = (pwd).Path
-			CD $DestinationRepo
-			If (($obj.SourceUrlPath) -ne "" -and ($obj.SourceUrlPath) -ne $null -and ($obj.SourceUrlPath) -ne '') {
-				CD .hg
-				$NewHgrc = (Get-Content hgrc) -replace "\[paths\]", "[paths]`r`ndefault2 = $($obj.SourceUrlPath)`r`n"
-				Set-Content -Path .\hgrc -Value $NewHgrc
-			}
-			CD $CurrentDir
-		}
-		If ($obj.RepositoryType -like "*Git*") {
-			Write-Host "GitRepo"
-			If (($obj.SourceUrlPath) -eq "" -or ($obj.SourceUrlPath) -eq $null -or ($obj.SourceUrlPath) -eq '') {
->>>>>>> merge rev
-				$GitRefRepo = "--reference-if-able `"$($obj.SourceUrlPath)`""
-			} Else {
-				$GitRefRepo = ""
-			}
-			Write-Verbose "`$GitRefRepo = $GitRefRepo"
-			#git clone --no-hardlinks --reference-if-able $obj.SourceUrlPath $Source $DestinationRepo
-			#git clone -q --no-hardlinks $GitRefRepo $Source $DestinationRepo
-			git clone -q --no-hardlinks $Source $DestinationRepo
