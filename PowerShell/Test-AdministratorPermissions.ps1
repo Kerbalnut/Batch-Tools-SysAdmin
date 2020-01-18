@@ -1,6 +1,9 @@
 <#
 .LINK
 https://www.jonathanmedd.net/2014/01/testing-for-admin-privileges-in-powershell.html
+
+.LINK
+https://devblogs.microsoft.com/scripting/weekend-scripter-welcome-to-the-powershell-information-stream/
 #>
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -25,8 +28,11 @@ function Test-IsAdmin { #-------------------------------------------------------
 
 Write-Verbose "Begining of Main Execution block."
 
+Write-Information "Execution policy : '$(Get-ExecutionPolicy)'" #-InformationAction 'Continue'
+
 Write-Debug 'About to run "Test-IsAdmin" function and check output.'
 
+# Write-Host has parameters that change its display, for example, ForegroundColor and BackgroundColor. Write-Information does not.
 If ((Test-IsAdmin)) {
 	Write-Host "Script is running with Administrator permissions!" -ForegroundColor "White" -BackgroundColor "Red"
 } Else {

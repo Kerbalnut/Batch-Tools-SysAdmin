@@ -62,6 +62,9 @@ https://ss64.com/ps/call.html
 
 .LINK
 about_Functions_CmdletBindingAttribute
+
+.LINK
+https://devblogs.microsoft.com/scripting/weekend-scripter-welcome-to-the-powershell-information-stream/
 #>
 
 #-----------------------------------------------------------------------------------------------------------------------

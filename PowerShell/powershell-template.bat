@@ -27,7 +27,7 @@ ECHO:
 ECHO CHOICE Loading...
 ECHO:
 :: https://ss64.com/nt/choice.html
-CHOICE /M "Run as Administrator?"
+CHOICE /M "Run as Administrator? (CMD.EXE/VBScript elevation)"
 IF ERRORLEVEL 2 GOTO START & REM No.
 IF ERRORLEVEL 1 REM Yes.
 :: <-- Remove this block to always RunAs Administrator -->
@@ -116,7 +116,9 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 :: Param3 = PowerShell Script Parameters
 
-SET "_POSH_PARAMS="
+SET "_POSH_PARAMS=-LaunchedInCmd"
+SET "_POSH_PARAMS=-InformationAction Continue"
+::SET "_POSH_PARAMS="
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -283,7 +285,7 @@ IF /I "%_IS_ADMIN%"=="Yes" (
 )
 ECHO CHOICE Loading...
 :: https://ss64.com/nt/choice.html
-CHOICE /M "Run as Administrator?"
+CHOICE /M "Run as Administrator? (PowerShell elevation)"
 IF ERRORLEVEL 2 SET "_ADMIN_OPTION=RunNonElevated" & GOTO ChooseRunOptions & REM No.
 IF ERRORLEVEL 1 SET "_ADMIN_OPTION=RunAsAdministrator" & REM Yes.
 
@@ -323,17 +325,21 @@ CALL :GetIfAdmin
 IF %_WindowsVersion% EQU 10 (
 	REM Windows 10 has PowerShell width CMD.exe windows.
 	IF /I "%_ADMIN_OPTION%"=="RunNonElevated" (
-		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%"
+		PowerShell.exe -NoProfile -ExecutionPolicy %_batExecutionPolicy% -File "%_PowerShellFile%" %_POSH_PARAMS%
 	)
 	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
-		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%""' -Verb RunAs}"
+		REM PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%""' -Verb RunAs}"
+		REM PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy %_batExecutionPolicy% -File ""%_PowerShellFile%""' -Verb RunAs}"
+		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy %_batExecutionPolicy% -File "%_PowerShellFile%" %_POSH_PARAMS%'}"
 	)
 ) ELSE (
+	REM Windows versions earlier than 10 are standard width.
 	IF /I "%_ADMIN_OPTION%"=="RunNonElevated" (
-		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd
+		PowerShell.exe -NoProfile -ExecutionPolicy %_batExecutionPolicy% -File "%_PowerShellFile%" -LaunchedInCmd %_POSH_PARAMS%
 	)
 	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
-		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%""' -LaunchedInCmd -Verb RunAs}"
+		REM PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%""' -LaunchedInCmd -Verb RunAs}"
+		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File "%_PowerShellFile%" -LaunchedInCmd %_POSH_PARAMS%'}"
 	)
 )
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command "& '%_PowerShellFile%'"
@@ -348,17 +354,19 @@ CALL :GetIfAdmin
 IF %_WindowsVersion% EQU 10 (
 	REM Windows 10 has PowerShell width CMD.exe windows.
 	IF /I "%_ADMIN_OPTION%"=="RunNonElevated" (
-		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Verbose
+		PowerShell.exe -NoProfile -ExecutionPolicy %_batExecutionPolicy% -File "%_PowerShellFile%" -Verbose %_POSH_PARAMS%
 	)
 	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
-		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%""' -Verbose -Verb RunAs}"
+		REM PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%""' -Verbose -Verb RunAs}"
+		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy %_batExecutionPolicy% -File "%_PowerShellFile%" -Verbose %_POSH_PARAMS%'}"
 	)
 ) ELSE (
 	IF /I "%_ADMIN_OPTION%"=="RunNonElevated" (
-		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd -Verbose
+		PowerShell.exe -NoProfile -ExecutionPolicy %_batExecutionPolicy% -File "%_PowerShellFile%" -LaunchedInCmd -Verbose %_POSH_PARAMS%
 	)
 	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
-		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%"" -LaunchedInCmd' -Verbose -Verb RunAs}"
+		REM PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File ""%_PowerShellFile%"" -LaunchedInCmd' -Verbose -Verb RunAs}"
+		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy %_batExecutionPolicy% -File "%_PowerShellFile%" -LaunchedInCmd -Verbose %_POSH_PARAMS%'}"
 	)
 )
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command "& '%_PowerShellFile%' -LaunchedInCmd -Verbose"
@@ -373,18 +381,18 @@ CALL :GetIfAdmin
 IF %_WindowsVersion% EQU 10 (
 	REM Windows 10 has PowerShell width CMD.exe windows.
 	IF /I "%_ADMIN_OPTION%"=="RunNonElevated" (
-		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Debug
+		PowerShell.exe -NoProfile -ExecutionPolicy %_batExecutionPolicy% -File "%_PowerShellFile%" -Debug %_POSH_PARAMS%
 	)
 	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
-		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File "%_PowerShellFile%" -Debug'}"
+		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy %_batExecutionPolicy% -File "%_PowerShellFile%" -Debug %_POSH_PARAMS%'}"
 		
 	)
 ) ELSE (
 	IF /I "%_ADMIN_OPTION%"=="RunNonElevated" (
-		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd -Debug
+		PowerShell.exe -NoProfile -ExecutionPolicy %_batExecutionPolicy% -File "%_PowerShellFile%" -LaunchedInCmd -Debug %_POSH_PARAMS%
 	)
 	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
-		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File "%_PowerShellFile%" -LaunchedInCmd -Debug'}"
+		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy %_batExecutionPolicy% -File "%_PowerShellFile%" -LaunchedInCmd -Debug %_POSH_PARAMS%'}"
 		
 	)
 )
@@ -400,17 +408,17 @@ CALL :GetIfAdmin
 IF %_WindowsVersion% EQU 10 (
 	REM Windows 10 has PowerShell width CMD.exe windows.
 	IF /I "%_ADMIN_OPTION%"=="RunNonElevated" (
-		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -Verbose -Debug
+		PowerShell.exe -NoProfile -ExecutionPolicy %_batExecutionPolicy% -File "%_PowerShellFile%" -Verbose -Debug %_POSH_PARAMS%
 	)
 	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
-		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File "%_PowerShellFile%" -Verbose -Debug'}"
+		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy %_batExecutionPolicy% -File "%_PowerShellFile%" -Verbose -Debug %_POSH_PARAMS%'}"
 	)
 ) ELSE (
 	IF /I "%_ADMIN_OPTION%"=="RunNonElevated" (
-		PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%_PowerShellFile%" -LaunchedInCmd -Verbose -Debug
+		PowerShell.exe -NoProfile -ExecutionPolicy %_batExecutionPolicy% -File "%_PowerShellFile%" -LaunchedInCmd -Verbose -Debug %_POSH_PARAMS%
 	)
 	IF /I "%_ADMIN_OPTION%"=="RunAsAdministrator" (
-		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File "%_PowerShellFile%" -LaunchedInCmd -Verbose -Debug'}"
+		PowerShell.exe -NoProfile -Command "& {Start-Process PowerShell.exe -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy %_batExecutionPolicy% -File "%_PowerShellFile%" -LaunchedInCmd -Verbose -Debug %_POSH_PARAMS%'}"
 	)
 )
 ::PowerShell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command & '%_PowerShellFile%' -LaunchedInCmd -Verbose -Debug
