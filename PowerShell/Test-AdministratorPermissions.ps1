@@ -14,7 +14,9 @@ https://devblogs.microsoft.com/scripting/weekend-scripter-welcome-to-the-powersh
 #Param()
 
 [cmdletbinding()]
-Param()
+Param(
+	$InformationPreference = 'Continue'
+)
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

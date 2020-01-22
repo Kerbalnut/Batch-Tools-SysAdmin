@@ -137,7 +137,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 :: Param5 = Set PowerShell ExecutionPolicy
 
-:: For more information, in a PowerShell prompt type \> help about_Execution_Policies
+:: For more information, in a PowerShell prompt, type "\> help about_Execution_Policies"
 ::https://www.howtogeek.com/204088/how-to-use-a-batch-file-to-make-powershell-scripts-easier-to-run/
 SET "_batExecutionPolicy=Unrestricted" & REM Unsigned scripts can run. Warns the user before running scripts and configuration files that are downloaded from the Internet.
 SET "_batExecutionPolicy=Bypass" & REM Nothing is blocked and there are no warnings or prompts. (This execution policy is designed for configurations in which a Windows PowerShell script is built in to a larger application or for configurations in which Windows PowerShell is the foundation for a program that has its own security model.)

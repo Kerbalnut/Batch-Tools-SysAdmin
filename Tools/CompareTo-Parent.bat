@@ -584,12 +584,12 @@ ECHO ---------------------------------------------------------------------------
 IF "%_BANNER_FOUND%"=="YARP" (
 	ECHO  Drag-n-Drop Mode:
 )
-ECHO "%~nx0 /?" for help
+ECHO Then press ENTER. "%~nx0 /?" for help.
 ECHO:
-ECHO Merge differences between two text files using kdiff3.
+ECHO Merge differences between two text files, A ^& B, using kdiff3.
 ECHO:
-ECHO  _FILE_A: ^(Already Selected^)
-ECHO "%_FILE_A%"
+ECHO Selected: ^(_FILE_A^)
+REM ECHO "%_FILE_A%"
 ECHO "%_FILE_A_PATH%"
 ECHO "%_FILE_A_NAME%"
 ECHO -------------------------------------------------------------------------------

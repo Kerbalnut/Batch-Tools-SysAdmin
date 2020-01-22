@@ -81,6 +81,7 @@ choco install hashtab -y # Adds a tab in file Properties window for calculating 
 #choco install fileoptimizer -y # FileOptimizer is an advanced file optimizer featuring a lossless (no quality loss) file size reduction
 choco install nextcloud-client -y
 #choco install dropbox -y
+choco install veeam-endpoint-backup-free -y
 
 # Encryption Tools
 choco install keepass -y # Password Manager
