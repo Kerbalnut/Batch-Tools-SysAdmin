@@ -1,3 +1,18 @@
+# Repository Refactor in Progress
+
+## Converted to Template Repository
+
+This repo has grown bloated and curly, with too many other side projects growing in it, outside of its original scope. It has been changed to a `Template` Repository, so that new repos can be created from it with the same files structure, without being cloned or forked and carrying over all its messy history.
+
+It will be parted out and the sub-components, issues, and readme documentation will be migrated to their own repositores.
+
+- [Migrate TimeFunc PowerShell module to separate repo](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/milestone/2)
+- [Migrate Documentation automation scripts to separate repo](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/milestone/3)
+
+The following is the original documentation below:
+
+---
+
 # Batch Functions, Templates, Tools, and Scripts
 
 Common tasks that can be accomplished by *.bat files on Windows systems.
