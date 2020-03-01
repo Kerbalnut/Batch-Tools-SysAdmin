@@ -349,7 +349,7 @@ If (!($sLogPath)) { Start-Log -LogPath $sLogPath -LogName $sLogName -ScriptVersi
 # Get-Verb
 
 #Index of functions:
-# 1. <FunctionName> (Example Function)
+# 1. Show-ExampleFunctionTemplate (Example Function)
 # 2. Start-PSAdmin
 # 3. Test-IsAdmin
 # 4. Get-ScriptDirectory1
@@ -368,31 +368,82 @@ If (!($sLogPath)) { Start-Log -LogPath $sLogPath -LogName $sLogName -ScriptVersi
 # 17. Convert-TimeZone
 
 #-----------------------------------------------------------------------------------------------------------------------
-<# Function <FunctionName> {
-  Param ()
-
-  Begin {
-    Write-LogInfo -LogPath $sLogFile -Message '<description of what is going on>...'
-  }
-
-  Process {
-    Try {
-      <code goes here>
-    }
-
-    Catch {
-      Write-LogError -LogPath $sLogFile -Message $_.Exception -ExitGracefully
-      Break
-    }
-  }
-
-  End {
-    If ($?) {
-      Write-LogInfo -LogPath $sLogFile -Message 'Completed Successfully.'
-      Write-LogInfo -LogPath $sLogFile -Message ' '
-    }
-  }
-} #> # End <FunctionName> function ----------------------------------------------------------------------------------------
+Function Show-ExampleFunctionTemplate { #-------------------------------------------------------------------------------
+	<#
+	.SYNOPSIS
+	Short explanation of what this function does.
+	
+	.DESCRIPTION
+	Longer, more descriptive definition of what this function's purpose is, what it was designed to do.
+	
+	.NOTES
+	Generally, the 3 help topics .SYNOPSIS, .DESCRIPTION, and .NOTES are the bare minimum required for Comment-Based Help to work, but this is inconsistent across PowerShell versions.
+	
+	.LINK
+	help about_Comment_Based_Help
+	http://techgenix.com/powershell-functions-common-parameters/
+	help about_Requires
+	help about_CommonParameters
+	#>
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#Requires -Modules PSLogging
+	<#
+	# "#Requires" - You can use a #Requires statement to prevent a script from running without specified modules or snap-ins and a specified version of PowerShell. For more information, see about_Requires.
+	# e.g. "#Requires -Version 6" "#Requires -RunAsAdministrator"
+	#>
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#http://techgenix.com/powershell-functions-common-parameters/
+	# To enable common parameters in functions (-Verbose, -Debug, etc.) the following 2 lines must be present:
+	#[CmdletBinding()]
+	#Param()
+	
+	[CmdletBinding()]
+	#[CmdletBinding(SupportsShouldProcess=$true)]
+	
+	Param (
+		#Script parameters go here
+		[Parameter(Mandatory=$false)]
+		[switch]$LaunchedInCmd = $false,
+		
+		[Parameter(Mandatory=$false)]
+		[switch]$LoadFunctions = $false
+	)
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Main Script Execution:
+	
+	Begin {
+		Write-LogInfo -LogPath $sLogFile -Message '<description of what is going on>...'
+	}
+	
+	Process {
+		Try {
+			<code goes here>
+		}
+		
+		Catch {
+			Write-LogError -LogPath $sLogFile -Message $_.Exception -ExitGracefully
+			Break
+		}
+	}
+	
+	End {
+		If ($?) {
+			Write-LogInfo -LogPath $sLogFile -Message 'Completed Successfully.'
+			Write-LogInfo -LogPath $sLogFile -Message ' '
+		}
+	}
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Return $Results
+	
+} # End Show-ExampleFunctionTemplate function --------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
