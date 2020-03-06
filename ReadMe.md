@@ -1,4 +1,4 @@
-# Repository Refactor in Progress
+# Refactor in Progress
 
 ## Converted to Template Repository
 
