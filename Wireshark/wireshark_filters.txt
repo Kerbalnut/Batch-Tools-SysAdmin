@@ -35,7 +35,7 @@ Expressions can be grouped by parentheses as well. The following are all valid d
 
 
 
-Filter out certain conversations:
+Filter certain conversations:
 -------------------------------------------------------------------------------
 https://null-byte.wonderhowto.com/news/8-wireshark-filters-every-wiretapper-uses-spy-web-conversations-and-surfing-habits-0134508/
 
@@ -64,7 +64,45 @@ ip.host contains netflix
 ip.host contains netflix || ip.host contains nflxext.com
 
 
+Search by packet Info:
+-------------------------------------------------------------------------------
+https://networksecuritytools.com/list-wireshark-display-filters/
 
+15. Filter on three way handshake
+
+The three way handshake is often used to calculate the network round trip time. This filter will display all the SYN, SYN ACK and SYN packets that should match the three way handshake.
+
+tcp.flags.syn==1 or (tcp.seq==1 and tcp.ack==1 and tcp.len==0 and tcp.analysis.initial_rtt)
+
+16. Find executable or other file types
+
+Need to  see if users are download .exe or other file types use this filter:
+
+frame contains "(attachment|tar|exe|zip|pdf)"
+
+Just add in any other file extension you want to filter for.
+
+17. Search traffic based on a keyword:
+
+tcp contains facebook
+
+This displays all TCP packets that contain the word facebook. Just replace the word with want you want to search for. The only problem with this filter is it’s limited to TCP packets only. To include all protocols use this filter:
+
+frame contains facebook
+
+Case Sensitivity:
+-------------------------------------------------------------------------------
+https://www.wireshark.org/docs/man-pages/wireshark-filter.html
+
+    contains     Does the protocol, field or slice contain a value
+    matches, ~   Does the protocol or text string match the given
+                 case-insensitive Perl-compatible regular expression
+
+Matches are case-insensitive by default. For example, to search for a given WAP WSP User-Agent, you can write:
+
+    wsp.user_agent matches "cldc"
+
+This would match "cldc", "CLDC", "cLdC" or any other combination of upper and lower case letters.
 
 
 

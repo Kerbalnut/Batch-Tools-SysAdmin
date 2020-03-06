@@ -406,11 +406,11 @@ Function Show-ExampleFunctionTemplate { #---------------------------------------
 	
 	Param (
 		#Script parameters go here
-		[Parameter(Mandatory=$false)]
-		[switch]$LaunchedInCmd = $false,
+		[Parameter(Mandatory=$false,Position=0,
+		ValueFromPipeline=$true)]
+		[string]$Path,
 		
-		[Parameter(Mandatory=$false)]
-		[switch]$LoadFunctions = $false
+		[switch]$Force = $false
 	)
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -437,11 +437,11 @@ Function Show-ExampleFunctionTemplate { #---------------------------------------
 			Write-LogInfo -LogPath $sLogFile -Message 'Completed Successfully.'
 			Write-LogInfo -LogPath $sLogFile -Message ' '
 		}
+		
+		Return $Results
 	}
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
-	Return $Results
 	
 } # End Show-ExampleFunctionTemplate function --------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
