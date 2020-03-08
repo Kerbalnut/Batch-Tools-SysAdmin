@@ -6,7 +6,7 @@ This repo has grown bloated and curly, with too many other side projects growing
 
 It will be parted out and the sub-components, issues, and readme documentation will be migrated to their own repositores.
 
-- [Migrate TimeFunc PowerShell module to separate repo](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/milestone/2)
+- (In Progress) [Migrate TimeFunc PowerShell module to separate repo](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/milestone/2) ► [Kerbalnut/TimeFunctions](https://github.com/Kerbalnut/TimeFunctions)
 - [Migrate Documentation automation scripts to separate repo](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/milestone/3)
 
 The following is the original documentation below:
