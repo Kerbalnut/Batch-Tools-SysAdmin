@@ -8,6 +8,7 @@ It will be parted out and the sub-components, issues, and readme documentation w
 
 - (Complete) ~~[Migrate TimeFunc PowerShell module to separate repo](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/milestone/2)~~ ► [Kerbalnut/TimeFunctions](https://github.com/Kerbalnut/TimeFunctions)
 - [Migrate Documentation automation scripts to separate repo](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/milestone/3)
+- [Migrate Chocolatey and Boxstarter automatic software install helpers](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/milestone/4)
 
 The following is the original documentation below:
 
