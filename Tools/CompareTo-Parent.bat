@@ -506,15 +506,19 @@ IF NOT "%~1"=="" (
 
 REM ECHO DEBUGGING: Check if _FILE_A exists
 
-REM Bugfix: If _FILE_A contains closing parentheses ")" a command like ECHO %_FILE_A% will cause this whole IF block to fail. Enclose in double quotes like so, ECHO "%_FILE_A%" or to display it without the quotes, substitue ")" with a caret escape character "^)" into the variaable like so, SET "_FILE_A=%_FILE_A:)=^)%" & ECHO !_FILE_A!
+:: Bugfix: If _FILE_A contains closing parentheses ")" a command like ECHO %_FILE_A% will cause this whole IF block to fail. Enclose in double quotes like so, ECHO "%_FILE_A%" or to display it without the quotes, substitue ")" with a caret escape character "^)" into the variaable like so, SET "_FILE_A=%_FILE_A:)=^)%" & ECHO !_FILE_A!
 REM ECHO DEBUGGING: _FILE_A = "%_FILE_A%"
 SET "_FILE_A_NOP=%_FILE_A%"
 REM ECHO DEBUGGING: _FILE_A_NOP = "%_FILE_A_NOP%"
-SET "_FILE_A_NOP=%_FILE_A_NOP:)=^)%"
+::SET "_FILE_A_NOP=%_FILE_A_NOP:)=^)%"
+SET "_FILE_A_NOP=!_FILE_A_NOP:^)=^^^)!"
 REM ECHO DEBUGGING: _FILE_A_NOP = "%_FILE_A_NOP%"
 
+::https://stackoverflow.com/questions/7883169/how-to-escape-variables-with-parentheses-inside-if-clause-in-a-batch-file
+
 :: Check if _FILE_A exists
-IF NOT EXIST "%_FILE_A%" (
+REM IF NOT EXIST "%_FILE_A%" (
+IF NOT EXIST "!_FILE_A!" (
 REM IF NOT EXIST "%_FILE_A_NOP%" (
 	ECHO:
 	ECHO PARAMETER NOT FOUND
@@ -522,7 +526,8 @@ REM IF NOT EXIST "%_FILE_A_NOP%" (
 	ECHO ERROR: Cannot find _FILE_A
 	REM Bugfix: If _FILE_A contains closing parentheses ")" a command like ECHO %_FILE_A% will cause this whole IF block to fail. Enclose in double quotes like so, ECHO "%_FILE_A%" or to display it without the quotes, substitue ")" with a caret escape character "^)" into the variaable like so, SET "_FILE_A=%_FILE_A:)=^)%" & ECHO !_FILE_A!
 	REM This will fail: ECHO %_FILE_A%
-	ECHO "%_FILE_A%"
+	REM ECHO "%_FILE_A%"
+	ECHO "!_FILE_A!"
 	REM ECHO %_FILE_A_NOP%
 	ECHO -------------------------------------------------------------------------------
 	ECHO:
