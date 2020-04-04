@@ -102,9 +102,7 @@ NET SESSION >nul 2>&1 || SET "_GOT_ADMIN=NO"
 REM ECHO DEBUGGING: _GOT_ADMIN = '%_GOT_ADMIN%'
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-ECHO:
-ECHO Input parameters [%1] [%2] [%3] ...
-ECHO:
+REM ECHO DEBUGGING: Input parameters [%1] [%2] [%3] ...
 ::PAUSE
 ::CLS
 :SkipHeader
