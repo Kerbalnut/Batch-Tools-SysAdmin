@@ -1,8 +1,0 @@
-@startuml OpenIcon
-/'
-http://plantuml.com/guide
-16. Creole -> 16.10. OpenIconic
-'/
-' You can use the following syntax: <&ICON_NAME>
-listopeniconic
-@enduml
