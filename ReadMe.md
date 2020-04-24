@@ -6,8 +6,8 @@ This repo has grown bloated and curly, with too many other side projects growing
 
 It will be parted out and the sub-components, issues, and readme documentation will be migrated to their own repositores.
 
-- (Complete) ~~[Migrate TimeFunc PowerShell module to separate repo](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/milestone/2)~~ ► [Kerbalnut/TimeFunctions](https://github.com/Kerbalnut/TimeFunctions)
-- [Migrate Documentation automation scripts to separate repo](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/milestone/3)
+- (Complete) ~~[Migrate TimeFunc PowerShell module to separate repo](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/milestone/2)~~ ► [TimeFunctions](https://github.com/Kerbalnut/TimeFunctions)
+- [Migrate Documentation automation scripts to separate repo](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/milestone/3) ► [Diagram-Automation](https://github.com/Kerbalnut/Diagram-Automation)
 - [Migrate Chocolatey and Boxstarter automatic software install helpers](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/milestone/4)
 - [Migrate Task Tracker PowerShell module to merge with StackWorkflow module](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/milestone/5)
 - (Complete) ~~[Migrate PowerShell demo / practice / hello world module/scripts to separate repo](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/milestone/6)~~ ► [PowerShell-module-tools](https://github.com/Kerbalnut/PowerShell-module-tools)
