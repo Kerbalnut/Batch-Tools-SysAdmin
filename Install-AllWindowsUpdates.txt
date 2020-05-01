@@ -1,3 +1,0 @@
-
-Enable-MicrosoftUpdate
-Install-WindowsUpdate
