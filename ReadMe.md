@@ -10,7 +10,7 @@ It will be parted out and the sub-components, issues, and readme documentation w
 - (Complete) ~~[Migrate Documentation automation scripts to separate repo](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/milestone/3)~~ ► [Diagram-Automation](https://github.com/Kerbalnut/Diagram-Automation)
 - [Migrate Chocolatey and Boxstarter automatic software install helpers](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/milestone/4) ► [Windows-Fresh-Install-Helper-scripts](https://github.com/Kerbalnut/Windows-Fresh-Install-Helper-scripts)
 - [Migrate Task Tracker PowerShell module to merge with StackWorkflow module](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/milestone/5)
-- (Complete) ~~[Migrate PowerShell demo / practice / hello world module/scripts to separate repo](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/milestone/6)~~ ► [PowerShell-module-tools](https://github.com/Kerbalnut/PowerShell-module-tools)
+- (Complete) ~~[Migrate PowerShell demo / practice / hello world module/scripts to separate repo](https://github.com/Kerbalnut/Batch-Tools-SysAdmin/milestone/6)~~ ► [PowerShell-template](https://github.com/Kerbalnut/PowerShell-template)
 
 The following is the original documentation below:
 
