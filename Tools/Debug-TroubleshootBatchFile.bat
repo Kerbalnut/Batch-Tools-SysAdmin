@@ -87,10 +87,10 @@ IF %ERRORLEVEL% EQU 0 (
 	REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 	REM Bugfix: cannot use ECHO( for newlines within IF statement, instead use ECHO. or ECHO: 
 )
+ECHO:
 
-ECHO:
-ECHO Input parameters [%1] [%2] [%3] ...
-ECHO:
+REM ECHO DEBUGGING: Input parameters [%1] [%2] [%3] ...
+::ECHO:
 ::PAUSE
 ::CLS
 :SkipHeader

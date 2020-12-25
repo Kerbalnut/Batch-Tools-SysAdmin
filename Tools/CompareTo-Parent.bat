@@ -627,16 +627,19 @@ ECHO ---------------------------------------------------------------------------
 IF "%_BANNER_FOUND%"=="YARP" (
 	ECHO  Drag-n-Drop Mode:
 )
-ECHO Then press ENTER. "%~nx0 /?" for help.
 ECHO:
 ECHO Merge differences between two text files, A ^& B, using kdiff3.
 ECHO:
-ECHO Selected: ^(%%_FILE_A%%^)
+ECHO "\> %~nx0 /?" command for more help.
+ECHO:
+ECHO Already Selected: ^(%%_FILE_A%%^)
 REM ECHO "%_FILE_A%"
 ECHO  "%_FILE_A_PATH%"
 ECHO  "%_FILE_A_NAME%"
 ECHO -------------------------------------------------------------------------------
-SET /P "_FILE_B=Please drag-and-drop _FILE_B onto the prompt and press ENTER: "
+ECHO Compare "%_FILE_A_NAME%" to _FILE_B
+ECHO:
+SET /P "_FILE_B=Drag-and-drop _FILE_B onto this prompt and press ENTER: "
 REM Remove any surrounding quotes.
 REM ECHO DEBUGGING: _FILE_B = %_FILE_B%
 FOR /F "tokens=*" %%G IN ("%_FILE_B%") DO SET "_FILE_B=%%~G"
