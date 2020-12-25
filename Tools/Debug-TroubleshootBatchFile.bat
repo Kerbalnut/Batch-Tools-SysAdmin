@@ -70,24 +70,22 @@ PING -n 3 127.0.0.1 > nul
 
 :Header
 ::GOTO SkipHeader & REM Un-comment this line to skip Header
-CLS
-ECHO:
-ECHO Script name ^( %~nx0 ^) & REM This script's file name and extension. https://ss64.com/nt/syntax-args.html
-ECHO Working directory: %~dp0 & REM The drive letter and path of this script's location. NOTE: This will always return the path this script is in.
-ECHO Current directory: %CD% & REM The path of the currently selected directory. NOTE: If this script is called from another location, this will return that selected path.
-ECHO:
+::ECHO:
+REM ECHO DEBUGGING: Script name ^( %~nx0 ^) & REM This script's file name and extension. https://ss64.com/nt/syntax-args.html
+REM ECHO DEBUGGING: Working directory: %~dp0 & REM The drive letter and path of this script's location.
+REM ECHO DEBUGGING: Current directory: %CD% & REM The path of the currently selected directory.
+::ECHO:
 
 :: Check if we are running As Admin/Elevated
 FSUTIL dirty query %SystemDrive% >nul
 IF %ERRORLEVEL% EQU 0 (
-	ECHO Elevated Permissions: YES
+	REM ECHO DEBUGGING: Elevated Permissions: YES
 ) ELSE ( 
-	ECHO Elevated Permissions: NO
+	REM ECHO DEBUGGING: Elevated Permissions: NO
 	REM -------------------------------------------------------------------------------
 	REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 	REM Bugfix: cannot use ECHO( for newlines within IF statement, instead use ECHO. or ECHO: 
 )
-ECHO:
 
 REM ECHO DEBUGGING: Input parameters [%1] [%2] [%3] ...
 ::ECHO:
@@ -115,6 +113,7 @@ REM SET "_BatchPath=%USERPROFILE%\Documents\SpiderOak Hive\SysAdmin\Flash Drive\
 SET "_BatchPath=%USERPROFILE%\Documents\Hg\Resume\Portfolio Finals\Sanitize-PDF.bat"
 ::SET "_BatchPath=.\Sanitize-PDF.bat"
 SET "_BatchPath=%USERPROFILE%\Documents\GitHub\Batch-Tools-SysAdmin\Call-Test.bat"
+SET "_BatchPath=%USERPROFILE%\Documents\GitHub\Batch-Tools-SysAdmin\Remote Access\Access-AdministrativeShare.bat"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

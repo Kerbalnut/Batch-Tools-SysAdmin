@@ -80,7 +80,7 @@ IF "%_REMOTE_HOST%"=="" (
 
 :: Check DNS for name resolution
 
-SET "_ERROR_OUTPUT_FILE=%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"
+SET "_ERROR_OUTPUT_FILE=%TEMP%\%~n0_%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.txt"
 
 NSLOOKUP "%_REMOTE_HOST%" >nul 2>"%_ERROR_OUTPUT_FILE%"
 
@@ -88,14 +88,27 @@ FOR %%G IN ("%_ERROR_OUTPUT_FILE%") DO SET "_ERROR_OUTPUT_FILE_SIZE=%%~zG"
 SET /A "_ERROR_OUTPUT_FILE_SIZE_KB=%_ERROR_OUTPUT_FILE_SIZE%/1024"
 
 IF %_ERROR_OUTPUT_FILE_SIZE% GTR 0 (
-	ECHO:
-	ECHO Error: "%_REMOTE_HOST%" could not be looked up by DNS.
-	ECHO:
-	TYPE "%_ERROR_OUTPUT_FILE%"
-	ECHO:
-	PAUSE
-	REM CLS
-	REM GOTO GetRemoteHost
+	REM _ERROR_OUTPUT_FILE has contents, so lets retrieve it
+	ECHO DEBUGGING: %%_ERROR_OUTPUT_FILE%% = "%_ERROR_OUTPUT_FILE%"
+	REM If there are multiple lines in the file, SET /P will use the first line.
+	SET /P _ERROR_TEXT=<"%_ERROR_OUTPUT_FILE%"
+	IF "!_ERROR_TEXT!"=="Non-authoritative answer:" (
+		ECHO DEBUGGING: "Non-authoritative answer:" error detected, ignoring ^& continuing. & PAUSE
+	) ELSE (
+		ECHO:
+		ECHO Error: "%_REMOTE_HOST%" could not be looked up by DNS.
+		ECHO:
+		TYPE "%_ERROR_OUTPUT_FILE%"
+		ECHO:
+		PAUSE
+		REM CLS
+		SET "_REMOTE_HOST="
+		REM GOTO GetRemoteHost
+	)
+)
+IF EXIST "%_ERROR_OUTPUT_FILE%" (
+	REM _ERROR_OUTPUT_FILE exists and we're done using it, clean-up file.
+	DEL /F /Q "%_ERROR_OUTPUT_FILE%"
 )
 
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -127,6 +140,8 @@ IF "%_DRIVE_LETTER%"=="" (
 		ECHO DEBUGGING: ^^!_DRIVE_LETTER^^! = "!_DRIVE_LETTER!"
 	)
 )
+
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :GetDriveLetter
 ECHO:
@@ -166,14 +181,16 @@ CALL :GetIfPathIsDriveRoot "%_DRIVE_LETTER%"
 SET "_DRIVE_LETTER=%_DRIVE_LETTER_CHAR%"
 ECHO DEBUGGING: %%_DRIVE_LETTER%% = "%_DRIVE_LETTER%"
 
-:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-:: Convert string to uppercase
-
-CALL :UpCase "%_DRIVE_LETTER%"
-ECHO DEBUGGING: %%_DRIVE_LETTER%% = "%_DRIVE_LETTER%"
-SET "_DRIVE_LETTER=%_UPCASE_STRING%"
-ECHO DEBUGGING: %%_DRIVE_LETTER%% = "%_DRIVE_LETTER%"
+IF "%_IS_DRIVE_LETTER%"=="NO" (
+	ECHO:
+	ECHO Error: Drive letter failure.
+	ECHO:
+	ECHO "%%_DRIVE_LETTER%%" = "%_DRIVE_LETTER%"
+	ECHO:
+	PAUSE
+	CLS
+	GOTO GetDriveLetter
+)
 
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -183,8 +200,15 @@ ECHO DEBUGGING: %%_DRIVE_LETTER%% = "%_DRIVE_LETTER%"
 
 IF NOT "%_FILE_PATH%"=="" (
 	ECHO DEBUGGING: %%_FILE_PATH%% = "%_FILE_PATH%"
-	:: Get _FILE_PATH Path & Name (remove drive letter if it exists
-	FOR %%G IN ("%_FILE_PATH%") DO SET "_FILE_PATH_PATH=%%~pnG"
+	REM %variable:StrToFind=NewStr% https://ss64.com/nt/syntax-replace.html
+	SET "_NO_COLON=%_FILE_PATH::=%"
+	ECHO DEBUGGING: ^^!_NO_COLON^^! = "!_NO_COLON!"
+	IF "%_FILE_PATH%"=="!_NO_COLON!" (
+		SET "_FIRST_CHAR=%_FILE_PATH:~0,1%"
+		IF NOT "!_FIRST_CHAR!"=="\" SET "_FILE_PATH=\%_FILE_PATH%"	
+	)
+	REM Get _FILE_PATH Path & Name (remove drive letter if it exists
+	FOR %%G IN ("!_FILE_PATH!") DO SET "_FILE_PATH_PATH=%%~pnG"
 	SET "_FILE_PATH=!_FILE_PATH_PATH!"
 	ECHO DEBUGGING: ^^!_FILE_PATH^^! = "!_FILE_PATH!"
 )
