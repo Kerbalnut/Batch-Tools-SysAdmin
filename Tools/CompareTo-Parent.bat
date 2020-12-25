@@ -74,6 +74,7 @@ PING -n 3 127.0.0.1 > nul
 REM -------------------------------------------------------------------------------
 
 :Header
+REM ECHO DEBUGGING: Header execution.
 GOTO SkipHeader & REM Un-comment this line to skip Header
 ::CLS
 ECHO:
@@ -106,7 +107,9 @@ REM ----------------------------------------------------------------------------
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-:: Param1 = File A
+:: Param1 = _FILE_A
+
+GOTO SkipParam1 & REM Un-comment this line to skip Param1 = _FILE_A
 
 SET "_FILE_A=%UserProfile%\Documents\SpiderOak Hive\SysAdmin\Configuring Systems\Boxstarter\Troubleshoot-BatchScript.bat"
 
@@ -174,9 +177,13 @@ SET "_FILE_A=%UserProfile%\Nextcloud\Documents\Hg\Backup_and_Restore\Tools\Compa
 
 ::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp1.bat"
 
+:SkipParam1
+
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-:: Param2 = File B
+:: Param2 = _FILE_B
+
+GOTO SkipParam2 & REM Un-comment this line to skip Param1 = _FILE_B
 
 SET "_FILE_B=%UserProfile%\Documents\SpiderOak Hive\Programming\Batch\+Function Library\Debug-TroubleshootBatchFile.bat"
 
@@ -245,6 +252,8 @@ SET "_FILE_B=%UserProfile%\Documents\HgMercurial\Backup_and_Restore\Tools\Compar
 ::SET "_FILE_B=%UserProfile%\Documents\SpiderOak Hive\Programming\Batch\+Function Library\Debug-TroubleshootBatchFile.bat"
 
 ::SET "_FILE_B=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp2.bat"
+
+:SkipParam2
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -500,11 +509,40 @@ REM ----------------------------------------------------------------------------
 :: Always prefer parameters passed via command line over hard-coded vars.
 SET "_PASSED_PARAMS=DISABLED"
 IF NOT "%~1"=="" (
+	REM If passed-parameters are not null
 	SET "_FILE_A=%~1"
 	SET "_PASSED_PARAMS=ACTIVE"
 )
+REM ECHO DEBUGGING: _PASSED_PARAMS = %_PASSED_PARAMS%
 
-REM ECHO DEBUGGING: Check if _FILE_A exists
+REM ECHO DEBUGGING: Check that all necessary parameters were passed.
+SET "_MISSING_PARAMS=FALSE"
+IF "%_PASSED_PARAMS%"=="DISABLED" (
+	IF "!_FILE_A!"=="" (
+		ECHO:
+		ECHO PARAMETER NOT FOUND
+		ECHO -------------------------------------------------------------------------------
+		ECHO ERROR: Parameter _FILE_A is empty: "!_FILE_A!"
+		ECHO -------------------------------------------------------------------------------
+		SET "_MISSING_PARAMS=TRUE"
+	)
+	IF "!_FILE_B!"=="" (
+		ECHO:
+		ECHO PARAMETER NOT FOUND
+		ECHO -------------------------------------------------------------------------------
+		ECHO ERROR: Parameter _FILE_B is empty: "!_FILE_B!"
+		ECHO -------------------------------------------------------------------------------
+		SET "_MISSING_PARAMS=TRUE"
+	)
+)
+IF "%_MISSING_PARAMS%"=="TRUE" (
+	REM CALL :DisplayHelp
+	CALL :DisplayHelpDragNDrop
+	PAUSE
+	GOTO END
+)
+	
+REM ECHO DEBUGGING: Check if _FILE_A exists.
 
 :: Bugfix: If _FILE_A contains closing parentheses ")" a command like ECHO %_FILE_A% will cause this whole IF block to fail. Enclose in double quotes like so, ECHO "%_FILE_A%" or to display it without the quotes, substitue ")" with a caret escape character "^)" into the variaable like so, SET "_FILE_A=%_FILE_A:)=^)%" & ECHO !_FILE_A!
 REM ECHO DEBUGGING: _FILE_A = "%_FILE_A%"
@@ -593,10 +631,10 @@ ECHO Then press ENTER. "%~nx0 /?" for help.
 ECHO:
 ECHO Merge differences between two text files, A ^& B, using kdiff3.
 ECHO:
-ECHO Selected: ^(_FILE_A^)
+ECHO Selected: ^(%%_FILE_A%%^)
 REM ECHO "%_FILE_A%"
-ECHO "%_FILE_A_PATH%"
-ECHO "%_FILE_A_NAME%"
+ECHO  "%_FILE_A_PATH%"
+ECHO  "%_FILE_A_NAME%"
 ECHO -------------------------------------------------------------------------------
 SET /P "_FILE_B=Please drag-and-drop _FILE_B onto the prompt and press ENTER: "
 REM Remove any surrounding quotes.
@@ -1029,13 +1067,13 @@ ECHO:
 ECHO You can also drag-and-drop files on this script one at a time to merge them.
 ECHO:
 ECHO EXAMPLE:
-ECHO     ^> .\%~nx0 "^%USERPROFILE^%\Documents\file_1.txt" "^%USERPROFILE^%\Dropbox\file_1.txt"
+ECHO     ^> .\%~nx0 "%%USERPROFILE%%\Documents\file_1.txt" "%%USERPROFILE%%\Dropbox\file_1.txt"
 ECHO:
 ECHO EXAMPLE:
-ECHO     ^> .\%~nx0 "^%USERPROFILE^%\Documents\Folder1" "\\^%server_name^%\packages\Folder1" fancy
+ECHO     ^> .\%~nx0 "%%USERPROFILE%%\Documents\Folder1" "\\%%server_name%%\packages\Folder1" fancy
 ECHO:
 ECHO EXAMPLE:
-ECHO     ^> .\%~nx0 "^%USERPROFILE^%\Desktop\file_2.json" "G:\Data\file_2.json" quiet
+ECHO     ^> .\%~nx0 "%%USERPROFILE%%\Desktop\file_2.json" "G:\Data\file_2.json" quiet
 ECHO:
 ::ECHO     > ipconfig                       ... Show information
 ::ECHO     > ipconfig /all                  ... Show detailed information
@@ -1051,7 +1089,60 @@ ECHO:
 ::ECHO                                          compartments
 ::ECHO 
 ::ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ECHO -------------------------------------------------------------------------------
+::ECHO -------------------------------------------------------------------------------
+ECHO ===============================================================================
+::ECHO:
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ENDLOCAL
+EXIT /B
+:-------------------------------------------------------------------------------
+:DisplayHelpDragNDrop
+::CALL :DisplayHelpDragNDrop
+:: Display help splash text.
+@ECHO OFF
+SETLOCAL
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ECHO:
+ECHO ===============================================================================
+::ECHO:
+ECHO Called from: "%~dp0"
+ECHO:
+ECHO %~n0 drag-and-drop help.
+::ECHO:
+ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ECHO:
+ECHO USAGE: Drag-n-drop the first file you wish to compare onto %~nx0
+ECHO        This will be "File_A". A prompt will appear asking for the second file,
+ECHO        drag and drop the second file to compare onto this prompt ^& press enter.
+ECHO:
+ECHO PARAMETERS:
+ECHO    "path_to_file_a"   - Full file path pointing to the first file.
+ECHO    "path_to_file_b"   - Full file path pointing to the second file.
+ECHO:
+ECHO DESCRIPTION:
+ECHO Uses kdiff3 to merge changes between two different files or folders.
+ECHO:
+ECHO "File_A" will always be updated first from "File_B", then "File_B" will be
+ECHO will be updated from "File_A".
+ECHO:
+ECHO Any file that gets updated will have a backup saved called "File_A.orig"
+ECHO                                                         or "File_B.orig"
+ECHO:
+ECHO Paramters can be passed via command line, or hard-coded into this script.
+ECHO If no parameters are provided, default is to use the hard-coded variables.
+ECHO:
+ECHO You can also drag-and-drop files on this script one at a time to merge them.
+ECHO:
+ECHO To get command-line help, try:
+ECHO ^> CD "%~dp0"
+ECHO ^> .\%~nx0 help
+ECHO:
+ECHO Or:
+ECHO ^> "%~dpnx0" /?
+ECHO:
+::ECHO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+::ECHO -------------------------------------------------------------------------------
+ECHO ===============================================================================
 ::ECHO:
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ENDLOCAL
