@@ -74,25 +74,24 @@ PING -n 3 127.0.0.1 > nul
 REM -------------------------------------------------------------------------------
 
 :Header
-REM ECHO DEBUGGING: Header execution.
-GOTO SkipHeader & REM Un-comment this line to skip Header
-::CLS
-ECHO:
-ECHO Script name ^( %~nx0 ^) & REM This script's file name and extension. https://ss64.com/nt/syntax-args.html
-ECHO Working directory: %~dp0 & REM The drive letter and path of this script's location.
-ECHO Current directory: %CD% & REM The path of the currently selected directory.
-REM Debugging: cannot use :: for comments within IF statement, instead use REM
-ECHO:
+::GOTO SkipHeader & REM Un-comment this line to skip Header
+::ECHO:
+REM ECHO DEBUGGING: Script name ^( %~nx0 ^) & REM This script's file name and extension. https://ss64.com/nt/syntax-args.html
+REM ECHO DEBUGGING: Working directory: %~dp0 & REM The drive letter and path of this script's location.
+REM ECHO DEBUGGING: Current directory: %CD% & REM The path of the currently selected directory.
+::ECHO:
+
 :: Check if we are running As Admin/Elevated
 FSUTIL dirty query %SystemDrive% >nul
 IF %ERRORLEVEL% EQU 0 (
-	ECHO Elevated Permissions: YES
+	REM ECHO DEBUGGING: Elevated Permissions: YES
 ) ELSE ( 
-	ECHO Elevated Permissions: NO
+	REM ECHO DEBUGGING: Elevated Permissions: NO
+	REM -------------------------------------------------------------------------------
+	REM Debugging: cannot use :: for comments within IF statement, instead use REM
+	REM Debugging: cannot use ECHO( for newlines within IF statement, instead use ECHO. or ECHO: 
 )
-ECHO:
-ECHO Input parameters [%1] [%2] [%3] ...
-ECHO:
+REM ECHO DEBUGGING: Input parameters [%1] [%2] [%3] ...
 ::PAUSE
 ::CLS
 :SkipHeader

@@ -69,29 +69,26 @@ PING -n 3 127.0.0.1 > nul
 :: End Run-As-Administrator function
 
 :Header
-GOTO SkipHeader & REM Un-comment this line to skip Header
-::CLS
-ECHO:
-ECHO Script name ^( %~nx0 ^) & REM This script's file name and extension. https://ss64.com/nt/syntax-args.html
-ECHO Working directory: %~dp0 & REM The drive letter and path of this script's location.
-ECHO Current directory: %CD% & REM The path of the currently selected directory.
-ECHO:
+::GOTO SkipHeader & REM Un-comment this line to skip Header
+::ECHO:
+REM ECHO DEBUGGING: Script name ^( %~nx0 ^) & REM This script's file name and extension. https://ss64.com/nt/syntax-args.html
+REM ECHO DEBUGGING: Working directory: %~dp0 & REM The drive letter and path of this script's location.
+REM ECHO DEBUGGING: Current directory: %CD% & REM The path of the currently selected directory.
+::ECHO:
 
 :: Check if we are running As Admin/Elevated
 FSUTIL dirty query %SystemDrive% >nul
 IF %ERRORLEVEL% EQU 0 (
-	ECHO Elevated Permissions: YES
+	REM ECHO DEBUGGING: Elevated Permissions: YES
 ) ELSE ( 
-	ECHO Elevated Permissions: NO
+	REM ECHO DEBUGGING: Elevated Permissions: NO
 	REM -------------------------------------------------------------------------------
 	REM Debugging: cannot use :: for comments within IF statement, instead use REM
 	REM Debugging: cannot use ECHO( for newlines within IF statement, instead use ECHO. or ECHO: 
 )
-ECHO:
-ECHO Input parameters [%1] [%2] [%3] ...
-ECHO:
-PAUSE
-CLS
+REM ECHO DEBUGGING: Input parameters [%1] [%2] [%3] ...
+::PAUSE
+::CLS
 :SkipHeader
 
 :: End Header
@@ -125,7 +122,8 @@ SET "_LOCAL_FILE=%UserProfile%\Nextcloud\Documents\Raspberry Pi\Pi-Hole DNS serv
 ::SET "_LOCAL_FILE=%UserProfile%\Nextcloud\Documents\Docker\docker compose\projects\pipsqueak-plus\etc\letsencrypt\"
 ::SET "_LOCAL_FILE=%UserProfile%\Nextcloud\Documents\Docker\docker compose\projects\pipsqueak-plus\~\"
 ::SET "_LOCAL_FILE=%UserProfile%\Nextcloud\Documents\Docker\docker compose\projects\pipsqueak-plus\home\docker-compose.yaml"
-SET "_LOCAL_FILE=%UserProfile%\Documents\Wireshark"
+::SET "_LOCAL_FILE=%UserProfile%\Documents\Wireshark"
+SET "_LOCAL_FILE=%UserProfile%\Documents\+MyDocuments\DynDNS"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -138,27 +136,36 @@ SET "_REMOTE_FILE=/home/pi/DynDNS/*.log"
 ::SET "_REMOTE_FILE=/home/g/docker/home-ass/"
 ::SET "_REMOTE_FILE=/home/g/docker/"
 ::SET "_REMOTE_FILE=/home/g/*"
-SET "_REMOTE_FILE=/home/getmo/packetcap/2019-10-05dump_4.pcap"
+::SET "_REMOTE_FILE=/home/getmo/packetcap/2019-10-05dump_4.pcap"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :: Param4 = Remote host address, IP or DNS
+
+::GOTO SkipParam4 & REM Un-comment this line to skip Param4 = _REMOTE_HOST
 
 ::SET "_REMOTE_HOST="
 SET "_REMOTE_HOST=192.168.0.200"
 ::SET "_REMOTE_HOST=my.pi"
 ::SET "_REMOTE_HOST=192.168.0.201"
 ::SET "_REMOTE_HOST=rotteneggs.local"
-SET "_REMOTE_HOST=192.168.0.1"
+::SET "_REMOTE_HOST=192.168.0.1"
+
+:SkipParam4
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :: Param5 = Remote host username to login with
 
+::GOTO SkipParam5 & REM Un-comment this line to skip Param5 = _REMOTE_HOST_USERNAME
+
 SET "_REMOTE_HOST_USERNAME="
-SET "_REMOTE_HOST_USERNAME=getmo"
+SET "_REMOTE_HOST_USERNAME=pi"
+::SET "_REMOTE_HOST_USERNAME=getmo"
 ::SET "_REMOTE_HOST_USERNAME=root"
 ::SET "_REMOTE_HOST_USERNAME=g"
+
+:SkipParam5
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -174,7 +181,14 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 :: If you set _DONT_DELETE_PW_FILE to anything else the password storage file will always be deleted.
 
 SET "_DONT_DELETE_PW_FILE="
-SET "_DONT_DELETE_PW_FILE=PRESERVE"
+::SET "_DONT_DELETE_PW_FILE=PRESERVE"
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+:: Param8 = Port to connect to:
+
+SET "_REMOTE_HOST_PORT="
+SET "_REMOTE_HOST_PORT=22"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -282,6 +296,7 @@ REM ECHO DEBUGGING: Beginning Main execution block.
 :: Phase 1: Evaluate Parameters
 :: Phase 2: Build PSCP command & Run
 :: Phase 3: Clean-up password storage file
+:: Phase 4: Open local folder location (if Receive mode enabled)
 ::===============================================================================
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -325,6 +340,12 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 :: Get _LOCAL_FILE Name & eXtention, Drive letter & Path
 FOR %%G IN ("%_LOCAL_FILE%") DO SET "_LOCAL_FILE_NAME=%%~nxG"
 FOR %%G IN ("%_LOCAL_FILE%") DO SET "_LOCAL_FILE_PATH=%%~dpG"
+
+IF NOT "%_PW_FILE%"=="" (
+	:: Get _PW_FILE Name & eXtention, Drive letter & Path
+	FOR %%G IN ("%_PW_FILE%") DO SET "_PW_FILE_NAME=%%~nxG"
+	FOR %%G IN ("%_PW_FILE%") DO SET "_PW_FILE_PATH=%%~dpG"
+)
 
 :: Find if _LOCAL_FILE has a wildcard "*" in it.
 :: "%_Variable:_SearchString=_ReplacementString%"
@@ -375,6 +396,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 :: Check if local file exists first since that's the easiest to have user correct first
 
 :: Check if file exists
+REM ECHO DEBUGGING: Checking if local file/path exists.
 IF /I "%_SEND_OR_RECEIVE%"=="SEND" (
 	IF "%_LOCAL_FILE_WILDCARD%"=="DISABLED" (
 		IF NOT EXIST "%_LOCAL_FILE%" (
@@ -471,6 +493,15 @@ IF "%_REMOTE_HOST%"=="" (
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+:: Check if a port has been explicitly set
+
+IF NOT "%_REMOTE_HOST_PORT%"=="" (
+	ECHO Explicit port set: %_REMOTE_HOST_PORT%
+	ECHO:
+)
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 :: Get remote host username to login with
 
 IF "%_REMOTE_HOST_USERNAME%"=="" (
@@ -487,18 +518,59 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 :: Get Password for remote host
 
+IF /I NOT "%_DONT_DELETE_PW_FILE%"=="PRESERVE" (
+	REM ECHO DEBUGGING: Password file preservation disabled. Cleaning-up any remaining files
+) ELSE (
+	REM ECHO DEBUGGING: Searching for _PW_FILE...
+)
+
 SET "_PW_VAR="
 
+REM ECHO DEBUGGING: Checking "%_PW_FILE%"
+IF NOT EXIST "%_PW_FILE%" (
+	SET "_PW_FILE_NAME=password.txt"
+	SET "_PW_FILE=%_PW_FILE_PATH%!_PW_FILE_NAME!"
+) ELSE (
+	IF /I NOT "%_DONT_DELETE_PW_FILE%"=="PRESERVE" (
+		REM _PW_FILE exists, and password file preservation is disabled. Clean-up file.
+		DEL /F /Q "%_PW_FILE%"
+	)
+)
+
+REM ECHO DEBUGGING: Checking "%_PW_FILE%"
+IF NOT EXIST "%_PW_FILE%" (
+	SET "_PW_FILE_NAME=TEMPORARY_DELETE_ASAP.txt"
+	SET "_PW_FILE=%_PW_FILE_PATH%!_PW_FILE_NAME!"
+) ELSE (
+	IF /I NOT "%_DONT_DELETE_PW_FILE%"=="PRESERVE" (
+		REM _PW_FILE exists, and password file preservation is disabled. Clean-up file.
+		DEL /F /Q "%_PW_FILE%"
+	)
+)
+
+REM ECHO DEBUGGING: Checking "%_PW_FILE%"
 IF NOT EXIST "%_PW_FILE%" (
 	SET "_PW_FILE_NAME=password.txt"
 	SET "_PW_FILE=%~dp0!_PW_FILE_NAME!"
+) ELSE (
+	IF /I NOT "%_DONT_DELETE_PW_FILE%"=="PRESERVE" (
+		REM _PW_FILE exists, and password file preservation is disabled. Clean-up file.
+		DEL /F /Q "%_PW_FILE%"
+	)
 )
 
+REM ECHO DEBUGGING: Checking "%_PW_FILE%"
 IF NOT EXIST "%_PW_FILE%" (
 	SET "_PW_FILE_NAME=TEMPORARY_DELETE_ASAP.txt"
 	SET "_PW_FILE=%~dp0!_PW_FILE_NAME!"
+) ELSE (
+	IF /I NOT "%_DONT_DELETE_PW_FILE%"=="PRESERVE" (
+		REM _PW_FILE exists, and password file preservation is disabled. Clean-up file.
+		DEL /F /Q "%_PW_FILE%"
+	)
 )
 
+REM ECHO DEBUGGING: Checking "%_PW_FILE%"
 IF NOT EXIST "%_PW_FILE%" (
 	IF /I "%_DONT_DELETE_PW_FILE%"=="PRESERVE" (
 		ECHO Password preservation enabled. Password will be stored in a file for later use.
@@ -513,24 +585,29 @@ IF NOT EXIST "%_PW_FILE%" (
 		ECHO:
 	)
 ) ELSE (
-	REM Password file already exists, so lets retrieve it
-	REM SET "_PW_VAR_ORIG=%_PW_VAR%"
-	REM ECHO DEBUGGING: _PW_VAR = !_PW_VAR!
-	REM If there are multiple lines in the file, SET /P will use the first line.
-	SET /P _PW_VAR=<"%_PW_FILE%"
-	REM ECHO DEBUGGING: _PW_VAR = !_PW_VAR!
-	REM SET "_PW_VAR=%_PW_VAR_ORIG%"
-	REM ECHO DEBUGGING: _PW_VAR = !_PW_VAR!
-	REM If there are multiple lines in the file, FOR /F will use the last line.
-	REM FOR /F "delims=" %%G IN (%_PW_FILE%) DO SET "_PW_VAR=%%G"
-	REM ECHO DEBUGGING: _PW_VAR = !_PW_VAR!
-	REM SET "_PW_VAR=%_PW_VAR_ORIG%"
-	REM ECHO DEBUGGING: _PW_VAR = !_PW_VAR!
-	REM If there are multiple lines in the file, FOR /F will use the last line.
-	REM FOR /F "tokens=* delims=" %%G IN (%_PW_FILE%) DO SET "_PW_VAR=%%G"
-	REM ECHO DEBUGGING: _PW_VAR = !_PW_VAR!
-	ECHO Password retrieved from "%_PW_FILE%"
-	ECHO:
+	IF /I NOT "%_DONT_DELETE_PW_FILE%"=="PRESERVE" (
+		REM _PW_FILE exists, and password file preservation is disabled. Clean-up file.
+		DEL /F /Q "%_PW_FILE%"
+	) ELSE (
+		REM Password file already exists, so lets retrieve it
+		REM SET "_PW_VAR_ORIG=%_PW_VAR%"
+		REM ECHO DEBUGGING: _PW_VAR = !_PW_VAR!
+		REM If there are multiple lines in the file, SET /P will use the first line.
+		SET /P _PW_VAR=<"%_PW_FILE%"
+		REM ECHO DEBUGGING: _PW_VAR = !_PW_VAR!
+		REM SET "_PW_VAR=%_PW_VAR_ORIG%"
+		REM ECHO DEBUGGING: _PW_VAR = !_PW_VAR!
+		REM If there are multiple lines in the file, FOR /F will use the last line.
+		REM FOR /F "delims=" %%G IN (%_PW_FILE%) DO SET "_PW_VAR=%%G"
+		REM ECHO DEBUGGING: _PW_VAR = !_PW_VAR!
+		REM SET "_PW_VAR=%_PW_VAR_ORIG%"
+		REM ECHO DEBUGGING: _PW_VAR = !_PW_VAR!
+		REM If there are multiple lines in the file, FOR /F will use the last line.
+		REM FOR /F "tokens=* delims=" %%G IN (%_PW_FILE%) DO SET "_PW_VAR=%%G"
+		REM ECHO DEBUGGING: _PW_VAR = !_PW_VAR!
+		ECHO Password retrieved from "%_PW_FILE%"
+		ECHO:
+	)
 )
 
 ::===============================================================================
@@ -609,11 +686,15 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 :: -------------------------------------------------------------------------------
 
 GOTO SkipExamples
+REM ECHO DEBUGGING: pscp examples
 
 :: Get Help:
-pscp -help
-"%_PSCP_EXE%" -help
+pscp
+"%_PSCP_EXE%"
 
+:: Get pscp version:
+pscp -V
+"%_PSCP_EXE%" -V
 
 :: Copy "lan.lists" to /etc/pihole:
 pscp "%UserProfile%\Documents\Flash Drive updates\Pi-Hole DNS server\lan.list" pi@192.168.0.200:/home/pi/lan.list
@@ -658,6 +739,8 @@ pscp -r -pw phenTomYserBice g@192.168.0.201:/home/g/pipsqueak/* "$env:UserProfil
 
 :: Construct PSCP.EXE command
 
+REM ECHO DEBUGGING: Constructing PSCP.EXE command
+
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 SET "_PSCP_COMMAND=%_PSCP_EXE%"
@@ -669,6 +752,20 @@ IF /I "%_LOCAL_FILE_WILDCARD%"=="ENABLED" (
 	SET "_PSCP_COMMAND=%_PSCP_COMMAND% -r"
 ) ELSE IF /I "%_REMOTE_FILE_WILDCARD%"=="ENABLED" (
 	SET "_PSCP_COMMAND=%_PSCP_COMMAND% -r"
+)
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+::  -v        show verbose messages
+REM ECHO DEBUGGING: _PSCP_COMMAND = %_PSCP_COMMAND%
+REM ECHO DEBUGGING: Enabling -v switch in pscp command for verbose messages: & SET "_PSCP_COMMAND=%_PSCP_COMMAND% -v"
+REM ECHO DEBUGGING: _PSCP_COMMAND = %_PSCP_COMMAND%
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+::  -P port   connect to specified port
+IF NOT "%_REMOTE_HOST_PORT%"=="" (
+	SET "_PSCP_COMMAND=%_PSCP_COMMAND% -P %_REMOTE_HOST_PORT%"
 )
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -701,17 +798,18 @@ IF /I "%_SEND_OR_RECEIVE%"=="SEND" (
 	REM pscp fred@example.com:/etc/hosts c:\temp\example-hosts.txt
 	SET "_PSCP_COMMAND=%_PSCP_COMMAND% "%_REMOTE_FILE_PATH%" "%_LOCAL_FILE%""
 	REM SET "_PSCP_COMMAND=%_PSCP_COMMAND% %_REMOTE_FILE_PATH% "%_LOCAL_FILE%""
+) ELSE (
+	ECHO HORRIBLE ERROR:
+	ECHO Variable _SEND_OR_RECEIVE should be set to "SEND" or "RECEIVE". Aborting...
+	GOTO END
 )
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-REM ECHO DEBUGGING: _PSCP_COMMAND = %_PSCP_COMMAND%
 
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :: Execute command
 
-REM ECHO DEBUGGING: Executing PSCP command.
 ECHO -------------------------------------------------------------------------------
 ECHO:
 ECHO Executing command:
@@ -721,13 +819,49 @@ PAUSE
 
 %_PSCP_COMMAND%
 
+IF %ERRORLEVEL% EQU 0 (
+	IF ERRORLEVEL 0 (
+		REM ECHO DEBUGGING: No execution errors detected.
+	) ELSE (
+		ECHO:
+		ECHO pscp execution errors detected^!
+		PAUSE
+	)
+) ELSE (
+	ECHO:
+	ECHO pscp execution errors detected^!
+	PAUSE
+)
+
 ::ECHO -------------------------------------------------------------------------------
 
 ::===============================================================================
 :: Phase 3: Clean-up password storage file
 ::===============================================================================
 
-IF /I NOT "%_DONT_DELETE_PW_FILE%"=="PRESERVE" DEL /Q "%_PW_FILE%" & REM Clean-up temp file ASAP.
+IF /I "%_DONT_DELETE_PW_FILE%"=="PRESERVE" (
+	IF EXIST "%_PW_FILE%" (
+		DEL /Q "%_PW_FILE%" & REM Clean-up temp file ASAP.
+	)
+)
+
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+::ECHO -------------------------------------------------------------------------------
+
+::===============================================================================
+:: Phase 4: Open local folder location (if Receive mode enabled)
+::===============================================================================
+
+IF /I "%_SEND_OR_RECEIVE%"=="RECEIVE" (
+	ECHO:
+	ECHO Files copied to local path: "%_LOCAL_FILE%"
+	ECHO:
+	REM https://ss64.com/nt/choice.html
+	CHOICE /M "Open folder path now?"
+	IF ERRORLEVEL 2 REM ECHO DEBUGGING: No chosen. & REM No.
+	IF ERRORLEVEL 1 EXPLORER "%_LOCAL_FILE%" & REM ECHO DEBUGGING: Yes chosen. & REM Yes.
+)
 
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
