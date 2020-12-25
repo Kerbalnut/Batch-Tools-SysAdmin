@@ -2366,13 +2366,18 @@ GOTO:EOF
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 @ECHO OFF
 SETLOCAL
+ECHO DEBUGGING: Starting :UpCase function. ^(%~1^)
 SET "_INPUT_STRING=%~1"
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-:: Subroutine to convert a variable VALUE to all UPPER CASE.
-:: The argument for this subroutine is the variable NAME.
-FOR %%i IN ("a=A" "b=B" "c=C" "d=D" "e=E" "f=F" "g=G" "h=H" "i=I" "j=J" "k=K" "l=L" "m=M" "n=N" "o=O" "p=P" "q=Q" "r=R" "s=S" "t=T" "u=U" "v=V" "w=W" "x=X" "y=Y" "z=Z") DO CALL SET "_INPUT_STRING=%%_INPUT_STRING:%%~i%%"
+IF NOT "%_INPUT_STRING%"=="" (
+	REM Subroutine to convert variable _INPUT_STRING to all UPPER CASE.
+	FOR %%i IN ("a=A" "b=B" "c=C" "d=D" "e=E" "f=F" "g=G" "h=H" "i=I" "j=J" "k=K" "l=L" "m=M" "n=N" "o=O" "p=P" "q=Q" "r=R" "s=S" "t=T" "u=U" "v=V" "w=W" "x=X" "y=Y" "z=Z") DO CALL SET "_INPUT_STRING=%%_INPUT_STRING:%%~i%%"
+) ELSE (
+	SET "_INPUT_STRING="
+)
 SET "_OUTPUT_STRING=%_INPUT_STRING%"
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ECHO DEBUGGING: Ending :UpCase function. ^(%_OUTPUT_STRING%^)
 ENDLOCAL & SET "_UPCASE_STRING=%_OUTPUT_STRING%"
 ::EXIT /B
 GOTO:EOF
@@ -2522,16 +2527,20 @@ IF "%_winversion%" == "10.0" (
 ENDLOCAL & SET "_WindowsVersion=%_winversion%" & SET "_WindowsName=%_winvername%" & SET "_WindowsEasyName=%_easyname%"
 EXIT /B
 :-------------------------------------------------------------------------------
-:GetIfPathIsDriveRoot
+:GetIfPathIsDriveRoot "Path:\To\Check"
 ::CALL :GetIfPathIsDriveRoot "%_PATH_TO_CHECK%"
 ::ECHO "%_IS_DRIVE_LETTER%"
 ::ECHO "%_DRIVE_LETTER_PATH%"
+::ECHO "%_DRIVE_LETTER_CHAR%"
 ::Bugfix: If _DEST is just a drive letter e.g. G:\ robocopy will fail if it has quotes e.g. "G:\"
 :: Outputs:
 :: "%_IS_DRIVE_LETTER%" Returns if the input path is just a drive letter, e.g. "YES" or "NO"
 :: "%_DRIVE_LETTER_PATH%" Returns 3-character drive path, e.g. "G:\" or "H:\"
+:: "%_DRIVE_LETTER_CHAR%" Returns 1-character drive letter, e.g. "G" or "H"
+:: Dependencies are :UpCase
 @ECHO OFF
 SETLOCAL
+ECHO DEBUGGING: Starting :GetIfPathIsDriveRoot function. ^(%~1^)
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 SET "_INPUT_STRING=%~1"
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2559,12 +2568,41 @@ IF "%_DRIVE_LETTER%"=="NO" (
 	SET "_LETTER_INPUT=%_INPUT_STRING%"
 )
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-:: Make _LETTER_INPUT 3-characters
+:: Get 1st char of _LETTER_INPUT
 :: %variable:~num_chars_to_skip,num_chars_to_keep%
 SET "_FIRST_CHAR=%_LETTER_INPUT:~0,1%"
-SET "_DRIVE_LETTER_OUTPUT=%_FIRST_CHAR%:\"
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ENDLOCAL & SET "_IS_DRIVE_LETTER=%_DRIVE_LETTER%" & SET "_DRIVE_LETTER_PATH=%_DRIVE_LETTER_OUTPUT%"
+:: Verify we have a letter selected
+SET "_LETTER_CONFIRMED=NO"
+FOR %%G IN (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z) DO (
+	IF /I "%_FIRST_CHAR%"=="%%G" (
+		SET "_LETTER_CONFIRMED=YES"
+	)
+)
+IF "%_LETTER_CONFIRMED%"=="NO" (
+	SET "_DRIVE_LETTER=NO"
+	SET "_FIRST_CHAR="
+) ELSE (
+	SET "_DRIVE_LETTER=YES"
+)
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Uppercase our drive letter
+ECHO DEBUGGING: Call :UpCase function to uppercase %%_FIRST_CHAR%%
+ECHO DEBUGGING:    %%_FIRST_CHAR%% = "%_FIRST_CHAR%"
+CALL :UpCase "%_FIRST_CHAR%"
+SET "_FORMATTED_LETTER=%_UPCASE_STRING%"
+ECHO DEBUGGING: %%_UPCASE_STRING%% = "%_UPCASE_STRING%"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Make 3-character _DRIVE_LETTER_OUTPUT, for _DRIVE_LETTER_PATH return var
+:: %variable:~num_chars_to_skip,num_chars_to_keep%
+IF "%_LETTER_CONFIRMED%"=="NO" (
+	SET "_DRIVE_LETTER_OUTPUT="
+) ELSE (
+	SET "_DRIVE_LETTER_OUTPUT=%_FORMATTED_LETTER%:\"
+)
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ECHO DEBUGGING: Ending :GetIfPathIsDriveRoot function. ^(%_DRIVE_LETTER%^)
+ENDLOCAL & SET "_IS_DRIVE_LETTER=%_DRIVE_LETTER%" & SET "_DRIVE_LETTER_PATH=%_DRIVE_LETTER_OUTPUT%" & SET "_DRIVE_LETTER_CHAR=%_FORMATTED_LETTER%"
 EXIT /B
 :-------------------------------------------------------------------------------
 :CreateShortcut
