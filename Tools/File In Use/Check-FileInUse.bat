@@ -34,7 +34,7 @@ PING -n 3 127.0.0.1 > nul
 		REM double up any quotes
 		REM https://ss64.com/nt/syntax-replace.html
 		SET "_Args=%_Args:"=""%"
-		REM Debugging: cannot use :: for comments within IF statement, instead use REM
+		REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 	)
 	:: https://ss64.com/nt/if.html
 	IF ["%_Args%"] EQU [""] ( 
@@ -61,7 +61,7 @@ ECHO:
 ECHO Script name ^( %~nx0 ^) & REM This script's file name and extension. https://ss64.com/nt/syntax-args.html
 ECHO Working directory: %~dp0 & REM The drive letter and path of this script's location.
 ECHO Current directory: %CD% & REM The path of the currently selected directory.
-REM Debugging: cannot use :: for comments within IF statement, instead use REM
+REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 ECHO:
 :: Check if we are running As Admin/Elevated
 FSUTIL dirty query %SystemDrive% >nul

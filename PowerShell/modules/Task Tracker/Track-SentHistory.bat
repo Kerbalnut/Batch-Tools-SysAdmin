@@ -36,8 +36,8 @@ IF NOT "%_PRODUCTION_INPUT%"=="" (
 	ECHO:
 	PAUSE
 	ECHO:
-	REM Debugging: cannot use :: for comments within IF statement, instead use REM
-	REM Debugging: cannot use ECHO( for newlines within IF statement, instead use ECHO. or ECHO: 
+	REM Bugfix: cannot use :: for comments within IF statement, instead use REM
+	REM Bugfix: cannot use ECHO( for newlines within IF statement, instead use ECHO. or ECHO: 
 )
 
 :: End Header
@@ -517,7 +517,7 @@ REM ECHO -------------|---------------------------------------------------------
 ECHO   Time:      ^| Company, Position:                                             ^|
 ECHO -------------^|----------------------------------------------------------------^|
 REM ECHO -------------------------------------------------------------------------------
-REM Debugging: cannot use :: for comments within IF statement, instead use REM
+REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 )
 FOR /F "usebackq tokens=1-4 delims=," %%G IN ("%_CSV_PATH%") DO (
 	SET "_FIRST_T=%%G"

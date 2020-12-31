@@ -49,7 +49,7 @@ PING -n 3 127.0.0.1 > nul
 		REM double up any quotes
 		REM https://ss64.com/nt/syntax-replace.html
 		SET "_Args=%_Args:"=""%"
-		REM Debugging: cannot use :: for comments within IF statement, instead use REM
+		REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 	)
 	:: https://ss64.com/nt/if.html
 	IF ["%_Args%"] EQU [""] ( 
@@ -915,7 +915,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 :: Activate help function
 IF NOT "%~1"=="" (
-	REM Debugging: cannot use :: for comments within IF statement, instead use REM
+	REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 	IF /I "%~1"=="help" (
 		CALL :DisplayHelp
 		GOTO END
@@ -1098,7 +1098,7 @@ REM IF NOT EXIST "%_FILE_A_NOP%" (
 	PAUSE
 	ECHO:
 	REM GOTO END
-	REM Debugging: cannot use :: for comments within IF statement, instead use REM
+	REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 )
 
 ECHO DEBUGGING: _FILE_A evaluation finished.
@@ -1130,7 +1130,7 @@ REM IF NOT EXIST "%_FILE_B_NOP%" (
 	PAUSE
 	ECHO:
 	REM GOTO END
-	REM Debugging: cannot use :: for comments within IF statement, instead use REM
+	REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 )
 
 ECHO DEBUGGING: _FILE_B evaluation finished.
@@ -1446,7 +1446,7 @@ IF "%_LinkState%"=="down" (
 	ECHO Please troubleshoot network connectivity.
 	ECHO.
 	PAUSE
-	REM Debugging: cannot use :: for comments within IF statement, instead use REM
+	REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 	REM EXIT
 )
 ECHO(
@@ -1467,7 +1467,7 @@ IF "%_LinkState%"=="down" (
 	ECHO Please troubleshoot name resolution service.
 	ECHO.
 	PAUSE
-	REM Debugging: cannot use :: for comments within IF statement, instead use REM
+	REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 	REM EXIT
 )
 ECHO(
@@ -2098,7 +2098,7 @@ IF NOT [%_Args%]==[] (
 	REM double up any quotes
 	REM https://ss64.com/nt/syntax-replace.html
 	SET "_Args=%_Args:"=""%"
-	REM Debugging: cannot use :: for comments within IF statement, instead use REM
+	REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 )
 :: https://ss64.com/nt/if.html
 IF ["%_Args%"] EQU [""] ( 

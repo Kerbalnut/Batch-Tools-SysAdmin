@@ -3,7 +3,7 @@
 ECHO:
 ECHO Boxstarter Template ^( %~nx0 ^) & REM This script's file name and extension. https://ss64.com/nt/syntax-args.html
 ECHO Working directory: %~dp0 & REM The drive letter and path of this script's location.
-REM Debugging: cannot use :: for comments within IF statement, instead use REM
+REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 ECHO:
 
 ECHO Calling Test-ParameterWithSpaces.bat

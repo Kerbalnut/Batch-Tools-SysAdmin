@@ -49,7 +49,7 @@ PING -n 3 127.0.0.1 > nul
 		REM double up any quotes
 		REM https://ss64.com/nt/syntax-replace.html
 		SET "_Args=%_Args:"=""%"
-		REM Debugging: cannot use :: for comments within IF statement, instead use REM
+		REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 	)
 	:: https://ss64.com/nt/if.html
 	IF ["%_Args%"] EQU [""] ( 
@@ -88,8 +88,8 @@ IF %ERRORLEVEL% EQU 0 (
 ) ELSE ( 
 	REM ECHO DEBUGGING: Elevated Permissions: NO
 	REM -------------------------------------------------------------------------------
-	REM Debugging: cannot use :: for comments within IF statement, instead use REM
-	REM Debugging: cannot use ECHO( for newlines within IF statement, instead use ECHO. or ECHO: 
+	REM Bugfix: cannot use :: for comments within IF statement, instead use REM
+	REM Bugfix: cannot use ECHO( for newlines within IF statement, instead use ECHO. or ECHO: 
 )
 REM ECHO DEBUGGING: Input parameters [%1] [%2] [%3] ...
 ::PAUSE
@@ -463,7 +463,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 :: Activate help function
 IF NOT "%~1"=="" (
-	REM Debugging: cannot use :: for comments within IF statement, instead use REM
+	REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 	IF /I "%~1"=="help" (
 		CALL :DisplayHelp
 		GOTO END
@@ -571,7 +571,7 @@ REM IF NOT EXIST "%_FILE_A_NOP%" (
 	PAUSE
 	ECHO:
 	GOTO END
-	REM Debugging: cannot use :: for comments within IF statement, instead use REM
+	REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 )
 
 REM ECHO DEBUGGING: _FILE_A evaluation finished.
@@ -702,7 +702,7 @@ IF "%_FILE_A%"=="%_FILE_B%" (
 	PAUSE
 	ECHO:
 	GOTO END
-	REM Debugging: cannot use :: for comments within IF statement, instead use REM
+	REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 ) ELSE (
 	REM ECHO DEBUGGING: File name test success. _FILE_A and _FILE_B have different names.
 )
@@ -835,7 +835,7 @@ IF /I NOT "%_DISPLAY_BANNER%"=="QUIET" (
 	ECHO %_FILE_B_PATH%
 	ECHO "%_FILE_B_NAME%"
 	REM ECHO %_FILE_B%
-	REM Debugging: cannot use :: for comments within IF statement, instead use REM
+	REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 )
 ECHO:
 ECHO Save changes ^& close when finished.
@@ -882,7 +882,7 @@ IF /I NOT "%_DISPLAY_BANNER%"=="QUIET" (
 	ECHO %_FILE_A_PATH%
 	ECHO "%_FILE_A_NAME%"
 	REM ECHO %_FILE_A%
-	REM Debugging: cannot use :: for comments within IF statement, instead use REM
+	REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 )
 ECHO:
 ECHO Save changes ^& close when finished.

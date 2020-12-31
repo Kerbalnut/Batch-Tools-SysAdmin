@@ -46,7 +46,7 @@ PING -n 3 127.0.0.1 > nul
 		REM double up any quotes
 		REM https://ss64.com/nt/syntax-replace.html
 		SET "_Args=%_Args:"=""%"
-		REM Debugging: cannot use :: for comments within IF statement, instead use REM
+		REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 	)
 	:: https://ss64.com/nt/if.html
 	IF ["%_Args%"] EQU [""] ( 

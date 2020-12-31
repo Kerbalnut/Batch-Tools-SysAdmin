@@ -46,7 +46,7 @@ PING -n 3 127.0.0.1 > nul
 		REM double up any quotes
 		REM https://ss64.com/nt/syntax-replace.html
 		SET "_Args=%_Args:"=""%"
-		REM Debugging: cannot use :: for comments within IF statement, instead use REM
+		REM Bugfix: cannot use :: for comments within IF statement, instead use REM
 	)
 	:: https://ss64.com/nt/if.html
 	IF ["%_Args%"] EQU [""] ( 
@@ -83,8 +83,8 @@ IF %ERRORLEVEL% EQU 0 (
 ) ELSE ( 
 	REM ECHO DEBUGGING: Elevated Permissions: NO
 	REM -------------------------------------------------------------------------------
-	REM Debugging: cannot use :: for comments within IF statement, instead use REM
-	REM Debugging: cannot use ECHO( for newlines within IF statement, instead use ECHO. or ECHO: 
+	REM Bugfix: cannot use :: for comments within IF statement, instead use REM
+	REM Bugfix: cannot use ECHO( for newlines within IF statement, instead use ECHO. or ECHO: 
 )
 REM ECHO DEBUGGING: Input parameters [%1] [%2] [%3] ...
 ::PAUSE
