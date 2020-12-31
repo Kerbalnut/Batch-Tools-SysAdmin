@@ -859,7 +859,7 @@ IF /I "%_SEND_OR_RECEIVE%"=="RECEIVE" (
 	ECHO:
 	REM https://ss64.com/nt/choice.html
 	CHOICE /M "Open folder path now?"
-	IF ERRORLEVEL 2 REM ECHO DEBUGGING: No chosen. & REM No.
+	IF ERRORLEVEL 2 GOTO Footer & REM ECHO DEBUGGING: No chosen. & REM No.
 	IF ERRORLEVEL 1 EXPLORER "%_LOCAL_FILE%" & REM ECHO DEBUGGING: Yes chosen. & REM Yes.
 )
 
