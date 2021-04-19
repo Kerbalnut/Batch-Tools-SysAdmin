@@ -24,6 +24,39 @@ These features a lot of structure, organization, and emphasis on functions, or c
 
 All code or functions gained from other sources are referenced in place where used with links.
 
+# Table of Contents:
+- [Refactor in Progress](#refactor-in-progress)
+	- [Converted to Template Repository](#converted-to-template-repository)
+- [Batch Functions, Templates, Tools, and Scripts](#batch-functions-templates-tools-and-scripts)
+- [Table of Contents:](#table-of-contents)
+- [How to use:](#how-to-use)
+	- [Quickly assemble new batch script (*.bat) automations:](#quickly-assemble-new-batch-script-bat-automations)
+	- [Get started with some unique and useful tools:](#get-started-with-some-unique-and-useful-tools)
+		- [File & Folder merge tool](#file--folder-merge-tool)
+		- [Boxstarter Helper script](#boxstarter-helper-script)
+	- [Folder Contents:](#folder-contents)
+		- [Tools >](#tools-)
+			- [Tools > CompareTo-Parent.bat](#tools--compareto-parentbat)
+			- [Tools > Debug-TroubleshootBatchFile.bat](#tools--debug-troubleshootbatchfilebat)
+			- [Tools > Get-Chocolatey.bat](#tools--get-chocolateybat)
+			- [Tools > Install-Chocolatey.bat](#tools--install-chocolateybat)
+			- [Tools > Install-XPChocolatey.bat](#tools--install-xpchocolateybat)
+		- [functions >](#functions-)
+			- [functions > Banner.cmd](#functions--bannercmd)
+			- [functions > DateMath.cmd](#functions--datemathcmd)
+			- [functions > matrix-timer.bat](#functions--matrix-timerbat)
+			- [BoxstarterInstall-NetworkingUtilities.bat](#boxstarterinstall-networkingutilitiesbat)
+			- [BoxstarterInstall-template.bat](#boxstarterinstall-templatebat)
+			- [functions-template.bat](#functions-templatebat)
+			- [Install-AllWindowsUpdates.bat](#install-allwindowsupdatesbat)
+			- [Update-Java.bat](#update-javabat)
+	- [Run As Administrator functions](#run-as-administrator-functions)
+- [Work In Progress:](#work-in-progress)
+	- [Stuff to Add:](#stuff-to-add)
+- [How to contribute:](#how-to-contribute)
+
+---
+
 # How to use:
 
 ## Quickly assemble new batch script (*.bat) automations:
@@ -82,7 +115,7 @@ To create your own, make a copy of **BoxstarterInstall-template.bat** and rename
 
 ---
 
-## Contents:
+## Folder Contents:
 
 ### Tools >
 
@@ -230,7 +263,7 @@ There are 2 different Run-As-Administrator functions in use. **#1** uses a `cacl
 
 ---
 
-## Work In Progress:
+# Work In Progress:
 
 1. `functions-template.bat` needs some functions tested, highlighted by an asterisk `*`
 2. `Get-Chocolatey.bat` and `Install-Chocolatey.bat` need to be unified.
@@ -241,7 +274,7 @@ There are 2 different Run-As-Administrator functions in use. **#1** uses a `cacl
 
 Most .txt file notes and short .bat files come from a single use case. They are planned to be updated, tested, and organized under the common theme started in `functions-template.bat` as the next use case arises. That way each function evolves through necessity.
 
-### Stuff to Add:
+## Stuff to Add:
 
 - Remote Access folder
 - Backup and Restore folder
@@ -254,7 +287,7 @@ Most .txt file notes and short .bat files come from a single use case. They are 
 
 ---
 
-## How to contribute:
+# How to contribute:
 
 All contributions are welcome. This section will be updated further, but currently standard GitHub policies like Pull Requests and Issues are the way to do it.
 
