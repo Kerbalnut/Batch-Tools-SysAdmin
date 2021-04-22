@@ -1956,13 +1956,13 @@ ECHO:
 ECHO You can also drag-and-drop files on this script one at a time to merge them.
 ECHO:
 ECHO EXAMPLE:
-ECHO     ^> .\%~nx0 "^%USERPROFILE^%\Documents\file_1.txt" "^%USERPROFILE^%\Dropbox\file_1.txt"
+ECHO     ^> .\%~nx0 "%%USERPROFILE%%\Documents\file_1.txt" "%%USERPROFILE%%\Dropbox\file_1.txt"
 ECHO:
 ECHO EXAMPLE:
-ECHO     ^> .\%~nx0 "^%USERPROFILE^%\Documents\Folder1" "\\^%server_name^%\packages\Folder1" fancy
+ECHO     ^> .\%~nx0 "%%USERPROFILE%%\Documents\Folder1" "\\%%server_name%%\packages\Folder1" fancy
 ECHO:
 ECHO EXAMPLE:
-ECHO     ^> .\%~nx0 "^%USERPROFILE^%\Desktop\file_2.json" "G:\Data\file_2.json" quiet
+ECHO     ^> .\%~nx0 "%%USERPROFILE%%\Desktop\file_2.json" "G:\Data\file_2.json" quiet
 ECHO:
 ::ECHO     > ipconfig                       ... Show information
 ::ECHO     > ipconfig /all                  ... Show detailed information
