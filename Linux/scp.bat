@@ -202,6 +202,13 @@ SET "_REMOTE_HOST_PORT=22"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+:: Param9 = Disable copying directories recursively:
+
+SET "_NO_RECURSIVE_DIRS="
+SET "_NO_RECURSIVE_DIRS=TRUE"
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 :: End Parameters
 
 REM -------------------------------------------------------------------------------
@@ -512,6 +519,15 @@ IF NOT "%_REMOTE_HOST_PORT%"=="" (
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+:: Show if recursive directory copying is explicitly disabled
+
+IF /I "%_NO_RECURSIVE_DIRS%"=="TRUE" (
+	ECHO Recursive directory copying: Explicitly disabled
+	ECHO:
+)
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 :: Get remote host username to login with
 
 IF "%_REMOTE_HOST_USERNAME%"=="" (
@@ -758,10 +774,12 @@ SET "_PSCP_COMMAND=%_PSCP_EXE%"
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ::  -r        copy directories recursively
-IF /I "%_LOCAL_FILE_WILDCARD%"=="ENABLED" (
-	SET "_PSCP_COMMAND=%_PSCP_COMMAND% -r"
-) ELSE IF /I "%_REMOTE_FILE_WILDCARD%"=="ENABLED" (
-	SET "_PSCP_COMMAND=%_PSCP_COMMAND% -r"
+IF /I NOT "%_NO_RECURSIVE_DIRS%"=="TRUE" (
+	IF /I "%_LOCAL_FILE_WILDCARD%"=="ENABLED" (
+		SET "_PSCP_COMMAND=%_PSCP_COMMAND% -r"
+	) ELSE IF /I "%_REMOTE_FILE_WILDCARD%"=="ENABLED" (
+		SET "_PSCP_COMMAND=%_PSCP_COMMAND% -r"
+	)
 )
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
