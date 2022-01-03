@@ -104,7 +104,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 :: Param1 = Send File, or Receive File?
 
 SET "_SEND_OR_RECEIVE=SEND"
-SET "_SEND_OR_RECEIVE=RECEIVE"
+::SET "_SEND_OR_RECEIVE=RECEIVE"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -124,6 +124,9 @@ SET "_LOCAL_FILE=%UserProfile%\Nextcloud\Documents\Raspberry Pi\Pi-Hole DNS serv
 ::SET "_LOCAL_FILE=%UserProfile%\Nextcloud\Documents\Docker\docker compose\projects\pipsqueak-plus\home\docker-compose.yaml"
 ::SET "_LOCAL_FILE=%UserProfile%\Documents\Wireshark"
 SET "_LOCAL_FILE=%UserProfile%\Documents\+MyDocuments\DynDNS"
+SET "_LOCAL_FILE=%UserProfile%\Documents\+Documents\DynDNS"
+SET "_LOCAL_FILE=%UserProfile%\Documents\Hg\device-config\Raspberry Pi\Pi-Hole DNS server\User Folder Backup\DynDNS\*"
+SET "_LOCAL_FILE=%UserProfile%\Documents\Hg\device-config\TrueNAS-setup\SAS LSI 2108 Firmware\*"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -131,12 +134,16 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 SET "_REMOTE_FILE=/home/pi/DynDNS/*.log"
 ::SET "_REMOTE_FILE=/home/pi/DynDNS/test-logcleanup.sh"
+SET "_REMOTE_FILE=/home/pi/DynDNS/"
 ::SET "_REMOTE_FILE=/home/pi/pishare/*"
 ::SET "_REMOTE_FILE=/home/pi/pishare/"
 ::SET "_REMOTE_FILE=/home/g/docker/home-ass/"
 ::SET "_REMOTE_FILE=/home/g/docker/"
 ::SET "_REMOTE_FILE=/home/g/*"
 ::SET "_REMOTE_FILE=/home/getmo/packetcap/2019-10-05dump_4.pcap"
+::SET "_REMOTE_FILE=/home/pi/*"
+SET "_REMOTE_FILE=/root/SAS LSI 2108 Firmware/"
+SET "_REMOTE_FILE=/home/ubuntu/SAS LSI 2108 Firmware/"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -150,6 +157,8 @@ SET "_REMOTE_HOST=192.168.0.200"
 ::SET "_REMOTE_HOST=192.168.0.201"
 ::SET "_REMOTE_HOST=rotteneggs.local"
 ::SET "_REMOTE_HOST=192.168.0.1"
+SET "_REMOTE_HOST=192.168.0.120"
+SET "_REMOTE_HOST=192.168.0.121"
 
 :SkipParam4
 
@@ -162,8 +171,9 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 SET "_REMOTE_HOST_USERNAME="
 SET "_REMOTE_HOST_USERNAME=pi"
 ::SET "_REMOTE_HOST_USERNAME=getmo"
-::SET "_REMOTE_HOST_USERNAME=root"
+SET "_REMOTE_HOST_USERNAME=root"
 ::SET "_REMOTE_HOST_USERNAME=g"
+SET "_REMOTE_HOST_USERNAME=ubuntu"
 
 :SkipParam5
 
