@@ -233,7 +233,7 @@ IF EXIST "%ChocolateyInstall%" (
 ::IF "%_PSCP_INSTALLED%"=="YES" "%_PSCP_EXE%"
 ::-------------------------------------------------------------------------------
 :: Parameters
-::GOTO SkipPscpFunction
+GOTO SkipPscpFunction
 SET "_QUIET_ERRORS=NO"
 ::SET "_QUIET_ERRORS=YES"
 ::-------------------------------------------------------------------------------
@@ -396,7 +396,7 @@ IF /I NOT EXIST "%_KDIFF_EXE%" (
 :: choco.exe "%_CHOCO_INSTALLED%"
 :: :ElevateMe
 ::-------------------------------------------------------------------------------
-::GOTO GSWIN64C_SKIP
+GOTO GSWIN64C_SKIP
 ::- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :: Parameters:
 SET "_QUIET_ERRORS=NO"

@@ -136,41 +136,41 @@ SET "_FILE_A=%UserProfile%\Documents\GitHub\Sanitize-PDF\Sanitize-PDF.bat"
 
 SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\functions-template.bat"
 
-SET "_FILE_A=%UserProfile%\Nextcloud\Documents\Backups\Thunderbird Profiles\Message Filters\grant-james@hotmail.com\msgFilterRules.dat"
+::SET "_FILE_A=%UserProfile%\Nextcloud\Documents\Backups\Thunderbird Profiles\Message Filters\grant-james@hotmail.com\msgFilterRules.dat"
 
-SET "_FILE_A=%UserProfile%\Nextcloud\Documents\Backups\Thunderbird Profiles\Message Filters\inventergrant@msn.com\msgFilterRules.dat"
+::SET "_FILE_A=%UserProfile%\Nextcloud\Documents\Backups\Thunderbird Profiles\Message Filters\inventergrant@msn.com\msgFilterRules.dat"
 
-SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Task Tracker\Twilio-Auth.ps1"
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Task Tracker\Twilio-Auth.ps1"
 
-SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1"
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\powershell-template.ps1"
 
-SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-AMPMfunc.ps1"
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-AMPMfunc.ps1"
 
-SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1"
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\Convert-TimeValues.ps1"
 
-SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp1.ps1"
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp1.ps1"
 
-SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp2.ps1"
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\comp2.ps1"
 
-SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\modules\TimeFunctions\TimeFunctions.psm1"
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\PowerShell\modules\TimeFunctions\TimeFunctions.psm1"
 
-SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Get-Chocolatey.bat"
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Get-Chocolatey.bat"
 
-SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare1.txt"
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare1.txt"
 
-SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare1.bat"
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare1.bat"
 
-SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare2.txt"
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare2.txt"
 
-SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare2.bat"
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\Compare2.bat"
 
-SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Backup and Restore\Pull-BackupToolsBranchOnly.bat"
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Backup and Restore\Pull-BackupToolsBranchOnly.bat"
 
-SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\BoxstarterInstall-template.bat"
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\BoxstarterInstall-template.bat"
 
-SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\CompareTo-Parent.bat"
+::SET "_FILE_A=%UserProfile%\Documents\GitHub\Batch-Tools-SysAdmin\Tools\CompareTo-Parent.bat"
 
-SET "_FILE_A=%UserProfile%\Nextcloud\Documents\Hg\Backup_and_Restore\Tools\Compare To\CompareTo-Parent.bat"
+::SET "_FILE_A=%UserProfile%\Nextcloud\Documents\Hg\Backup_and_Restore\Tools\Compare To\CompareTo-Parent.bat"
 
 ::SET "_FILE_A=%UserProfile%\Documents\SpiderOak Hive\SysAdmin\Configuring Systems\Boxstarter\Troubleshoot-BatchScript.bat"
 
