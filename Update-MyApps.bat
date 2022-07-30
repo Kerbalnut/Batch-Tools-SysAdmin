@@ -1,4 +1,7 @@
+@ECHO OFF
+::SETLOCAL EnableDelayedExpansion
 
+REM Bugfix: Use "REM ECHO DEBUG*ING: " instead of "::ECHO DEBUG*ING: " to comment-out debugging lines, in case any are within IF statements.
 REM ECHO DEBUGGING: Begin RunAsAdministrator block.
 
 :RunAsAdministrator
@@ -63,3 +66,12 @@ SET "_ADMIN=FALSE"
 ::CD /D %~dp0
 :-------------------------------------------------------------------------------
 :: End Run-As-Administrator function
+
+choco upgrade notepadplusplus googlechrome firefox vscode -y
+
+ECHO End of script.
+PAUSE
+
+::ENDLOCAL
+EXIT /B
+
