@@ -8,6 +8,14 @@ Turns on the admin share e.g. \\hostname\C$\ for access from a remote computer.
 https://www.wintips.org/how-to-enable-admin-shares-windows-7/
 #>
 
+Write-Host "Starting script: $($MyInvocation.MyCommand)"
+Pause
+Clear-Host
+
+Write-Host "-----------------------------------------------------------------------------------------------------------------------"
+Write-Host "Current network shares:"
+net share
+
 # PartOfDomain (boolean Property)
 $PartOfDomain = (Get-WmiObject -Class Win32_ComputerSystem).PartOfDomain
 

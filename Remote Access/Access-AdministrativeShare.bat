@@ -55,7 +55,8 @@ ECHO DEBUGGING: Beginning Main execution block.
 :: Phase 1: Get Parameters: Remote Host
 :: Phase 2: Evaluate Parameters: Drive Letter
 :: Phase 3: Evaluate Parameters: %_FILE_PATH%
-:: Phase 4: Open windows explorer to remote administrative share
+:: Phase 4: Evaluate remote share access.
+:: Phase 5: Open windows explorer to remote administrative share
 ::===============================================================================
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -115,7 +116,7 @@ IF EXIST "%_ERROR_OUTPUT_FILE%" (
 
 :: Ping IP address
 
-::CALL :CheckLink "%_REMOTE_HOST%" silent
+CALL :CheckLink "%_REMOTE_HOST%" silent
 
 IF "%_LinkState%"=="down" (
 	ECHO:
@@ -216,7 +217,16 @@ IF NOT "%_FILE_PATH%"=="" (
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ::===============================================================================
-:: Phase 4: Open windows explorer to remote administrative share
+:: Phase 4: Evaluate remote share access.
+::===============================================================================
+
+ECHO Active remote shares on %_REMOTE_HOST%:
+net view \\%_REMOTE_HOST% /all
+
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+::===============================================================================
+:: Phase 5: Open windows explorer to remote administrative share
 ::===============================================================================
 
 ECHO:
@@ -224,7 +234,7 @@ ECHO Loading . . .
 ECHO:
 
 ECHO DEBUGGING: EXPLORER \\%_REMOTE_HOST%\%_DRIVE_LETTER%$%_FILE_PATH% & ECHO: & PAUSE
-	
+
 EXPLORER \\%_REMOTE_HOST%\%_DRIVE_LETTER%$%_FILE_PATH%
 
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
