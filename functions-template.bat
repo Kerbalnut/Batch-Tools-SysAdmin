@@ -3254,7 +3254,7 @@ EXIT /B
 :END
 ENDLOCAL
 ECHO: 
-ECHO End %~nx0
+ECHO End of %~nx0
 ECHO: 
 PAUSE
 ::GOTO :EOF
