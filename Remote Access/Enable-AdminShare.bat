@@ -24,7 +24,7 @@ REM ECHO DEBUGGING: Parameter %%1: "%1"
 IF "%1"=="RunAsAdmin" GOTO RUNASADMIN
 IF "%1"=="NoAdmin" GOTO SKIPADMIN
 
-GOTO SKIPADMIN & REM <-- Leave this line in to always skip Elevation Prompt -->
+::GOTO SKIPADMIN & REM <-- Leave this line in to always skip Elevation Prompt -->
 ::GOTO RUNASADMIN & REM <-- Leave this line in to always Run As Administrator (skip choice) -->
 :: Comment out both GOTO statements to prompt user to elevate.
 ECHO CHOICE Loading...
@@ -110,7 +110,7 @@ SET "_RUN_OPTIONS=Debug" & REM Run the script with the "-Debug" switch.
 SET "_RUN_OPTIONS=VerboseDebug" & REM Run this script with "-Verbose -Debug" switches.
 SET "_RUN_OPTIONS=" & REM Leaving this blank will always prompt user.
 
-SET "_RUN_OPTIONS=Verbose" & REM Run the script with the "-Verbose" switch.
+::SET "_RUN_OPTIONS=Verbose" & REM Run the script with the "-Verbose" switch.
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -321,6 +321,7 @@ IF ERRORLEVEL 2 SET "_ADMIN_OPTION=RunNonElevated" & GOTO ChooseRunOptions & REM
 IF ERRORLEVEL 1 SET "_ADMIN_OPTION=RunAsAdministrator" & REM Yes.
 
 :ChooseRunOptions
+ECHO DEBUGGING: Run options: %_RUN_OPTIONS%
 IF /I "%_RUN_OPTIONS%"=="Run" GOTO RunScript
 IF /I "%_RUN_OPTIONS%"=="Verbose" GOTO VerboseRun
 IF /I "%_RUN_OPTIONS%"=="Debug" GOTO DebugScript
