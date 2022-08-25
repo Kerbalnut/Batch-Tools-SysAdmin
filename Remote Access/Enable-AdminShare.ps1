@@ -16,35 +16,69 @@ $CommonParameters = @{
 	Debug = [System.Management.Automation.ActionPreference]$DebugPreference
 }
 
-
 #-----------------------------------------------------------------------------------------------------------------------
 Function Enable-PingResponse {
 	<#
 	.SYNOPSIS
-	Single-line summary.
+	Enable the IPv4 ICMP ping respone on the current machine.
 	.DESCRIPTION
-	Multiple paragraphs describing in more detail what the function is, what it does, how it works, inputs it expects, and outputs it creates.
-	.NOTES
-	Some extra info about this function, like it's origins, what module (if any) it's apart of, and where it's from.
+	Can also enable IPv6 and NetBIOS-based Network Discovery and 'File and Printer Sharing' firewall rules
+	.PARAMETER ICMPv6
+	Also enables IPv6 ICMP ping firewall rules, in addition to the IPv4 ICMP ping firewall rules.
+	.PARAMETER NetBIOS
+	Also enables NetBIOS-based Network Discovery and File and Printer Sharing firewall rules, in addition to the IPv4 ICMP ping firewall rules.
+	.PARAMETER Profiles
+	Must be an array of strings, even if only one Profile is selected. Acceptable values are: Public, Private, Domain. Default is @('Domain','Private').
 	
-	Maybe some original author credits as well.
+	Profiles designate which firewall rules are active based what type of network you are connected to. Use the `Get-NetConnectionProfile` command to see what your currently connected network is set as. To chenge it, run PowerShell as an Administrator and use a command like:
 	
-	Function New-TaskTrackingInitiative is where this template is based from.
+	Set-NetConnectionProfile -InterfaceAlias "Ethernet" -NetworkCategory Private
+	Set-NetConnectionProfile -InterfaceAlias "Wi-Fi" -NetworkCategory Public
+	Get-NetAdapter | Set-NetConnectionProfile -NetworkCategory Private
 	
+	Note: It's not possible to change the network adapter category to Domain when there is no domain available. It can only be changed from Private to Public and vice-versa.
+	
+	For more info, see the commands like: 
+	
+	Get-NetAdapter
+	Get-NetAdapterStatistics
+	netsh wlan show networks
+	netsh wlan show network mode=ssid
+	netsh wlan show network mode=bssid
+	explorer.exe ms-availablenetworks
+	netsh.exe wlan show profiles name="SSID name" key=clear
+	
+	https://4sysops.com/archives/manage-wifi-connection-in-windows-10-with-powershell/#show-and-export-profiles-read-password
+	Install wifi¬profile¬management is via PowerShellGet run the following command as Administrator: 
+	`Install-Module -Name wifiprofilemanagement`
 	.PARAMETER WhatIf
-	.PARAMETER Confirm
+	Does not make any changes to the system. Instead a message will be displayed for every change that would've happened.
+	.NOTES
+	.LINK
+	Get-NetConnectionProfile
+	Set-NetConnectionProfile
 	.EXAMPLE
 	Enable-PingResponse -WhatIf -Confirm
 	#>
-	[Alias("New-ProjectInitTEST")]
-	#Requires -Version 3
-	#[CmdletBinding()]
-	[CmdletBinding(DefaultParameterSetName = 'None')]
+	#Requires -RunAsAdministrator
+	[CmdletBinding()]
 	Param(
 		[Alias('PingV6')]
 		[switch]$ICMPv6,
 		
-		[switch]$NetBIOS
+		[switch]$NetBIOS,
+		
+		
+		[Object[]]$Profiles = @('Domain','Private'),
+		
+		[Parameter(Mandatory = $True, ParameterSetName = 'Enabled')]
+		[Switch]$Enable,
+		
+		[Parameter(Mandatory = $True, ParameterSetName = 'Disable')]
+		[Switch]$Disable,
+		
+		[switch]$WhatIf
+		
 	)
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	$CommonParameters = @{
@@ -56,7 +90,6 @@ Function Enable-PingResponse {
 	#Get-NetFirewallRule -DisplayName "File and Printer Sharing*" @CommonParameters
 	
 	#Get-NetFirewallRule -Description "*NetBIOS*" @CommonParameters
-	
 	
 	$PingFirewallNames = @(
 		"CoreNet-Diag-ICMP4-EchoRequest-In",
@@ -79,10 +112,6 @@ Function Enable-PingResponse {
 		}
 	}
 	
-	$PingFirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
-	
-	$Profiles = @('Domain','Private')
-	
 	$Orig = $PingFirewallRule
 	$PingFirewallRule = @()
 	$PingV6FirewallRule = @()
@@ -95,7 +124,7 @@ Function Enable-PingResponse {
 			ForEach ($Filter in $Profiles) {
 				#Write-Host "$Filter"
 				If ($P -like "*$Filter*" -And $_.Action -eq "Allow") {
-					If ($_.Name -like "4") {
+					If ($_.Name -like "*4*") {
 						$AddV4 = $True
 					} Else {
 						$AddV6 = $True
@@ -112,175 +141,16 @@ Function Enable-PingResponse {
 		}
 	}
 	
-	$PingFirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+	If ($VerbosePreference -ne 'SilentlyContinue') {
+		Write-Host "IPv4 ICMP ping firewall rules:"
+		$PingFirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+		If ($ICMPv6) {
+			Write-Host "IPv6 ICMP ping firewall rules:"
+			$PingV6FirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+		}
+	}
 	
-	$PingV6FirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
 	
-	
-	
-	
-	<#
-Name                  : CoreNet-Diag-ICMP4-EchoRequest-In
-DisplayName           : Core Networking Diagnostics - ICMP Echo Request (ICMPv4-In)
-Description           : ICMP Echo Request messages are sent as ping requests to other nodes.
-DisplayGroup          : Core Networking Diagnostics
-Group                 : @FirewallAPI.dll,-27000
-Enabled               : False
-Profile               : Private, Public
-Platform              : {}
-Direction             : Inbound
-Action                : Allow
-EdgeTraversalPolicy   : Block
-LooseSourceMapping    : False
-LocalOnlyMapping      : False
-Owner                 :
-PrimaryStatus         : OK
-Status                : The rule was parsed successfully from the store. (65536)
-EnforcementStatus     : NotApplicable
-PolicyStoreSource     : PersistentStore
-PolicyStoreSourceType : Local
-
-Name                  : CoreNet-Diag-ICMP4-EchoRequest-Out
-DisplayName           : Core Networking Diagnostics - ICMP Echo Request (ICMPv4-Out)
-Description           : ICMP Echo Request messages are sent as ping requests to other nodes.
-DisplayGroup          : Core Networking Diagnostics
-Group                 : @FirewallAPI.dll,-27000
-Enabled               : False
-Profile               : Private, Public
-Platform              : {}
-Direction             : Outbound
-Action                : Allow
-EdgeTraversalPolicy   : Block
-LooseSourceMapping    : False
-LocalOnlyMapping      : False
-Owner                 :
-PrimaryStatus         : OK
-Status                : The rule was parsed successfully from the store. (65536)
-EnforcementStatus     : NotApplicable
-PolicyStoreSource     : PersistentStore
-PolicyStoreSourceType : Local
-
-Name                  : CoreNet-Diag-ICMP6-EchoRequest-In
-DisplayName           : Core Networking Diagnostics - ICMP Echo Request (ICMPv6-In)
-Description           : ICMP Echo Request messages are sent as ping requests to other nodes.
-DisplayGroup          : Core Networking Diagnostics
-Group                 : @FirewallAPI.dll,-27000
-Enabled               : False
-Profile               : Private, Public
-Platform              : {}
-Direction             : Inbound
-Action                : Allow
-EdgeTraversalPolicy   : Block
-LooseSourceMapping    : False
-LocalOnlyMapping      : False
-Owner                 :
-PrimaryStatus         : OK
-Status                : The rule was parsed successfully from the store. (65536)
-EnforcementStatus     : NotApplicable
-PolicyStoreSource     : PersistentStore
-PolicyStoreSourceType : Local
-
-Name                  : CoreNet-Diag-ICMP6-EchoRequest-Out
-DisplayName           : Core Networking Diagnostics - ICMP Echo Request (ICMPv6-Out)
-Description           : ICMP Echo Request messages are sent as ping requests to other nodes.
-DisplayGroup          : Core Networking Diagnostics
-Group                 : @FirewallAPI.dll,-27000
-Enabled               : False
-Profile               : Private, Public
-Platform              : {}
-Direction             : Outbound
-Action                : Allow
-EdgeTraversalPolicy   : Block
-LooseSourceMapping    : False
-LocalOnlyMapping      : False
-Owner                 :
-PrimaryStatus         : OK
-Status                : The rule was parsed successfully from the store. (65536)
-EnforcementStatus     : NotApplicable
-PolicyStoreSource     : PersistentStore
-PolicyStoreSourceType : Local
-
-Name                  : CoreNet-Diag-ICMP4-EchoRequest-In-NoScope
-DisplayName           : Core Networking Diagnostics - ICMP Echo Request (ICMPv4-In)
-Description           : ICMP Echo Request messages are sent as ping requests to other nodes.
-DisplayGroup          : Core Networking Diagnostics
-Group                 : @FirewallAPI.dll,-27000
-Enabled               : False
-Profile               : Domain
-Platform              : {}
-Direction             : Inbound
-Action                : Allow
-EdgeTraversalPolicy   : Block
-LooseSourceMapping    : False
-LocalOnlyMapping      : False
-Owner                 :
-PrimaryStatus         : OK
-Status                : The rule was parsed successfully from the store. (65536)
-EnforcementStatus     : NotApplicable
-PolicyStoreSource     : PersistentStore
-PolicyStoreSourceType : Local
-
-Name                  : CoreNet-Diag-ICMP4-EchoRequest-Out-NoScope
-DisplayName           : Core Networking Diagnostics - ICMP Echo Request (ICMPv4-Out)
-Description           : ICMP Echo Request messages are sent as ping requests to other nodes.
-DisplayGroup          : Core Networking Diagnostics
-Group                 : @FirewallAPI.dll,-27000
-Enabled               : False
-Profile               : Domain
-Platform              : {}
-Direction             : Outbound
-Action                : Allow
-EdgeTraversalPolicy   : Block
-LooseSourceMapping    : False
-LocalOnlyMapping      : False
-Owner                 :
-PrimaryStatus         : OK
-Status                : The rule was parsed successfully from the store. (65536)
-EnforcementStatus     : NotApplicable
-PolicyStoreSource     : PersistentStore
-PolicyStoreSourceType : Local
-
-Name                  : CoreNet-Diag-ICMP6-EchoRequest-In-NoScope
-DisplayName           : Core Networking Diagnostics - ICMP Echo Request (ICMPv6-In)
-Description           : ICMP Echo Request messages are sent as ping requests to other nodes.
-DisplayGroup          : Core Networking Diagnostics
-Group                 : @FirewallAPI.dll,-27000
-Enabled               : False
-Profile               : Domain
-Platform              : {}
-Direction             : Inbound
-Action                : Allow
-EdgeTraversalPolicy   : Block
-LooseSourceMapping    : False
-LocalOnlyMapping      : False
-Owner                 :
-PrimaryStatus         : OK
-Status                : The rule was parsed successfully from the store. (65536)
-EnforcementStatus     : NotApplicable
-PolicyStoreSource     : PersistentStore
-PolicyStoreSourceType : Local
-
-Name                  : CoreNet-Diag-ICMP6-EchoRequest-Out-NoScope
-DisplayName           : Core Networking Diagnostics - ICMP Echo Request (ICMPv6-Out)
-Description           : ICMP Echo Request messages are sent as ping requests to other nodes.
-DisplayGroup          : Core Networking Diagnostics
-Group                 : @FirewallAPI.dll,-27000
-Enabled               : False
-Profile               : Domain
-Platform              : {}
-Direction             : Outbound
-Action                : Allow
-EdgeTraversalPolicy   : Block
-LooseSourceMapping    : False
-LocalOnlyMapping      : False
-Owner                 :
-PrimaryStatus         : OK
-Status                : The rule was parsed successfully from the store. (65536)
-EnforcementStatus     : NotApplicable
-PolicyStoreSource     : PersistentStore
-PolicyStoreSourceType : Local
-
-#>
 	
 	
 	
@@ -312,8 +182,6 @@ PolicyStoreSourceType : Local
 	
 	# $NetBiosFirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
 	
-	$Profiles = @('Domain','Private')
-	
 	$Orig = $NetBiosFirewallRule
 	$NetBiosFirewallRule = @()
 	$Orig | ForEach-Object {
@@ -333,235 +201,61 @@ PolicyStoreSourceType : Local
 		}
 	}
 	
-	$NetBiosFirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+	If ($VerbosePreference -ne 'SilentlyContinue' -And $NetBIOS) {
+		Write-Host "NetBIOS-based Network Discovery and File and Printer Sharing firewall rules:"
+		$NetBiosFirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+	}
+	
+	
+	
+	
+	
+	If ($ICMPv6) {
+		$PingFirewallRule += $PingV6FirewallRule
+	}
+	If ($NetBIOS) {
+		$PingFirewallRule += $NetBiosFirewallRule
+	}
+	
+	If ($WhatIf) {
+		ForEach ($Rule in $PingFirewallRule) {
+			
+			If ($Enable) {
+				Write-Host "What If: Setting rule to Enabled: $Rule" -ForegroundColor Yellow -BackgroundColor Black
+			} Else {
+				Write-Host "What If: Setting rule to Disabled: $Rule" -ForegroundColor Yellow -BackgroundColor Black
+			}
+			
+		}
+	} Else {
+		
+		ForEach ($Rule in $PingFirewallRule) {
+			If ($Enable) {
+				$Rule | Set-NetFirewallRule -Enabled 1
+			} Else {
+				$Rule | Set-NetFirewallRule -Enabled 2
+			}
+		}
+		
+	}
 	
 	
 	
 	<#
-Name                  : NETDIS-NB_Name-In-UDP-NoScope
-DisplayName           : Network Discovery (NB-Name-In)
-Description           : Inbound rule for Network Discovery to allow NetBIOS Name Resolution. [UDP 137]
-DisplayGroup          : Network Discovery
-Group                 : @FirewallAPI.dll,-32752
-Enabled               : False
-Profile               : Domain
-Platform              : {}
-Direction             : Inbound
-Action                : Allow
-EdgeTraversalPolicy   : Block
-LooseSourceMapping    : False
-LocalOnlyMapping      : False
-Owner                 :
-PrimaryStatus         : OK
-Status                : The rule was parsed successfully from the store. (65536)
-EnforcementStatus     : NotApplicable
-PolicyStoreSource     : PersistentStore
-PolicyStoreSourceType : Local
-
-Name                  : NETDIS-NB_Name-Out-UDP-NoScope
-DisplayName           : Network Discovery (NB-Name-Out)
-Description           : Outbound rule for Network Discovery to allow NetBIOS Name Resolution. [UDP 137]
-DisplayGroup          : Network Discovery
-Group                 : @FirewallAPI.dll,-32752
-Enabled               : False
-Profile               : Domain
-Platform              : {}
-Direction             : Outbound
-Action                : Allow
-EdgeTraversalPolicy   : Block
-LooseSourceMapping    : False
-LocalOnlyMapping      : False
-Owner                 :
-PrimaryStatus         : OK
-Status                : The rule was parsed successfully from the store. (65536)
-EnforcementStatus     : NotApplicable
-PolicyStoreSource     : PersistentStore
-PolicyStoreSourceType : Local
-
-	
-	
-	
-Name                  : NETDIS-NB_Name-In-UDP-Active
-DisplayName           : Network Discovery (NB-Name-In)
-Description           : Inbound rule for Network Discovery to allow NetBIOS Name Resolution. [UDP 137]
-DisplayGroup          : Network Discovery
-Group                 : @FirewallAPI.dll,-32752
-Enabled               : True
-Profile               : Private
-Platform              : {}
-Direction             : Inbound
-Action                : Allow
-EdgeTraversalPolicy   : Block
-LooseSourceMapping    : False
-LocalOnlyMapping      : False
-Owner                 :
-PrimaryStatus         : OK
-Status                : The rule was parsed successfully from the store. (65536)
-EnforcementStatus     : NotApplicable
-PolicyStoreSource     : PersistentStore
-PolicyStoreSourceType : Local
-
-Name                  : NETDIS-NB_Name-Out-UDP-Active
-DisplayName           : Network Discovery (NB-Name-Out)
-Description           : Outbound rule for Network Discovery to allow NetBIOS Name Resolution. [UDP 137]
-DisplayGroup          : Network Discovery
-Group                 : @FirewallAPI.dll,-32752
-Enabled               : True
-Profile               : Private
-Platform              : {}
-Direction             : Outbound
-Action                : Allow
-EdgeTraversalPolicy   : Block
-LooseSourceMapping    : False
-LocalOnlyMapping      : False
-Owner                 :
-PrimaryStatus         : OK
-Status                : The rule was parsed successfully from the store. (65536)
-EnforcementStatus     : NotApplicable
-PolicyStoreSource     : PersistentStore
-PolicyStoreSourceType : Local
-	
-	
-Name                  : NETDIS-NB_Name-In-UDP
-DisplayName           : Network Discovery (NB-Name-In)
-Description           : Inbound rule for Network Discovery to allow NetBIOS Name Resolution. [UDP 137]
-DisplayGroup          : Network Discovery
-Group                 : @FirewallAPI.dll,-32752
-Enabled               : False
-Profile               : Public
-Platform              : {}
-Direction             : Inbound
-Action                : Allow
-EdgeTraversalPolicy   : Block
-LooseSourceMapping    : False
-LocalOnlyMapping      : False
-Owner                 :
-PrimaryStatus         : OK
-Status                : The rule was parsed successfully from the store. (65536)
-EnforcementStatus     : NotApplicable
-PolicyStoreSource     : PersistentStore
-PolicyStoreSourceType : Local
-
-Name                  : NETDIS-NB_Name-Out-UDP
-DisplayName           : Network Discovery (NB-Name-Out)
-Description           : Outbound rule for Network Discovery to allow NetBIOS Name Resolution. [UDP 137]
-DisplayGroup          : Network Discovery
-Group                 : @FirewallAPI.dll,-32752
-Enabled               : False
-Profile               : Public
-Platform              : {}
-Direction             : Outbound
-Action                : Allow
-EdgeTraversalPolicy   : Block
-LooseSourceMapping    : False
-LocalOnlyMapping      : False
-Owner                 :
-PrimaryStatus         : OK
-Status                : The rule was parsed successfully from the store. (65536)
-EnforcementStatus     : NotApplicable
-PolicyStoreSource     : PersistentStore
-PolicyStoreSourceType : Local
-
-	
-Name                  : FPS-NB_Name-In-UDP-NoScope
-DisplayName           : File and Printer Sharing (NB-Name-In)
-Description           : Inbound rule for File and Printer Sharing to allow NetBIOS Name Resolution. [UDP 137]
-DisplayGroup          : File and Printer Sharing
-Group                 : @FirewallAPI.dll,-28502
-Enabled               : False
-Profile               : Domain
-Platform              : {}
-Direction             : Inbound
-Action                : Allow
-EdgeTraversalPolicy   : Block
-LooseSourceMapping    : False
-LocalOnlyMapping      : False
-Owner                 :
-PrimaryStatus         : OK
-Status                : The rule was parsed successfully from the store. (65536)
-EnforcementStatus     : NotApplicable
-PolicyStoreSource     : PersistentStore
-PolicyStoreSourceType : Local
-
-Name                  : FPS-NB_Name-Out-UDP-NoScope
-DisplayName           : File and Printer Sharing (NB-Name-Out)
-Description           : Outbound rule for File and Printer Sharing to allow NetBIOS Name Resolution. [UDP 137]
-DisplayGroup          : File and Printer Sharing
-Group                 : @FirewallAPI.dll,-28502
-Enabled               : False
-Profile               : Domain
-Platform              : {}
-Direction             : Outbound
-Action                : Allow
-EdgeTraversalPolicy   : Block
-LooseSourceMapping    : False
-LocalOnlyMapping      : False
-Owner                 :
-PrimaryStatus         : OK
-Status                : The rule was parsed successfully from the store. (65536)
-EnforcementStatus     : NotApplicable
-PolicyStoreSource     : PersistentStore
-PolicyStoreSourceType : Local
-	
-	
-Name                  : FPS-NB_Name-In-UDP
-DisplayName           : File and Printer Sharing (NB-Name-In)
-Description           : Inbound rule for File and Printer Sharing to allow NetBIOS Name Resolution. [UDP 137]
-DisplayGroup          : File and Printer Sharing
-Group                 : @FirewallAPI.dll,-28502
-Enabled               : False
-Profile               : Private, Public
-Platform              : {}
-Direction             : Inbound
-Action                : Allow
-EdgeTraversalPolicy   : Block
-LooseSourceMapping    : False
-LocalOnlyMapping      : False
-Owner                 :
-PrimaryStatus         : OK
-Status                : The rule was parsed successfully from the store. (65536)
-EnforcementStatus     : NotApplicable
-PolicyStoreSource     : PersistentStore
-PolicyStoreSourceType : Local
-
-Name                  : FPS-NB_Name-Out-UDP
-DisplayName           : File and Printer Sharing (NB-Name-Out)
-Description           : Outbound rule for File and Printer Sharing to allow NetBIOS Name Resolution. [UDP 137]
-DisplayGroup          : File and Printer Sharing
-Group                 : @FirewallAPI.dll,-28502
-Enabled               : False
-Profile               : Private, Public
-Platform              : {}
-Direction             : Outbound
-Action                : Allow
-EdgeTraversalPolicy   : Block
-LooseSourceMapping    : False
-LocalOnlyMapping      : False
-Owner                 :
-PrimaryStatus         : OK
-Status                : The rule was parsed successfully from the store. (65536)
-EnforcementStatus     : NotApplicable
-PolicyStoreSource     : PersistentStore
-PolicyStoreSourceType : Local
-	
+	Set-NetFirewallRule [-Action <Action>] [-AsJob] [-Authentication <Authentication>] [-CimSession <CimSession[]>]
+	[-Description <String>] [-Direction <Direction>] [-DynamicTarget <DynamicTransport>] [-EdgeTraversalPolicy
+	<EdgeTraversal>] [-Enabled <Enabled>] [-Encryption <Encryption>] [-GPOSession <String>] [-IcmpType <String[]>]
+	[-InterfaceAlias <WildcardPattern[]>] [-InterfaceType <InterfaceType>] [-LocalAddress <String[]>]
+	[-LocalOnlyMapping <Boolean>] [-LocalPort <String[]>] [-LocalUser <String>] [-LooseSourceMapping <Boolean>]
+	[-NewDisplayName <String>] [-OverrideBlockRules <Boolean>] [-Owner <String>] [-Package <String>] [-PassThru]
+	[-Platform <String[]>] [-PolicyStore <String>] [-Profile <Profile>] [-Program <String>] [-Protocol <String>]
+	[-RemoteAddress <String[]>] [-RemoteMachine <String>] [-RemotePort <String[]>] [-RemoteUser <String>] [-Service
+	<String>] [-ThrottleLimit <Int32>] -DisplayName <String[]> [-Confirm] [-WhatIf] [<CommonParameters>]
 	#>
-	
-	
-	
-	
-	
-	If (!($ICMPv6)) {
-		$PingFirewallRule += $PingV6FirewallRule
-	}
-	If (!($NetBIOS)) {
-		$PingFirewallRule += $NetBiosFirewallRule
-	}
-	
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	Return
 } # End of Enable-PingResponse function.
-Set-Alias -Name 'New-ProjectInitTEST' -Value 'Enable-PingResponse'
 #-----------------------------------------------------------------------------------------------------------------------
 
 Write-Host "Starting script: $($MyInvocation.MyCommand)"
