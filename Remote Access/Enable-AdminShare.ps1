@@ -97,6 +97,8 @@ Function Get-PingResponseRules {
 	}
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
+	Write-Verbose "Starting $($MyInvocation.MyCommand)"
+	
 	$PingFirewallNames = @(
 		"CoreNet-Diag-ICMP4-EchoRequest-In",
 		"CoreNet-Diag-ICMP4-EchoRequest-Out",
@@ -214,7 +216,10 @@ Function Get-PingResponseRules {
 	
 	If ($Table) {
 		$PingFirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+		Write-Verbose "Ending $($MyInvocation.MyCommand)"
+		Return
 	} Else {
+		Write-Verbose "Ending $($MyInvocation.MyCommand)"
 		Return $PingFirewallRule
 	}
 } # End of Get-PingResponseRules function.
@@ -309,9 +314,9 @@ Function Set-PingResponse {
 	
 	$PingFirewallRule = Get-PingResponseRules @FunctionParams @CommonParameters
 	
-	If ($VerbosePreference -eq 'SilentlyContinue') {
+	If ($VerbosePreference -ne 'SilentlyContinue') {
 		Write-Host "Firewall rules before change:"
-		Get-PingResponseRules @FunctionParams -Table @CommonParameters
+		Get-PingResponseRules @FunctionParams -Table | Out-Host
 	}
 	
 	ForEach ($Rule in $PingFirewallRule) {
@@ -319,20 +324,22 @@ Function Set-PingResponse {
 			If ($WhatIf) {
 				Write-Host "What If: Setting rule to Enabled: $Rule" -ForegroundColor Yellow -BackgroundColor Black
 			} Else {
+				Write-Verbose "Enabling Firewall rule: $($Rule.Name)"
 				$Rule | Set-NetFirewallRule -Enabled 1
 			}
 		} Else {
 			If ($WhatIf) {
 				Write-Host "What If: Setting rule to Disabled: $Rule" -ForegroundColor Yellow -BackgroundColor Black
 			} Else {
+				Write-Verbose "Disabling Firewall rule: $($Rule.Name)"
 				$Rule | Set-NetFirewallRule -Enabled 2
 			}
 		}
 	}
 	
-	If ($VerbosePreference -eq 'SilentlyContinue') {
+	If ($VerbosePreference -ne 'SilentlyContinue') {
 		Write-Host "Firewall rules after change:"
-		Get-PingResponseRules @FunctionParams -Table @CommonParameters
+		Get-PingResponseRules @FunctionParams -Table | Out-Host
 	}
 	
 	<#
@@ -527,22 +534,17 @@ If ($LoadFunctions) {
 	Return
 }
 
-Write-Host "-----------------------------------------------------------------------------------------------------------------------"
-Write-Host "Starting script: $($MyInvocation.MyCommand)"
-Write-Verbose "Verbose switch on."
-If ($VerbosePreference -eq 'SilentlyContinue') {
-	Pause
-	Clear-Host
-}
+Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+Write-Host "Starting script: $($MyInvocation.MyCommand)" -BackgroundColor Black -ForegroundColor White
+Write-Host "Enabling Admin shares (\\hostname\C$) on this machine: $env:COMPUTERNAME`n" -BackgroundColor Black -ForegroundColor White
 
-Write-Host "Enabling Admin shares (\\hostname\C$) on this machine: $env:COMPUTERNAME`n"
-
-Write-Host "-----------------------------------------------------------------------------------------------------------------------"
-Write-Host "Current network shares:`n`nC:\> net share"
+Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+Write-Host "Current network shares:" -BackgroundColor Black -ForegroundColor White
+Write-Host "C:\> net share"
 net share
 
-Write-Host "-----------------------------------------------------------------------------------------------------------------------"
-Write-Host "Step 1: Check that connected network(s) are not set to 'Public' profile type.`n"
+Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+Write-Host "Step 1: Check that connected network(s) are not set to 'Public' profile type.`n" -BackgroundColor Black -ForegroundColor White
 
 $NetProfiles = Get-NetConnectionProfile
 
@@ -552,7 +554,7 @@ $PublicProfiles = $False
 $NetProfiles | ForEach-Object {
 	If ($_.NetworkCategory -eq "Public") {
 		$PublicProfiles = $True
-		Write-Warning "A network interface is set to 'Public': $($_.InterfaceAlias)"
+		Write-Warning "The network '$($_.Name)' on interface '($($_.InterfaceIndex)) $($_.InterfaceAlias)' is set to '$($_.NetworkCategory)'."
 	}
 }
 
@@ -560,11 +562,11 @@ If ($PublicProfiles) {
 	ForEach ($interface in $NetProfiles) {
 		If ($interface.NetworkCategory -eq "Public") {
 			# Ask user to change network interface profile to Private
-			$Title = "Change '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile to 'Private'?"
-			$Info = "The $($interface.InterfaceAlias) network is set to '$($interface.NetworkCategory)' profile type, which changes the class of firewall rules being applied to a very restrictive set, designed for untrusted networks. If this is a trusted network, changing it to 'Private' will make this device discoverable by other devices on this network."
+			$Title = "Change '$($interface.Name)' network on '($($interface.InterfaceIndex)) $($interface.InterfaceAlias)' to 'Private' profile?"
+			$Info = "The '$($interface.Name)' $($interface.InterfaceAlias) network is set to '$($interface.NetworkCategory)' profile type, which changes the class of firewall rules being applied to a very restrictive set, designed for untrusted networks. If this is a trusted network, changing it to 'Private' will make this device discoverable by other devices on this network."
 			# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
-			$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Change '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile to 'Private'."
-			$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "No changes to '$($interface.InterfaceAlias)' network profile, it will remain as '$($interface.NetworkCategory)'."
+			$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Change '$($interface.Name)' $($interface.InterfaceIndex) - $($interface.InterfaceAlias) network profile to 'Private', making it discoverable by other devices."
+			$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Do not make changes to '$($interface.Name)' $($interface.InterfaceAlias) network profile, it will remain as '$($interface.NetworkCategory)'."
 			$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $No)
 			[int]$DefaultChoice = 0 # First choice starts at zero
 			$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
@@ -575,7 +577,7 @@ If ($PublicProfiles) {
 					#Set-NetConnectionProfile -InterfaceIndex $interface.InterfaceIndex -NetworkCategory 'Private' @CommonParameters
 					$interface | Set-NetConnectionProfile -NetworkCategory 'Private' @CommonParameters
 					
-					Get-NetConnectionProfile | Where-Object {$_.InterfaceIndex -eq $interface.InterfaceIndex} | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Format-Table
+					Get-NetConnectionProfile | Where-Object {$_.InterfaceIndex -eq $interface.InterfaceIndex} | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Format-Table | Out-Host
 				}
 				1 {
 					Write-Verbose "No changes made to '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile. ($($interface.NetworkCategory))"
@@ -591,8 +593,8 @@ If ($PublicProfiles) {
 	Write-Host "No network profiles set to Public.`nSKIPPING...`n"
 }
 
-Write-Host "-----------------------------------------------------------------------------------------------------------------------"
-Write-Host "Step 2: Enable ping response and `"File and print sharing`" through Windows Firewall.`n"
+Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+Write-Host "Step 2: Enable ping response and `"File and print sharing`" through Windows Firewall.`n" -BackgroundColor Black -ForegroundColor White
 
 $ParamsHash = @{
 	ICMPv6 = $True
@@ -602,58 +604,108 @@ $ParamsHash = @{
 #Get-PingResponseRules -ICMPv6 -NetBIOS -Table @CommonParameters
 Get-PingResponseRules @ParamsHash -Table @CommonParameters
 
-# Ask user to change ping response firewall rules.
-$Title = "Enable ping response?"
-$Info = "Enable firewall rules to Allow ping response (ICMPv4) and NetBIOS discovery on this machine: $env:COMPUTERNAME?"
-# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
-$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Enable firewall rules that would Allow a ping response from this device: $env:COMPUTERNAME"
-$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Do not make any firewall rule changes."
-$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $No)
-[int]$DefaultChoice = 0 # First choice starts at zero
-$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
-switch ($Result) {
-	0 {
-		Write-Verbose "Enabling ping response:"
-		Get-PingResponseRules @ParamsHash -Table @CommonParameters
-	}
-	1 {
-		Write-Verbose "Declined firewall rules change for ping."
-	}
-	Default {
-		Write-Error "Ping response choice error."
-		Throw "Ping response choice error."
+Write-Verbose "Checking if ping/NetBIOS firewall rules are already allowed."
+$FwRules = Get-PingResponseRules @ParamsHash @CommonParameters
+$RulesDisabled = $False
+ForEach ($rule in $FwRules) {
+	If ($rule.Enabled -eq 'False') {
+		$RulesDisabled = $True
 	}
 }
 
-Write-Host "-----------------------------------------------------------------------------------------------------------------------"
-Write-Host "Step 3: Ensure that both computers belong to the same Workgroup or Domain.`n"
+If ($RulesDisabled) {
+	# Ask user to change ping response firewall rules.
+	$Title = "Enable ping response?"
+	$Info = "Enable firewall rules to Allow ping response (ICMPv4) and NetBIOS discovery on this machine: $env:COMPUTERNAME?"
+	# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
+	$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Enable firewall rules that would Allow a ping response from this device: $env:COMPUTERNAME"
+	$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Do not make any firewall rule changes."
+	$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $No)
+	[int]$DefaultChoice = 0 # First choice starts at zero
+	$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
+	switch ($Result) {
+		0 {
+			Write-Verbose "Enabling ping response:"
+			Enable-PingResponse @ParamsHash @CommonParameters
+			
+			Get-PingResponseRules @ParamsHash -Table
+		}
+		1 {
+			Write-Verbose "Declined firewall rules change for ping."
+		}
+		Default {
+			Write-Error "Ping response choice error."
+			Throw "Ping response choice error."
+		}
+	}
+} Else {
+	Write-Host "All ping firewall rules already enabled.`nSKIPPING...`n"
+}
+
+Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+Write-Host "Step 3: Ensure that both computers belong to the same Workgroup or Domain." -BackgroundColor Black -ForegroundColor White
+Write-Host "`n"
 
 # PartOfDomain (boolean Property)
 $PartOfDomain = (Get-WmiObject -Class Win32_ComputerSystem).PartOfDomain
 
 If ($PartOfDomain) {
-	$Domain = Get-WmiObject -Namespace root\cimv2 -Class Win32_ComputerSystem | Select-Object Name, Domain
+	Write-Host "This PC's domain/workgroup status:"
 	Write-Host "DOMAIN:"
+	$Domain = Get-WmiObject -Namespace root\cimv2 -Class Win32_ComputerSystem | Select-Object Name, Domain
 	$Domain | Format-Table | Out-Host
 } Else {
+	Write-Host "Note: Non-domain PC's should have the same Workgroup name set in order to network together.`n"
+	Write-Host "This PC's domain/workgroup status:"
 	# Workgroup (string Property)
 	$Workgroup = (Get-WmiObject -Class Win32_ComputerSystem).Workgroup
-	Write-Host "WORKGROUP: $Workgroup"
+	Write-Host "WORKGROUP: `"$Workgroup`""
+	Write-Host "`nTo check another PC's Workgroup name:"
+	Write-Host " - Run (Win+R): sysdm.cpl"
+	Write-Host " - Run (Win+R): SystemPropertiesComputerName"
+	Write-Host " - ......  C:\> net config workstation | find `"Workstation domain`"`n"
 }
 
 # Ask user to change Workgroup
-$Title = "Change Workgroup?"
-$Info = "Change Workgroup name $Workgroup to something else (REQUIRES RESTART), or keep it as-is?"
+$Title = "Change this PC's Workgroup?"
+$Info = "Change the current Workgroup name '$Workgroup' of this PC '$env:COMPUTERNAME' to something different (REQUIRES RESTART), or keep it as-is?"
 # Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
-$Change = New-Object System.Management.Automation.Host.ChoiceDescription "&Change", "Change Workgroup name $Workgroup to something new (REQUIRES RESTART)"
-$Keep = New-Object System.Management.Automation.Host.ChoiceDescription "&Keep", "Keep Workgroup name $Workgroup the same. (Default)"
+$Change = New-Object System.Management.Automation.Host.ChoiceDescription "&Change", "Change the current Workgroup name '$Workgroup' of this PC '$env:COMPUTERNAME' to something new. (REQUIRES RESTART)"
+$Keep = New-Object System.Management.Automation.Host.ChoiceDescription "&Keep", "Keep the current Workgroup name '$Workgroup' the same. (Default)"
 $Options = [System.Management.Automation.Host.ChoiceDescription[]]($Change, $Keep)
 [int]$DefaultChoice = 1 # First choice starts at zero
 $Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
 switch ($Result) {
 	0 {
 		Write-Verbose "Changing Workgroup name."
+		Write-Host "Ctrl+C to cancel."
+		$NewWgName = Read-Host "New Workgroup name"
+		Add-Computer -WorkGroupName $NewWgName @CommonParameters
 		
+		$Title = "Reboot PC now?"
+		$Info = "Restart this PC '$env:COMPUTERNAME' now to update Workgroup name change '$NewWgName'?"
+		# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
+		$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Yes, reboot this machine now to apply Workgroup name change '$NewWgName'"
+		$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "No, reboot later."
+		$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $No)
+		[int]$DefaultChoice = 1 # First choice starts at zero
+		$Restart = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
+		switch ($Restart) {
+			0 {
+				Write-Host "Rebooting in 10 seconds" -BackgroundColor Black -ForegroundColor White
+				Write-Host "Ctrl+C to Cancel" -BackgroundColor Black -ForegroundColor White
+				Start-Sleep -Seconds 10
+				Restart-Computer @CommonParameters
+			}
+			1 {
+				Write-Verbose "Reboot deferred."
+				Write-Warning "If the Workgroup name was changed, this PC must be restarted for the changes to take effect."
+			}
+			Default {
+				Write-Error "Reboot choice error."
+				Throw "Workgroup choice error."
+			}
+		}
 	}
 	1 {
 		Write-Verbose "Keeping Workgroup name: $Workgroup"
@@ -664,16 +716,17 @@ switch ($Result) {
 	}
 }
 
-Write-Host "-----------------------------------------------------------------------------------------------------------------------"
-Write-Host "Step 4: Specify which user(s) can access the Admin Shares (Disk Volumes).`n"
+Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+Write-Host "Step 4: Specify which user(s) can access the Admin Shares (Disk Volumes)." -BackgroundColor Black -ForegroundColor White
+Write-Host ""
 
 Write-Host "Users in Administrators group:"
 $AdminGroupMembers = Get-LocalGroupMember -Group "Administrators" @CommonParameters
 $AdminGroupMembers | Out-Host
 
-
-
-
+Write-Host "`n"
+Write-Warning "TODO - Check if current user name is in the Admin group of the local machine."
+Write-Host "`n"
 
 
 
@@ -684,11 +737,46 @@ $AdminGroupMembers | Out-Host
 
 # If you want to enable admin shares on Windows, you need to change the parameter value to 1 or delete it:
 
-Set-ItemProperty -Name AutoShareWks -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Value 1 @CommonParameters
+#Set-ItemProperty -Name AutoShareWks -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Value 1 @CommonParameters
 
 # To have Windows recreate the hidden admin shares, simply restart the Server service with the command:
 
-Get-Service LanmanServer @CommonParameters | Restart-Service -Verbose @CommonParameters
+#Get-Service LanmanServer @CommonParameters | Restart-Service -Verbose @CommonParameters
+
+
+
+Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+Write-Host "End of Steps: Admin shares on this PC ($env:COMPUTERNAME) should now be active." -BackgroundColor Black -ForegroundColor White
+Write-Host ""
+
+Write-Host "Current network shares:" -BackgroundColor Black -ForegroundColor White
+Write-Host "C:\> net share"
+net share
+
+Write-Host "`nTry accessing a share from another PC, e.g.:" -BackgroundColor Black -ForegroundColor Yellow
+Write-Host " - \\$env:COMPUTERNAME\C$" -BackgroundColor Black -ForegroundColor Yellow
+
+$NetProfiles = Get-NetConnectionProfile
+$IpAddresses = Get-NetIPAddress
+$ValidIPs = @()
+
+ForEach ($IP in $IpAddresses) {
+	ForEach ($InterfId in $NetProfiles) {
+		If ($IP.InterfaceIndex -eq $InterfId.InterfaceIndex) {
+			$ValidIPs += $IP
+		}
+	}
+}
+
+ForEach ($IP in $ValidIPs) {
+	If ($IP.IPAddress -like "169.254.*") {
+		Write-Host " - \\$($IP.IPAddress)\C$ (DHCP error: Unassigned APIPA network address in use.)" -BackgroundColor Black -ForegroundColor Red
+	} Else {
+		Write-Host " - \\$($IP.IPAddress)\C$" -BackgroundColor Black -ForegroundColor Yellow
+	}
+}
+
+Write-Host "`n`n"
 
 Pause
 
