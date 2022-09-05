@@ -523,12 +523,9 @@ Function Disable-PingResponse {
 #-----------------------------------------------------------------------------------------------------------------------
 
 If ($LoadFunctions) {
-	Write-Host "Finished loading functions."
-	Write-Verbose "Finished loading functions."
+	Write-Verbose "Finished loading '$($MyInvocation.MyCommand)' functions."
 	Return
 }
-
-Return
 
 Write-Host "-----------------------------------------------------------------------------------------------------------------------"
 Write-Host "Starting script: $($MyInvocation.MyCommand)"
@@ -541,45 +538,11 @@ If ($VerbosePreference -eq 'SilentlyContinue') {
 Write-Host "Enabling Admin shares (\\hostname\C$) on this machine: $env:COMPUTERNAME`n"
 
 Write-Host "-----------------------------------------------------------------------------------------------------------------------"
-Write-Host "Current network shares:"
+Write-Host "Current network shares:`n`nC:\> net share"
 net share
 
 Write-Host "-----------------------------------------------------------------------------------------------------------------------"
-Write-Host "Step 1: Enable ping response and `"File and print sharing`" through Windows Firewall.`n"
-
-$ParamsHash = @{
-	ICMPv6 = $True
-	NetBIOS = $True
-}
-
-#Get-PingResponseRules -ICMPv6 -NetBIOS -Table @CommonParameters
-Get-PingResponseRules @ParamsHash -Table @CommonParameters
-
-# Ask user to change ping response firewall rules.
-$Title = "Enable ping response?"
-$Info = "Enable firewall rules to Allow ping response (ICMPv4) and NetBIOS discovery on this machine: $env:COMPUTERNAME?"
-# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
-$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Enable firewall rules that would Allow a ping response from this device: $env:COMPUTERNAME"
-$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Do not make any firewall rule changes."
-$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $No)
-[int]$DefaultChoice = 0 # First choice starts at zero
-$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
-switch ($Result) {
-	0 {
-		Write-Verbose "Enabling ping response:"
-		Get-PingResponseRules @ParamsHash -Table @CommonParameters
-	}
-	1 {
-		Write-Verbose "Declined firewall rules change for ping."
-	}
-	Default {
-		Write-Error "Ping response choice error."
-		Throw "Ping response choice error."
-	}
-}
-
-Write-Host "-----------------------------------------------------------------------------------------------------------------------"
-Write-Host "Step 2: Check that connected network(s) are not set to 'Public' profile type.`n"
+Write-Host "Step 1: Check that connected network(s) are not set to 'Public' profile type.`n"
 
 $NetProfiles = Get-NetConnectionProfile
 
@@ -626,6 +589,40 @@ If ($PublicProfiles) {
 	} # End ForEach
 } Else {
 	Write-Host "No network profiles set to Public.`nSKIPPING...`n"
+}
+
+Write-Host "-----------------------------------------------------------------------------------------------------------------------"
+Write-Host "Step 2: Enable ping response and `"File and print sharing`" through Windows Firewall.`n"
+
+$ParamsHash = @{
+	ICMPv6 = $True
+	NetBIOS = $True
+}
+
+#Get-PingResponseRules -ICMPv6 -NetBIOS -Table @CommonParameters
+Get-PingResponseRules @ParamsHash -Table @CommonParameters
+
+# Ask user to change ping response firewall rules.
+$Title = "Enable ping response?"
+$Info = "Enable firewall rules to Allow ping response (ICMPv4) and NetBIOS discovery on this machine: $env:COMPUTERNAME?"
+# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
+$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Enable firewall rules that would Allow a ping response from this device: $env:COMPUTERNAME"
+$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Do not make any firewall rule changes."
+$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $No)
+[int]$DefaultChoice = 0 # First choice starts at zero
+$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
+switch ($Result) {
+	0 {
+		Write-Verbose "Enabling ping response:"
+		Get-PingResponseRules @ParamsHash -Table @CommonParameters
+	}
+	1 {
+		Write-Verbose "Declined firewall rules change for ping."
+	}
+	Default {
+		Write-Error "Ping response choice error."
+		Throw "Ping response choice error."
+	}
 }
 
 Write-Host "-----------------------------------------------------------------------------------------------------------------------"
