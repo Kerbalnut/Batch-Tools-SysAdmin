@@ -25,7 +25,7 @@ IF "%1"=="RunAsAdmin" GOTO RUNASADMIN
 IF "%1"=="NoAdmin" GOTO SKIPADMIN
 
 ::GOTO SKIPADMIN & REM <-- Leave this line in to always skip Elevation Prompt -->
-::GOTO RUNASADMIN & REM <-- Leave this line in to always Run As Administrator (skip choice) -->
+GOTO RUNASADMIN & REM <-- Leave this line in to always Run As Administrator (skip choice) -->
 :: Comment out both GOTO statements to prompt user to elevate.
 ECHO CHOICE Loading...
 ECHO:

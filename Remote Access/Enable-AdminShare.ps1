@@ -11,22 +11,24 @@ http://woshub.com/enable-remote-access-to-admin-shares-in-workgroup/
 #>
 [CmdletBinding()]
 Param()
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 $CommonParameters = @{
 	Verbose = [System.Management.Automation.ActionPreference]$VerbosePreference
 	Debug = [System.Management.Automation.ActionPreference]$DebugPreference
 }
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #-----------------------------------------------------------------------------------------------------------------------
-Function Enable-PingResponse {
+Function Get-PingResponseRules {
 	<#
 	.SYNOPSIS
-	Enable the IPv4 ICMP ping respone on the current machine.
+	Gets firewall rules for the IPv4 ICMP ping respone on the current machine.
 	.DESCRIPTION
-	Can also enable IPv6 and NetBIOS-based Network Discovery and 'File and Printer Sharing' firewall rules
+	Can also get IPv6 and NetBIOS-based Network Discovery and 'File and Printer Sharing' firewall rules.
 	.PARAMETER ICMPv6
-	Also enables IPv6 ICMP ping firewall rules, in addition to the IPv4 ICMP ping firewall rules.
+	Also gets IPv6 ICMP ping firewall rules, in addition to the IPv4 ICMP ping firewall rules.
 	.PARAMETER NetBIOS
-	Also enables NetBIOS-based Network Discovery and File and Printer Sharing firewall rules, in addition to the IPv4 ICMP ping firewall rules.
+	Also gets NetBIOS-based Network Discovery and File and Printer Sharing firewall rules, in addition to the IPv4 ICMP ping firewall rules.
 	.PARAMETER Profiles
 	Must be an array of strings, even if only one Profile is selected. Acceptable values are: Public, Private, Domain. Default is @('Domain','Private').
 	
@@ -51,33 +53,25 @@ Function Enable-PingResponse {
 	https://4sysops.com/archives/manage-wifi-connection-in-windows-10-with-powershell/#show-and-export-profiles-read-password
 	Install wifi¬profile¬management is via PowerShellGet run the following command as Administrator: 
 	`Install-Module -Name wifiprofilemanagement`
-	.PARAMETER WhatIf
-	Does not make any changes to the system. Instead a message will be displayed for every change that would've happened.
+	.PARAMETER Table
+	Formats output as a table instead for easy viewing.
 	.NOTES
 	.LINK
 	Get-NetConnectionProfile
 	Set-NetConnectionProfile
 	.EXAMPLE
-	Enable-PingResponse -WhatIf -Confirm
+	Get-PingResponseRules -WhatIf -Confirm
 	#>
-	#Requires -RunAsAdministrator
 	[CmdletBinding()]
 	Param(
-		[Alias('PingV6')]
+		[Alias('PingV6','IPv6')]
 		[switch]$ICMPv6,
 		
 		[switch]$NetBIOS,
 		
-		
 		[Object[]]$Profiles = @('Domain','Private'),
 		
-		[Parameter(Mandatory = $True, ParameterSetName = 'Enabled')]
-		[Switch]$Enable,
-		
-		[Parameter(Mandatory = $True, ParameterSetName = 'Disable')]
-		[Switch]$Disable,
-		
-		[switch]$WhatIf
+		[switch]$Table
 		
 	)
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -86,10 +80,6 @@ Function Enable-PingResponse {
 		Debug = [System.Management.Automation.ActionPreference]$DebugPreference
 	}
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	
-	#Get-NetFirewallRule -DisplayName "File and Printer Sharing*" @CommonParameters
-	
-	#Get-NetFirewallRule -Description "*NetBIOS*" @CommonParameters
 	
 	$PingFirewallNames = @(
 		"CoreNet-Diag-ICMP4-EchoRequest-In",
@@ -150,13 +140,6 @@ Function Enable-PingResponse {
 		}
 	}
 	
-	
-	
-	
-	
-	
-	
-	
 	$NetBiosFirewallNames = @(
 		"NETDIS-NB_Name-In-UDP-NoScope",
 		"NETDIS-NB_Name-Out-UDP-NoScope",
@@ -206,10 +189,6 @@ Function Enable-PingResponse {
 		$NetBiosFirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
 	}
 	
-	
-	
-	
-	
 	If ($ICMPv6) {
 		$PingFirewallRule += $PingV6FirewallRule
 	}
@@ -217,28 +196,113 @@ Function Enable-PingResponse {
 		$PingFirewallRule += $NetBiosFirewallRule
 	}
 	
-	If ($WhatIf) {
-		ForEach ($Rule in $PingFirewallRule) {
-			
-			If ($Enable) {
+	If ($Table) {
+		$PingFirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+	} Else {
+		Return $PingFirewallRule
+	}
+} # End of Get-PingResponseRules function.
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
+Function Set-PingResponse {
+	<#
+	.SYNOPSIS
+	Sets firewall rules for the IPv4 ICMP ping respone on the current machine.
+	.DESCRIPTION
+	Can also enable/disable IPv6 and NetBIOS-based Network Discovery and 'File and Printer Sharing' firewall rules.
+	
+	Either -Enable or -Disable switch is required.
+	.PARAMETER Enable
+	Turns on the rules that Allow ping packets through the firewall.
+	.PARAMETER Disable
+	Turns off the rules that Allow ping packets through the firewall.
+	.PARAMETER ICMPv6
+	Also enables/disables IPv6 ICMP ping firewall rules, in addition to the IPv4 ICMP ping firewall rules.
+	.PARAMETER NetBIOS
+	Also enables/disables NetBIOS-based Network Discovery and File and Printer Sharing firewall rules, in addition to the IPv4 ICMP ping firewall rules.
+	.PARAMETER Profiles
+	Must be an array of strings, even if only one Profile is selected. Acceptable values are: Public, Private, Domain. Default is @('Domain','Private').
+	
+	Profiles designate which firewall rules are active based what type of network you are connected to. Use the `Get-NetConnectionProfile` command to see what your currently connected network is set as. To chenge it, run PowerShell as an Administrator and use a command like:
+	
+	Set-NetConnectionProfile -InterfaceAlias "Ethernet" -NetworkCategory Private
+	Set-NetConnectionProfile -InterfaceAlias "Wi-Fi" -NetworkCategory Public
+	Get-NetAdapter | Set-NetConnectionProfile -NetworkCategory Private
+	
+	Note: It's not possible to change the network adapter category to Domain when there is no domain available. It can only be changed from Private to Public and vice-versa.
+	
+	For more info, see the commands like: 
+	
+	Get-NetAdapter
+	Get-NetAdapterStatistics
+	netsh wlan show networks
+	netsh wlan show network mode=ssid
+	netsh wlan show network mode=bssid
+	explorer.exe ms-availablenetworks
+	netsh.exe wlan show profiles name="SSID name" key=clear
+	
+	https://4sysops.com/archives/manage-wifi-connection-in-windows-10-with-powershell/#show-and-export-profiles-read-password
+	Install wifi¬profile¬management is via PowerShellGet run the following command as Administrator: 
+	`Install-Module -Name wifiprofilemanagement`
+	.PARAMETER WhatIf
+	Does not make any changes to the system. Instead a message will be displayed for every change that would've happened.
+	.NOTES
+	.LINK
+	Get-NetConnectionProfile
+	Set-NetConnectionProfile
+	.EXAMPLE
+	Set-PingResponse -WhatIf -Confirm
+	#>
+	#Requires -RunAsAdministrator
+	[CmdletBinding()]
+	Param(
+		[Alias('PingV6','IPv6')]
+		[switch]$ICMPv6,
+		
+		[switch]$NetBIOS,
+		
+		[Object[]]$Profiles = @('Domain','Private'),
+		
+		[Parameter(Mandatory = $True, ParameterSetName = 'Enabled')]
+		[Switch]$Enable,
+		
+		[Parameter(Mandatory = $True, ParameterSetName = 'Disable')]
+		[Switch]$Disable,
+		
+		[switch]$WhatIf
+		
+	)
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	$CommonParameters = @{
+		Verbose = [System.Management.Automation.ActionPreference]$VerbosePreference
+		Debug = [System.Management.Automation.ActionPreference]$DebugPreference
+	}
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	$FunctionParams = @{
+		ICMPv6 = $ICMPv6
+		NetBIOS = $NetBIOS
+		Profiles = $Profiles
+	}
+	
+	$PingFirewallRule = Get-PingResponseRules @FunctionParams @CommonParameters
+	
+	ForEach ($Rule in $PingFirewallRule) {
+		If ($Enable) {
+			If ($WhatIf) {
 				Write-Host "What If: Setting rule to Enabled: $Rule" -ForegroundColor Yellow -BackgroundColor Black
 			} Else {
-				Write-Host "What If: Setting rule to Disabled: $Rule" -ForegroundColor Yellow -BackgroundColor Black
-			}
-			
-		}
-	} Else {
-		
-		ForEach ($Rule in $PingFirewallRule) {
-			If ($Enable) {
 				$Rule | Set-NetFirewallRule -Enabled 1
+			}
+		} Else {
+			If ($WhatIf) {
+				Write-Host "What If: Setting rule to Disabled: $Rule" -ForegroundColor Yellow -BackgroundColor Black
 			} Else {
 				$Rule | Set-NetFirewallRule -Enabled 2
 			}
 		}
-		
 	}
-	
 	
 	
 	<#
@@ -255,8 +319,170 @@ Function Enable-PingResponse {
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	Return
+} # End of Set-PingResponse function.
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
+Function Enable-PingResponse {
+	<#
+	.SYNOPSIS
+	Enable the IPv4 ICMP ping respone on the current machine.
+	.DESCRIPTION
+	Can also enable IPv6 and NetBIOS-based Network Discovery and 'File and Printer Sharing' firewall rules
+	.PARAMETER ICMPv6
+	Also enables IPv6 ICMP ping firewall rules, in addition to the IPv4 ICMP ping firewall rules.
+	.PARAMETER NetBIOS
+	Also enables NetBIOS-based Network Discovery and File and Printer Sharing firewall rules, in addition to the IPv4 ICMP ping firewall rules.
+	.PARAMETER Profiles
+	Must be an array of strings, even if only one Profile is selected. Acceptable values are: Public, Private, Domain. Default is @('Domain','Private').
+	
+	Profiles designate which firewall rules are active based what type of network you are connected to. Use the `Get-NetConnectionProfile` command to see what your currently connected network is set as. To chenge it, run PowerShell as an Administrator and use a command like:
+	
+	Set-NetConnectionProfile -InterfaceAlias "Ethernet" -NetworkCategory Private
+	Set-NetConnectionProfile -InterfaceAlias "Wi-Fi" -NetworkCategory Public
+	Get-NetAdapter | Set-NetConnectionProfile -NetworkCategory Private
+	
+	Note: It's not possible to change the network adapter category to Domain when there is no domain available. It can only be changed from Private to Public and vice-versa.
+	
+	For more info, see the commands like: 
+	
+	Get-NetAdapter
+	Get-NetAdapterStatistics
+	netsh wlan show networks
+	netsh wlan show network mode=ssid
+	netsh wlan show network mode=bssid
+	explorer.exe ms-availablenetworks
+	netsh.exe wlan show profiles name="SSID name" key=clear
+	
+	https://4sysops.com/archives/manage-wifi-connection-in-windows-10-with-powershell/#show-and-export-profiles-read-password
+	Install wifi¬profile¬management is via PowerShellGet run the following command as Administrator: 
+	`Install-Module -Name wifiprofilemanagement`
+	.PARAMETER WhatIf
+	Does not make any changes to the system. Instead a message will be displayed for every change that would've happened.
+	.NOTES
+	.LINK
+	Get-NetConnectionProfile
+	Set-NetConnectionProfile
+	.EXAMPLE
+	Enable-PingResponse -WhatIf -Confirm
+	#>
+	#Requires -RunAsAdministrator
+	[CmdletBinding()]
+	Param(
+		[Alias('PingV6','IPv6')]
+		[switch]$ICMPv6,
+		
+		[switch]$NetBIOS,
+		
+		[Object[]]$Profiles = @('Domain','Private'),
+		
+		[switch]$WhatIf
+		
+	)
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	$CommonParameters = @{
+		Verbose = [System.Management.Automation.ActionPreference]$VerbosePreference
+		Debug = [System.Management.Automation.ActionPreference]$DebugPreference
+	}
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	$ParamsHash = @{
+		ICMPv6 = $ICMPv6
+		NetBIOS = $NetBIOS
+		Profiles = $Profiles
+		Enable = $True
+		#Disable = $True
+		WhatIf = $WhatIf
+	}
+	
+	Set-PingResponse @ParamsHash @CommonParameters
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	Return
 } # End of Enable-PingResponse function.
 #-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
+Function Disable-PingResponse {
+	<#
+	.SYNOPSIS
+	Disable the IPv4 ICMP ping respone on the current machine.
+	.DESCRIPTION
+	Can also disable IPv6 and NetBIOS-based Network Discovery and 'File and Printer Sharing' firewall rules
+	.PARAMETER ICMPv6
+	Also disables IPv6 ICMP ping firewall rules, in addition to the IPv4 ICMP ping firewall rules.
+	.PARAMETER NetBIOS
+	Also disables NetBIOS-based Network Discovery and File and Printer Sharing firewall rules, in addition to the IPv4 ICMP ping firewall rules.
+	.PARAMETER Profiles
+	Must be an array of strings, even if only one Profile is selected. Acceptable values are: Public, Private, Domain. Default is @('Domain','Private').
+	
+	Profiles designate which firewall rules are active based what type of network you are connected to. Use the `Get-NetConnectionProfile` command to see what your currently connected network is set as. To chenge it, run PowerShell as an Administrator and use a command like:
+	
+	Set-NetConnectionProfile -InterfaceAlias "Ethernet" -NetworkCategory Private
+	Set-NetConnectionProfile -InterfaceAlias "Wi-Fi" -NetworkCategory Public
+	Get-NetAdapter | Set-NetConnectionProfile -NetworkCategory Private
+	
+	Note: It's not possible to change the network adapter category to Domain when there is no domain available. It can only be changed from Private to Public and vice-versa.
+	
+	For more info, see the commands like: 
+	
+	Get-NetAdapter
+	Get-NetAdapterStatistics
+	netsh wlan show networks
+	netsh wlan show network mode=ssid
+	netsh wlan show network mode=bssid
+	explorer.exe ms-availablenetworks
+	netsh.exe wlan show profiles name="SSID name" key=clear
+	
+	https://4sysops.com/archives/manage-wifi-connection-in-windows-10-with-powershell/#show-and-export-profiles-read-password
+	Install wifi¬profile¬management is via PowerShellGet run the following command as Administrator: 
+	`Install-Module -Name wifiprofilemanagement`
+	.PARAMETER WhatIf
+	Does not make any changes to the system. Instead a message will be displayed for every change that would've happened.
+	.NOTES
+	.LINK
+	Get-NetConnectionProfile
+	Set-NetConnectionProfile
+	.EXAMPLE
+	Disable-PingResponse -WhatIf -Confirm
+	#>
+	#Requires -RunAsAdministrator
+	[CmdletBinding()]
+	Param(
+		[Alias('PingV6','IPv6')]
+		[switch]$ICMPv6,
+		
+		[switch]$NetBIOS,
+		
+		[Object[]]$Profiles = @('Domain','Private'),
+		
+		[switch]$WhatIf
+		
+	)
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	$CommonParameters = @{
+		Verbose = [System.Management.Automation.ActionPreference]$VerbosePreference
+		Debug = [System.Management.Automation.ActionPreference]$DebugPreference
+	}
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	$ParamsHash = @{
+		ICMPv6 = $ICMPv6
+		NetBIOS = $NetBIOS
+		Profiles = $Profiles
+		#Enable = $True
+		Disable = $True
+		WhatIf = $WhatIf
+	}
+	
+	Set-PingResponse @ParamsHash @CommonParameters
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	Return
+} # End of Disable-PingResponse function.
+#-----------------------------------------------------------------------------------------------------------------------
+
+Return
 
 Write-Host "Starting script: $($MyInvocation.MyCommand)"
 Write-Verbose "Verbose switch on."
@@ -321,7 +547,7 @@ Write-Host "Step 3: Enable `"File and print sharing`" through Windows Firewall.`
 
 Get-NetFirewallPortFilter
 
-Get-NetFirewallPortFilter | ?{$_.LocalPort -eq 80} | Get-NetFirewallRule | ?{ $_.Direction –eq “Inbound” -and $_.Action –eq “Allow”} | Set-NetFirewallRule -RemoteAddress 192.168.0.2
+Get-NetFirewallPortFilter | ?{$_.LocalPort -eq 80} | Get-NetFirewallRule | ?{ $_.Direction -eq "Inbound" -and $_.Action -eq "Allow"} | Set-NetFirewallRule -RemoteAddress 192.168.0.2
 
 Get-NetFirewallApplicationFilter -Program "*svchost*" | Get-NetFirewallRule
 
