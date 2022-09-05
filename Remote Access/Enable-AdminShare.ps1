@@ -4,13 +4,23 @@ Enable Administrative share on local computer.
 .DESCRIPTION
 Turns on the admin share e.g. \\hostname\C$\ for access from a remote computer.
 .NOTES
+.EXAMPLE
+. "$Home\Documents\GitHub\Batch-Tools-SysAdmin\Remote Access\Enable-AdminShare.ps1" -LoadFunctions -Verbose
+
+Run this line to only load the functions stored in this script. Dot-sourcing is required to import the functions and variables of this script into the current scope, unlike calling it with & ampersand which does not. Parameters can still be passed to the script.
+
+Older versions of PowerShell do not allow variables in the path when dot-sourcing a script. The text <enter user name> must be replaced:
+
+. "C:\Users\<enter user name>\Documents\GitHub\Batch-Tools-SysAdmin\Remote Access\Enable-AdminShare.ps1" -LoadFunctions -Verbose
 .LINK
 https://www.wintips.org/how-to-enable-admin-shares-windows-7/
 .LINK
 http://woshub.com/enable-remote-access-to-admin-shares-in-workgroup/
 #>
 [CmdletBinding()]
-Param()
+Param(
+	[switch]$LoadFunctions
+)
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 $CommonParameters = @{
 	Verbose = [System.Management.Automation.ActionPreference]$VerbosePreference
@@ -57,10 +67,15 @@ Function Get-PingResponseRules {
 	Formats output as a table instead for easy viewing.
 	.NOTES
 	.LINK
+	Get-PingResponseRules
+	Set-PingResponse
+	Enable-PingResponse
+	Disable-PingResponse
+	.LINK
 	Get-NetConnectionProfile
 	Set-NetConnectionProfile
 	.EXAMPLE
-	Get-PingResponseRules -WhatIf -Confirm
+	Get-PingResponseRules -IPv6 -NetBIOS -Table
 	#>
 	[CmdletBinding()]
 	Param(
@@ -71,6 +86,7 @@ Function Get-PingResponseRules {
 		
 		[Object[]]$Profiles = @('Domain','Private'),
 		
+		[Alias('FormatTable')]
 		[switch]$Table
 		
 	)
@@ -249,6 +265,11 @@ Function Set-PingResponse {
 	Does not make any changes to the system. Instead a message will be displayed for every change that would've happened.
 	.NOTES
 	.LINK
+	Get-PingResponseRules
+	Set-PingResponse
+	Enable-PingResponse
+	Disable-PingResponse
+	.LINK
 	Get-NetConnectionProfile
 	Set-NetConnectionProfile
 	.EXAMPLE
@@ -370,6 +391,11 @@ Function Enable-PingResponse {
 	Does not make any changes to the system. Instead a message will be displayed for every change that would've happened.
 	.NOTES
 	.LINK
+	Get-PingResponseRules
+	Set-PingResponse
+	Enable-PingResponse
+	Disable-PingResponse
+	.LINK
 	Get-NetConnectionProfile
 	Set-NetConnectionProfile
 	.EXAMPLE
@@ -450,6 +476,11 @@ Function Disable-PingResponse {
 	Does not make any changes to the system. Instead a message will be displayed for every change that would've happened.
 	.NOTES
 	.LINK
+	Get-PingResponseRules
+	Set-PingResponse
+	Enable-PingResponse
+	Disable-PingResponse
+	.LINK
 	Get-NetConnectionProfile
 	Set-NetConnectionProfile
 	.EXAMPLE
@@ -490,6 +521,12 @@ Function Disable-PingResponse {
 	Return
 } # End of Disable-PingResponse function.
 #-----------------------------------------------------------------------------------------------------------------------
+
+If ($LoadFunctions) {
+	Write-Host "Finished loading functions."
+	Write-Verbose "Finished loading functions."
+	Return
+}
 
 Return
 
