@@ -22,7 +22,7 @@ $CommonParameters = @{
 Function Get-PingResponseRules {
 	<#
 	.SYNOPSIS
-	Gets firewall rules for the IPv4 ICMP ping respone on the current machine.
+	Returns a list of firewall rules for the IPv4 ICMP ping respone on the current machine.
 	.DESCRIPTION
 	Can also get IPv6 and NetBIOS-based Network Discovery and 'File and Printer Sharing' firewall rules.
 	.PARAMETER ICMPv6
@@ -288,6 +288,11 @@ Function Set-PingResponse {
 	
 	$PingFirewallRule = Get-PingResponseRules @FunctionParams @CommonParameters
 	
+	If ($VerbosePreference -eq 'SilentlyContinue') {
+		Write-Host "Firewall rules before change:"
+		Get-PingResponseRules @FunctionParams -Table @CommonParameters
+	}
+	
 	ForEach ($Rule in $PingFirewallRule) {
 		If ($Enable) {
 			If ($WhatIf) {
@@ -304,6 +309,10 @@ Function Set-PingResponse {
 		}
 	}
 	
+	If ($VerbosePreference -eq 'SilentlyContinue') {
+		Write-Host "Firewall rules after change:"
+		Get-PingResponseRules @FunctionParams -Table @CommonParameters
+	}
 	
 	<#
 	Set-NetFirewallRule [-Action <Action>] [-AsJob] [-Authentication <Authentication>] [-CimSession <CimSession[]>]
@@ -484,6 +493,7 @@ Function Disable-PingResponse {
 
 Return
 
+Write-Host "-----------------------------------------------------------------------------------------------------------------------"
 Write-Host "Starting script: $($MyInvocation.MyCommand)"
 Write-Verbose "Verbose switch on."
 If ($VerbosePreference -eq 'SilentlyContinue') {
@@ -491,12 +501,98 @@ If ($VerbosePreference -eq 'SilentlyContinue') {
 	Clear-Host
 }
 
+Write-Host "Enabling Admin shares (\\hostname\C$) on this machine: $env:COMPUTERNAME`n"
+
 Write-Host "-----------------------------------------------------------------------------------------------------------------------"
 Write-Host "Current network shares:"
 net share
 
 Write-Host "-----------------------------------------------------------------------------------------------------------------------"
-Write-Host "Step 1: Ensure that both computers belong to the same Workgroup.`n"
+Write-Host "Step 1: Enable ping response and `"File and print sharing`" through Windows Firewall.`n"
+
+$ParamsHash = @{
+	ICMPv6 = $True
+	NetBIOS = $True
+}
+
+#Get-PingResponseRules -ICMPv6 -NetBIOS -Table @CommonParameters
+Get-PingResponseRules @ParamsHash -Table @CommonParameters
+
+# Ask user to change ping response firewall rules.
+$Title = "Enable ping response?"
+$Info = "Enable firewall rules to Allow ping response (ICMPv4) and NetBIOS discovery on this machine: $env:COMPUTERNAME?"
+# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
+$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Enable firewall rules that would Allow a ping response from this device: $env:COMPUTERNAME"
+$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Do not make any firewall rule changes."
+$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $No)
+[int]$DefaultChoice = 0 # First choice starts at zero
+$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
+switch ($Result) {
+	0 {
+		Write-Verbose "Enabling ping response:"
+		Get-PingResponseRules @ParamsHash -Table @CommonParameters
+	}
+	1 {
+		Write-Verbose "Declined firewall rules change for ping."
+	}
+	Default {
+		Write-Error "Ping response choice error."
+		Throw "Ping response choice error."
+	}
+}
+
+Write-Host "-----------------------------------------------------------------------------------------------------------------------"
+Write-Host "Step 2: Check that connected network(s) are not set to 'Public' profile type.`n"
+
+$NetProfiles = Get-NetConnectionProfile
+
+$NetProfiles | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Format-Table
+
+$PublicProfiles = $False
+$NetProfiles | ForEach-Object {
+	If ($_.NetworkCategory -eq "Public") {
+		$PublicProfiles = $True
+		Write-Warning "A network interface is set to 'Public': $($_.InterfaceAlias)"
+	}
+}
+
+If ($PublicProfiles) {
+	ForEach ($interface in $NetProfiles) {
+		If ($interface.NetworkCategory -eq "Public") {
+			# Ask user to change network interface profile to Private
+			$Title = "Change '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile to 'Private'?"
+			$Info = "The $($interface.InterfaceAlias) network is set to '$($interface.NetworkCategory)' profile type, which changes the class of firewall rules being applied to a very restrictive set, designed for untrusted networks. If this is a trusted network, changing it to 'Private' will make this device discoverable by other devices on this network."
+			# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
+			$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Change '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile to 'Private'."
+			$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "No changes to '$($interface.InterfaceAlias)' network profile, it will remain as '$($interface.NetworkCategory)'."
+			$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $No)
+			[int]$DefaultChoice = 0 # First choice starts at zero
+			$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
+			switch ($Result) {
+				0 {
+					Write-Verbose "Changing '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile to 'Private'."
+					
+					#Set-NetConnectionProfile -InterfaceIndex $interface.InterfaceIndex -NetworkCategory 'Private' @CommonParameters
+					$interface | Set-NetConnectionProfile -NetworkCategory 'Private' @CommonParameters
+					
+					Get-NetConnectionProfile | Where-Object {$_.InterfaceIndex -eq $interface.InterfaceIndex} | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Format-Table
+				}
+				1 {
+					Write-Verbose "No changes made to '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile. ($($interface.NetworkCategory))"
+				}
+				Default {
+					Write-Error "Network profile choice error."
+					Throw "Network profile choice error."
+				}
+			} # End switch
+		} # End If ($interface.NetworkCategory -eq "Public")
+	} # End ForEach
+} Else {
+	Write-Host "No network profiles set to Public.`nSKIPPING...`n"
+}
+
+Write-Host "-----------------------------------------------------------------------------------------------------------------------"
+Write-Host "Step 3: Ensure that both computers belong to the same Workgroup or Domain.`n"
 
 # PartOfDomain (boolean Property)
 $PartOfDomain = (Get-WmiObject -Class Win32_ComputerSystem).PartOfDomain
@@ -513,9 +609,9 @@ If ($PartOfDomain) {
 
 # Ask user to change Workgroup
 $Title = "Change Workgroup?"
-$Info = "Change Workgroup name $Workgroup to something else (requires restart), or keep it as-is?"
+$Info = "Change Workgroup name $Workgroup to something else (REQUIRES RESTART), or keep it as-is?"
 # Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
-$Change = New-Object System.Management.Automation.Host.ChoiceDescription "&Change", "Change Workgroup name $Workgroup to something new (requires restart)"
+$Change = New-Object System.Management.Automation.Host.ChoiceDescription "&Change", "Change Workgroup name $Workgroup to something new (REQUIRES RESTART)"
 $Keep = New-Object System.Management.Automation.Host.ChoiceDescription "&Keep", "Keep Workgroup name $Workgroup the same. (Default)"
 $Options = [System.Management.Automation.Host.ChoiceDescription[]]($Change, $Keep)
 [int]$DefaultChoice = 1 # First choice starts at zero
@@ -535,23 +631,16 @@ switch ($Result) {
 }
 
 Write-Host "-----------------------------------------------------------------------------------------------------------------------"
-Write-Host "Step 2: Specify which user(s) can access the Admin Shares (Disk Volumes).`n"
+Write-Host "Step 4: Specify which user(s) can access the Admin Shares (Disk Volumes).`n"
 
 Write-Host "Users in Administrators group:"
 $AdminGroupMembers = Get-LocalGroupMember -Group "Administrators" @CommonParameters
 $AdminGroupMembers | Out-Host
 
 
-Write-Host "-----------------------------------------------------------------------------------------------------------------------"
-Write-Host "Step 3: Enable `"File and print sharing`" through Windows Firewall.`n"
 
-Get-NetFirewallPortFilter
 
-Get-NetFirewallPortFilter | ?{$_.LocalPort -eq 80} | Get-NetFirewallRule | ?{ $_.Direction -eq "Inbound" -and $_.Action -eq "Allow"} | Set-NetFirewallRule -RemoteAddress 192.168.0.2
 
-Get-NetFirewallApplicationFilter -Program "*svchost*" | Get-NetFirewallRule
-
-Get-NetFirewallRule -DisplayName "File and Printer Sharing*" @CommonParameters
 
 
 #New-ItemProperty -Name AutoShareWks -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Type DWORD -Value 0
