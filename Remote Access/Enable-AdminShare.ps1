@@ -634,7 +634,7 @@ ForEach ($rule in $FwRules) {
 If (($RulesDisabled -And !$Disable) -Or (!$RulesDisabled -And $Disable)) {
 	# Ask user to change ping response firewall rules.
 	$Title = "$Verb2 ping response?"
-	$Info = "$Verb2 firewall rules to Allow ping response (ICMPv4) and NetBIOS discovery on this machine: $env:COMPUTERNAME?"
+	$Info = "$Verb2 firewall rules that Allow ping response (ICMPv4) and NetBIOS discovery on this machine: $env:COMPUTERNAME?"
 	# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
 	$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "$Verb2 firewall rules that would Allow a ping response from this device: $env:COMPUTERNAME"
 	$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Do not make any firewall rule changes."
@@ -668,13 +668,11 @@ If (($RulesDisabled -And !$Disable) -Or (!$RulesDisabled -And $Disable)) {
 		}
 	}
 } Else {
-	
-	If ($RulesDisabled -And !$Disable) {
+	If (!$RulesDisabled -And !$Disable) {
 		Write-Host "All ping firewall rules already enabled.`nSKIPPING...`n"
-	} ElseIf (!$RulesDisabled -And $Disable) {
+	} ElseIf ($RulesDisabled -And $Disable) {
 		Write-Host "All ping firewall rules already disabled.`nSKIPPING...`n"
 	}
-	
 }
 
 Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
@@ -770,19 +768,22 @@ If (((Get-CimInstance -ClassName CIM_OperatingSystem).Caption) -like "*Server*")
 }
 Write-Verbose "Server OS detected: $ServerOS"
 
+# Set registry key path & name
 #$KeyPath = "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
-#$KeyPath = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
 $KeyPath = "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
+$KeyName1 = "AutoShareServer"
+$KeyName2 = "AutoShareWks"
 If ($ServerOS) {
-	$KeyName = "AutoShareServer"
+	$KeyName = $KeyName1
 } Else {
-	$KeyName = "AutoShareWks"
+	$KeyName = $KeyName2
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
 Function Add-NewRegFileName($NewFileName) {
 	#$NewFileName = Read-Host "New file name"
 	#If (!$NewFileName -Or $NewFileName -eq "") {Continue}
+	$NewFileName = $NewFileName.Trim()
 	If ($NewFileName -match '^.*\.\w+$') {
 		If ($NewFileName -notmatch '^.*\.reg$') {
 			$FileExtension = [System.IO.Path]::GetExtension($NewFileName)
@@ -791,7 +792,8 @@ Function Add-NewRegFileName($NewFileName) {
 			$RecommendedFile = Split-Path $RecommendedPath -Leaf
 			Write-Warning "Registry backup files that do not use a .reg file extension cannot be restored automatically by double-clicking."
 			Do {
-				$NewExtRec = Read-Host "Use `"$RecommendedFile`" .reg extension instead? (RECOMMENDED) [Y\N]"
+				$NewExtRec = Read-Host "Change file extension to use `"$RecommendedFile`" .reg extension instead? (RECOMMENDED) [Y\N]"
+				$NewExtRec = $NewExtRec.Trim()
 			} Until ($NewExtRec -eq "Y" -Or $NewExtRec -eq "N")
 			If ($NewExtRec -eq "Y") {
 				$NewFileName = $RecommendedPath
@@ -799,8 +801,11 @@ Function Add-NewRegFileName($NewFileName) {
 		}
 	} Else {
 		If ($NewFileName -match '.*\.$') {
+			# E.g. "C:\foo bar\test file."
+			Write-Warning "Not a proper file extension, cannot end with period."
 			$NewFileName = $NewFileName -replace '\.$',''
 		}
+		Write-Warning "No file extension detected, auto-choosing '.reg'."
 		$NewFileName = $NewFileName + ".reg"
 	}
 	Return $NewFileName
@@ -811,17 +816,21 @@ Function Add-NewRegFileName($NewFileName) {
 $BackupRegPath = $KeyPath
 #$BackupRegPath = Split-Path -Path $BackupRegPath -Parent
 $BackupRegPath = $BackupRegPath -replace 'Registry::',''
+$BackupRegPath = $BackupRegPath -replace 'HKEY_LOCAL_MACHINE','HKLM'
 $BackupRegPath = $BackupRegPath -replace ':',''
 $DateString = Get-Date -UFormat "%Y-%m-%d_%H-%M-%S"
 $BackupFileName = "$($DateString)_$($KeyName)_reg_backup.reg"
 #$BackupFileName = "test_backup.reg"
-$BackupFilePath = Join-Path -Path (Get-Location) -ChildPath $BackupFileName
+$BackupFolderName = 'RegistryBackups'
+#$BackupFilePath = Join-Path -Path (Get-Location) -ChildPath $BackupFileName
+$BackupFilePath = Join-Path -Path (Get-Location) -ChildPath $BackupFolderName
+$BackupFilePath = Join-Path -Path $BackupFilePath -ChildPath $BackupFileName
 Write-Host "`n`nBackup resgistry location:`n$BackupRegPath`n`nTo path:`n$BackupFilePath`n"
 $Title = "Backup registry location?"
 $Info = "Backup the target registry location before making changes? (RECOMMENDED) This is only a backup, you will be asked to make the actual changes later."
 # Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
-$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Backup the target registry path. (RECOMMENDED) No other changes will be made. `"$BackupRegPath`""
-$Change = New-Object System.Management.Automation.Host.ChoiceDescription "&Change Backup Path", "Change backup path: `"$BackupFilePath`""
+$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Yes, backup the target registry path. No other changes will be made. (RECOMMENDED) `"$BackupRegPath`""
+$Change = New-Object System.Management.Automation.Host.ChoiceDescription "&Change Backup Path", "Change backup path (RECOMMENDED): `"$BackupFilePath`""
 $No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "No, do not make any registry backups. (NOT RECOMMENDED)"
 $Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $Change, $No)
 [int]$DefaultChoice = 0 # First choice starts at zero
@@ -832,14 +841,15 @@ switch ($Result) {
 		Reg export "$BackupRegPath" "$BackupFilePath" /y
 	}
 	1 {
+		Write-Verbose "Choose alternate path:"
 		
 		$Alt1 = Join-Path -Path $env:USERPROFILE -ChildPath 'Desktop'
-		$Alt1 = Join-Path -Path $Alt1 -ChildPath 'RegistryBackups'
+		$Alt1 = Join-Path -Path $Alt1 -ChildPath $BackupFolderName
 		#$Alt1 = (Join-Path -Path $Alt1 -ChildPath $BackupFileName)
 		$Alt2 = Join-Path -Path $env:USERPROFILE -ChildPath 'Documents'
-		$Alt2 = Join-Path -Path $Alt2 -ChildPath 'RegistryBackups'
+		$Alt2 = Join-Path -Path $Alt2 -ChildPath $BackupFolderName
 		#$Alt2 = (Join-Path -Path $Alt2 -ChildPath $BackupFileName)
-		$Alt3 = Join-Path -Path $env:TEMP -ChildPath 'RegistryBackups'
+		$Alt3 = Join-Path -Path $env:TEMP -ChildPath $BackupFolderName
 		#$Alt3 = (Join-Path -Path $env:TEMP -ChildPath $BackupFileName)
 		
 		$AltPaths = @(
@@ -869,17 +879,18 @@ switch ($Result) {
 			$DisplayTable | Format-Table | Out-Host
 			[int]$Choice = Read-Host "Enter choice ID"
 		} Until ([int]$Choice -ge 1 -And [int]$Choice -le $DisplayTable.Count)
-		Write-Verbose "Choice = $Choice"
 		If ([int]$Choice -eq $DisplayTable.Count) {
 			$Accepted = $False
 			Do {
 				$UserPath = Read-Host "Enter new path"
+				$UserPath = $UserPath.Trim()
+				If (!$UserPath -Or $UserPath -eq "" -Or $null -eq $UserPath) {Continue}
 				$UserPath = $UserPath -replace '\\$',''
 				If (!(Test-Path -Path $UserPath)) {
 					Write-Verbose "Path does not exist."
 					If ($UserPath -match '.*\.$') {
 						# E.g. "C:\foo bar\test file."
-						Write-Warning "No file extension."
+						Write-Warning "Not a proper file extension, cannot end with period."
 						Continue
 					}
 					If ($UserPath -match '^.*\.\w+$') {
@@ -898,7 +909,8 @@ switch ($Result) {
 							$RecommendedFile = Split-Path $RecommendedPath -Leaf
 							Write-Warning "Registry backup files that do not use a .reg file extension cannot be restored automatically by double-clicking."
 							Do {
-								$NewExtRec = Read-Host "Use `"$RecommendedFile`" .reg extension instead? (RECOMMENDED) [Y\N]"
+								$NewExtRec = Read-Host "Change file extension to use `"$RecommendedFile`" .reg extension instead? (RECOMMENDED) [Y\N]"
+								$NewExtRec = $NewExtRec.Trim()
 							} Until ($NewExtRec -eq "Y" -Or $NewExtRec -eq "N")
 							If ($NewExtRec -eq "Y") {
 								$UserPath = $RecommendedPath
@@ -910,14 +922,18 @@ switch ($Result) {
 							Write-Warning "Folder path does not exist: $ParentFolder"
 							Do {
 								$MakeDirs = Read-Host "Create it? [Y\N]"
+								$MakeDirs = $MakeDirs.Trim()
 							} Until ($MakeDirs -eq "Y" -Or $MakeDirs -eq "N")
 							If ($MakeDirs -eq "Y") {
 								mkdir $ParentFolder
+							} Else {
+								Continue
 							}
 						}
 						$FileWithExt = Split-Path -Path $UserPath -Leaf
 						# E.g. "test file.ext"
 						Try {
+							Write-Verbose "Creating: $UserPath"
 							Reg export "$BackupRegPath" "$UserPath" /y
 						} Catch {
 							Write-Warning "Registry backup file export failed. ($FileWithExt)"
@@ -928,40 +944,23 @@ switch ($Result) {
 						# Path doesn't have file extension
 						# E.g. "C:\foo bar\test file"
 						$NewFileName = Read-Host "New file name"
-						If (!$NewFileName -Or $NewFileName -eq "") {Continue}
+						If (!$NewFileName -Or $NewFileName -eq "" -Or $null -eq $NewFileName) {Continue}
+						$NewFileName = $NewFileName.Trim()
 						$NewFileName = Add-NewRegFileName -NewFileName $NewFileName
-						<#
-						If ($NewFileName -match '^.*\.\w+$') {
-							If ($NewFileName -notmatch '^.*\.reg$') {
-								$FileExtension = [System.IO.Path]::GetExtension($NewFileName)
-								$FilePathWithoutExention = $NewFileName -replace "\$FileExtension$",""
-								$RecommendedPath = $FilePathWithoutExention + ".reg"
-								$RecommendedFile = Split-Path $RecommendedPath -Leaf
-								Write-Warning "Registry backup files that do not use a .reg file extension cannot be restored automatically by double-clicking."
-								Do {
-									$NewExtRec = Read-Host "Use `"$RecommendedFile`" .reg extension instead? (RECOMMENDED) [Y\N]"
-								} Until ($NewExtRec -eq "Y" -Or $NewExtRec -eq "N")
-								If ($NewExtRec -eq "Y") {
-									$NewFileName = $RecommendedPath
-								}
-							}
-						} Else {
-							If ($NewFileName -match '.*\.$') {
-								$NewFileName = $NewFileName -replace '\.$',''
-							}
-							$NewFileName = $NewFileName + ".reg"
-						}
-						#>
 						# E.g. "C:\foo bar\test file"
 						Write-Warning "Folder path does not exist: $UserPath"
 						Do {
 							$MakeDirs = Read-Host "Create it? [Y\N]"
+							$MakeDirs = $MakeDirs.Trim()
 						} Until ($MakeDirs -eq "Y" -Or $MakeDirs -eq "N")
 						If ($MakeDirs -eq "Y") {
 							mkdir $UserPath
+						} Else {
+							Continue
 						}
 						$UserPath = Join-Path -Path $UserPath -ChildPath $NewFileName
 						Try {
+							Write-Verbose "Creating: $UserPath"
 							Reg export "$BackupRegPath" "$UserPath" /y
 						} Catch {
 							Write-Warning "Registry backup file export failed. ($NewFileName)"
@@ -976,10 +975,12 @@ switch ($Result) {
 					If ($IsFolder) {
 						$NewFileName = Read-Host "New file name"
 						If (!$NewFileName -Or $NewFileName -eq "") {Continue}
+						$NewFileName = $NewFileName.Trim()
 						$NewFileName = Add-NewRegFileName -NewFileName $NewFileName
 						$UserPath = Join-Path -Path $UserPath -ChildPath $NewFileName
 					}
 					Try {
+						Write-Verbose "Creating: $UserPath"
 						Reg export "$BackupRegPath" "$UserPath" /y
 					} Catch {
 						Write-Warning "Registry backup file export failed. ($NewFileName)"
@@ -994,7 +995,8 @@ switch ($Result) {
 					$AltBackupFilePath = $_.Path
 				}
 			}
-			$FileWithExt = Split-Path -Path $UserPath -Leaf
+			#$FileWithExt = Split-Path -Path $AltBackupFilePath -Leaf
+			$FileWithExt = $BackupFileName
 			Try {
 				Reg export "$BackupRegPath" "$AltBackupFilePath" /y
 			} Catch {
@@ -1013,6 +1015,7 @@ switch ($Result) {
 		Throw "Registry backup choice error."
 	}
 }
+# End Backup registry path
 
 # Check if registry key exists:
 Try {
@@ -1023,6 +1026,72 @@ Try {
 	If ($KeyValue) {Remove-Variable -Name KeyValue}
 }
 
+Write-Host "End Test."
+Pause
+Return
+
+#-----------------------------------------------------------------------------------------------------------------------
+#Function Delete-RegKey($KeyPath,$KeyName) {
+Function Delete-RegKey {
+	[CmdletBinding()]
+	Param($KeyPath,$KeyName)
+	Try {
+		$KeyValue = Get-ItemProperty -Path $KeyPath -Name $KeyName -ErrorAction 'Stop'
+	} Catch {
+		Write-Verbose "Registry key '$KeyName' does not exist."
+		If ($KeyValue) {Remove-Variable -Name KeyValue}
+	}
+	If ($KeyValue.$KeyName) {
+		Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
+		Write-Host "In order to prevent Windows 10 from publishing administrative shares, the registry key '$KeyPath' needs a Dword parameter named AutoShareWks (for desktop versions of Windows) or AutoShareServer (for Windows Server) and the value 0.`n"
+		$DisplayTable = [PSCustomObject]@{
+			Key = $KeyName
+			Value = "$($KeyValue.$KeyName) (True)"
+		}
+		Write-Host "`nRegistry path:`n$KeyPath\`n`nKey:`n$KeyName"
+		$DisplayTable | Format-Table | Out-Host
+		Write-Warning "After a reboot, administrative shares will not be created. In this case, the tools for remote computer manage, including psexec, will stop working."
+		# Ask user to either disable or delete registry key
+		$Title = "Disable registry key?"
+		$Info = "Change the value of '$KeyName' to 0 to disable Admin shares?"
+		# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
+		$Delete = New-Object System.Management.Automation.Host.ChoiceDescription "&Delete", "Delete, disable the '$KeyName' registry key by changing it to 0 (currently is $($KeyValue.$KeyName)), which will disable Windows Admin share generation on boot."
+		$Keep = New-Object System.Management.Automation.Host.ChoiceDescription "&Keep", "Keep, do not make any changes to the registry."
+		$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Delete, $Keep)
+		[int]$DefaultChoice = 0 # First choice starts at zero
+		$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
+		switch ($Result) {
+			0 {
+				Write-Verbose "Changing '$KeyName' reg key to 0 (disabled)."
+				#Set-ItemProperty -Name AutoShareWks -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Value 1
+				#Set-ItemProperty -Path $KeyPath -Name $KeyName -Value 1
+			}
+			1 {
+				Write-Verbose "Keeping registry key the same: '$KeyName' ($($KeyValue.$KeyName))"
+			}
+			Default {
+				Write-Error "Workgroup choice error."
+				Throw "Workgroup choice error."
+			}
+		}
+	}
+} # End Function Delete-RegKey
+#-----------------------------------------------------------------------------------------------------------------------
+
+# Detect & delete non-necessary registry keys:
+If ($ServerOS) {
+	
+	Delete-RegKey -KeyPath $KeyPath -KeyName $KeyName2 -Verbose
+	#Delete-RegKey -KeyPath $KeyPath -KeyName $KeyName2 @CommonParameters
+	
+} Else {
+	
+	Delete-RegKey -KeyPath $KeyPath -KeyName $KeyName1 -Verbose
+	#Delete-RegKey -KeyPath $KeyPath -KeyName $KeyName1 @CommonParameters
+	
+}
+
+# Create/Enable/Disable/Delete registry key:
 If ($KeyValue.$KeyName) {
 	Write-Host "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'" -ForegroundColor Green -BackgroundColor Black
 	Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
@@ -1036,36 +1105,36 @@ If ($KeyValue.$KeyName) {
 			}
 			Write-Host "`nRegistry path:`n$KeyPath\`nKey:$KeyName"
 			$DisplayTable | Format-Table | Out-Host
-			Write-Host "`nIn order to prevent Windows 10 from publishing administrative shares, the registry key '$KeyPath' needs a Dword parameter named AutoShareWks (for desktop versions of Windows) or AutoShareServer (for Windows Server) and the value 0."
-			Write-Host "After a reboot, administrative shares will not be created. In this case, the tools for remote computer manage, including psexec, will stop working."
+			Write-Host "`nIn order to prevent Windows 10 from publishing administrative shares, the registry key '$KeyPath' needs a Dword parameter named AutoShareWks (for desktop versions of Windows) or AutoShareServer (for Windows Server) and the value 0.`n"
+			Write-Host "After a reboot, administrative shares will not be created. In this case, the tools for remote computer manage, including psexec, will stop working.`n"
 			# Ask user to either disable or delete registry key
-			$Title = "Disable registy key?"
-			$Info = ""
+			$Title = "Disable registry key?"
+			$Info = "Change the value of '$KeyName' to 0 to disable Admin shares?"
 			# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
-			$Change = New-Object System.Management.Automation.Host.ChoiceDescription "&Change", "Change the current Workgroup name '$Workgroup' of this PC '$env:COMPUTERNAME' to something new. (REQUIRES RESTART)"
-			$Keep = New-Object System.Management.Automation.Host.ChoiceDescription "&Keep", "Keep the current Workgroup name '$Workgroup' the same. (Default)"
-			$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Change, $Keep)
-			[int]$DefaultChoice = 1 # First choice starts at zero
+			$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Yes, disable the '$KeyName' registry key by changing it to 0 (currently is $($KeyValue.$KeyName)), which will disable Windows Admin share generation on boot."
+			$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "No, do not make any changes to the registry."
+			$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $No)
+			[int]$DefaultChoice = 0 # First choice starts at zero
 			$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
 			switch ($Result) {
 				0 {
-					Write-Verbose "Changing Workgroup name."
-					Write-Host "Ctrl+C to cancel."
-					$NewWgName = Read-Host "New Workgroup name"
-					Add-Computer -WorkGroupName $NewWgName @CommonParameters
-					
+					Write-Verbose "Changing '$KeyName' reg key to 0 (disabled)."
+					#Set-ItemProperty -Name AutoShareWks -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Value 1
+					Set-ItemProperty -Path $KeyPath -Name $KeyName -Value 1
 				}
 				1 {
-					Write-Verbose "Keeping Workgroup name: $Workgroup"
+					Write-Verbose "Keeping registry key the same: '$KeyName' ($($KeyValue.$KeyName))"
 				}
 				Default {
 					Write-Error "Workgroup choice error."
 					Throw "Workgroup choice error."
 				}
 			}
-			
 		} Else {
-			Write-Verbose "Registry key '$KeyName' is already enabled ($($KeyValue.$KeyName)). Windows will already automatically publish Administrative shares. No registry changes are necessary.`nSKIPPING...`n"
+			# Either deleting or enabling (1) this registry key will turn the Admin shares feature back on. User wants it on and it's already on (1), so we can leave the reg key as-is. But deleting it would also work.
+			Write-Verbose "Registry key '$KeyName' is already enabled ($($KeyValue.$KeyName)). Windows will already automatically publish Administrative shares when this key is set to 1, or deleted. No registry changes are necessary.`nSKIPPING...`n"
+			#Remove-ItemProperty -Path $KeyPath -Name $KeyName -Verbose
+			#Remove-ItemProperty -Path $KeyPath -Name $KeyName @CommonParameters
 		}
 	}
 } Else {
@@ -1073,9 +1142,19 @@ If ($KeyValue.$KeyName) {
 	Write-Verbose "Key '$KeyName' does not exist."
 	If ($Disable) {
 		# Ask user to create registry key as disabled.
-		Write-Verbose "Registry key '$KeyName' does not exist. Windows will not automatically publish Administrative shares. No registry changes are necessary.`nSKIPPING...`n"
+		
+		Remove-ItemProperty -Path $KeyPath -Name $KeyName -Verbose
+		
+		$null = New-ItemProperty -Path $KeyPath -Name $KeyName -Type DWORD -Value 1
+		
 	} Else {
 		# Ask user to create registry key as enabled.
+		Write-Verbose "Registry key '$KeyName' already doesn't exist. Windows will automatically publish Administrative shares. No registry changes are necessary, but this key can still be created as enabled if wanted.`n"
+		
+		Remove-ItemProperty -Path $KeyPath -Name $KeyName -Verbose
+		
+		$null = New-ItemProperty -Path $KeyPath -Name $KeyName -Type DWORD -Value 1
+		
 	}
 }
 
