@@ -1,9 +1,18 @@
 <#
 .SYNOPSIS
-Enable Administrative share on local computer.
+Enable Administrative share on the local computer.
 .DESCRIPTION
-Turns on the admin share e.g. \\hostname\C$\ for access from a remote computer.
+Turns on the admin share e.g. \\hostname\C$\ on this computer, so it can be accessed from a remote computer. Runs a series of steps to ensure this computer's Admin shares will be accessible, but not all the steps are related or necessary. It may only actually require one of these steps to enable the Admin shares on this PC. Likewise, not every step is required to disable Admin shares, but when -Disable switch is used the user will prompted to run them all in reverse anyways.
+.PARAMETER Disable
+Runs the same series of steps that this script would normally run, but makes the opposite actions. User will still be prompted whether to run each step or not just like when run normally.
+.PARAMETER LoadFunctions
+Only loads the functions this script contains into whatever scope it was called from. None of the other logic in this script will be loaded.
+.PARAMETER LoadAllFunctions
+Even loads functions with context-specific text that wouldn't make much sense in other situations.
 .NOTES
+Keep in mind this script isn't guaranteed to always enable access to Admin shares on 100% of networks either. There's countless other things in networking that can prevent this, from client isolation tactics, different VLANs, down to individual port blocking for something like NetBIOS on the network, that can prevent Admin shares from working.
+
+Disclaimer: It should be obvious, but just like every other form of remote access, most of these steps will lower the security of your system in some way. Some are negligible, some can be serious security risks. Improper registry edits can cause system instability.
 .EXAMPLE
 . "$Home\Documents\GitHub\Batch-Tools-SysAdmin\Remote Access\Enable-AdminShare.ps1" -LoadFunctions -Verbose
 
@@ -17,11 +26,15 @@ https://www.wintips.org/how-to-enable-admin-shares-windows-7/
 .LINK
 http://woshub.com/enable-remote-access-to-admin-shares-in-workgroup/
 #>
-[CmdletBinding()]
+[CmdletBinding(DefaultParameterSetName = "LoadFuncs")]
 Param(
-	[switch]$LoadFunctions,
+	[switch]$Disable,
 	
-	[switch]$Disable
+	[Parameter(ParameterSetName = "LoadFuncs")]
+	[switch]$LoadFunctions,
+	[Parameter(ParameterSetName = "LoadAllFuncs")]
+	[switch]$LoadAllFunctions
+	
 )
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 $CommonParameters = @{
@@ -1012,7 +1025,7 @@ Write-Host $Step2 -BackgroundColor Black -ForegroundColor White
 Write-Host ""
 
 $PingParamsHash = @{
-	ICMPv6 = $True
+	ICMPv6 = $False
 	NetBIOS = $True
 }
 
@@ -1159,6 +1172,7 @@ $Step4 = "Step 4: Update registry values"
 Write-Host $Step4 -BackgroundColor Black -ForegroundColor White
 Write-Host ""
 
+Write-Verbose "Reg key 1: LanmanServer and AutoShareWks/AutoShareServer (auto-generate & publish Admin shares on reboot)"
 # Check if Server OS:
 $ServerOS = $False
 $OSName = ((Get-CimInstance -ClassName CIM_OperatingSystem).Caption)
@@ -1185,7 +1199,6 @@ $BackupFolderName = "RegistryBackups"
 Try {
 	$KeyValue = Get-ItemProperty -Path $KeyPath -Name $KeyName -ErrorAction 'Stop'
 } Catch {
-	Write-Host "Registry key '$KeyName' does not exist." -BackgroundColor Black -ForegroundColor Yellow
 	Write-Verbose "Registry key '$KeyName' does not exist."
 	If ($KeyValue) {Remove-Variable -Name KeyValue}
 }
@@ -1207,7 +1220,6 @@ If (!$ServerOS -And ($KeyValue.$KeyName -eq $KeyNameServer)) {$BackupRegistry = 
 # Either no key or a key with value 1 will enable it.
 If ($Disable) {
 	# A registry key with value 0 is required to disable admin share creation on reboot.
-	
 	If ($KeyValue.$KeyName) {
 		Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
 		If ($KeyValue.$KeyName -eq 1) {
@@ -1224,7 +1236,6 @@ If ($Disable) {
 	}
 } Else {
 	# Either no key or a key with value 1 will enable it.
-	
 	If ($KeyValue.$KeyName) {
 		Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
 		If ($KeyValue.$KeyName -eq 0) {
@@ -1247,18 +1258,13 @@ If ($BackupRegistry) {
 	Backup-RegistryPath -KeyPath $KeyPath -KeyName $KeyName -BackupFolderName $BackupFolderName @CommonParameters
 }
 
-
 # Detect & delete non-necessary registry keys:
 If ($ServerOS) {
-	
 	#Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyNameDesktop -Verbose
 	Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyNameDesktop -ServerOS $ServerOS -OSName $OSName @CommonParameters
-	
 } Else {
-	
 	#Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyNameServer -Verbose
 	Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyNameServer -ServerOS $ServerOS -OSName $OSName @CommonParameters
-	
 }
 
 # Create/Enable/Disable/Delete registry key:
@@ -1405,8 +1411,51 @@ Write-Host "Tests completed."
 Pause
 Return
 
+Write-Verbose "Reg key 2: LocalAccountTokenFilterPolicy (disable Remote UAC)"
+
+<#
+http://woshub.com/enable-remote-access-to-admin-shares-in-workgroup/
+Enable Remote Access to Admin Shares on Windows 10 using LocalAccountTokenFilterPolicy
+
+There is one important issue when working with Windows admin shared folders on a computer that is not joined to an Active Directory domain (part of a workgroup). Windows 10, by default, restricts remote access to administrative shares to a user who is a member of the local Administrators group. The remote access available only under the built-in local Administrator account (it is disabled by default).
+
+Here is what the problem looks like in detail. I’m trying to remotely access the built-in admin shares on a computer running Windows 10 that is a member of a workgroup (with the firewall turned off) as follows:
+
+    \\w10_pc\C$
+    \\w10_pc\D$
+    \\w10_pc\IPC$
+    \\w10_pc\Admin$
+
+In the authorization window, I specify the credentials of an account that is a member of the local Administrators group on Windows 10, and get an “Access is denied” error. At the same time, I can access all network shares and shared printers on Windows 10 (the computer is not hidden in Network Neighborhood). Also, I can access administrative shares under the built-in Administrator account. If this computer is joined to an Active Directory domain, the access to the admin shares from domain accounts with administrative privileges is not blocked.
+
+Can't access ADMIN$ share remotely under admin accounts
+
+The point is in another aspect of security policy that appeared in the UAC – so called Remote UAC (User Account Control for remote connections) that filters the tokens of local and Microsoft accounts and blocks remote access to admin shares under such accounts. When accessing under the domain accounts, this restriction is not applied.
+
+You can disable Remote UAC by creating the LocalAccountTokenFilterPolicy parameter in the registry
+
+Tip. It will slightly reduce the Windows security level.
+#>
+
+
+
+
+
+
+
+
+
+
+
+
 Write-Verbose "Restarting LanmanServer service..."
 Get-Service LanmanServer @CommonParameters | Restart-Service @CommonParameters
+
+#- -- - - - - - - - - -- - - - - - - - - - - - - - -- 
+
+Write-Host "Tests completed."
+Pause
+Return
 
 Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
 $Step5 = "Step 5: Specify which user(s) can access the Admin Shares (Disk Volumes)."
