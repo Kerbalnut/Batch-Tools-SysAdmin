@@ -82,7 +82,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 :: Param1 = Full path to PowerShell file to run
 
 SET "_PowerShellFile=%~dpn0.ps1" & REM %~dpn0.ps1 This script's (%0) [D]rive letter, [P]ath, and [N]ame, but with a .ps1 extension. E.g. HelloWorld.bat will launch HelloWorld.ps1
-::SET "_PowerShellFile=%~dp0\Enable-AdminShare.ps1" & REM %~dpn0.ps1 This script's (%0) [D]rive letter, [P]ath, and [N]ame, but with a .ps1 extension. E.g. HelloWorld.bat will launch HelloWorld.ps1
+SET "_PowerShellFile=%~dp0\Enable-AdminShare.ps1" & REM %~dpn0.ps1 This script's (%0) [D]rive letter, [P]ath, and [N]ame, but with a .ps1 extension. E.g. HelloWorld.bat will launch HelloWorld.ps1
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -130,7 +130,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 SET "_POSH_PARAMS=-LaunchedInCmd"
 SET "_POSH_PARAMS=-InformationAction Continue"
 SET "_POSH_PARAMS=-Disable"
-SET "_POSH_PARAMS="
+::SET "_POSH_PARAMS="
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
