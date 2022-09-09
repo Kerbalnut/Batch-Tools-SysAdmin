@@ -1290,6 +1290,7 @@ If ($Disable) {
 			switch ($Result) {
 				0 {
 					Write-Verbose "Changing '$KeyName' reg key to 0 (disabled)."
+					
 					#Set-ItemProperty -Name AutoShareWks -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Value 1
 					Set-ItemProperty -Path $KeyPath -Name $KeyName -Value 1
 				}
@@ -1350,12 +1351,16 @@ If ($Disable) {
 			switch ($Result) {
 				0 {
 					Write-Verbose "Changing '$KeyName' reg key from $($KeyValue.$KeyName) (disabled) to 1 (enabled)."
+					
 					#Set-ItemProperty -Name AutoShareWks -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Value 1
 					Set-ItemProperty -Path $KeyPath -Name $KeyName -Value 1
 				}
 				1 {
 					Write-Verbose "Deleting registry key: '$KeyName'"
-					Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyName -ServerOS $ServerOS -OSName $OSName @CommonParameters
+					
+					#Remove-ItemProperty -Path $KeyPath -Name $KeyName -Verbose
+					Remove-ItemProperty -Path $KeyPath -Name $KeyName @CommonParameters
+					#Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyName -ServerOS $ServerOS -OSName $OSName @CommonParameters
 				}
 				2 {
 					Write-Verbose "Keeping registry key the same: '$KeyName' ($($KeyValue.$KeyName))"
@@ -1372,6 +1377,7 @@ If ($Disable) {
 			
 			# Either deleting or enabling (1) this registry key will turn the Admin shares feature back on. User wants it on and it's already on (1), so we can leave the reg key as-is. But deleting it would also work.
 			Write-Host "Registry key '$KeyName' is already enabled ($($KeyValue.$KeyName)). Windows will already automatically publish Administrative shares when this key is set to 1, or is deleted. No registry changes are necessary, but it can also be deleted for the same effect."
+			
 			#Remove-ItemProperty -Path $KeyPath -Name $KeyName -Verbose
 			#Remove-ItemProperty -Path $KeyPath -Name $KeyName @CommonParameters
 			Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyNameDesktop -OptionalRemoval @CommonParameters
@@ -1384,7 +1390,6 @@ If ($Disable) {
 		Write-Host "Registry key '$KeyName' already doesn't exist. Windows will automatically publish Administrative shares. No registry changes are necessary, but this key can still be created as enabled if desired.`n"
 		
 		#$null = New-ItemProperty -Path $KeyPath -Name $KeyName -Type DWORD -Value 1
-		
 		New-RegistryKey -KeyPath $KeyPath -KeyName $KeyName -NewValue 1
 	}
 }
