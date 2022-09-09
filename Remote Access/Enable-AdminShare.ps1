@@ -531,258 +531,6 @@ Function Disable-PingResponse {
 } # End of Disable-PingResponse function.
 #-----------------------------------------------------------------------------------------------------------------------
 
-If ($LoadFunctions) {
-	Write-Verbose "Finished loading '$($MyInvocation.MyCommand)' functions."
-	Return
-}
-
-$HR = "-----------------------------------------------------------------------------------------------------------------------"
-Write-Host $HR -BackgroundColor Black -ForegroundColor White
-Write-Host "Starting script: $($MyInvocation.MyCommand)" -BackgroundColor Black -ForegroundColor White
-If ($Disable) {$Verb1 = "Disabling"} Else {$Verb1 = "Enabling"}
-Write-Host "$Verb1 Admin shares (e.g. \\$env:COMPUTERNAME\C$) on this machine: `n" -BackgroundColor Black -ForegroundColor White
-
-Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
-Write-Host "Current network shares:" -BackgroundColor Black -ForegroundColor White
-Write-Host "C:\> net share"
-net share
-
-Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
-$Step1 = "Step 1: Check that connected network(s) are not set to 'Public' profile type."
-#Write-Host "Step 1: Check that connected network(s) are not set to 'Public' profile type.`n" -BackgroundColor Black -ForegroundColor White
-Write-Host $Step1 -BackgroundColor Black -ForegroundColor White
-Write-Host ""
-
-$NetProfiles = Get-NetConnectionProfile
-
-$NetProfiles | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Format-Table
-
-$PublicProfiles = $False
-$NetProfiles | ForEach-Object {
-	If ($_.NetworkCategory -eq "Public") {
-		$PublicProfiles = $True
-		If (!($Disable)) {
-			Write-Warning "The network '$($_.Name)' on interface '($($_.InterfaceIndex)) $($_.InterfaceAlias)' is set to '$($_.NetworkCategory)'."
-		}
-	}
-}
-
-If (!($Disable)) {
-	If (($PublicProfiles -And !$Disable) -Or (!$PublicProfiles -And $Disable)) {
-		ForEach ($interface in $NetProfiles) {
-			If ($interface.NetworkCategory -eq "Public") {
-				# Ask user to change network interface profile to Private
-				$Title = "Change '$($interface.Name)' network on '($($interface.InterfaceIndex)) $($interface.InterfaceAlias)' to 'Private' profile?"
-				$Info = "The '$($interface.Name)' $($interface.InterfaceAlias) network is set to '$($interface.NetworkCategory)' profile type, which changes the class of firewall rules being applied to a very restrictive set, designed for untrusted networks. If this is a trusted network, changing it to 'Private' will make this device discoverable by other devices on this network."
-				# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
-				$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Change '$($interface.Name)' $($interface.InterfaceIndex) - $($interface.InterfaceAlias) network profile to 'Private', making it discoverable by other devices."
-				$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Do not make changes to '$($interface.Name)' $($interface.InterfaceAlias) network profile, it will remain as '$($interface.NetworkCategory)'."
-				$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $No)
-				[int]$DefaultChoice = 0 # First choice starts at zero
-				$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
-				switch ($Result) {
-					0 {
-						Write-Verbose "Changing '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile to 'Private'."
-						
-						#Set-NetConnectionProfile -InterfaceIndex $interface.InterfaceIndex -NetworkCategory 'Private' @CommonParameters
-						$interface | Set-NetConnectionProfile -NetworkCategory 'Private' @CommonParameters
-						
-						Get-NetConnectionProfile | Where-Object {$_.InterfaceIndex -eq $interface.InterfaceIndex} | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Format-Table | Out-Host
-					}
-					1 {
-						Write-Verbose "No changes made to '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile. ($($interface.NetworkCategory))"
-					}
-					Default {
-						Write-Error "Network profile choice error."
-						Throw "Network profile choice error."
-					}
-				} # End switch
-			} # End If ($interface.NetworkCategory -eq "Public")
-		} # End ForEach
-	} Else {
-		Write-Host "No network profiles set to Public.`nSKIPPING...`n"
-	}
-} Else {
-	Write-Host "Disabling Admin shares, no need to mess with network profiles.`nSKIPPING...`n"
-}
-
-Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
-If ($Disable) {$Verb2 = "Disable"} Else {$Verb2 = "Enable"}
-$Step2 = "Step 2: $Verb2 ping response and `"File and print sharing`" through Windows Firewall."
-#Write-Host "Step 2: Enable ping response and `"File and print sharing`" through Windows Firewall.`n" -BackgroundColor Black -ForegroundColor White
-Write-Host $Step2 -BackgroundColor Black -ForegroundColor White
-Write-Host ""
-
-$PingParamsHash = @{
-	ICMPv6 = $True
-	NetBIOS = $True
-}
-
-#Get-PingResponseRules -ICMPv6 -NetBIOS -Table @CommonParameters
-Get-PingResponseRules @PingParamsHash -Table @CommonParameters
-
-Write-Verbose "Checking if ping/NetBIOS firewall rules are already allowed."
-$FwRules = Get-PingResponseRules @PingParamsHash @CommonParameters
-$RulesDisabled = $False
-ForEach ($rule in $FwRules) {
-	If ($rule.Enabled -eq 'False') {
-		$RulesDisabled = $True
-		# Default: No
-	}
-}
-
-If (($RulesDisabled -And !$Disable) -Or (!$RulesDisabled -And $Disable)) {
-	# Ask user to change ping response firewall rules.
-	$Title = "$Verb2 ping response?"
-	$Info = "$Verb2 firewall rules that Allow ping response (ICMPv4) and NetBIOS discovery on this machine: $env:COMPUTERNAME?"
-	# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
-	$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "$Verb2 firewall rules that would Allow a ping response from this device: $env:COMPUTERNAME"
-	$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Do not make any firewall rule changes."
-	$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $No)
-	If ($Disable) {
-		# Default: No
-		[int]$DefaultChoice = 1 # First choice starts at zero
-	} Else {
-		# Default: Yes
-		[int]$DefaultChoice = 0 # First choice starts at zero
-	}
-	$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
-	switch ($Result) {
-		0 {
-			If ($Disable) {
-				Write-Verbose "Disabling ping response:"
-				Disable-PingResponse @PingParamsHash @CommonParameters
-			} Else {
-				Write-Verbose "Enabling ping response:"
-				Enable-PingResponse @PingParamsHash @CommonParameters
-			}
-			
-			Get-PingResponseRules @PingParamsHash -Table
-		}
-		1 {
-			Write-Verbose "Declined firewall rules change for ping."
-		}
-		Default {
-			Write-Error "Ping response choice error."
-			Throw "Ping response choice error."
-		}
-	}
-} Else {
-	If (!$RulesDisabled -And !$Disable) {
-		Write-Host "All ping firewall rules already enabled.`nSKIPPING...`n"
-	} ElseIf ($RulesDisabled -And $Disable) {
-		Write-Host "All ping firewall rules already disabled.`nSKIPPING...`n"
-	}
-}
-
-Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
-$Step3 = "Step 3: Ensure that both computers belong to the same Workgroup or Domain."
-#Write-Host "Step 3: Ensure that both computers belong to the same Workgroup or Domain." -BackgroundColor Black -ForegroundColor White
-Write-Host $Step3 -BackgroundColor Black -ForegroundColor White
-Write-Host ""
-
-# PartOfDomain (boolean Property)
-$PartOfDomain = (Get-WmiObject -Class Win32_ComputerSystem).PartOfDomain
-
-If ($PartOfDomain) {
-	Write-Host "This PC's domain/workgroup status:"
-	Write-Host "DOMAIN:"
-	$Domain = Get-WmiObject -Namespace root\cimv2 -Class Win32_ComputerSystem | Select-Object Name, Domain
-	$Domain | Format-Table | Out-Host
-} Else {
-	Write-Host "Note: Non-domain PC's should have the same Workgroup name set in order to network together.`n"
-	Write-Host "This PC's domain/workgroup status:"
-	# Workgroup (string Property)
-	$Workgroup = (Get-WmiObject -Class Win32_ComputerSystem).Workgroup
-	Write-Host "WORKGROUP: `"$Workgroup`""
-	Write-Host "`nTo check another PC's Workgroup name:"
-	Write-Host " - Run (Win+R): sysdm.cpl"
-	Write-Host " - Run (Win+R): SystemPropertiesComputerName"
-	Write-Host " - ......  C:\> net config workstation | find `"Workstation domain`"`n"
-}
-
-If (!($Disable)) {
-	# Ask user to change Workgroup
-	$Title = "Change this PC's Workgroup?"
-	$Info = "Change the current Workgroup name '$Workgroup' of this PC '$env:COMPUTERNAME' to something different (REQUIRES RESTART), or keep it as-is?"
-	# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
-	$Change = New-Object System.Management.Automation.Host.ChoiceDescription "&Change", "Change the current Workgroup name '$Workgroup' of this PC '$env:COMPUTERNAME' to something new. (REQUIRES RESTART)"
-	$Keep = New-Object System.Management.Automation.Host.ChoiceDescription "&Keep", "Keep the current Workgroup name '$Workgroup' the same. (Default)"
-	$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Change, $Keep)
-	[int]$DefaultChoice = 1 # First choice starts at zero
-	$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
-	switch ($Result) {
-		0 {
-			Write-Verbose "Changing Workgroup name."
-			Write-Host "Ctrl+C to cancel."
-			$NewWgName = Read-Host "New Workgroup name"
-			Add-Computer -WorkGroupName $NewWgName @CommonParameters
-			
-			$Title = "Reboot PC now?"
-			$Info = "Restart this PC '$env:COMPUTERNAME' now to update Workgroup name change '$NewWgName'?"
-			# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
-			$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Yes, reboot this machine now to apply Workgroup name change '$NewWgName'"
-			$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "No, reboot later."
-			$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $No)
-			[int]$DefaultChoice = 1 # First choice starts at zero
-			$Restart = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
-			switch ($Restart) {
-				0 {
-					Write-Host "Rebooting in 10 seconds" -BackgroundColor Black -ForegroundColor White
-					Write-Host "Ctrl+C to Cancel" -BackgroundColor Black -ForegroundColor White
-					Start-Sleep -Seconds 10
-					Restart-Computer @CommonParameters
-				}
-				1 {
-					Write-Verbose "Reboot deferred."
-					Write-Warning "If the Workgroup name was changed, this PC must be restarted for the changes to take effect."
-				}
-				Default {
-					Write-Error "Reboot choice error."
-					Throw "Workgroup choice error."
-				}
-			}
-		}
-		1 {
-			Write-Verbose "Keeping Workgroup name: $Workgroup"
-		}
-		Default {
-			Write-Error "Workgroup choice error."
-			Throw "Workgroup choice error."
-		}
-	}
-} Else {
-	Write-Host "Disabling Admin shares, no need to change Workgroup.`nSKIPPING...`n"
-}
-
-Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
-$Step4 = "Step 4: Update registry values"
-#Write-Host "Step 4: Update registry values" -BackgroundColor Black -ForegroundColor White
-Write-Host $Step4 -BackgroundColor Black -ForegroundColor White
-Write-Host ""
-
-# Check if Server OS:
-$ServerOS = $False
-$OSName = ((Get-CimInstance -ClassName CIM_OperatingSystem).Caption)
-If ($OSName -like "*Server*") {
-	$ServerOS = $True
-}
-Write-Verbose "Server OS detected: $ServerOS"
-
-# Set registry key path & name
-#$KeyPath = "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
-$KeyPath = "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
-$KeyNameServer = "AutoShareServer"
-$KeyNameDesktop = "AutoShareWks"
-If ($ServerOS) {
-	$KeyName = $KeyNameServer
-	$WrongKeyName = $KeyNameDesktop
-} Else {
-	$KeyName = $KeyNameDesktop
-	$WrongKeyName = $KeyNameServer
-}
-$BackupFolderName = "RegistryBackups"
-
 #-----------------------------------------------------------------------------------------------------------------------
 Function Backup-RegistryPath {
 	[CmdletBinding()]
@@ -1039,20 +787,63 @@ Function Backup-RegistryPath {
 } # End Function Backup-RegistryPath
 #-----------------------------------------------------------------------------------------------------------------------
 
-# Check if registry key(s) exists:
-Try {
-	$KeyValue = Get-ItemProperty -Path $KeyPath -Name $KeyName -ErrorAction 'Stop'
-} Catch {
-	Write-Host "Registry key '$KeyName' does not exist." -BackgroundColor Black -ForegroundColor Yellow
-	Write-Verbose "Registry key '$KeyName' does not exist."
-	If ($KeyValue) {Remove-Variable -Name KeyValue}
-}
+#-----------------------------------------------------------------------------------------------------------------------
+Function New-RegistryKey {
+	[CmdletBinding()]
+	Param(
+		[string]$KeyPath,
+		[string]$KeyName,
+		$NewValue
+	)
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	$CommonParameters = @{
+		Verbose = [System.Management.Automation.ActionPreference]$VerbosePreference
+		Debug = [System.Management.Automation.ActionPreference]$DebugPreference
+	}
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	Write-Verbose "Starting function: $($MyInvocation.MyCommand)"
+	# First check if registry key exists:
+	Try {
+		$KeyValue = Get-ItemProperty -Path $KeyPath -Name $KeyName -ErrorAction 'Stop' @CommonParameters
+	} Catch {
+		Write-Verbose "Registry key '$KeyName' does not exist."
+		If ($KeyValue) {Remove-Variable -Name KeyValue}
+	}
+	# Ask user to create it if it doesn't:
+	If (!($KeyValue.$KeyName)) {
+		Write-Verbose "Key '$KeyName' does not exist."
+		# Ask user to either disable or delete registry key
+		$Title = "Create new registry key?"
+		$Info = "Create the '$KeyName' registry key?"
+		# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
+		$Create = New-Object System.Management.Automation.Host.ChoiceDescription "&Create Key", "Create new '$KeyName' registry key with the DWORD value = $NewValue"
+		$Skip = New-Object System.Management.Automation.Host.ChoiceDescription "&Skip", "Keep everything as-is, do not make any changes to the registry."
+		$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Create, $Skip)
+		[int]$DefaultChoice = 0 # First choice starts at zero
+		$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
+		switch ($Result) {
+			0 {
+				Write-Verbose "Creating '$KeyName' reg key with the DWORD value = $NewValue"
+				
+				$null = New-ItemProperty -Path $KeyPath -Name $KeyName -Type DWORD -Value $NewValue @CommonParameters
+				
+			}
+			1 {
+				Write-Verbose "No changes made, keeping registry as-is"
+			}
+			Default {
+				Write-Error "Create new registry key choice error."
+				Throw "Create new registry key choice error."
+			}
+		}
+	}
+	Write-Verbose "Ending function: $($MyInvocation.MyCommand)"
+} # End Function New-RegistryKey
+#-----------------------------------------------------------------------------------------------------------------------
 
-Try {
-	$WrongKeyValue = Get-ItemProperty -Path $KeyPath -Name $WrongKeyName -ErrorAction 'Stop'
-} Catch {
-	Write-Verbose "Registry key '$WrongKeyName' does not exist."
-	If ($WrongKeyValue) {Remove-Variable -Name WrongKeyValue}
+If ($LoadFunctions -And !$LoadAllFunctions) {
+	Write-Verbose "Finished loading '$($MyInvocation.MyCommand)' functions."
+	Return
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -1138,59 +929,273 @@ Function Remove-RegistryKey {
 } # End Function Remove-RegistryKey
 #-----------------------------------------------------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------------------------------------------------
-Function New-RegistryKey {
-	[CmdletBinding()]
-	Param(
-		[string]$KeyPath,
-		[string]$KeyName,
-		$NewValue
-	)
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	$CommonParameters = @{
-		Verbose = [System.Management.Automation.ActionPreference]$VerbosePreference
-		Debug = [System.Management.Automation.ActionPreference]$DebugPreference
-	}
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	Write-Verbose "Starting function: $($MyInvocation.MyCommand)"
-	# First check if registry key exists:
-	Try {
-		$KeyValue = Get-ItemProperty -Path $KeyPath -Name $KeyName -ErrorAction 'Stop' @CommonParameters
-	} Catch {
-		Write-Verbose "Registry key '$KeyName' does not exist."
-		If ($KeyValue) {Remove-Variable -Name KeyValue}
-	}
-	# Ask user to create it if it doesn't:
-	If (!($KeyValue.$KeyName)) {
-		Write-Verbose "Key '$KeyName' does not exist."
-		# Ask user to either disable or delete registry key
-		$Title = "Create new registry key?"
-		$Info = "Create the '$KeyName' registry key?"
-		# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
-		$Create = New-Object System.Management.Automation.Host.ChoiceDescription "&Create Key", "Create new '$KeyName' registry key with the DWORD value = $NewValue"
-		$Skip = New-Object System.Management.Automation.Host.ChoiceDescription "&Skip", "Keep everything as-is, do not make any changes to the registry."
-		$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Create, $Skip)
-		[int]$DefaultChoice = 0 # First choice starts at zero
-		$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
-		switch ($Result) {
-			0 {
-				Write-Verbose "Creating '$KeyName' reg key with the DWORD value = $NewValue"
-				
-				$null = New-ItemProperty -Path $KeyPath -Name $KeyName -Type DWORD -Value $NewValue @CommonParameters
-				
-			}
-			1 {
-				Write-Verbose "No changes made, keeping registry as-is"
-			}
-			Default {
-				Write-Error "Create new registry key choice error."
-				Throw "Create new registry key choice error."
-			}
+If ($LoadAllFunctions) {
+	Write-Verbose "Finished loading ALL '$($MyInvocation.MyCommand)' functions."
+	Return
+}
+
+$HR = "-----------------------------------------------------------------------------------------------------------------------"
+Write-Host $HR -BackgroundColor Black -ForegroundColor White
+Write-Host "Starting script: $($MyInvocation.MyCommand)" -BackgroundColor Black -ForegroundColor White
+If ($Disable) {$Verb1 = "Disabling"} Else {$Verb1 = "Enabling"}
+Write-Host "$Verb1 Admin shares (e.g. \\$env:COMPUTERNAME\C$) on this machine: `n" -BackgroundColor Black -ForegroundColor White
+
+Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+Write-Host "Current network shares:" -BackgroundColor Black -ForegroundColor White
+Write-Host "C:\> net share"
+net share
+
+Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+$Step1 = "Step 1: Check that connected network(s) are not set to 'Public' profile type."
+#Write-Host "Step 1: Check that connected network(s) are not set to 'Public' profile type.`n" -BackgroundColor Black -ForegroundColor White
+Write-Host $Step1 -BackgroundColor Black -ForegroundColor White
+Write-Host ""
+
+$NetProfiles = Get-NetConnectionProfile
+
+$NetProfiles | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Format-Table
+
+$PublicProfiles = $False
+$NetProfiles | ForEach-Object {
+	If ($_.NetworkCategory -eq "Public") {
+		$PublicProfiles = $True
+		If (!($Disable)) {
+			Write-Warning "The network '$($_.Name)' on interface '($($_.InterfaceIndex)) $($_.InterfaceAlias)' is set to '$($_.NetworkCategory)'."
 		}
 	}
-	Write-Verbose "Ending function: $($MyInvocation.MyCommand)"
-} # End Function New-RegistryKey
-#-----------------------------------------------------------------------------------------------------------------------
+}
+
+If (!($Disable)) {
+	If (($PublicProfiles -And !$Disable) -Or (!$PublicProfiles -And $Disable)) {
+		ForEach ($interface in $NetProfiles) {
+			If ($interface.NetworkCategory -eq "Public") {
+				# Ask user to change network interface profile to Private
+				$Title = "Change '$($interface.Name)' network on '($($interface.InterfaceIndex)) $($interface.InterfaceAlias)' to 'Private' profile?"
+				$Info = "The '$($interface.Name)' $($interface.InterfaceAlias) network is set to '$($interface.NetworkCategory)' profile type, which changes the class of firewall rules being applied to a very restrictive set, designed for untrusted networks. If this is a trusted network, changing it to 'Private' will make this device discoverable by other devices on this network."
+				# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
+				$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Change '$($interface.Name)' $($interface.InterfaceIndex) - $($interface.InterfaceAlias) network profile to 'Private', making it discoverable by other devices."
+				$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Do not make changes to '$($interface.Name)' $($interface.InterfaceAlias) network profile, it will remain as '$($interface.NetworkCategory)'."
+				$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $No)
+				[int]$DefaultChoice = 0 # First choice starts at zero
+				$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
+				switch ($Result) {
+					0 {
+						Write-Verbose "Changing '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile to 'Private'."
+						
+						#Set-NetConnectionProfile -InterfaceIndex $interface.InterfaceIndex -NetworkCategory 'Private' @CommonParameters
+						$interface | Set-NetConnectionProfile -NetworkCategory 'Private' @CommonParameters
+						
+						Get-NetConnectionProfile | Where-Object {$_.InterfaceIndex -eq $interface.InterfaceIndex} | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Format-Table | Out-Host
+					}
+					1 {
+						Write-Verbose "No changes made to '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile. ($($interface.NetworkCategory))"
+					}
+					Default {
+						Write-Error "Network profile choice error."
+						Throw "Network profile choice error."
+					}
+				} # End switch
+			} # End If ($interface.NetworkCategory -eq "Public")
+		} # End ForEach
+	} Else {
+		Write-Host "No network profiles set to Public.`nSKIPPING...`n"
+	}
+} Else {
+	Write-Host "Disabling Admin shares, no need to mess with network profiles.`nSKIPPING...`n"
+}
+
+Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+If ($Disable) {$Verb2 = "Disable"} Else {$Verb2 = "Enable"}
+$Step2 = "Step 2: $Verb2 ping response and `"File and print sharing`" through Windows Firewall."
+#Write-Host "Step 2: Enable ping response and `"File and print sharing`" through Windows Firewall.`n" -BackgroundColor Black -ForegroundColor White
+Write-Host $Step2 -BackgroundColor Black -ForegroundColor White
+Write-Host ""
+
+$PingParamsHash = @{
+	ICMPv6 = $True
+	NetBIOS = $True
+}
+
+#Get-PingResponseRules -ICMPv6 -NetBIOS -Table @CommonParameters
+Get-PingResponseRules @PingParamsHash -Table @CommonParameters
+
+Write-Verbose "Checking if ping/NetBIOS firewall rules are already allowed."
+$FwRules = Get-PingResponseRules @PingParamsHash @CommonParameters
+$RulesDisabled = $False
+ForEach ($rule in $FwRules) {
+	If ($rule.Enabled -eq 'False') {
+		$RulesDisabled = $True
+		# Default: No
+	}
+}
+
+If (($RulesDisabled -And !$Disable) -Or (!$RulesDisabled -And $Disable)) {
+	# Ask user to change ping response firewall rules.
+	$Title = "$Verb2 ping response?"
+	$Info = "$Verb2 firewall rules that Allow ping response (ICMPv4) and NetBIOS discovery on this machine: $env:COMPUTERNAME?"
+	# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
+	$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "$Verb2 firewall rules that would Allow a ping response from this device: $env:COMPUTERNAME"
+	$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Do not make any firewall rule changes."
+	$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $No)
+	If ($Disable) {
+		# Default: No
+		[int]$DefaultChoice = 1 # First choice starts at zero
+	} Else {
+		# Default: Yes
+		[int]$DefaultChoice = 0 # First choice starts at zero
+	}
+	$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
+	switch ($Result) {
+		0 {
+			If ($Disable) {
+				Write-Verbose "Disabling ping response:"
+				Disable-PingResponse @PingParamsHash @CommonParameters
+			} Else {
+				Write-Verbose "Enabling ping response:"
+				Enable-PingResponse @PingParamsHash @CommonParameters
+			}
+			
+			Get-PingResponseRules @PingParamsHash -Table
+		}
+		1 {
+			Write-Verbose "Declined firewall rules change for ping."
+		}
+		Default {
+			Write-Error "Ping response choice error."
+			Throw "Ping response choice error."
+		}
+	}
+} Else {
+	If (!$RulesDisabled -And !$Disable) {
+		Write-Host "All ping firewall rules already enabled.`nSKIPPING...`n"
+	} ElseIf ($RulesDisabled -And $Disable) {
+		Write-Host "All ping firewall rules already disabled.`nSKIPPING...`n"
+	}
+}
+
+Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+$Step3 = "Step 3: Ensure that both computers belong to the same Workgroup or Domain."
+#Write-Host "Step 3: Ensure that both computers belong to the same Workgroup or Domain." -BackgroundColor Black -ForegroundColor White
+Write-Host $Step3 -BackgroundColor Black -ForegroundColor White
+Write-Host ""
+
+# PartOfDomain (boolean Property)
+$PartOfDomain = (Get-WmiObject -Class Win32_ComputerSystem).PartOfDomain
+
+If ($PartOfDomain) {
+	Write-Host "This PC's domain/workgroup status:"
+	Write-Host "DOMAIN:"
+	$Domain = Get-WmiObject -Namespace root\cimv2 -Class Win32_ComputerSystem | Select-Object Name, Domain
+	$Domain | Format-Table | Out-Host
+} Else {
+	Write-Host "Note: Non-domain PC's should have the same Workgroup name set in order to network together.`n"
+	Write-Host "This PC's domain/workgroup status:"
+	# Workgroup (string Property)
+	$Workgroup = (Get-WmiObject -Class Win32_ComputerSystem).Workgroup
+	Write-Host "WORKGROUP: `"$Workgroup`""
+	Write-Host "`nTo check another PC's Workgroup name:"
+	Write-Host " - Run (Win+R): sysdm.cpl"
+	Write-Host " - Run (Win+R): SystemPropertiesComputerName"
+	Write-Host " - ......  C:\> net config workstation | find `"Workstation domain`"`n"
+}
+
+If (!($Disable)) {
+	# Ask user to change Workgroup
+	$Title = "Change this PC's Workgroup?"
+	$Info = "Change the current Workgroup name '$Workgroup' of this PC '$env:COMPUTERNAME' to something different (REQUIRES RESTART), or keep it as-is?"
+	# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
+	$Change = New-Object System.Management.Automation.Host.ChoiceDescription "&Change", "Change the current Workgroup name '$Workgroup' of this PC '$env:COMPUTERNAME' to something new. (REQUIRES RESTART)"
+	$Keep = New-Object System.Management.Automation.Host.ChoiceDescription "&Keep", "Keep the current Workgroup name '$Workgroup' the same. (Default)"
+	$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Change, $Keep)
+	[int]$DefaultChoice = 1 # First choice starts at zero
+	$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
+	switch ($Result) {
+		0 {
+			Write-Verbose "Changing Workgroup name."
+			Write-Host "Ctrl+C to cancel."
+			$NewWgName = Read-Host "New Workgroup name"
+			Add-Computer -WorkGroupName $NewWgName @CommonParameters
+			
+			$Title = "Reboot PC now?"
+			$Info = "Restart this PC '$env:COMPUTERNAME' now to update Workgroup name change '$NewWgName'?"
+			# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
+			$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Yes, reboot this machine now to apply Workgroup name change '$NewWgName'"
+			$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "No, reboot later."
+			$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $No)
+			[int]$DefaultChoice = 1 # First choice starts at zero
+			$Restart = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
+			switch ($Restart) {
+				0 {
+					Write-Host "Rebooting in 10 seconds" -BackgroundColor Black -ForegroundColor White
+					Write-Host "Ctrl+C to Cancel" -BackgroundColor Black -ForegroundColor White
+					Start-Sleep -Seconds 10
+					Restart-Computer @CommonParameters
+				}
+				1 {
+					Write-Verbose "Reboot deferred."
+					Write-Warning "If the Workgroup name was changed, this PC must be restarted for the changes to take effect."
+				}
+				Default {
+					Write-Error "Reboot choice error."
+					Throw "Workgroup choice error."
+				}
+			}
+		}
+		1 {
+			Write-Verbose "Keeping Workgroup name: $Workgroup"
+		}
+		Default {
+			Write-Error "Workgroup choice error."
+			Throw "Workgroup choice error."
+		}
+	}
+} Else {
+	Write-Host "Disabling Admin shares, no need to change Workgroup.`nSKIPPING...`n"
+}
+
+Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+$Step4 = "Step 4: Update registry values"
+#Write-Host "Step 4: Update registry values" -BackgroundColor Black -ForegroundColor White
+Write-Host $Step4 -BackgroundColor Black -ForegroundColor White
+Write-Host ""
+
+# Check if Server OS:
+$ServerOS = $False
+$OSName = ((Get-CimInstance -ClassName CIM_OperatingSystem).Caption)
+If ($OSName -like "*Server*") {
+	$ServerOS = $True
+}
+Write-Verbose "Server OS detected: $ServerOS"
+
+# Set registry key path & name
+#$KeyPath = "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
+$KeyPath = "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
+$KeyNameServer = "AutoShareServer"
+$KeyNameDesktop = "AutoShareWks"
+If ($ServerOS) {
+	$KeyName = $KeyNameServer
+	$WrongKeyName = $KeyNameDesktop
+} Else {
+	$KeyName = $KeyNameDesktop
+	$WrongKeyName = $KeyNameServer
+}
+$BackupFolderName = "RegistryBackups"
+
+# Check if registry key(s) exists:
+Try {
+	$KeyValue = Get-ItemProperty -Path $KeyPath -Name $KeyName -ErrorAction 'Stop'
+} Catch {
+	Write-Host "Registry key '$KeyName' does not exist." -BackgroundColor Black -ForegroundColor Yellow
+	Write-Verbose "Registry key '$KeyName' does not exist."
+	If ($KeyValue) {Remove-Variable -Name KeyValue}
+}
+
+Try {
+	$WrongKeyValue = Get-ItemProperty -Path $KeyPath -Name $WrongKeyName -ErrorAction 'Stop'
+} Catch {
+	Write-Verbose "Registry key '$WrongKeyName' does not exist."
+	If ($WrongKeyValue) {Remove-Variable -Name WrongKeyValue}
+}
 
 # Backup registry key path.
 # First determine if any backups are necessary:
