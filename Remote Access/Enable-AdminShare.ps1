@@ -1056,7 +1056,6 @@ Try {
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
-#Function Remove-RegistryKey($KeyPath,$KeyName) {
 Function Remove-RegistryKey {
 	[CmdletBinding()]
 	Param(
@@ -1082,12 +1081,17 @@ Function Remove-RegistryKey {
 	}
 	# Ask user to delete it if it does:
 	If ($KeyValue.$KeyName) {
+		If ($KeyValue.$KeyName -eq 0) {
+			$ValueLabel = "(disabled)"
+		} ElseIf ($KeyValue.$KeyName -eq 1) {
+			$ValueLabel = "(enabled)"
+		}
 		If (!$OptionalRemoval) {
 			Write-Warning "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
 			Write-Host "In order to prevent Windows 10 from publishing administrative shares, the registry key '$KeyPath' needs a Dword parameter named AutoShareWks (for desktop versions of Windows) or AutoShareServer (for Windows Server) and the value 0.`n"
 			$DisplayTable = [PSCustomObject]@{
 				Key = $KeyName
-				Value = "$($KeyValue.$KeyName) (True)"
+				Value = "$($KeyValue.$KeyName) $ValueLabel"
 			}
 			Write-Host "`nRegistry path:`n$KeyPath\`n`nKey:`n$KeyName"
 			$DisplayTable | Format-Table | Out-Host
@@ -1135,7 +1139,6 @@ Function Remove-RegistryKey {
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
-#Function New-RegistryKey($KeyPath,$KeyName) {
 Function New-RegistryKey {
 	[CmdletBinding()]
 	Param(
@@ -1190,15 +1193,8 @@ Function New-RegistryKey {
 #-----------------------------------------------------------------------------------------------------------------------
 
 # Backup registry key path.
-Backup-RegistryPath -KeyPath $KeyPath -KeyName $KeyName -BackupFolderName $BackupFolderName @CommonParameters
-
-# Backup registry key path.
 # First determine if any backups are necessary:
 $BackupRegistry = $False
-
-
-$KeyNameServer = "AutoShareServer"
-$KeyNameDesktop = "AutoShareWks"
 
 If ($ServerOS -And ($KeyValue.$KeyName -eq $KeyNameDesktop)) {$BackupRegistry = $True}
 If (!$ServerOS -And ($KeyValue.$KeyName -eq $KeyNameServer)) {$BackupRegistry = $True}
@@ -1241,6 +1237,11 @@ If ($Disable) {
 		$BackupRegistry = $True
 	}
 }
+If ($BackupRegistry) {
+	# Backup registry key path.
+	Backup-RegistryPath -KeyPath $KeyPath -KeyName $KeyName -BackupFolderName $BackupFolderName @CommonParameters
+}
+
 
 # Detect & delete non-necessary registry keys:
 If ($ServerOS) {
@@ -1256,13 +1257,19 @@ If ($ServerOS) {
 }
 
 # Create/Enable/Disable/Delete registry key:
-If ($KeyValue.$KeyName) {
-	#Write-Host "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'" -ForegroundColor Green -BackgroundColor Black
-	Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
-	If ($KeyValue.$KeyName -eq 1) {
-		Write-Verbose "'$KeyName' is enabled."
-		If ($Disable) {
+
+# A registry key with value 0 is required to disable admin share creation on reboot.
+# Either no key or a key with value 1 will enable it.
+If ($Disable) {
+	# A registry key with value 0 is required to disable admin share creation on reboot.
+	If ($KeyValue.$KeyName) {
+		Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
+		If ($KeyValue.$KeyName -eq 1) {
+			Write-Verbose "'$KeyName' is enabled."
+			# Ask user to disable key
+			
 			# Ask user to disable registry key.
+			Write-Warning "'$KeyName' is enabled."
 			$DisplayTable = [PSCustomObject]@{
 				Key = $KeyName
 				Value = "$($KeyValue.$KeyName) (True)"
@@ -1294,37 +1301,95 @@ If ($KeyValue.$KeyName) {
 					Throw "Disable registry key choice error."
 				}
 			}
+			
 		} Else {
-			# Either deleting or enabling (1) this registry key will turn the Admin shares feature back on. User wants it on and it's already on (1), so we can leave the reg key as-is. But deleting it would also work.
-			Write-Host "Registry key '$KeyName' is already enabled ($($KeyValue.$KeyName)). Windows will already automatically publish Administrative shares when this key is set to 1, or is deleted. No registry changes are necessary, but it can also be deleted for the same effect."
-			#Remove-ItemProperty -Path $KeyPath -Name $KeyName -Verbose
-			#Remove-ItemProperty -Path $KeyPath -Name $KeyName @CommonParameters
-			Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyNameDesktop -OptionalRemoval @CommonParameters
+			Write-Verbose "'$KeyName' is already disabled."
+			
+			Write-Verbose "Registry key '$KeyName' is already set to $($KeyValue.$KeyName) (disabled).`nSKIPPING...`n"
 		}
-	}
-} Else {
-	#Write-Host "Key '$KeyName' does not exist." -ForegroundColor Red -BackgroundColor Black
-	Write-Verbose "Key '$KeyName' does not exist."
-	If ($Disable) {
+	} Else {
+		Write-Verbose "'$KeyName' doesn't exist, Admin shares are enabled."
+		# Ask user to create it as disabled
+		
 		# Ask user to create registry key as disabled.
 		Write-Warning "Key '$KeyName' does not exist."
 		Write-Host "`nIn order to prevent Windows 10 from publishing administrative shares, the registry key '$KeyPath' needs a Dword parameter named AutoShareWks (for desktop versions of Windows) or AutoShareServer (for Windows Server) and the value 0.`n"
 		Write-Warning "After a reboot, administrative shares will not be created. In this case, the tools for remote computer manage, including psexec, will stop working.`n"
 		
 		#$null = New-ItemProperty -Path $KeyPath -Name $KeyName -Type DWORD -Value 1
-		
 		New-RegistryKey -KeyPath $KeyPath -KeyName $KeyName -NewValue 0
-		
+	}
+} Else {
+	# Either no key or a key with value 1 will enable it.
+	
+	If ($KeyValue.$KeyName) {
+		Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
+		If ($KeyValue.$KeyName -eq 0) {
+			Write-Verbose "'$KeyName' is disabled."
+			# Ask user to enable it or delete it.
+			
+			# Ask user to enable or delete registry key.
+			Write-Warning "'$KeyName' is disabled."
+			$DisplayTable = [PSCustomObject]@{
+				Key = $KeyName
+				Value = "$($KeyValue.$KeyName) (False)"
+			}
+			Write-Host "`nRegistry path:`n$KeyPath\`nKey:$KeyName"
+			$DisplayTable | Format-Table | Out-Host
+			Write-Host "`nFor Windows 10 to automatically create & publish administrative shares after a reboot, the registry key '$KeyPath' needs a Dword parameter either named '$KeyName' with the value 1 (enabled), or for that parameter to be deleted completely. Currently '$KeyName' is set as $($KeyValue.$KeyName) (disabled).`n"
+			# Ask user to either disable or delete registry key
+			$Title = "Enable or delete the registry key?"
+			$Info = "Change the value of '$KeyName' to 1 (enabled) or delete it completely to enable Admin shares?"
+			# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
+			$Enable = New-Object System.Management.Automation.Host.ChoiceDescription "&Enable", "Enable, change the '$KeyName' registry key to value 1 (enabled). This enables Admin share creation after reboots."
+			$Delete = New-Object System.Management.Automation.Host.ChoiceDescription "&Delete", "Delete the '$KeyName' registry key. This enables Admin share creation after reboots."
+			$Cancel = New-Object System.Management.Automation.Host.ChoiceDescription "&Cancel", "Cancel, do not make any changes to the registry."
+			$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Enable, $Delete, $Cancel)
+			[int]$DefaultChoice = 0 # First choice starts at zero
+			$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
+			switch ($Result) {
+				0 {
+					Write-Verbose "Changing '$KeyName' reg key from $($KeyValue.$KeyName) (disabled) to 1 (enabled)."
+					#Set-ItemProperty -Name AutoShareWks -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Value 1
+					Set-ItemProperty -Path $KeyPath -Name $KeyName -Value 1
+				}
+				1 {
+					Write-Verbose "Deleting registry key: '$KeyName'"
+					Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyName -ServerOS $ServerOS -OSName $OSName @CommonParameters
+				}
+				2 {
+					Write-Verbose "Keeping registry key the same: '$KeyName' ($($KeyValue.$KeyName))"
+				}
+				Default {
+					Write-Error "Disable registry key choice error."
+					Throw "Disable registry key choice error."
+				}
+			}
+			
+		} Else {
+			Write-Verbose "'$KeyName' is already enabled."
+			# Ask if user wants to delete it anyway.
+			
+			# Either deleting or enabling (1) this registry key will turn the Admin shares feature back on. User wants it on and it's already on (1), so we can leave the reg key as-is. But deleting it would also work.
+			Write-Host "Registry key '$KeyName' is already enabled ($($KeyValue.$KeyName)). Windows will already automatically publish Administrative shares when this key is set to 1, or is deleted. No registry changes are necessary, but it can also be deleted for the same effect."
+			#Remove-ItemProperty -Path $KeyPath -Name $KeyName -Verbose
+			#Remove-ItemProperty -Path $KeyPath -Name $KeyName @CommonParameters
+			Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyNameDesktop -OptionalRemoval @CommonParameters
+		}
 	} Else {
+		Write-Verbose "'$KeyName' doesn't exist, Admin shares are already enabled."
+		# Ask if user wants to explicitly set it to enabled anyway.
+		
 		# Ask user to create registry key as enabled.
 		Write-Host "Registry key '$KeyName' already doesn't exist. Windows will automatically publish Administrative shares. No registry changes are necessary, but this key can still be created as enabled if desired.`n"
 		
 		#$null = New-ItemProperty -Path $KeyPath -Name $KeyName -Type DWORD -Value 1
 		
 		New-RegistryKey -KeyPath $KeyPath -KeyName $KeyName -NewValue 1
-		
 	}
 }
+
+#- -- - - - - - - - - -- - - - - - - - - - - - - - -- 
 
 Write-Host "Tests completed."
 Pause
