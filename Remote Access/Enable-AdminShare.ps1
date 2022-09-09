@@ -1050,7 +1050,7 @@ Try {
 
 Try {
 	$WrongKeyValue = Get-ItemProperty -Path $KeyPath -Name $WrongKeyName -ErrorAction 'Stop'
-} Catch {``
+} Catch {
 	Write-Verbose "Registry key '$WrongKeyName' does not exist."
 	If ($WrongKeyValue) {Remove-Variable -Name WrongKeyValue}
 }
@@ -1195,35 +1195,52 @@ Backup-RegistryPath -KeyPath $KeyPath -KeyName $KeyName -BackupFolderName $Backu
 # Backup registry key path.
 # First determine if any backups are necessary:
 $BackupRegistry = $False
-If ($ServerOS) {
-	Write-Verbose "Server OS detected."
+
+
+$KeyNameServer = "AutoShareServer"
+$KeyNameDesktop = "AutoShareWks"
+
+If ($ServerOS -And ($KeyValue.$KeyName -eq $KeyNameDesktop)) {$BackupRegistry = $True}
+If (!$ServerOS -And ($KeyValue.$KeyName -eq $KeyNameServer)) {$BackupRegistry = $True}
+# A registry key with value 0 is required to disable admin share creation on reboot.
+# Either no key or a key with value 1 will enable it.
+If ($Disable) {
+	# A registry key with value 0 is required to disable admin share creation on reboot.
+	
 	If ($KeyValue.$KeyName) {
 		Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
 		If ($KeyValue.$KeyName -eq 1) {
 			Write-Verbose "'$KeyName' is enabled."
-			If ($Disable) {
-				
-			}
-			
+			# Ask user to disable key
+			$BackupRegistry = $True
+		} Else {
+			Write-Verbose "'$KeyName' is already disabled."
 		}
-		
+	} Else {
+		Write-Verbose "'$KeyName' doesn't exist, Admin shares are enabled."
+		# Ask user to create it as disabled
+		$BackupRegistry = $True
 	}
 } Else {
-	Write-Verbose "Non-server OS detected."
+	# Either no key or a key with value 1 will enable it.
+	
 	If ($KeyValue.$KeyName) {
 		Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
-		If ($KeyValue.$KeyName -eq 1) {
-			Write-Verbose "'$KeyName' is enabled."
-			If ($Disable) {
-				
-			}
-			
+		If ($KeyValue.$KeyName -eq 0) {
+			Write-Verbose "'$KeyName' is disabled."
+			# Ask user to enable it or delete it.
+			$BackupRegistry = $True
+		} Else {
+			Write-Verbose "'$KeyName' is already enabled."
+			# Ask if user wants to delete it anyway.
+			$BackupRegistry = $True
 		}
-		
+	} Else {
+		Write-Verbose "'$KeyName' doesn't exist, Admin shares are already enabled."
+		# Ask if user wants to explicitly set it to enabled anyway.
+		$BackupRegistry = $True
 	}
-	
 }
-
 
 # Detect & delete non-necessary registry keys:
 If ($ServerOS) {
@@ -1279,7 +1296,7 @@ If ($KeyValue.$KeyName) {
 			}
 		} Else {
 			# Either deleting or enabling (1) this registry key will turn the Admin shares feature back on. User wants it on and it's already on (1), so we can leave the reg key as-is. But deleting it would also work.
-			Write-Host "Registry key '$KeyName' is already enabled ($($KeyValue.$KeyName)). Windows will already automatically publish Administrative shares when this key is set to 1, or is deleted. No registry changes are necessary, but it can also be deleted for the same effect.`nSKIPPING...`n"
+			Write-Host "Registry key '$KeyName' is already enabled ($($KeyValue.$KeyName)). Windows will already automatically publish Administrative shares when this key is set to 1, or is deleted. No registry changes are necessary, but it can also be deleted for the same effect."
 			#Remove-ItemProperty -Path $KeyPath -Name $KeyName -Verbose
 			#Remove-ItemProperty -Path $KeyPath -Name $KeyName @CommonParameters
 			Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyNameDesktop -OptionalRemoval @CommonParameters
