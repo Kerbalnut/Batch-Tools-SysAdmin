@@ -780,185 +780,213 @@ If ($ServerOS) {
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
-Function Add-NewRegFileName($NewFileName) {
-	#$NewFileName = Read-Host "New file name"
-	#If (!$NewFileName -Or $NewFileName -eq "") {Continue}
-	$NewFileName = $NewFileName.Trim()
-	If ($NewFileName -match '^.*\.\w+$') {
-		If ($NewFileName -notmatch '^.*\.reg$') {
-			$FileExtension = [System.IO.Path]::GetExtension($NewFileName)
-			$FilePathWithoutExention = $NewFileName -replace "\$FileExtension$",""
-			$RecommendedPath = $FilePathWithoutExention + ".reg"
-			$RecommendedFile = Split-Path $RecommendedPath -Leaf
-			Write-Warning "Registry backup files that do not use a .reg file extension cannot be restored automatically by double-clicking."
-			Do {
-				$NewExtRec = Read-Host "Change file extension to use `"$RecommendedFile`" .reg extension instead? (RECOMMENDED) [Y\N]"
-				$NewExtRec = $NewExtRec.Trim()
-			} Until ($NewExtRec -eq "Y" -Or $NewExtRec -eq "N")
-			If ($NewExtRec -eq "Y") {
-				$NewFileName = $RecommendedPath
+Function Backup-RegistryPath {
+	[CmdletBinding()]
+	Param(
+		$KeyPath,
+		$KeyName,
+		$BackupFolderName = 'RegistryBackups'
+	)
+	
+	#-----------------------------------------------------------------------------------------------------------------------
+	Function Add-NewRegFileName($NewFileName) {
+		#$NewFileName = Read-Host "New file name"
+		#If (!$NewFileName -Or $NewFileName -eq "") {Continue}
+		$NewFileName = $NewFileName.Trim()
+		If ($NewFileName -match '^.*\.\w+$') {
+			If ($NewFileName -notmatch '^.*\.reg$') {
+				$FileExtension = [System.IO.Path]::GetExtension($NewFileName)
+				$FilePathWithoutExention = $NewFileName -replace "\$FileExtension$",""
+				$RecommendedPath = $FilePathWithoutExention + ".reg"
+				$RecommendedFile = Split-Path $RecommendedPath -Leaf
+				Write-Warning "Registry backup files that do not use a .reg file extension cannot be restored automatically by double-clicking."
+				Do {
+					$NewExtRec = Read-Host "Change file extension to use `"$RecommendedFile`" .reg extension instead? (RECOMMENDED) [Y\N]"
+					$NewExtRec = $NewExtRec.Trim()
+				} Until ($NewExtRec -eq "Y" -Or $NewExtRec -eq "N")
+				If ($NewExtRec -eq "Y") {
+					$NewFileName = $RecommendedPath
+				}
 			}
+		} Else {
+			If ($NewFileName -match '.*\.$') {
+				# E.g. "C:\foo bar\test file."
+				Write-Warning "Not a proper file extension, cannot end with period."
+				$NewFileName = $NewFileName -replace '\.$',''
+			}
+			Write-Warning "No file extension detected, auto-choosing '.reg'."
+			$NewFileName = $NewFileName + ".reg"
 		}
-	} Else {
-		If ($NewFileName -match '.*\.$') {
-			# E.g. "C:\foo bar\test file."
-			Write-Warning "Not a proper file extension, cannot end with period."
-			$NewFileName = $NewFileName -replace '\.$',''
+		Return $NewFileName
+	} # End Function Add-NewRegFileName
+	#-----------------------------------------------------------------------------------------------------------------------
+	
+	# Backup registry key path:
+	$BackupRegPath = $KeyPath
+	#$BackupRegPath = Split-Path -Path $BackupRegPath -Parent
+	$BackupRegPath = $BackupRegPath -replace 'Registry::',''
+	$BackupRegPath = $BackupRegPath -replace 'HKEY_LOCAL_MACHINE','HKLM'
+	$BackupRegPath = $BackupRegPath -replace ':',''
+	$DateString = Get-Date -UFormat "%Y-%m-%d_%H-%M-%S"
+	$BackupFileName = "$($DateString)_$($KeyName)_reg_backup.reg"
+	#$BackupFileName = "test_backup.reg"
+	#$BackupFilePath = Join-Path -Path (Get-Location) -ChildPath $BackupFileName
+	$BackupFilePath = Join-Path -Path (Get-Location) -ChildPath $BackupFolderName
+	$BackupFilePath = Join-Path -Path $BackupFilePath -ChildPath $BackupFileName
+	Write-Host "`n`nBackup resgistry location:`n$BackupRegPath`n`nTo path:`n$BackupFilePath`n"
+	$Title = "Backup registry location?"
+	$Info = "Backup the target registry location before making changes? (RECOMMENDED) This is only a backup, you will be asked to make the actual changes later."
+	# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
+	$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Yes, backup the target registry path. No other changes will be made. (RECOMMENDED) `"$BackupRegPath`""
+	$Change = New-Object System.Management.Automation.Host.ChoiceDescription "&Change Backup Path", "Change backup path (RECOMMENDED): `"$BackupFilePath`""
+	$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "No, do not make any registry backups. (NOT RECOMMENDED)"
+	$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $Change, $No)
+	[int]$DefaultChoice = 0 # First choice starts at zero
+	$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
+	switch ($Result) {
+		0 {
+			Write-Verbose "Backing up registry to: $BackupFilePath"
+			Reg export "$BackupRegPath" "$BackupFilePath" /y
 		}
-		Write-Warning "No file extension detected, auto-choosing '.reg'."
-		$NewFileName = $NewFileName + ".reg"
-	}
-	Return $NewFileName
-} # End Function Add-NewRegFileName
-#-----------------------------------------------------------------------------------------------------------------------
-
-# Backup registry key path:
-$BackupRegPath = $KeyPath
-#$BackupRegPath = Split-Path -Path $BackupRegPath -Parent
-$BackupRegPath = $BackupRegPath -replace 'Registry::',''
-$BackupRegPath = $BackupRegPath -replace 'HKEY_LOCAL_MACHINE','HKLM'
-$BackupRegPath = $BackupRegPath -replace ':',''
-$DateString = Get-Date -UFormat "%Y-%m-%d_%H-%M-%S"
-$BackupFileName = "$($DateString)_$($KeyName)_reg_backup.reg"
-#$BackupFileName = "test_backup.reg"
-$BackupFolderName = 'RegistryBackups'
-#$BackupFilePath = Join-Path -Path (Get-Location) -ChildPath $BackupFileName
-$BackupFilePath = Join-Path -Path (Get-Location) -ChildPath $BackupFolderName
-$BackupFilePath = Join-Path -Path $BackupFilePath -ChildPath $BackupFileName
-Write-Host "`n`nBackup resgistry location:`n$BackupRegPath`n`nTo path:`n$BackupFilePath`n"
-$Title = "Backup registry location?"
-$Info = "Backup the target registry location before making changes? (RECOMMENDED) This is only a backup, you will be asked to make the actual changes later."
-# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
-$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Yes, backup the target registry path. No other changes will be made. (RECOMMENDED) `"$BackupRegPath`""
-$Change = New-Object System.Management.Automation.Host.ChoiceDescription "&Change Backup Path", "Change backup path (RECOMMENDED): `"$BackupFilePath`""
-$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "No, do not make any registry backups. (NOT RECOMMENDED)"
-$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $Change, $No)
-[int]$DefaultChoice = 0 # First choice starts at zero
-$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
-switch ($Result) {
-	0 {
-		Write-Verbose "Backing up registry to: $BackupFilePath"
-		Reg export "$BackupRegPath" "$BackupFilePath" /y
-	}
-	1 {
-		Write-Verbose "Choose alternate path:"
-		
-		$Alt1 = Join-Path -Path $env:USERPROFILE -ChildPath 'Desktop'
-		$Alt1 = Join-Path -Path $Alt1 -ChildPath $BackupFolderName
-		#$Alt1 = (Join-Path -Path $Alt1 -ChildPath $BackupFileName)
-		$Alt2 = Join-Path -Path $env:USERPROFILE -ChildPath 'Documents'
-		$Alt2 = Join-Path -Path $Alt2 -ChildPath $BackupFolderName
-		#$Alt2 = (Join-Path -Path $Alt2 -ChildPath $BackupFileName)
-		$Alt3 = Join-Path -Path $env:TEMP -ChildPath $BackupFolderName
-		#$Alt3 = (Join-Path -Path $env:TEMP -ChildPath $BackupFileName)
-		
-		$AltPaths = @(
-			$BackupFilePath,
-			(Join-Path -Path $Alt1 -ChildPath $BackupFileName),
-			(Join-Path -Path $Alt2 -ChildPath $BackupFileName),
-			(Join-Path -Path $Alt3 -ChildPath $BackupFileName)
-		)
-		
-		$DisplayTable = @()
-		$i = 0
-		$AltPaths | ForEach-Object {
+		1 {
+			Write-Verbose "Choose alternate path:"
+			
+			$Alt1 = Join-Path -Path $env:USERPROFILE -ChildPath 'Desktop'
+			$Alt1 = Join-Path -Path $Alt1 -ChildPath $BackupFolderName
+			#$Alt1 = (Join-Path -Path $Alt1 -ChildPath $BackupFileName)
+			$Alt2 = Join-Path -Path $env:USERPROFILE -ChildPath 'Documents'
+			$Alt2 = Join-Path -Path $Alt2 -ChildPath $BackupFolderName
+			#$Alt2 = (Join-Path -Path $Alt2 -ChildPath $BackupFileName)
+			$Alt3 = Join-Path -Path $env:TEMP -ChildPath $BackupFolderName
+			#$Alt3 = (Join-Path -Path $env:TEMP -ChildPath $BackupFileName)
+			
+			$AltPaths = @(
+				$BackupFilePath,
+				(Join-Path -Path $Alt1 -ChildPath $BackupFileName),
+				(Join-Path -Path $Alt2 -ChildPath $BackupFileName),
+				(Join-Path -Path $Alt3 -ChildPath $BackupFileName)
+			)
+			
+			$DisplayTable = @()
+			$i = 0
+			$AltPaths | ForEach-Object {
+				$i++
+				$DisplayTable += [PSCustomObject]@{
+					ID = $i
+					Path = $_
+				}
+			}
 			$i++
 			$DisplayTable += [PSCustomObject]@{
 				ID = $i
-				Path = $_
+				Path = "<Enter new path>"
 			}
-		}
-		$i++
-		$DisplayTable += [PSCustomObject]@{
-			ID = $i
-			Path = "<Enter new path>"
-		}
-		
-		Do {
-			Write-Host "Choose alternate path:"
-			$DisplayTable | Format-Table | Out-Host
-			[int]$Choice = Read-Host "Enter choice ID"
-		} Until ([int]$Choice -ge 1 -And [int]$Choice -le $DisplayTable.Count)
-		If ([int]$Choice -eq $DisplayTable.Count) {
-			$Accepted = $False
+			
 			Do {
-				$UserPath = Read-Host "Enter new path"
-				$UserPath = $UserPath.Trim()
-				If (!$UserPath -Or $UserPath -eq "" -Or $null -eq $UserPath) {Continue}
-				$UserPath = $UserPath -replace '\\$',''
-				If (!(Test-Path -Path $UserPath)) {
-					Write-Verbose "Path does not exist."
-					If ($UserPath -match '.*\.$') {
-						# E.g. "C:\foo bar\test file."
-						Write-Warning "Not a proper file extension, cannot end with period."
-						Continue
-					}
-					If ($UserPath -match '^.*\.\w+$') {
-						# E.g. "C:\foo bar\test file.ext"
-						$HasFileExtension = $True
-					} Else {
-						# E.g. "C:\foo bar\test file"
-						$HasFileExtension = $False
-					}
-					If ($HasFileExtension) {
-						# Path has file extension
-						If ($UserPath -notmatch '^.*\.reg$') {
-							$FileExtension = [System.IO.Path]::GetExtension($UserPath)
-							$FilePathWithoutExention = $UserPath -replace "\$FileExtension$",""
-							$RecommendedPath = $FilePathWithoutExention + ".reg"
-							$RecommendedFile = Split-Path $RecommendedPath -Leaf
-							Write-Warning "Registry backup files that do not use a .reg file extension cannot be restored automatically by double-clicking."
-							Do {
-								$NewExtRec = Read-Host "Change file extension to use `"$RecommendedFile`" .reg extension instead? (RECOMMENDED) [Y\N]"
-								$NewExtRec = $NewExtRec.Trim()
-							} Until ($NewExtRec -eq "Y" -Or $NewExtRec -eq "N")
-							If ($NewExtRec -eq "Y") {
-								$UserPath = $RecommendedPath
-							}
+				Write-Host "Choose alternate path:"
+				$DisplayTable | Format-Table | Out-Host
+				[int]$Choice = Read-Host "Enter choice ID"
+			} Until ([int]$Choice -ge 1 -And [int]$Choice -le $DisplayTable.Count)
+			If ([int]$Choice -eq $DisplayTable.Count) {
+				$Accepted = $False
+				Do {
+					$UserPath = Read-Host "Enter new path"
+					$UserPath = $UserPath.Trim()
+					If (!$UserPath -Or $UserPath -eq "" -Or $null -eq $UserPath) {Continue}
+					$UserPath = $UserPath -replace '\\$',''
+					If (!(Test-Path -Path $UserPath)) {
+						Write-Verbose "Path does not exist."
+						If ($UserPath -match '.*\.$') {
+							# E.g. "C:\foo bar\test file."
+							Write-Warning "Not a proper file extension, cannot end with period."
+							Continue
 						}
-						$ParentFolder = Split-Path -Path $UserPath -Parent
-						# E.g. "C:\foo bar\"
-						If (!(Test-Path -Path $ParentFolder)) {
-							Write-Warning "Folder path does not exist: $ParentFolder"
+						If ($UserPath -match '^.*\.\w+$') {
+							# E.g. "C:\foo bar\test file.ext"
+							$HasFileExtension = $True
+						} Else {
+							# E.g. "C:\foo bar\test file"
+							$HasFileExtension = $False
+						}
+						If ($HasFileExtension) {
+							# Path has file extension
+							If ($UserPath -notmatch '^.*\.reg$') {
+								$FileExtension = [System.IO.Path]::GetExtension($UserPath)
+								$FilePathWithoutExention = $UserPath -replace "\$FileExtension$",""
+								$RecommendedPath = $FilePathWithoutExention + ".reg"
+								$RecommendedFile = Split-Path $RecommendedPath -Leaf
+								Write-Warning "Registry backup files that do not use a .reg file extension cannot be restored automatically by double-clicking."
+								Do {
+									$NewExtRec = Read-Host "Change file extension to use `"$RecommendedFile`" .reg extension instead? (RECOMMENDED) [Y\N]"
+									$NewExtRec = $NewExtRec.Trim()
+								} Until ($NewExtRec -eq "Y" -Or $NewExtRec -eq "N")
+								If ($NewExtRec -eq "Y") {
+									$UserPath = $RecommendedPath
+								}
+							}
+							$ParentFolder = Split-Path -Path $UserPath -Parent
+							# E.g. "C:\foo bar\"
+							If (!(Test-Path -Path $ParentFolder)) {
+								Write-Warning "Folder path does not exist: $ParentFolder"
+								Do {
+									$MakeDirs = Read-Host "Create it? [Y\N]"
+									$MakeDirs = $MakeDirs.Trim()
+								} Until ($MakeDirs -eq "Y" -Or $MakeDirs -eq "N")
+								If ($MakeDirs -eq "Y") {
+									mkdir $ParentFolder
+								} Else {
+									Continue
+								}
+							}
+							$FileWithExt = Split-Path -Path $UserPath -Leaf
+							# E.g. "test file.ext"
+							Try {
+								Write-Verbose "Creating: $UserPath"
+								Reg export "$BackupRegPath" "$UserPath" /y
+							} Catch {
+								Write-Warning "Registry backup file export failed. ($FileWithExt)"
+								Continue
+							}
+							$Accepted = $True
+						} Else {
+							# Path doesn't have file extension
+							# E.g. "C:\foo bar\test file"
+							$NewFileName = Read-Host "New file name"
+							If (!$NewFileName -Or $NewFileName -eq "" -Or $null -eq $NewFileName) {Continue}
+							$NewFileName = $NewFileName.Trim()
+							$NewFileName = Add-NewRegFileName -NewFileName $NewFileName
+							# E.g. "C:\foo bar\test file"
+							Write-Warning "Folder path does not exist: $UserPath"
 							Do {
 								$MakeDirs = Read-Host "Create it? [Y\N]"
 								$MakeDirs = $MakeDirs.Trim()
 							} Until ($MakeDirs -eq "Y" -Or $MakeDirs -eq "N")
 							If ($MakeDirs -eq "Y") {
-								mkdir $ParentFolder
+								mkdir $UserPath
 							} Else {
 								Continue
 							}
-						}
-						$FileWithExt = Split-Path -Path $UserPath -Leaf
-						# E.g. "test file.ext"
-						Try {
-							Write-Verbose "Creating: $UserPath"
-							Reg export "$BackupRegPath" "$UserPath" /y
-						} Catch {
-							Write-Warning "Registry backup file export failed. ($FileWithExt)"
-							Continue
-						}
-						$Accepted = $True
+							$UserPath = Join-Path -Path $UserPath -ChildPath $NewFileName
+							Try {
+								Write-Verbose "Creating: $UserPath"
+								Reg export "$BackupRegPath" "$UserPath" /y
+							} Catch {
+								Write-Warning "Registry backup file export failed. ($NewFileName)"
+								Continue
+							}
+							$Accepted = $True
+						} # End If ($HasFileExtension)
 					} Else {
-						# Path doesn't have file extension
-						# E.g. "C:\foo bar\test file"
-						$NewFileName = Read-Host "New file name"
-						If (!$NewFileName -Or $NewFileName -eq "" -Or $null -eq $NewFileName) {Continue}
-						$NewFileName = $NewFileName.Trim()
-						$NewFileName = Add-NewRegFileName -NewFileName $NewFileName
-						# E.g. "C:\foo bar\test file"
-						Write-Warning "Folder path does not exist: $UserPath"
-						Do {
-							$MakeDirs = Read-Host "Create it? [Y\N]"
-							$MakeDirs = $MakeDirs.Trim()
-						} Until ($MakeDirs -eq "Y" -Or $MakeDirs -eq "N")
-						If ($MakeDirs -eq "Y") {
-							mkdir $UserPath
-						} Else {
-							Continue
+						Write-Verbose "Path exists."
+						#$IsFolder = (Get-Item $UserPath) -is [System.IO.DirectoryInfo]
+						$IsFolder = (Get-Item $UserPath).PSIsContainer
+						If ($IsFolder) {
+							$NewFileName = Read-Host "New file name"
+							If (!$NewFileName -Or $NewFileName -eq "") {Continue}
+							$NewFileName = $NewFileName.Trim()
+							$NewFileName = Add-NewRegFileName -NewFileName $NewFileName
+							$UserPath = Join-Path -Path $UserPath -ChildPath $NewFileName
 						}
-						$UserPath = Join-Path -Path $UserPath -ChildPath $NewFileName
 						Try {
 							Write-Verbose "Creating: $UserPath"
 							Reg export "$BackupRegPath" "$UserPath" /y
@@ -967,55 +995,39 @@ switch ($Result) {
 							Continue
 						}
 						$Accepted = $True
-					} # End If ($HasFileExtension)
-				} Else {
-					Write-Verbose "Path exists."
-					#$IsFolder = (Get-Item $UserPath) -is [System.IO.DirectoryInfo]
-					$IsFolder = (Get-Item $UserPath).PSIsContainer
-					If ($IsFolder) {
-						$NewFileName = Read-Host "New file name"
-						If (!$NewFileName -Or $NewFileName -eq "") {Continue}
-						$NewFileName = $NewFileName.Trim()
-						$NewFileName = Add-NewRegFileName -NewFileName $NewFileName
-						$UserPath = Join-Path -Path $UserPath -ChildPath $NewFileName
+					} # End If (!(Test-Path -Path $UserPath))
+				} Until ($Accepted)
+			} Else {
+				$DisplayTable | ForEach-Object {
+					If ($_.ID -eq $Choice) {
+						$AltBackupFilePath = $_.Path
 					}
-					Try {
-						Write-Verbose "Creating: $UserPath"
-						Reg export "$BackupRegPath" "$UserPath" /y
-					} Catch {
-						Write-Warning "Registry backup file export failed. ($NewFileName)"
-						Continue
-					}
-					$Accepted = $True
-				} # End If (!(Test-Path -Path $UserPath))
-			} Until ($Accepted)
-		} Else {
-			$DisplayTable | ForEach-Object {
-				If ($_.ID -eq $Choice) {
-					$AltBackupFilePath = $_.Path
 				}
-			}
-			#$FileWithExt = Split-Path -Path $AltBackupFilePath -Leaf
-			$FileWithExt = $BackupFileName
-			Try {
-				Reg export "$BackupRegPath" "$AltBackupFilePath" /y
-			} Catch {
-				Write-Error "Registry backup file export failed. ($FileWithExt)"
-				Pause
-				Throw "Registry backup file export failed. ($FileWithExt)"
-			}
-		} # End If ([int]$Choice -eq $DisplayTable.Count)
-		#Reg export "$BackupRegPath" "$AltBackupFilePath" /y
+				#$FileWithExt = Split-Path -Path $AltBackupFilePath -Leaf
+				$FileWithExt = $BackupFileName
+				Try {
+					Reg export "$BackupRegPath" "$AltBackupFilePath" /y
+				} Catch {
+					Write-Error "Registry backup file export failed. ($FileWithExt)"
+					Pause
+					Throw "Registry backup file export failed. ($FileWithExt)"
+				}
+			} # End If ([int]$Choice -eq $DisplayTable.Count)
+			#Reg export "$BackupRegPath" "$AltBackupFilePath" /y
+		}
+		2 {
+			Write-Warning "No registry backups were made."
+		}
+		Default {
+			Write-Error "Registry backup choice error."
+			Throw "Registry backup choice error."
+		}
 	}
-	2 {
-		Write-Warning "No registry backups were made."
-	}
-	Default {
-		Write-Error "Registry backup choice error."
-		Throw "Registry backup choice error."
-	}
-}
-# End Backup registry path
+	# End Backup registry path
+} # End Function Backup-RegistryPath
+#-----------------------------------------------------------------------------------------------------------------------
+
+Backup-RegistryPath -KeyPath $KeyPath -KeyName $KeyName -BackupFolderName 'RegistryBackups'
 
 # Check if registry key exists:
 Try {
