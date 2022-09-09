@@ -613,16 +613,16 @@ $Step2 = "Step 2: $Verb2 ping response and `"File and print sharing`" through Wi
 Write-Host $Step2 -BackgroundColor Black -ForegroundColor White
 Write-Host ""
 
-$ParamsHash = @{
+$PingParamsHash = @{
 	ICMPv6 = $True
 	NetBIOS = $True
 }
 
 #Get-PingResponseRules -ICMPv6 -NetBIOS -Table @CommonParameters
-Get-PingResponseRules @ParamsHash -Table @CommonParameters
+Get-PingResponseRules @PingParamsHash -Table @CommonParameters
 
 Write-Verbose "Checking if ping/NetBIOS firewall rules are already allowed."
-$FwRules = Get-PingResponseRules @ParamsHash @CommonParameters
+$FwRules = Get-PingResponseRules @PingParamsHash @CommonParameters
 $RulesDisabled = $False
 ForEach ($rule in $FwRules) {
 	If ($rule.Enabled -eq 'False') {
@@ -651,13 +651,13 @@ If (($RulesDisabled -And !$Disable) -Or (!$RulesDisabled -And $Disable)) {
 		0 {
 			If ($Disable) {
 				Write-Verbose "Disabling ping response:"
-				Disable-PingResponse @ParamsHash @CommonParameters
+				Disable-PingResponse @PingParamsHash @CommonParameters
 			} Else {
 				Write-Verbose "Enabling ping response:"
-				Enable-PingResponse @ParamsHash @CommonParameters
+				Enable-PingResponse @PingParamsHash @CommonParameters
 			}
 			
-			Get-PingResponseRules @ParamsHash -Table
+			Get-PingResponseRules @PingParamsHash -Table
 		}
 		1 {
 			Write-Verbose "Declined firewall rules change for ping."
@@ -763,7 +763,8 @@ Write-Host ""
 
 # Check if Server OS:
 $ServerOS = $False
-If (((Get-CimInstance -ClassName CIM_OperatingSystem).Caption) -like "*Server*") {
+$OSName = ((Get-CimInstance -ClassName CIM_OperatingSystem).Caption)
+If ($OSName -like "*Server*") {
 	$ServerOS = $True
 }
 Write-Verbose "Server OS detected: $ServerOS"
@@ -771,13 +772,16 @@ Write-Verbose "Server OS detected: $ServerOS"
 # Set registry key path & name
 #$KeyPath = "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
 $KeyPath = "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
-$KeyName1 = "AutoShareServer"
-$KeyName2 = "AutoShareWks"
+$KeyNameServer = "AutoShareServer"
+$KeyNameDesktop = "AutoShareWks"
 If ($ServerOS) {
-	$KeyName = $KeyName1
+	$KeyName = $KeyNameServer
+	$WrongKeyName = $KeyNameDesktop
 } Else {
-	$KeyName = $KeyName2
+	$KeyName = $KeyNameDesktop
+	$WrongKeyName = $KeyNameServer
 }
+$BackupFolderName = "RegistryBackups"
 
 #-----------------------------------------------------------------------------------------------------------------------
 Function Backup-RegistryPath {
@@ -787,6 +791,13 @@ Function Backup-RegistryPath {
 		$KeyName,
 		$BackupFolderName = 'RegistryBackups'
 	)
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	$CommonParameters = @{
+		Verbose = [System.Management.Automation.ActionPreference]$VerbosePreference
+		Debug = [System.Management.Automation.ActionPreference]$DebugPreference
+	}
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	Write-Verbose "Starting function: $($MyInvocation.MyCommand)"
 	
 	#-----------------------------------------------------------------------------------------------------------------------
 	Function Add-NewRegFileName($NewFileName) {
@@ -1024,12 +1035,11 @@ Function Backup-RegistryPath {
 		}
 	}
 	# End Backup registry path
+	Write-Verbose "Ending function: $($MyInvocation.MyCommand)"
 } # End Function Backup-RegistryPath
 #-----------------------------------------------------------------------------------------------------------------------
 
-Backup-RegistryPath -KeyPath $KeyPath -KeyName $KeyName -BackupFolderName 'RegistryBackups'
-
-# Check if registry key exists:
+# Check if registry key(s) exists:
 Try {
 	$KeyValue = Get-ItemProperty -Path $KeyPath -Name $KeyName -ErrorAction 'Stop'
 } Catch {
@@ -1038,74 +1048,199 @@ Try {
 	If ($KeyValue) {Remove-Variable -Name KeyValue}
 }
 
-Write-Host "End Test."
-Pause
-Return
+Try {
+	$WrongKeyValue = Get-ItemProperty -Path $KeyPath -Name $WrongKeyName -ErrorAction 'Stop'
+} Catch {``
+	Write-Verbose "Registry key '$WrongKeyName' does not exist."
+	If ($WrongKeyValue) {Remove-Variable -Name WrongKeyValue}
+}
 
 #-----------------------------------------------------------------------------------------------------------------------
-#Function Delete-RegKey($KeyPath,$KeyName) {
-Function Delete-RegKey {
+#Function Remove-RegistryKey($KeyPath,$KeyName) {
+Function Remove-RegistryKey {
 	[CmdletBinding()]
-	Param($KeyPath,$KeyName)
+	Param(
+		[string]$KeyPath,
+		[string]$KeyName,
+		[switch]$ServerOS,
+		[string]$OSName,
+		[switch]$OptionalRemoval
+	)
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	$CommonParameters = @{
+		Verbose = [System.Management.Automation.ActionPreference]$VerbosePreference
+		Debug = [System.Management.Automation.ActionPreference]$DebugPreference
+	}
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	Write-Verbose "Starting function: $($MyInvocation.MyCommand)"
+	# First check if registry key exists:
 	Try {
 		$KeyValue = Get-ItemProperty -Path $KeyPath -Name $KeyName -ErrorAction 'Stop'
 	} Catch {
 		Write-Verbose "Registry key '$KeyName' does not exist."
 		If ($KeyValue) {Remove-Variable -Name KeyValue}
 	}
+	# Ask user to delete it if it does:
 	If ($KeyValue.$KeyName) {
-		Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
-		Write-Host "In order to prevent Windows 10 from publishing administrative shares, the registry key '$KeyPath' needs a Dword parameter named AutoShareWks (for desktop versions of Windows) or AutoShareServer (for Windows Server) and the value 0.`n"
-		$DisplayTable = [PSCustomObject]@{
-			Key = $KeyName
-			Value = "$($KeyValue.$KeyName) (True)"
+		If (!$OptionalRemoval) {
+			Write-Warning "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
+			Write-Host "In order to prevent Windows 10 from publishing administrative shares, the registry key '$KeyPath' needs a Dword parameter named AutoShareWks (for desktop versions of Windows) or AutoShareServer (for Windows Server) and the value 0.`n"
+			$DisplayTable = [PSCustomObject]@{
+				Key = $KeyName
+				Value = "$($KeyValue.$KeyName) (True)"
+			}
+			Write-Host "`nRegistry path:`n$KeyPath\`n`nKey:`n$KeyName"
+			$DisplayTable | Format-Table | Out-Host
+			If ($ServerOS) {
+				$OSLabel = "server"
+				$OppositeLabel = "non-server"
+			} Else {
+				$OSLabel = "non-server"
+				$OppositeLabel = "server"
+			}
+			Write-Warning "Incorrect/incompatible registry key detected. This computer has been detected as a $OSLabel OS ('$OSName'), yet a key only meant for a $OppositeLabel OS was detected ('$KeyName'). Recommended to delete this registry key."
+			$SuggestedAction = "RECOMMENDED"
+		} Else {
+			$SuggestedAction = "OPTIONAL"
 		}
-		Write-Host "`nRegistry path:`n$KeyPath\`n`nKey:`n$KeyName"
-		$DisplayTable | Format-Table | Out-Host
-		Write-Warning "After a reboot, administrative shares will not be created. In this case, the tools for remote computer manage, including psexec, will stop working."
 		# Ask user to either disable or delete registry key
-		$Title = "Disable registry key?"
-		$Info = "Change the value of '$KeyName' to 0 to disable Admin shares?"
+		$Title = "Delete registry key?"
+		$Info = "Remove the '$KeyName' registry key?"
 		# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
-		$Delete = New-Object System.Management.Automation.Host.ChoiceDescription "&Delete", "Delete, disable the '$KeyName' registry key by changing it to 0 (currently is $($KeyValue.$KeyName)), which will disable Windows Admin share generation on boot."
-		$Keep = New-Object System.Management.Automation.Host.ChoiceDescription "&Keep", "Keep, do not make any changes to the registry."
+		$Delete = New-Object System.Management.Automation.Host.ChoiceDescription "&Delete", "Delete the '$KeyName' registry key. ($SuggestedAction)"
+		$Keep = New-Object System.Management.Automation.Host.ChoiceDescription "&Keep", "Keep as-is, do not make any changes to the registry: '$KeyName' ($($KeyValue.$KeyName))"
 		$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Delete, $Keep)
-		[int]$DefaultChoice = 0 # First choice starts at zero
+		If (!$OptionalRemoval) {
+			[int]$DefaultChoice = 0 # First choice starts at zero
+		} Else {
+			[int]$DefaultChoice = 1 # First choice starts at zero
+		}
 		$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
 		switch ($Result) {
 			0 {
-				Write-Verbose "Changing '$KeyName' reg key to 0 (disabled)."
-				#Set-ItemProperty -Name AutoShareWks -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Value 1
-				#Set-ItemProperty -Path $KeyPath -Name $KeyName -Value 1
+				Write-Verbose "Deleting '$KeyName' reg key."
+				Remove-ItemProperty -Path $KeyPath -Name $KeyName @CommonParameters
 			}
 			1 {
 				Write-Verbose "Keeping registry key the same: '$KeyName' ($($KeyValue.$KeyName))"
 			}
 			Default {
-				Write-Error "Workgroup choice error."
-				Throw "Workgroup choice error."
+				Write-Error "Delete registry key choice error."
+				Throw "Delete registry key choice error."
 			}
 		}
 	}
-} # End Function Delete-RegKey
+	Write-Verbose "Ending function: $($MyInvocation.MyCommand)"
+} # End Function Remove-RegistryKey
 #-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
+#Function New-RegistryKey($KeyPath,$KeyName) {
+Function New-RegistryKey {
+	[CmdletBinding()]
+	Param(
+		[string]$KeyPath,
+		[string]$KeyName,
+		$NewValue
+	)
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	$CommonParameters = @{
+		Verbose = [System.Management.Automation.ActionPreference]$VerbosePreference
+		Debug = [System.Management.Automation.ActionPreference]$DebugPreference
+	}
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	Write-Verbose "Starting function: $($MyInvocation.MyCommand)"
+	# First check if registry key exists:
+	Try {
+		$KeyValue = Get-ItemProperty -Path $KeyPath -Name $KeyName -ErrorAction 'Stop' @CommonParameters
+	} Catch {
+		Write-Verbose "Registry key '$KeyName' does not exist."
+		If ($KeyValue) {Remove-Variable -Name KeyValue}
+	}
+	# Ask user to create it if it doesn't:
+	If (!($KeyValue.$KeyName)) {
+		Write-Verbose "Key '$KeyName' does not exist."
+		# Ask user to either disable or delete registry key
+		$Title = "Create new registry key?"
+		$Info = "Create the '$KeyName' registry key?"
+		# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
+		$Create = New-Object System.Management.Automation.Host.ChoiceDescription "&Create Key", "Create new '$KeyName' registry key with the DWORD value = $NewValue"
+		$Skip = New-Object System.Management.Automation.Host.ChoiceDescription "&Skip", "Keep everything as-is, do not make any changes to the registry."
+		$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Create, $Skip)
+		[int]$DefaultChoice = 0 # First choice starts at zero
+		$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
+		switch ($Result) {
+			0 {
+				Write-Verbose "Creating '$KeyName' reg key with the DWORD value = $NewValue"
+				
+				$null = New-ItemProperty -Path $KeyPath -Name $KeyName -Type DWORD -Value $NewValue @CommonParameters
+				
+			}
+			1 {
+				Write-Verbose "No changes made, keeping registry as-is"
+			}
+			Default {
+				Write-Error "Create new registry key choice error."
+				Throw "Create new registry key choice error."
+			}
+		}
+	}
+	Write-Verbose "Ending function: $($MyInvocation.MyCommand)"
+} # End Function New-RegistryKey
+#-----------------------------------------------------------------------------------------------------------------------
+
+# Backup registry key path.
+Backup-RegistryPath -KeyPath $KeyPath -KeyName $KeyName -BackupFolderName $BackupFolderName @CommonParameters
+
+# Backup registry key path.
+# First determine if any backups are necessary:
+$BackupRegistry = $False
+If ($ServerOS) {
+	Write-Verbose "Server OS detected."
+	If ($KeyValue.$KeyName) {
+		Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
+		If ($KeyValue.$KeyName -eq 1) {
+			Write-Verbose "'$KeyName' is enabled."
+			If ($Disable) {
+				
+			}
+			
+		}
+		
+	}
+} Else {
+	Write-Verbose "Non-server OS detected."
+	If ($KeyValue.$KeyName) {
+		Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
+		If ($KeyValue.$KeyName -eq 1) {
+			Write-Verbose "'$KeyName' is enabled."
+			If ($Disable) {
+				
+			}
+			
+		}
+		
+	}
+	
+}
+
 
 # Detect & delete non-necessary registry keys:
 If ($ServerOS) {
 	
-	Delete-RegKey -KeyPath $KeyPath -KeyName $KeyName2 -Verbose
-	#Delete-RegKey -KeyPath $KeyPath -KeyName $KeyName2 @CommonParameters
+	#Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyNameDesktop -Verbose
+	Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyNameDesktop -ServerOS $ServerOS -OSName $OSName @CommonParameters
 	
 } Else {
 	
-	Delete-RegKey -KeyPath $KeyPath -KeyName $KeyName1 -Verbose
-	#Delete-RegKey -KeyPath $KeyPath -KeyName $KeyName1 @CommonParameters
+	#Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyNameServer -Verbose
+	Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyNameServer -ServerOS $ServerOS -OSName $OSName @CommonParameters
 	
 }
 
 # Create/Enable/Disable/Delete registry key:
 If ($KeyValue.$KeyName) {
-	Write-Host "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'" -ForegroundColor Green -BackgroundColor Black
+	#Write-Host "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'" -ForegroundColor Green -BackgroundColor Black
 	Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
 	If ($KeyValue.$KeyName -eq 1) {
 		Write-Verbose "'$KeyName' is enabled."
@@ -1118,7 +1253,7 @@ If ($KeyValue.$KeyName) {
 			Write-Host "`nRegistry path:`n$KeyPath\`nKey:$KeyName"
 			$DisplayTable | Format-Table | Out-Host
 			Write-Host "`nIn order to prevent Windows 10 from publishing administrative shares, the registry key '$KeyPath' needs a Dword parameter named AutoShareWks (for desktop versions of Windows) or AutoShareServer (for Windows Server) and the value 0.`n"
-			Write-Host "After a reboot, administrative shares will not be created. In this case, the tools for remote computer manage, including psexec, will stop working.`n"
+			Write-Warning "After a reboot, administrative shares will not be created. In this case, the tools for remote computer manage, including psexec, will stop working.`n"
 			# Ask user to either disable or delete registry key
 			$Title = "Disable registry key?"
 			$Info = "Change the value of '$KeyName' to 0 to disable Admin shares?"
@@ -1138,38 +1273,45 @@ If ($KeyValue.$KeyName) {
 					Write-Verbose "Keeping registry key the same: '$KeyName' ($($KeyValue.$KeyName))"
 				}
 				Default {
-					Write-Error "Workgroup choice error."
-					Throw "Workgroup choice error."
+					Write-Error "Disable registry key choice error."
+					Throw "Disable registry key choice error."
 				}
 			}
 		} Else {
 			# Either deleting or enabling (1) this registry key will turn the Admin shares feature back on. User wants it on and it's already on (1), so we can leave the reg key as-is. But deleting it would also work.
-			Write-Verbose "Registry key '$KeyName' is already enabled ($($KeyValue.$KeyName)). Windows will already automatically publish Administrative shares when this key is set to 1, or deleted. No registry changes are necessary.`nSKIPPING...`n"
+			Write-Host "Registry key '$KeyName' is already enabled ($($KeyValue.$KeyName)). Windows will already automatically publish Administrative shares when this key is set to 1, or is deleted. No registry changes are necessary, but it can also be deleted for the same effect.`nSKIPPING...`n"
 			#Remove-ItemProperty -Path $KeyPath -Name $KeyName -Verbose
 			#Remove-ItemProperty -Path $KeyPath -Name $KeyName @CommonParameters
+			Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyNameDesktop -OptionalRemoval @CommonParameters
 		}
 	}
 } Else {
-	Write-Host "Key '$KeyName' does not exist." -ForegroundColor Red -BackgroundColor Black
+	#Write-Host "Key '$KeyName' does not exist." -ForegroundColor Red -BackgroundColor Black
 	Write-Verbose "Key '$KeyName' does not exist."
 	If ($Disable) {
 		# Ask user to create registry key as disabled.
+		Write-Warning "Key '$KeyName' does not exist."
+		Write-Host "`nIn order to prevent Windows 10 from publishing administrative shares, the registry key '$KeyPath' needs a Dword parameter named AutoShareWks (for desktop versions of Windows) or AutoShareServer (for Windows Server) and the value 0.`n"
+		Write-Warning "After a reboot, administrative shares will not be created. In this case, the tools for remote computer manage, including psexec, will stop working.`n"
 		
-		Remove-ItemProperty -Path $KeyPath -Name $KeyName -Verbose
+		#$null = New-ItemProperty -Path $KeyPath -Name $KeyName -Type DWORD -Value 1
 		
-		$null = New-ItemProperty -Path $KeyPath -Name $KeyName -Type DWORD -Value 1
+		New-RegistryKey -KeyPath $KeyPath -KeyName $KeyName -NewValue 0
 		
 	} Else {
 		# Ask user to create registry key as enabled.
-		Write-Verbose "Registry key '$KeyName' already doesn't exist. Windows will automatically publish Administrative shares. No registry changes are necessary, but this key can still be created as enabled if wanted.`n"
+		Write-Host "Registry key '$KeyName' already doesn't exist. Windows will automatically publish Administrative shares. No registry changes are necessary, but this key can still be created as enabled if desired.`n"
 		
-		Remove-ItemProperty -Path $KeyPath -Name $KeyName -Verbose
+		#$null = New-ItemProperty -Path $KeyPath -Name $KeyName -Type DWORD -Value 1
 		
-		$null = New-ItemProperty -Path $KeyPath -Name $KeyName -Type DWORD -Value 1
+		New-RegistryKey -KeyPath $KeyPath -KeyName $KeyName -NewValue 1
 		
 	}
 }
 
+Write-Host "Tests completed."
+Pause
+Return
 
 <#
 
@@ -1362,7 +1504,7 @@ If ($Disable) {
 	
 	ForEach ($IP in $ValidIPs) {
 		If ($IP.IPAddress -like "169.254.*") {
-			Write-Host " - \\$($IP.IPAddress)\C$ (DHCP error: Unassigned APIPA network address in use.)" -BackgroundColor Black -ForegroundColor Red
+			Write-Host " - \\$($IP.IPAddress)\C$ - (DHCP error: Unassigned APIPA network address in use.)" -BackgroundColor Black -ForegroundColor Red
 		} Else {
 			Write-Host " - \\$($IP.IPAddress)\C$" -BackgroundColor Black -ForegroundColor Yellow
 		}
