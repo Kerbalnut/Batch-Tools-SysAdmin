@@ -593,18 +593,84 @@ Function Backup-RegistryPath {
 	} # End Function Add-NewRegFileName
 	#-----------------------------------------------------------------------------------------------------------------------
 	
-	# Backup registry key path:
+	#-----------------------------------------------------------------------------------------------------------------------
+	Function Export-RegPath {
+		[CmdletBinding()]
+		Param(
+			$BackupFileName,
+			$BackupRegPath,
+			$BackupFilePath
+		)
+		$FileWithExt = Split-Path -Path $BackupFilePath -Leaf
+		$FileWithExt = $BackupFileName
+		$RegOutputFile = Join-Path -Path $env:TEMP -ChildPath "reg_export_output.txt"
+		$ParentFolder = Split-Path -Path $BackupFilePath -Parent
+		If (!(Test-Path -Path $ParentFolder)) {
+			Try {
+				mkdir $ParentFolder
+			} Catch {
+				Write-Warning "Could not create folder for registry backup: `"$ParentFolder`""
+				#Write-Error "Could not create folder for registry backup: `"$ParentFolder`""
+				#Throw "Could not create folder for registry backup: `"$ParentFolder`""
+			}
+		}
+		Try {
+			#(Reg export "$BackupRegPath" "$BackupFilePath" /y) | Tee-Object | Set-Variable -Name RegCmdResult
+			(Reg export "$BackupRegPath" "$BackupFilePath" /y) *> "$RegOutputFile"
+		} Catch {
+			$RegCmdResult = Get-Content -Path $RegOutputFile
+			Write-Host "'Reg' export command had an error:`n$RegCmdResult" -ForegroundColor Red -BackgroundColor Black
+			Write-Error "Registry backup file export failed. ($FileWithExt) `"$RegOutputFile`""
+			Pause
+			Throw "Registry backup file export failed. ($FileWithExt)`"$RegOutputFile`""
+		}
+		$RegCmdResult = Get-Content -Path $RegOutputFile
+		If ($RegCmdResult -like "*ERROR*") {
+			Write-Host "'Reg' export command had an error:`n$RegCmdResult" -ForegroundColor Red -BackgroundColor Black
+			Write-Error "Registry backup file export failed. ($FileWithExt) `"$RegOutputFile`""
+			Pause
+			Throw "Registry backup file export failed. ($FileWithExt)`"$RegOutputFile`""
+		}
+	} # End Function Export-RegPath
+	#-----------------------------------------------------------------------------------------------------------------------
+	
+	# Setup vars:
 	$BackupRegPath = $KeyPath
 	#$BackupRegPath = Split-Path -Path $BackupRegPath -Parent
 	$BackupRegPath = $BackupRegPath -replace 'Registry::',''
 	$BackupRegPath = $BackupRegPath -replace 'HKEY_LOCAL_MACHINE','HKLM'
 	$BackupRegPath = $BackupRegPath -replace ':',''
 	$DateString = Get-Date -UFormat "%Y-%m-%d_%H-%M-%S"
-	$BackupFileName = "$($DateString)_$($KeyName)_reg_backup.reg"
+	$BackupFileName = "$($DateString)_$($KeyName)_backup.reg"
 	#$BackupFileName = "test_backup.reg"
 	#$BackupFilePath = Join-Path -Path (Get-Location) -ChildPath $BackupFileName
 	$BackupFilePath = Join-Path -Path (Get-Location) -ChildPath $BackupFolderName
 	$BackupFilePath = Join-Path -Path $BackupFilePath -ChildPath $BackupFileName
+	
+	$Alt1 = Join-Path -Path $env:USERPROFILE -ChildPath 'Desktop'
+	$Alt1 = Join-Path -Path $Alt1 -ChildPath $BackupFolderName
+	#$Alt1 = (Join-Path -Path $Alt1 -ChildPath $BackupFileName)
+	$Alt2 = Join-Path -Path $env:USERPROFILE -ChildPath 'Documents'
+	$Alt2 = Join-Path -Path $Alt2 -ChildPath $BackupFolderName
+	#$Alt2 = (Join-Path -Path $Alt2 -ChildPath $BackupFileName)
+	$Alt3 = Join-Path -Path $env:TEMP -ChildPath $BackupFolderName
+	#$Alt3 = (Join-Path -Path $env:TEMP -ChildPath $BackupFileName)
+	
+	$AltPaths = @(
+		$BackupFilePath,
+		(Join-Path -Path $Alt1 -ChildPath $BackupFileName),
+		(Join-Path -Path $Alt2 -ChildPath $BackupFileName),
+		(Join-Path -Path $Alt3 -ChildPath $BackupFileName)
+	)
+	
+	If ((Get-Location) -notlike "C:\WINDOWS*") {
+		$BackupFilePath = ($AltPaths | Select-Object -First 1)
+	} Else {
+		$BackupFilePath = ($AltPaths | Select-Object -First 2)
+		$BackupFilePath = ($BackupFilePath | Select-Object -Last 1)
+	}
+	
+	# Ask user to backup registry key path:
 	Write-Host "`n`nBackup resgistry location:`n$BackupRegPath`n`nTo path:`n$BackupFilePath`n"
 	$Title = "Backup registry location?"
 	$Info = "Backup the target registry location before making changes? (RECOMMENDED) This is only a backup, you will be asked to make the actual changes later."
@@ -618,27 +684,11 @@ Function Backup-RegistryPath {
 	switch ($Result) {
 		0 {
 			Write-Verbose "Backing up registry to: $BackupFilePath"
-			Reg export "$BackupRegPath" "$BackupFilePath" /y
+			#Reg export "$BackupRegPath" "$BackupFilePath" /y\
+			Export-RegPath -BackupFileName $BackupFileName -BackupRegPath $BackupRegPath -BackupFilePath $BackupFilePath
 		}
 		1 {
 			Write-Verbose "Choose alternate path:"
-			
-			$Alt1 = Join-Path -Path $env:USERPROFILE -ChildPath 'Desktop'
-			$Alt1 = Join-Path -Path $Alt1 -ChildPath $BackupFolderName
-			#$Alt1 = (Join-Path -Path $Alt1 -ChildPath $BackupFileName)
-			$Alt2 = Join-Path -Path $env:USERPROFILE -ChildPath 'Documents'
-			$Alt2 = Join-Path -Path $Alt2 -ChildPath $BackupFolderName
-			#$Alt2 = (Join-Path -Path $Alt2 -ChildPath $BackupFileName)
-			$Alt3 = Join-Path -Path $env:TEMP -ChildPath $BackupFolderName
-			#$Alt3 = (Join-Path -Path $env:TEMP -ChildPath $BackupFileName)
-			
-			$AltPaths = @(
-				$BackupFilePath,
-				(Join-Path -Path $Alt1 -ChildPath $BackupFileName),
-				(Join-Path -Path $Alt2 -ChildPath $BackupFileName),
-				(Join-Path -Path $Alt3 -ChildPath $BackupFileName)
-			)
-			
 			$DisplayTable = @()
 			$i = 0
 			$AltPaths | ForEach-Object {
@@ -660,6 +710,7 @@ Function Backup-RegistryPath {
 				[int]$Choice = Read-Host "Enter choice ID"
 			} Until ([int]$Choice -ge 1 -And [int]$Choice -le $DisplayTable.Count)
 			If ([int]$Choice -eq $DisplayTable.Count) {
+				# User made last choice in list: enter their own path
 				$Accepted = $False
 				Do {
 					$UserPath = Read-Host "Enter new path"
@@ -714,7 +765,8 @@ Function Backup-RegistryPath {
 							# E.g. "test file.ext"
 							Try {
 								Write-Verbose "Creating: $UserPath"
-								Reg export "$BackupRegPath" "$UserPath" /y
+								#Reg export "$BackupRegPath" "$UserPath" /y
+								Export-RegPath -BackupFileName $BackupFileName -BackupRegPath $BackupRegPath -BackupFilePath $UserPath
 							} Catch {
 								Write-Warning "Registry backup file export failed. ($FileWithExt)"
 								Continue
@@ -741,7 +793,8 @@ Function Backup-RegistryPath {
 							$UserPath = Join-Path -Path $UserPath -ChildPath $NewFileName
 							Try {
 								Write-Verbose "Creating: $UserPath"
-								Reg export "$BackupRegPath" "$UserPath" /y
+								#Reg export "$BackupRegPath" "$UserPath" /y
+								Export-RegPath -BackupFileName $BackupFileName -BackupRegPath $BackupRegPath -BackupFilePath $UserPath
 							} Catch {
 								Write-Warning "Registry backup file export failed. ($NewFileName)"
 								Continue
@@ -761,7 +814,8 @@ Function Backup-RegistryPath {
 						}
 						Try {
 							Write-Verbose "Creating: $UserPath"
-							Reg export "$BackupRegPath" "$UserPath" /y
+							#Reg export "$BackupRegPath" "$UserPath" /y
+							Export-RegPath -BackupFileName $BackupFileName -BackupRegPath $BackupRegPath -BackupFilePath $UserPath
 						} Catch {
 							Write-Warning "Registry backup file export failed. ($NewFileName)"
 							Continue
@@ -770,20 +824,15 @@ Function Backup-RegistryPath {
 					} # End If (!(Test-Path -Path $UserPath))
 				} Until ($Accepted)
 			} Else {
+				# User Made a pre-generated backup path choice:
 				$DisplayTable | ForEach-Object {
 					If ($_.ID -eq $Choice) {
 						$AltBackupFilePath = $_.Path
 					}
 				}
-				#$FileWithExt = Split-Path -Path $AltBackupFilePath -Leaf
-				$FileWithExt = $BackupFileName
-				Try {
-					Reg export "$BackupRegPath" "$AltBackupFilePath" /y
-				} Catch {
-					Write-Error "Registry backup file export failed. ($FileWithExt)"
-					Pause
-					Throw "Registry backup file export failed. ($FileWithExt)"
-				}
+				
+				Export-RegPath -BackupFileName $BackupFileName -BackupRegPath $BackupRegPath -BackupFilePath $AltBackupFilePath
+				
 			} # End If ([int]$Choice -eq $DisplayTable.Count)
 			#Reg export "$BackupRegPath" "$AltBackupFilePath" /y
 		}
@@ -823,7 +872,7 @@ Function New-RegistryKey {
 		If ($KeyValue) {Remove-Variable -Name KeyValue}
 	}
 	# Ask user to create it if it doesn't:
-	If (!($KeyValue.$KeyName)) {
+	If (!($KeyValue)) {
 		Write-Verbose "Key '$KeyName' does not exist."
 		# Ask user to either disable or delete registry key
 		$Title = "Create new registry key?"
@@ -877,14 +926,15 @@ Function Remove-RegistryKey {
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	Write-Verbose "Starting function: $($MyInvocation.MyCommand)"
 	# First check if registry key exists:
+	If ($KeyValue) {Remove-Variable -Name KeyValue -ErrorAction 'SilentlyContinue'}
 	Try {
 		$KeyValue = Get-ItemProperty -Path $KeyPath -Name $KeyName -ErrorAction 'Stop'
 	} Catch {
 		Write-Verbose "Registry key '$KeyName' does not exist."
-		If ($KeyValue) {Remove-Variable -Name KeyValue}
+		If ($KeyValue) {Remove-Variable -Name KeyValue -ErrorAction 'SilentlyContinue'}
 	}
 	# Ask user to delete it if it does:
-	If ($KeyValue.$KeyName) {
+	If ($KeyValue -And $KeyValue -ne '' -And $null -ne $KeyValue) {
 		If ($KeyValue.$KeyName -eq 0) {
 			$ValueLabel = "(disabled)"
 		} ElseIf ($KeyValue.$KeyName -eq 1) {
@@ -1015,6 +1065,10 @@ If (!($Disable)) {
 	}
 } Else {
 	Write-Host "Disabling Admin shares, no need to mess with network profiles.`nSKIPPING...`n"
+	
+	Write-Host "`n"
+	Write-Warning "TODO - Give user the option to change network profile(s) back to Public. But keep the default option as No."
+	Write-Host "`n"
 }
 
 Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
@@ -1047,7 +1101,16 @@ If (($RulesDisabled -And !$Disable) -Or (!$RulesDisabled -And $Disable)) {
 	$Title = "$Verb2 ping response?"
 	$Info = "$Verb2 firewall rules that Allow ping response (ICMPv4) and NetBIOS discovery on this machine: $env:COMPUTERNAME?"
 	# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
-	$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "$Verb2 firewall rules that would Allow a ping response from this device: $env:COMPUTERNAME"
+	If ($PingParamsHash.ICMPv6 -And $PingParamsHash.NetBIOS) {
+		$Targets = "IPv6 & NetBIOS"
+	} ElseIf ($PingParamsHash.ICMPv6) {
+		$Targets = "IPv6"
+	} ElseIf ($PingParamsHash.NetBIOS) {
+		$Targets = "NetBIOS"
+	}
+	$AdditionalParams = "IPv4"
+	If ($Targets) {$AdditionalParams = "$AdditionalParams (as well as $Targets)"}
+	$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "$Verb2 firewall rules that would Allow a $AdditionalParams ping response from this device: $env:COMPUTERNAME"
 	$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Do not make any firewall rule changes."
 	$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $No)
 	If ($Disable) {
@@ -1118,7 +1181,7 @@ If (!($Disable)) {
 	$Info = "Change the current Workgroup name '$Workgroup' of this PC '$env:COMPUTERNAME' to something different (REQUIRES RESTART), or keep it as-is?"
 	# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
 	$Change = New-Object System.Management.Automation.Host.ChoiceDescription "&Change", "Change the current Workgroup name '$Workgroup' of this PC '$env:COMPUTERNAME' to something new. (REQUIRES RESTART)"
-	$Keep = New-Object System.Management.Automation.Host.ChoiceDescription "&Keep", "Keep the current Workgroup name '$Workgroup' the same. (Default)"
+	$Keep = New-Object System.Management.Automation.Host.ChoiceDescription "&Keep The Same", "Keep the current Workgroup name '$Workgroup' the same. (Default)"
 	$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Change, $Keep)
 	[int]$DefaultChoice = 1 # First choice starts at zero
 	$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
@@ -1179,7 +1242,7 @@ $OSName = ((Get-CimInstance -ClassName CIM_OperatingSystem).Caption)
 If ($OSName -like "*Server*") {
 	$ServerOS = $True
 }
-Write-Verbose "Server OS detected: $ServerOS"
+Write-Verbose "Server OS detected: $ServerOS ('$OSName')"
 
 # Set registry key path & name
 #$KeyPath = "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
@@ -1202,7 +1265,6 @@ Try {
 	Write-Verbose "Registry key '$KeyName' does not exist."
 	If ($KeyValue) {Remove-Variable -Name KeyValue}
 }
-
 Try {
 	$WrongKeyValue = Get-ItemProperty -Path $KeyPath -Name $WrongKeyName -ErrorAction 'Stop'
 } Catch {
@@ -1220,7 +1282,7 @@ If (!$ServerOS -And ($KeyValue.$KeyName -eq $KeyNameServer)) {$BackupRegistry = 
 # Either no key or a key with value 1 will enable it.
 If ($Disable) {
 	# A registry key with value 0 is required to disable admin share creation on reboot.
-	If ($KeyValue.$KeyName) {
+	If ($KeyValue) {
 		Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
 		If ($KeyValue.$KeyName -eq 1) {
 			Write-Verbose "'$KeyName' is enabled."
@@ -1236,7 +1298,7 @@ If ($Disable) {
 	}
 } Else {
 	# Either no key or a key with value 1 will enable it.
-	If ($KeyValue.$KeyName) {
+	If ($KeyValue) {
 		Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
 		If ($KeyValue.$KeyName -eq 0) {
 			Write-Verbose "'$KeyName' is disabled."
@@ -1259,12 +1321,17 @@ If ($BackupRegistry) {
 }
 
 # Detect & delete non-necessary registry keys:
+$RemoveKeyParams = @{
+	KeyPath = $KeyPath
+	ServerOS = $ServerOS
+	OSName = $OSName
+}
 If ($ServerOS) {
 	#Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyNameDesktop -Verbose
-	Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyNameDesktop -ServerOS $ServerOS -OSName $OSName @CommonParameters
+	Remove-RegistryKey -KeyName $KeyNameDesktop @RemoveKeyParams @CommonParameters
 } Else {
 	#Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyNameServer -Verbose
-	Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyNameServer -ServerOS $ServerOS -OSName $OSName @CommonParameters
+	Remove-RegistryKey -KeyName $KeyNameServer @RemoveKeyParams @CommonParameters
 }
 
 # Create/Enable/Disable/Delete registry key:
@@ -1273,7 +1340,7 @@ If ($ServerOS) {
 # Either no key or a key with value 1 will enable it.
 If ($Disable) {
 	# A registry key with value 0 is required to disable admin share creation on reboot.
-	If ($KeyValue.$KeyName) {
+	If ($KeyValue) {
 		Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
 		If ($KeyValue.$KeyName -eq 1) {
 			Write-Verbose "'$KeyName' is enabled."
@@ -1302,8 +1369,8 @@ If ($Disable) {
 				0 {
 					Write-Verbose "Changing '$KeyName' reg key to 0 (disabled)."
 					
-					#Set-ItemProperty -Name AutoShareWks -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Value 1
-					Set-ItemProperty -Path $KeyPath -Name $KeyName -Value 1
+					#Set-ItemProperty -Name AutoShareWks -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Value 0
+					Set-ItemProperty -Path $KeyPath -Name $KeyName -Value 0
 				}
 				1 {
 					Write-Verbose "Keeping registry key the same: '$KeyName' ($($KeyValue.$KeyName))"
@@ -1334,7 +1401,7 @@ If ($Disable) {
 } Else {
 	# Either no key or a key with value 1 will enable it.
 	
-	If ($KeyValue.$KeyName) {
+	If ($KeyValue) {
 		Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
 		If ($KeyValue.$KeyName -eq 0) {
 			Write-Verbose "'$KeyName' is disabled."
