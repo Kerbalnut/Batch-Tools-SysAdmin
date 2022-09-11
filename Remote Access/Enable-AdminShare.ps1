@@ -865,14 +865,23 @@ Function New-RegistryKey {
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	Write-Verbose "Starting function: $($MyInvocation.MyCommand)"
 	# First check if registry key exists:
+	If ($NewFuncKeyValue) {Remove-Variable -Name NewFuncKeyValue -Force -ErrorAction 'SilentlyContinue'}
+	Remove-Variable -Name NewFuncKeyValue -Force -ErrorAction 'SilentlyContinue'
+	Write-Verbose "NewFuncKeyValue = '$NewFuncKeyValue'"
 	Try {
-		$KeyValue = Get-ItemProperty -Path $KeyPath -Name $KeyName -ErrorAction 'Stop' @CommonParameters
+		$NewFuncKeyValue = Get-ItemProperty -Path $KeyPath -Name $KeyName -Force -ErrorAction 'Stop' @CommonParameters
+	} Catch [System.Management.Automation.ItemNotFoundException] {
+		Write-Verbose "Registry key '$KeyName' does not exist. 1"
+		If ($NewFuncKeyValue) {Remove-Variable -Name NewFuncKeyValue -Force -ErrorAction 'SilentlyContinue'}
+		Remove-Variable -Name NewFuncKeyValue -Force -ErrorAction 'SilentlyContinue'
 	} Catch {
-		Write-Verbose "Registry key '$KeyName' does not exist."
-		If ($KeyValue) {Remove-Variable -Name KeyValue}
+		Write-Verbose "Registry key '$KeyName' does not exist. 2"
+		If ($NewFuncKeyValue) {Remove-Variable -Name NewFuncKeyValue -Force -ErrorAction 'SilentlyContinue'}
+		Remove-Variable -Name NewFuncKeyValue -Force -ErrorAction 'SilentlyContinue'
 	}
+	Write-Verbose "NewFuncKeyValue = '$NewFuncKeyValue'"
 	# Ask user to create it if it doesn't:
-	If (!($KeyValue)) {
+	If (!($NewFuncKeyValue)) {
 		Write-Verbose "Key '$KeyName' does not exist."
 		# Ask user to either disable or delete registry key
 		$Title = "Create new registry key?"
@@ -926,26 +935,34 @@ Function Remove-RegistryKey {
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	Write-Verbose "Starting function: $($MyInvocation.MyCommand)"
 	# First check if registry key exists:
-	If ($KeyValue) {Remove-Variable -Name KeyValue -ErrorAction 'SilentlyContinue'}
+	If ($DelFuncKeyValue) {Remove-Variable -Name DelFuncKeyValue -Force -ErrorAction 'SilentlyContinue'}
+	Remove-Variable -Name DelFuncKeyValue -Force -ErrorAction 'SilentlyContinue'
+	Write-Verbose "DelFuncKeyValue = '$DelFuncKeyValue'"
 	Try {
-		$KeyValue = Get-ItemProperty -Path $KeyPath -Name $KeyName -ErrorAction 'Stop'
+		$DelFuncKeyValue = Get-ItemProperty -Path $KeyPath -Name $KeyName -ErrorAction 'Stop'
+	} Catch [System.Management.Automation.ItemNotFoundException] {
+		Write-Verbose "Registry key '$KeyName' does not exist. 1"
+		If ($DelFuncKeyValue) {Remove-Variable -Name DelFuncKeyValue -Force -ErrorAction 'SilentlyContinue'}
+		Remove-Variable -Name DelFuncKeyValue -Force -ErrorAction 'SilentlyContinue'
 	} Catch {
-		Write-Verbose "Registry key '$KeyName' does not exist."
-		If ($KeyValue) {Remove-Variable -Name KeyValue -ErrorAction 'SilentlyContinue'}
+		Write-Verbose "Registry key '$KeyName' does not exist. 2"
+		If ($DelFuncKeyValue) {Remove-Variable -Name DelFuncKeyValue -Force -ErrorAction 'SilentlyContinue'}
+		Remove-Variable -Name DelFuncKeyValue -Force -ErrorAction 'SilentlyContinue'
 	}
+	Write-Verbose "DelFuncKeyValue = '$DelFuncKeyValue'"
 	# Ask user to delete it if it does:
-	If ($KeyValue -And $KeyValue -ne '' -And $null -ne $KeyValue) {
-		If ($KeyValue.$KeyName -eq 0) {
+	If ($DelFuncKeyValue -And $DelFuncKeyValue -ne '' -And $null -ne $DelFuncKeyValue) {
+		If ($DelFuncKeyValue.$KeyName -eq 0) {
 			$ValueLabel = "(disabled)"
-		} ElseIf ($KeyValue.$KeyName -eq 1) {
+		} ElseIf ($DelFuncKeyValue.$KeyName -eq 1) {
 			$ValueLabel = "(enabled)"
 		}
 		If (!$OptionalRemoval) {
-			Write-Warning "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
+			Write-Warning "Key '$KeyName' exists. Value = '$($DelFuncKeyValue.$KeyName)'"
 			Write-Host "In order to prevent Windows 10 from publishing administrative shares, the registry key '$KeyPath' needs a Dword parameter named AutoShareWks (for desktop versions of Windows) or AutoShareServer (for Windows Server) and the value 0.`n"
 			$DisplayTable = [PSCustomObject]@{
 				Key = $KeyName
-				Value = "$($KeyValue.$KeyName) $ValueLabel"
+				Value = "$($DelFuncKeyValue.$KeyName) $ValueLabel"
 			}
 			Write-Host "`nRegistry path:`n$KeyPath\`n`nKey:`n$KeyName"
 			$DisplayTable | Format-Table | Out-Host
@@ -966,7 +983,7 @@ Function Remove-RegistryKey {
 		$Info = "Remove the '$KeyName' registry key?"
 		# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
 		$Delete = New-Object System.Management.Automation.Host.ChoiceDescription "&Delete", "Delete the '$KeyName' registry key. ($SuggestedAction)"
-		$Keep = New-Object System.Management.Automation.Host.ChoiceDescription "&Keep", "Keep as-is, do not make any changes to the registry: '$KeyName' ($($KeyValue.$KeyName))"
+		$Keep = New-Object System.Management.Automation.Host.ChoiceDescription "&Keep", "Keep as-is, do not make any changes to the registry: '$KeyName' ($($DelFuncKeyValue.$KeyName))"
 		$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Delete, $Keep)
 		If (!$OptionalRemoval) {
 			[int]$DefaultChoice = 0 # First choice starts at zero
@@ -980,13 +997,15 @@ Function Remove-RegistryKey {
 				Remove-ItemProperty -Path $KeyPath -Name $KeyName @CommonParameters
 			}
 			1 {
-				Write-Verbose "Keeping registry key the same: '$KeyName' ($($KeyValue.$KeyName))"
+				Write-Verbose "Keeping registry key the same: '$KeyName' ($($DelFuncKeyValue.$KeyName))"
 			}
 			Default {
 				Write-Error "Delete registry key choice error."
 				Throw "Delete registry key choice error."
 			}
 		}
+	} Else {
+		Write-Verbose "Key '$KeyName' already doesn't exist. Nothing to delete."
 	}
 	Write-Verbose "Ending function: $($MyInvocation.MyCommand)"
 } # End Function Remove-RegistryKey
@@ -1263,13 +1282,13 @@ Try {
 	$KeyValue = Get-ItemProperty -Path $KeyPath -Name $KeyName -ErrorAction 'Stop'
 } Catch {
 	Write-Verbose "Registry key '$KeyName' does not exist."
-	If ($KeyValue) {Remove-Variable -Name KeyValue}
+	If ($KeyValue) {Remove-Variable -Name KeyValue -Force -ErrorAction 'SilentlyContinue'}
 }
 Try {
 	$WrongKeyValue = Get-ItemProperty -Path $KeyPath -Name $WrongKeyName -ErrorAction 'Stop'
 } Catch {
 	Write-Verbose "Registry key '$WrongKeyName' does not exist."
-	If ($WrongKeyValue) {Remove-Variable -Name WrongKeyValue}
+	If ($WrongKeyValue) {Remove-Variable -Name WrongKeyValue -Force -ErrorAction 'SilentlyContinue'}
 }
 
 # Backup registry key path.
@@ -1321,6 +1340,7 @@ If ($BackupRegistry) {
 }
 
 # Detect & delete non-necessary registry keys:
+Write-Verbose "KeyValue = '$KeyValue'"
 $RemoveKeyParams = @{
 	KeyPath = $KeyPath
 	ServerOS = $ServerOS
@@ -1333,6 +1353,7 @@ If ($ServerOS) {
 	#Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyNameServer -Verbose
 	Remove-RegistryKey -KeyName $KeyNameServer @RemoveKeyParams @CommonParameters
 }
+Write-Verbose "KeyValue = '$KeyValue'"
 
 # Create/Enable/Disable/Delete registry key:
 
