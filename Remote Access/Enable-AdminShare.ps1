@@ -79,7 +79,7 @@ Function Get-PingResponseRules {
 	Install wifi¬profile¬management is via PowerShellGet run the following command as Administrator: 
 	`Install-Module -Name wifiprofilemanagement`
 	.PARAMETER Table
-	Formats output as a table instead for easy viewing.
+	Formats output as a table instead of passing it down the pipeline, for easy viewing.
 	.NOTES
 	.LINK
 	Get-PingResponseRules
@@ -98,6 +98,12 @@ Function Get-PingResponseRules {
 		[switch]$ICMPv6,
 		
 		[switch]$NetBIOS,
+		
+		[switch]$SMB,
+		
+		[switch]$FpsRulesk,
+		
+		[switch]$AllFilePrinterSharingRules,
 		
 		[Object[]]$Profiles = @('Domain','Private'),
 		
@@ -173,6 +179,8 @@ Function Get-PingResponseRules {
 		}
 	}
 	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
 	$NetBiosFirewallNames = @(
 		"NETDIS-NB_Name-In-UDP-NoScope",
 		"NETDIS-NB_Name-Out-UDP-NoScope",
@@ -222,20 +230,369 @@ Function Get-PingResponseRules {
 		$NetBiosFirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
 	}
 	
-	If ($ICMPv6) {
-		$PingFirewallRule += $PingV6FirewallRule
-	}
-	If ($NetBIOS) {
-		$PingFirewallRule += $NetBiosFirewallRule
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	$SmbFirewallRuleNames = @(
+		"FPS-SMB-In-TCP-NoScope",
+		"FPS-SMB-Out-TCP-NoScope",
+		"FPS-SMB-In-TCP",
+		"FPS-SMB-Out-TCP"
+	)
+	
+	$SmbFwRule = @()
+	
+	Get-NetFirewallRule -DisplayGroup "File And Printer Sharing" | ForEach-Object {
+		ForEach ($Name in $SmbFirewallRuleNames) {
+			If ($_.Name -eq $Name) {
+			#If ($_.Name -like "*SMB*") {
+				$SmbFwRule += $_
+			}
+		}
 	}
 	
+	# $SmbFwRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+	
+	$Orig = $SmbFwRule
+	$SmbFwRule = @()
+	$Orig | ForEach-Object {
+		$Add = $False
+		#Write-Host "$($_.Name)"
+		ForEach ($P in $_.Profile) {
+			#Write-Host "$P"
+			ForEach ($Filter in $Profiles) {
+				#Write-Host "$Filter"
+				If ($P -like "*$Filter*" -And $_.Action -eq "Allow") {
+					$Add = $True
+				}
+			}
+		}
+		If ($Add) {
+			$SmbFwRule += $_
+		}
+	}
+	
+	If ($VerbosePreference -ne 'SilentlyContinue' -And $SMB) {
+		Write-Host "SMB File and Printer Sharing firewall rules:"
+		$SmbFwRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+	}
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	$AllFilePrinterSharingFwRules = @()
+	
+	Get-NetFirewallRule -DisplayGroup "File And Printer Sharing" | ForEach-Object {
+		$AllFilePrinterSharingFwRules += $_
+	}
+	
+	$AllFilePrinterSharingFwRules | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+	
+	$Orig = $AllFilePrinterSharingFwRules
+	$AllFilePrinterSharingFwRules = @()
+	$Orig | ForEach-Object {
+		$Add = $False
+		#Write-Host "$($_.Name)"
+		ForEach ($P in $_.Profile) {
+			#Write-Host "$P"
+			ForEach ($Filter in $Profiles) {
+				#Write-Host "$Filter"
+				If ($P -like "*$Filter*" -And $_.Action -eq "Allow") {
+					$Add = $True
+				}
+			}
+		}
+		If ($Add) {
+			$AllFilePrinterSharingFwRules += $_
+		}
+	}
+	
+	If ($VerbosePreference -ne 'SilentlyContinue' -And $AllFilePrinterSharingRules) {
+		Write-Host "SMB File and Printer Sharing firewall rules:"
+		$AllFilePrinterSharingFwRules | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+	}
+	
+	
+	
+	<#
+	$GeneratedFwRuleNames = @(
+		"{DA1D0398-473F-4050-BE9E-3A972AEBD117}"
+		"{EAEAAC14-63AC-4B57-A9ED-60E252DE4C83}"
+		"{FF1939E4-1C01-418A-ABCA-B2D567D373D7}"
+		"{8E348BC5-489D-4179-A4AE-A28C7B1D360E}"
+		"{CAFC0C3E-C9A0-424D-9A3D-3D10D39236A7}"
+		"{8BEABEEF-748E-4553-B84B-BCDFA0647CE8}"
+		"{D8320B7D-5EA4-4DCF-BF71-2F8FA8732E96}"
+		"{444CB9DB-55DA-4AE3-A77C-BC1367C19156}"
+		"{E83BCD39-90A4-4445-8EA8-8E5F4244274F}"
+		"{8104DA88-C9DE-414A-93FC-D6F057109D11}"
+		"{539A1030-805F-463A-8BC0-4087E079ECAE}"
+		"{9F3816E6-E25F-4355-8BE6-2D9BCAB731DD}"
+		"{4F734FF1-4FD7-4F55-A7EA-06BEB592D9A8}"
+		"{A289A710-3B2B-4692-B567-74F37E753499}"
+	)
+	
+	$GeneratedFwRules = @()
+	
+	#Get-NetFirewallRule -DisplayGroup "File And Printer Sharing"
+	Get-NetFirewallRule | ForEach-Object {
+		ForEach ($Name in $GeneratedFwRuleNames) {
+			If ($_.Name -eq $Name) {
+				$GeneratedFwRules += $_
+			}
+		}
+	}
+	
+	$GeneratedFwRules | ForEach-Object {
+		$_ | Remove-NetFirewallRule
+	}
+	#>
+	
+	
+	
+	
+	
+	
+	
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Allow access to administrative shares through firewall [Ref: https://serverfault.com/a/968310/336668]
+	
+	$ruleDisplayNames = "File and Printer Sharing (Echo Request - ICMPv4-In)", `
+	"File and Printer Sharing (Echo Request - ICMPv6-In)",  `
+	"File and Printer Sharing (LLMNR-UDP-In)",  `
+	"File and Printer Sharing (NB-Datagram-In)",  `
+	"File and Printer Sharing (NB-Name-In)",  `
+	"File and Printer Sharing (SMB-In)",  `
+	"File and Printer Sharing (Spooler Service - RPC)",  `
+	"File and Printer Sharing (Spooler Service - RPC-EPMAP)", `
+	"File and Printer Sharing (NB-Session-In)"
+	
+	$rules = Get-NetFirewallRule | Where {$ruleDisplayNames -contains $_.DisplayName -and $_.Profile -ne "Domain"} 
+	
+	# The default rules have the non-Domain rule apply for both Public and
+	#  Private. This updates the rule to be Private only
+	$rules | Set-NetFirewallRule -Profile Private
+	
+	# Enable the rule -- i.e. grant the eexception (allow through firewall)
+	$rules | Enable-NetFirewallRule
+	
+	
+	
+	
+	
+	
+	$FpsFirewallNames = @(
+		"File and Printer Sharing (Echo Request - ICMPv4-In)",
+		"File and Printer Sharing (Echo Request - ICMPv6-In)",
+		"File and Printer Sharing (LLMNR-UDP-In)",
+		"File and Printer Sharing (NB-Datagram-In)",
+		"File and Printer Sharing (NB-Name-In)",
+		"File and Printer Sharing (SMB-In)",
+		"File and Printer Sharing (Spooler Service - RPC)",
+		"File and Printer Sharing (Spooler Service - RPC-EPMAP)",
+		"File and Printer Sharing (NB-Session-In)"
+	)
+	
+	$FpsFwRules = @()
+	
+	Get-NetFirewallRule -DisplayGroup "File And Printer Sharing" | ForEach-Object {
+		ForEach ($Name in $FpsFirewallNames) {
+			If ($_.DisplayName -eq $Name) {
+				$FpsFwRules += $_
+			}
+		}
+	}
+	
+	$FpsFwRules | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+	
+	$Orig = $FpsFwRules
+	$FpsFwRules = @()
+	$Orig | ForEach-Object {
+		$Add = $False
+		#Write-Host "$($_.Name)"
+		ForEach ($P in $_.Profile) {
+			#Write-Host "$P"
+			ForEach ($Filter in $Profiles) {
+				#Write-Host "$Filter"
+				If ($P -like "*$Filter*" -And $_.Action -eq "Allow") {
+					$Add = $True
+				}
+			}
+		}
+		If ($Add) {
+			$FpsFwRules += $_
+		}
+	}
+	
+	If ($VerbosePreference -ne 'SilentlyContinue' -And $FpsRules) {
+		Write-Host "File and Printer Sharing firewall rules:"
+		$FpsFwRules | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+	}
+	
+	
+	
+	
+	
+	
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	$OutputRules = @()
+	
+	$OutputRules += $PingFirewallRule
+	
+	If ($ICMPv6) {
+		$OutputRules += $PingV6FirewallRule
+	}
+	If ($NetBIOS) {
+		$OutputRules += $NetBiosFirewallRule
+	}
+	If ($SMB) {
+		$OutputRules += $SmbFwRule
+	}
+	<#
+	If ($FpsRules) {
+		$OutputRules += $FpsFwRules
+	}
+	If ($AllFilePrinterSharingRules) {
+		$OutputRules = $AllFilePrinterSharingFwRules
+	}
+	#>
+	
+	$FpsFwRules | Format-Table
+	$FpsFwRules.Count
+	
+	If ($FpsRules) {
+		If ($OutputRules) {
+			Write-host "Output string full."
+			ForEach ($CheckRule in $FpsFwRules) {
+				ForEach ($SetRule in $OutputRules) {
+					If (
+						$SetRule.Name -ne $CheckRule.Name -And `
+						$SetRule.DisplayName -ne $CheckRule.DisplayName -And `
+						$SetRule.Description -ne $CheckRule.Description -And `
+						$SetRule.Direction -ne $CheckRule.Direction -And `
+						$SetRule.Action -ne $CheckRule.Action
+					) {
+						$OutputRules += $CheckRule
+					}
+				}
+			}
+		} Else {
+			Write-Host "Empty output string."
+			$OutputRules = $FpsFwRules
+		}
+	}
+	
+	$OutputRules | Format-Table
+	$OutputRules.Count
+	
+	$SmbFwRule | Format-Table
+	$SmbFwRule.Count
+	
+	If ($SMB) {
+		If ($OutputRules) {
+			ForEach ($CheckRule in $SmbFwRule) {
+				$AddRule = $True
+				ForEach ($SetRule in $OutputRules) {
+					If (
+						#$SetRule.Name -eq $CheckRule.Name -And `
+						$SetRule.CommonName -eq $CheckRule.CommonName -And `
+						#$SetRule.DisplayName -eq $CheckRule.DisplayName -And `
+						$SetRule.Description -eq $CheckRule.Description -And `
+						$SetRule.DisplayGroup -eq $CheckRule.DisplayGroup -And `
+						$SetRule.InstanceID -eq $CheckRule.InstanceID -And `
+						$SetRule.PolicyRuleName -eq $CheckRule.PolicyRuleName -And `
+						$SetRule.RuleGroup -eq $CheckRule.RuleGroup -And `
+						$SetRule.Direction -eq $CheckRule.Direction -And `
+						$SetRule.Action -eq $CheckRule.Action
+					) {
+					#If ($SetRule.Name -eq $CheckRule.Name) {
+						$AddRule = $False
+					}
+				} # End ForEach ($SetRule in $OutputRules)
+				If ($AddRule) {
+					Write-Host "Added rule to output list: $($CheckRule.Name)"
+					$OutputRules += $CheckRule
+				}
+			} # End ForEach ($CheckRule in $SmbFwRule)
+		} Else {
+			$OutputRules = $SmbFwRule
+		} # End If ($OutputRules)
+	} # End If ($SMB)
+	
+	If ($FpsRules) {
+		If ($OutputRules) {
+			ForEach ($CheckRule in $FpsFwRules) {
+				$AddRule = $True
+				ForEach ($SetRule in $OutputRules) {
+					If (
+						#$SetRule.Name -eq $CheckRule.Name -And `
+						$SetRule.CommonName -eq $CheckRule.CommonName -And `
+						#$SetRule.DisplayName -eq $CheckRule.DisplayName -And `
+						$SetRule.Description -eq $CheckRule.Description -And `
+						$SetRule.DisplayGroup -eq $CheckRule.DisplayGroup -And `
+						$SetRule.InstanceID -eq $CheckRule.InstanceID -And `
+						$SetRule.PolicyRuleName -eq $CheckRule.PolicyRuleName -And `
+						$SetRule.RuleGroup -eq $CheckRule.RuleGroup -And `
+						$SetRule.Direction -eq $CheckRule.Direction -And `
+						$SetRule.Action -eq $CheckRule.Action
+					) {
+					#If ($SetRule.Name -eq $CheckRule.Name) {
+						$AddRule = $False
+					}
+				} # End ForEach ($SetRule in $OutputRules)
+				If ($AddRule) {
+					Write-Host "Added rule to output list: $($CheckRule.Name)"
+					$OutputRules += $CheckRule
+				}
+			} # End ForEach ($CheckRule in $FpsFwRules)
+		} Else {
+			$OutputRules = $FpsFwRules
+		} # End If ($OutputRules)
+	} # End If ($FpsRules)
+	
+	If ($AllFilePrinterSharingRules) {
+		If ($OutputRules) {
+			ForEach ($CheckRule in $AllFilePrinterSharingFwRules) {
+				$AddRule = $True
+				ForEach ($SetRule in $OutputRules) {
+					If (
+						#$SetRule.Name -eq $CheckRule.Name -And `
+						$SetRule.CommonName -eq $CheckRule.CommonName -And `
+						#$SetRule.DisplayName -eq $CheckRule.DisplayName -And `
+						$SetRule.Description -eq $CheckRule.Description -And `
+						$SetRule.DisplayGroup -eq $CheckRule.DisplayGroup -And `
+						$SetRule.InstanceID -eq $CheckRule.InstanceID -And `
+						$SetRule.PolicyRuleName -eq $CheckRule.PolicyRuleName -And `
+						$SetRule.RuleGroup -eq $CheckRule.RuleGroup -And `
+						$SetRule.Direction -eq $CheckRule.Direction -And `
+						$SetRule.Action -eq $CheckRule.Action
+					) {
+					#If ($SetRule.Name -eq $CheckRule.Name) {
+						$AddRule = $False
+					}
+				} # End ForEach ($SetRule in $OutputRules)
+				If ($AddRule) {
+					Write-Host "Added rule to output list: $($CheckRule.Name)"
+					$OutputRules += $CheckRule
+				}
+			} # End ForEach ($CheckRule in $AllFilePrinterSharingFwRules)
+		} Else {
+			$OutputRules = $AllFilePrinterSharingFwRules
+		} # End If ($OutputRules)
+	} # End If ($AllFilePrinterSharingRules)
+	
+	
 	If ($Table) {
-		$PingFirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+		$OutputRules | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
 		Write-Verbose "Ending $($MyInvocation.MyCommand)"
 		Return
 	} Else {
 		Write-Verbose "Ending $($MyInvocation.MyCommand)"
-		Return $PingFirewallRule
+		Return $OutputRules
 	}
 } # End of Get-PingResponseRules function.
 #-----------------------------------------------------------------------------------------------------------------------
@@ -303,6 +660,10 @@ Function Set-PingResponse {
 		
 		[switch]$NetBIOS,
 		
+		[switch]$SMB,
+		
+		[switch]$AllFilePrinterSharingRules,
+		
 		[Object[]]$Profiles = @('Domain','Private'),
 		
 		[Parameter(Mandatory = $True, ParameterSetName = 'Enabled')]
@@ -324,6 +685,8 @@ Function Set-PingResponse {
 	$FunctionParams = @{
 		ICMPv6 = $ICMPv6
 		NetBIOS = $NetBIOS
+		SMB = $SMB
+		AllFilePrinterSharingRules = $AllFilePrinterSharingRules
 		Profiles = $Profiles
 	}
 	
@@ -431,6 +794,10 @@ Function Enable-PingResponse {
 		
 		[switch]$NetBIOS,
 		
+		[switch]$SMB,
+		
+		[switch]$AllFilePrinterSharingRules,
+		
 		[Object[]]$Profiles = @('Domain','Private'),
 		
 		[switch]$WhatIf
@@ -447,6 +814,8 @@ Function Enable-PingResponse {
 		ICMPv6 = $ICMPv6
 		NetBIOS = $NetBIOS
 		Profiles = $Profiles
+		SMB = $SMB
+		AllFilePrinterSharingRules = $AllFilePrinterSharingRules
 		Enable = $True
 		#Disable = $True
 		WhatIf = $WhatIf
@@ -516,6 +885,10 @@ Function Disable-PingResponse {
 		
 		[switch]$NetBIOS,
 		
+		[switch]$SMB,
+		
+		[switch]$AllFilePrinterSharingRules,
+		
 		[Object[]]$Profiles = @('Domain','Private'),
 		
 		[switch]$WhatIf
@@ -531,6 +904,8 @@ Function Disable-PingResponse {
 	$ParamsHash = @{
 		ICMPv6 = $ICMPv6
 		NetBIOS = $NetBIOS
+		SMB = $SMB
+		AllFilePrinterSharingRules = $AllFilePrinterSharingRules
 		Profiles = $Profiles
 		#Enable = $True
 		Disable = $True
@@ -1072,6 +1447,13 @@ If (!($Disable)) {
 						#Set-NetConnectionProfile -InterfaceIndex $interface.InterfaceIndex -NetworkCategory 'Private' @CommonParameters
 						$interface | Set-NetConnectionProfile -NetworkCategory 'Private' @CommonParameters
 						
+						Start-Sleep -Milliseconds 500
+						
+						Write-Verbose "Restarting '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network adapter"
+						Get-NetAdapter -InterfaceIndex $interface.InterfaceIndex | Restart-NetAdapter
+						
+						Start-Sleep -Milliseconds 500
+						
 						Get-NetConnectionProfile | Where-Object {$_.InterfaceIndex -eq $interface.InterfaceIndex} | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Format-Table | Out-Host
 					}
 					1 {
@@ -1105,6 +1487,8 @@ Write-Host ""
 $PingParamsHash = @{
 	ICMPv6 = $True
 	NetBIOS = $True
+	SMB = $True
+	#AllFilePrinterSharingRules = $True
 }
 
 #Get-PingResponseRules -ICMPv6 -NetBIOS -Table @CommonParameters
@@ -1174,6 +1558,18 @@ If (($RulesDisabled -And !$Disable) -Or (!$RulesDisabled -And $Disable)) {
 }
 
 Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+$Step3 = "Step 3: Enable `"File and Printer Sharing`" on network profile."
+#Write-Host "Step 3: Ensure that both computers belong to the same Workgroup or Domain." -BackgroundColor Black -ForegroundColor White
+Write-Host $Step3 -BackgroundColor Black -ForegroundColor White
+Write-Host ""
+
+
+#Enable-NetAdapterBinding -Name "Network Adapter Name" -DisplayName "File and Printer Sharing for Microsoft Networks"
+
+#Disable-NetAdapterBinding -Name "Network Adapter Name" -DisplayName "File and Printer Sharing for Microsoft Networks"
+
+
+Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
 $Step3 = "Step 3: Ensure that both computers belong to the same Workgroup or Domain."
 #Write-Host "Step 3: Ensure that both computers belong to the same Workgroup or Domain." -BackgroundColor Black -ForegroundColor White
 Write-Host $Step3 -BackgroundColor Black -ForegroundColor White
@@ -1184,7 +1580,7 @@ $PartOfDomain = (Get-WmiObject -Class Win32_ComputerSystem).PartOfDomain
 
 If ($PartOfDomain) {
 	Write-Host "This PC's domain/workgroup status:"
-	Write-Host "DOMAIN:"
+	Write-Host "DOMAIN:" -BackgroundColor Black -ForegroundColor Yellow
 	$Domain = Get-WmiObject -Namespace root\cimv2 -Class Win32_ComputerSystem | Select-Object Name, Domain
 	$Domain | Format-Table | Out-Host
 } Else {
@@ -1192,7 +1588,7 @@ If ($PartOfDomain) {
 	Write-Host "This PC's domain/workgroup status:"
 	# Workgroup (string Property)
 	$Workgroup = (Get-WmiObject -Class Win32_ComputerSystem).Workgroup
-	Write-Host "WORKGROUP: `"$Workgroup`""
+	Write-Host "WORKGROUP: `"$Workgroup`"" -BackgroundColor Black -ForegroundColor Yellow
 	Write-Host "`nTo check another PC's Workgroup name:"
 	Write-Host " - Run (Win+R): sysdm.cpl"
 	Write-Host " - Run (Win+R): SystemPropertiesComputerName"
@@ -1691,6 +2087,9 @@ If ($Disable) {
 	Write-Host "`nTry accessing a share from another PC, e.g.:" -BackgroundColor Black -ForegroundColor Yellow
 	Write-Host " - \\$env:COMPUTERNAME\C$" -BackgroundColor Black -ForegroundColor Yellow
 	
+	$VerbosePreference = $False
+	#Verbose = [System.Management.Automation.ActionPreference]$VerbosePreference
+	
 	$NetProfiles = Get-NetConnectionProfile
 	$IpAddresses = Get-NetIPAddress
 	$ValidIPs = @()
@@ -1708,6 +2107,15 @@ If ($Disable) {
 			Write-Host " - \\$($IP.IPAddress)\C$ - (DHCP error: Unassigned APIPA network address in use.)" -BackgroundColor Black -ForegroundColor Red
 		} Else {
 			Write-Host " - \\$($IP.IPAddress)\C$" -BackgroundColor Black -ForegroundColor Yellow
+		}
+	}
+	
+	Write-Host "`nTroubleshooting:" -BackgroundColor Black -ForegroundColor Yellow
+	Write-Host " - C:\> nslookup $env:COMPUTERNAME" -BackgroundColor Black -ForegroundColor Yellow
+	Write-Host " - C:\> ping $env:COMPUTERNAME" -BackgroundColor Black -ForegroundColor Yellow
+	ForEach ($IP in $ValidIPs) {
+		If ($IP.IPAddress -notlike "169.254.*") {
+			Write-Host " - C:\> ping $($IP.IPAddress)" -BackgroundColor Black -ForegroundColor Yellow
 		}
 	}
 }
