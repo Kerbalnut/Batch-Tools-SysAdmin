@@ -925,7 +925,8 @@ Function Remove-RegistryKey {
 		[string]$KeyName,
 		[switch]$ServerOS,
 		[string]$OSName,
-		[switch]$OptionalRemoval
+		[switch]$OptionalRemoval,
+		[switch]$Quiet
 	)
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	$CommonParameters = @{
@@ -959,7 +960,9 @@ Function Remove-RegistryKey {
 		}
 		If (!$OptionalRemoval) {
 			Write-Warning "Key '$KeyName' exists. Value = '$($DelFuncKeyValue.$KeyName)'"
-			Write-Host "In order to prevent Windows 10 from publishing administrative shares, the registry key '$KeyPath' needs a Dword parameter named AutoShareWks (for desktop versions of Windows) or AutoShareServer (for Windows Server) and the value 0.`n"
+			If (!$Quiet) {
+				Write-Host "In order to prevent Windows 10 from publishing administrative shares, the registry key '$KeyPath' needs a Dword parameter named AutoShareWks (for desktop versions of Windows) or AutoShareServer (for Windows Server) and the value 0.`n"
+			}
 			$DisplayTable = [PSCustomObject]@{
 				Key = $KeyName
 				Value = "$($DelFuncKeyValue.$KeyName) $ValueLabel"
@@ -973,7 +976,9 @@ Function Remove-RegistryKey {
 				$OSLabel = "non-server"
 				$OppositeLabel = "server"
 			}
-			Write-Warning "Incorrect/incompatible registry key detected. This computer has been detected as a $OSLabel OS ('$OSName'), yet a key only meant for a $OppositeLabel OS was detected ('$KeyName'). Recommended to delete this registry key."
+			If (!$Quiet) {
+				Write-Warning "Incorrect/incompatible registry key detected. This computer has been detected as a $OSLabel OS ('$OSName'), yet a key only meant for a $OppositeLabel OS was detected ('$KeyName'). Recommended to delete this registry key."
+			}
 			$SuggestedAction = "RECOMMENDED"
 		} Else {
 			$SuggestedAction = "OPTIONAL"
@@ -1098,7 +1103,7 @@ Write-Host $Step2 -BackgroundColor Black -ForegroundColor White
 Write-Host ""
 
 $PingParamsHash = @{
-	ICMPv6 = $False
+	ICMPv6 = $True
 	NetBIOS = $True
 }
 
@@ -1254,7 +1259,8 @@ $Step4 = "Step 4: Update registry values"
 Write-Host $Step4 -BackgroundColor Black -ForegroundColor White
 Write-Host ""
 
-Write-Verbose "Reg key 1: LanmanServer and AutoShareWks/AutoShareServer (auto-generate & publish Admin shares on reboot)"
+$RegKey1 = "Reg key 1: LanmanServer and AutoShareWks/AutoShareServer (auto-generate & publish Admin shares on reboot)"
+Write-Host $RegKey1
 # Check if Server OS:
 $ServerOS = $False
 $OSName = ((Get-CimInstance -ClassName CIM_OperatingSystem).Caption)
@@ -1278,6 +1284,7 @@ If ($ServerOS) {
 $BackupFolderName = "RegistryBackups"
 
 # Check if registry key(s) exists:
+Remove-Variable -Name KeyValue -Force -ErrorAction 'SilentlyContinue'
 Try {
 	$KeyValue = Get-ItemProperty -Path $KeyPath -Name $KeyName -ErrorAction 'Stop'
 } Catch {
@@ -1294,7 +1301,6 @@ Try {
 # Backup registry key path.
 # First determine if any backups are necessary:
 $BackupRegistry = $False
-
 If ($ServerOS -And ($KeyValue.$KeyName -eq $KeyNameDesktop)) {$BackupRegistry = $True}
 If (!$ServerOS -And ($KeyValue.$KeyName -eq $KeyNameServer)) {$BackupRegistry = $True}
 # A registry key with value 0 is required to disable admin share creation on reboot.
@@ -1391,7 +1397,7 @@ If ($Disable) {
 					Write-Verbose "Changing '$KeyName' reg key to 0 (disabled)."
 					
 					#Set-ItemProperty -Name AutoShareWks -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Value 0
-					Set-ItemProperty -Path $KeyPath -Name $KeyName -Value 0
+					Set-ItemProperty -Path $KeyPath -Name $KeyName -Value 0 @CommonParameters
 				}
 				1 {
 					Write-Verbose "Keeping registry key the same: '$KeyName' ($($KeyValue.$KeyName))"
@@ -1417,7 +1423,7 @@ If ($Disable) {
 		Write-Warning "After a reboot, administrative shares will not be created. In this case, the tools for remote computer manage, including psexec, will stop working.`n"
 		
 		#$null = New-ItemProperty -Path $KeyPath -Name $KeyName -Type DWORD -Value 1
-		New-RegistryKey -KeyPath $KeyPath -KeyName $KeyName -NewValue 0
+		New-RegistryKey -KeyPath $KeyPath -KeyName $KeyName -NewValue 0 @CommonParameters
 	}
 } Else {
 	# Either no key or a key with value 1 will enable it.
@@ -1452,7 +1458,7 @@ If ($Disable) {
 					Write-Verbose "Changing '$KeyName' reg key from $($KeyValue.$KeyName) (disabled) to 1 (enabled)."
 					
 					#Set-ItemProperty -Name AutoShareWks -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Value 1
-					Set-ItemProperty -Path $KeyPath -Name $KeyName -Value 1
+					Set-ItemProperty -Path $KeyPath -Name $KeyName -Value 1 @CommonParameters
 				}
 				1 {
 					Write-Verbose "Deleting registry key: '$KeyName'"
@@ -1489,17 +1495,17 @@ If ($Disable) {
 		Write-Host "Registry key '$KeyName' already doesn't exist. Windows will automatically publish Administrative shares. No registry changes are necessary, but this key can still be created as enabled if desired.`n"
 		
 		#$null = New-ItemProperty -Path $KeyPath -Name $KeyName -Type DWORD -Value 1
-		New-RegistryKey -KeyPath $KeyPath -KeyName $KeyName -NewValue 1
+		New-RegistryKey -KeyPath $KeyPath -KeyName $KeyName -NewValue 1 @CommonParameters
 	}
 }
 
-#- -- - - - - - - - - -- - - - - - - - - - - - - - -- 
+Write-Verbose "Restarting LanmanServer service..."
+Get-Service LanmanServer @CommonParameters | Restart-Service @CommonParameters
 
-Write-Host "Tests completed."
-Pause
-Return
+Write-Host "`n- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
 
-Write-Verbose "Reg key 2: LocalAccountTokenFilterPolicy (disable Remote UAC)"
+$RegKey2 = "Reg key 2: LocalAccountTokenFilterPolicy (disable Remote UAC)"
+Write-Host $RegKey2
 
 <#
 http://woshub.com/enable-remote-access-to-admin-shares-in-workgroup/
@@ -1523,27 +1529,121 @@ The point is in another aspect of security policy that appeared in the UAC – s
 You can disable Remote UAC by creating the LocalAccountTokenFilterPolicy parameter in the registry
 
 Tip. It will slightly reduce the Windows security level.
+
+- Go to the following reg key HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System ;
+- Create a new DWORD (32-bit) parameter with the name LocalAccountTokenFilterPolicy;
+- Set the LocalAccountTokenFilterPolicy parameter value to 1;
+- Restart your computer to apply the changes.
+
+Note. You can create the LocalAccountTokenFilterPolicy registry parameter using the following command:
+
+- reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v "LocalAccountTokenFilterPolicy" /t REG_DWORD /d 1 /f
+
+After rebooting, try to remotely open the C$ admin share on a computer running Windows 10. Log in using an account that is a member of the local Administrators group. A File Explorer window should open with the contents of the C:\ drive.
 #>
 
+# Set registry key path & name
+#$KeyPath = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
+$KeyPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
+$KeyName = "LocalAccountTokenFilterPolicy"
+# Check if registry key(s) exists:
+Remove-Variable -Name KeyValue -Force -ErrorAction 'SilentlyContinue'
+Try {
+	$KeyValue = Get-ItemProperty -Path $KeyPath -Name $KeyName -ErrorAction 'Stop'
+} Catch {
+	Write-Verbose "Registry key '$KeyName' does not exist."
+	If ($KeyValue) {Remove-Variable -Name KeyValue -Force -ErrorAction 'SilentlyContinue'}
+}
 
+$DescriptionText = @"
+The registry key LocalAccountTokenFilterPolicy with DWORD value 1 is used to disable Remote UAC.
 
+Remote UAC (User Account Control for remote connections) filters the tokens of local and Microsoft accounts and blocks remote access to admin shares under such accounts. When accessing under the domain accounts, this restriction is not applied.`n`n
+"@
 
+$EnableText = @"
+If you wish to enable Admin shares, but are having these problems:
+ - Using the credentials of an account that is a member of the local Administrators group still gets an "Access is denied" error.
+ - I can access administrative shares under the built-in Administrator account.
 
+Then it is RECOMMENDED to disable Remote UAC by setting the LocalAccountTokenFilterPolicy reg key with DWORD value 1.`n
+"@
 
+$DisableText = @"
+If you wish to disable Admin shares, it is recommended to delete the LocalAccountTokenFilterPolicy reg key to enable Remote UAC.`n
+"@
 
+If ($Disable) {
+	$DescriptionText += $DisableText
+} Else {
+	$DescriptionText += $EnableText
+}
 
-
-
-
-
-Write-Verbose "Restarting LanmanServer service..."
-Get-Service LanmanServer @CommonParameters | Restart-Service @CommonParameters
-
-#- -- - - - - - - - - -- - - - - - - - - - - - - - -- 
-
-Write-Host "Tests completed."
-Pause
-Return
+# To enable remote shares, ask user to disable Remote UAC by creating the LocalAccountTokenFilterPolicy parameter as DWORD value 1 in the registry.
+# To disable remote shares, ask user to delete the LocalAccountTokenFilterPolicy parameter in the registry to turn Remote UAC back on.
+If ($Disable) {
+	# To disable remote shares, ask user to delete the LocalAccountTokenFilterPolicy parameter in the registry to turn Remote UAC back on.
+	If ($KeyValue) {
+		Write-Warning "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
+		Backup-RegistryPath -KeyPath $KeyPath -KeyName $KeyName -BackupFolderName $BackupFolderName @CommonParameters
+		
+		Write-Host $DescriptionText
+		Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyName -Quiet @CommonParameters
+	} Else {
+		Write-Host "Key '$KeyName' already doesn't exist, no changes necessary.`nSKIPPING...`n"
+	}
+} Else {
+	# To enable remote shares, ask user to disable Remote UAC by creating the LocalAccountTokenFilterPolicy parameter as DWORD value 1 in the registry.
+	If (!($KeyValue)) {
+		Write-Verbose "'$KeyName' does not exist."
+		Backup-RegistryPath -KeyPath $KeyPath -KeyName $KeyName -BackupFolderName $BackupFolderName @CommonParameters
+		
+		Write-Host $DescriptionText
+		Write-Warning "Tip. This will slightly reduce the Windows security level."
+		New-RegistryKey -KeyPath $KeyPath -KeyName $KeyName -NewValue 1 @CommonParameters
+	} Else {
+		Write-Verbose "Key '$KeyName' already exists. Value = '$($KeyValue.$KeyName)'"
+		If ($KeyValue.$KeyName -ne 1) {
+			Write-Warning "Key '$KeyName' exists but does not equal 1."
+			Backup-RegistryPath -KeyPath $KeyPath -KeyName $KeyName -BackupFolderName $BackupFolderName @CommonParameters
+			
+			Write-Host $DescriptionText
+			$DisplayTable = [PSCustomObject]@{
+				Key = $KeyName
+				Value = "$($KeyValue.$KeyName) (False)"
+			}
+			Write-Host "`nRegistry path:`n$KeyPath\`nKey:$KeyName"
+			$DisplayTable | Format-Table | Out-Host
+			Write-Warning "Tip. This will slightly reduce the Windows security level."
+			# Ask user to either disable or delete registry key
+			$Title = "Change setting of registry key to 1?"
+			$Info = "Change the value of '$KeyName' to 1 (disabled) to disable Remote UAC?"
+			# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
+			$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Change the '$KeyName' registry key to value 1 (disable Remote UAC)."
+			$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Do not make any changes to the registry."
+			$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $No)
+			[int]$DefaultChoice = 0 # First choice starts at zero
+			$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
+			switch ($Result) {
+				0 {
+					Write-Verbose "Changing '$KeyName' reg key from $($KeyValue.$KeyName) to 1 (Remote UAC disabled)."
+					
+					#Set-ItemProperty -Name AutoShareWks -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Value 1
+					Set-ItemProperty -Path $KeyPath -Name $KeyName -Value 1 @CommonParameters
+				}
+				1 {
+					Write-Verbose "Keeping registry key the same: '$KeyName' ($($KeyValue.$KeyName))"
+				}
+				Default {
+					Write-Error "Change '$KeyName' (Remote UAC) registry key choice error."
+					Throw "Change '$KeyName' (Remote UAC) registry key choice error."
+				}
+			}
+		} Else {
+			Write-Host "Key '$KeyName' already exists with DWORD value 1, no changes necessary.`nSKIPPING...`n"
+		}
+	}
+}
 
 Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
 $Step5 = "Step 5: Specify which user(s) can access the Admin Shares (Disk Volumes)."
@@ -1557,9 +1657,8 @@ $AdminGroupMembers | Select-Object -Property Name, ObjectClass, PrincipalSource 
 
 Write-Host "`n"
 Write-Warning "TODO - Check if current user name is in the Admin group of the local machine."
+Write-Warning "TODO - Ask user to activate default local Administrator account."
 Write-Host "`n"
-
-
 
 #New-ItemProperty -Name AutoShareWks -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Type DWORD -Value 0
 #You can deploy this registry parameter to all domain computers through a GPO.
