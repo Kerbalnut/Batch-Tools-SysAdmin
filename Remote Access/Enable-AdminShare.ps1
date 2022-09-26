@@ -2,17 +2,27 @@
 .SYNOPSIS
 Enable Administrative share on the local computer.
 .DESCRIPTION
-Turns on the admin share e.g. \\hostname\C$\ on this computer, so it can be accessed from a remote computer. Runs a series of steps to ensure this computer's Admin shares will be accessible, but not all the steps are related or necessary. It may only actually require one of these steps to enable the Admin shares on this PC. Likewise, not every step is required to disable Admin shares, but when -Disable switch is used the user will prompted to run them all in reverse anyways.
+Turns on the default admin share(s) e.g. \\hostname\C$\ on this computer, so the filesystem can be accessed from a remote computer. Runs a series of steps that collectively ensure this computer's Admin shares will be accessible, but not every step is related or necessary. This script is interactive, the user will be prompted to run each step or not. 
+
+Only one of these steps may actually be required to get Admin shares on this PC accessible. And vice versa, not every step is required to disable Admin shares, however when the -Disable switch is used the user will still be prompted to reverse every change this script can make.
+
+Warning: This script can make changes to the Registry and Windows Firewall rules. You will be prompted to make backups first when appropriate.
 .PARAMETER Disable
-Runs the same series of steps that this script would normally run, but makes the opposite actions. User will still be prompted whether to run each step or not just like when run normally.
+Runs the same series of actions that this script would normally run, but in reverse. User will still be prompted whether to run each step or not. Usually default choices are appropriate.
 .PARAMETER LoadFunctions
-Only loads the functions this script contains into whatever scope it was called from. None of the other logic in this script will be loaded.
+Only loads the functions this script contains into whatever scope it was called from. None of the other actions in this script will be performed.
 .PARAMETER LoadAllFunctions
 Even loads functions with context-specific text that wouldn't make much sense in other situations.
 .NOTES
-Keep in mind this script isn't guaranteed to always enable access to Admin shares on 100% of networks either. There's countless other things in networking that can prevent this, from client isolation tactics, different VLANs, down to individual port blocking for something like NetBIOS on the network, that can prevent Admin shares from working.
+Disclaimers:
+Keep in mind this script isn't guaranteed to always enable access to Admin shares on 100% of networks either. There's countless other things in networking that can prevent this, from client isolation tactics, different VLANs, down to individual port blocking for something like NetBIOS/SMB etc. on the network, that can prevent Admin shares from working.
 
-Disclaimer: It should be obvious, but just like every other form of remote access, most of these steps will lower the security of your system in some way. Some are negligible, some can be serious security risks. Improper registry edits can cause system instability.
+Another thing that could prevent Admin shares from working is any custom Windows Firewall rules. This script will check & modify firewall rules based on a built-in, static list of fw rule names. So if a custom Block firewall rule somehow got created, this script will not detect it, and will not change it. This could be added in the future if there's interest, please see the github link below for contribution options, like creating a new issue or pull request!
+
+Warning: Most of these steps will lower the security of your system in some way. Some have negligible effect (like enabling IPv4 ping response), and some can be serious security risks (like opening firewall rules that can also apply to Public networks). Improper registry edits can also cause system instability etc. The user will be warned and prompted to make backups in most of these situations, but even still use this script at your own risk.
+
+Check out the source code for updates to this script:
+https://github.com/Kerbalnut/Batch-Tools-SysAdmin
 .EXAMPLE
 . "$Home\Documents\GitHub\Batch-Tools-SysAdmin\Remote Access\Enable-AdminShare.ps1" -LoadFunctions -Verbose
 
@@ -54,6 +64,12 @@ Function Get-PingResponseRules {
 	Also gets IPv6 ICMP ping firewall rules, in addition to the IPv4 ICMP ping firewall rules.
 	.PARAMETER NetBIOS
 	Also gets NetBIOS-based Network Discovery and File and Printer Sharing firewall rules, in addition to the IPv4 ICMP ping firewall rules.
+	.PARAMETER SMB
+	Gets SMB-based (Server Message Block) File and Printer Sharing firewall rules.
+	.PARAMETER FpsRules
+	Gets a specific list of File & Printer Sharing firewall rules used for enabling access to Admin shares.
+	.PARAMETER AllFilePrinterSharingRules
+	Gets every firewall rule in the Display Group, "File And Printer Sharing" that are set to Allow traffic, in either In/Out dierection.
 	.PARAMETER Profiles
 	Must be an array of strings, even if only one Profile is selected. Acceptable values are: Public, Private, Domain. Default is @('Domain','Private').
 	
@@ -521,12 +537,14 @@ Function Set-PingResponse {
 	
 	Either -Enable or -Disable switch is required.
 	.PARAMETER Enable
-	Turns on the rules that Allow ping packets through the firewall.
+	Turns on the rules that Allow ping packets through the firewall. (Required)
 	.PARAMETER Disable
-	Turns off the rules that Allow ping packets through the firewall.
+	Turns off the rules that Allow ping packets through the firewall. (Required)
 	.PARAMETER ICMPv6
 	Also enables/disables IPv6 ICMP ping firewall rules, in addition to the IPv4 ICMP ping firewall rules.
 	.PARAMETER NetBIOS
+	Also enables/disables NetBIOS-based Network Discovery and File and Printer Sharing firewall rules, in addition to the IPv4 ICMP ping firewall rules.
+	.PARAMETER SMB
 	Also enables/disables NetBIOS-based Network Discovery and File and Printer Sharing firewall rules, in addition to the IPv4 ICMP ping firewall rules.
 	.PARAMETER Profiles
 	Must be an array of strings, even if only one Profile is selected. Acceptable values are: Public, Private, Domain. Default is @('Domain','Private').
@@ -1408,11 +1426,49 @@ If (!($Disable)) {
 		Write-Host "No network profiles set to Public.`nSKIPPING...`n"
 	}
 } Else {
-	Write-Host "Disabling Admin shares, no need to mess with network profiles.`nSKIPPING...`n"
+	#Write-Host "Disabling Admin shares, no need to mess with network profiles.`nSKIPPING...`n"
 	
-	Write-Host "`n"
-	Write-Warning "TODO - Give user the option to change network profile(s) back to Public. But keep the default option as No."
-	Write-Host "`n"
+	If (!($PublicProfiles)) {
+		ForEach ($interface in $NetProfiles) {
+			If ($interface.NetworkCategory -eq "Private") {
+				# Ask user to change network interface profile to Public
+				$Title = "Change '$($interface.Name)' network on '($($interface.InterfaceIndex)) $($interface.InterfaceAlias)' to 'Public' profile?"
+				$Info = "The '$($interface.Name)' $($interface.InterfaceAlias) network is set to '$($interface.NetworkCategory)' profile type, which changes the class of firewall rules being applied to a very restrictive set, designed for untrusted networks. If this is an un-trusted network, changing it to 'Public' will increase security."
+				# Use Ampersand & in front of letter to designate that as the choice key. E.g. "&Yes" for Y, "Y&Ellow" for E.
+				$Yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Change '$($interface.Name)' $($interface.InterfaceIndex) - $($interface.InterfaceAlias) network profile to 'Public', making it more secure for this device to use the network."
+				$No = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Do not make changes to '$($interface.Name)' $($interface.InterfaceAlias) network profile, it will remain as '$($interface.NetworkCategory)'."
+				$Options = [System.Management.Automation.Host.ChoiceDescription[]]($Yes, $No)
+				[int]$DefaultChoice = 1 # First choice starts at zero
+				$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
+				switch ($Result) {
+					0 {
+						Write-Verbose "Changing '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile to 'Public'."
+						
+						#Set-NetConnectionProfile -InterfaceIndex $interface.InterfaceIndex -NetworkCategory 'Public' @CommonParameters
+						$interface | Set-NetConnectionProfile -NetworkCategory 'Public' @CommonParameters
+						
+						Start-Sleep -Milliseconds 500
+						
+						Write-Verbose "Restarting '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network adapter"
+						Get-NetAdapter -InterfaceIndex $interface.InterfaceIndex | Restart-NetAdapter
+						
+						Start-Sleep -Milliseconds 500
+						
+						Get-NetConnectionProfile | Where-Object {$_.InterfaceIndex -eq $interface.InterfaceIndex} | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Format-Table | Out-Host
+					}
+					1 {
+						Write-Verbose "No changes made to '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile. ($($interface.NetworkCategory))"
+					}
+					Default {
+						Write-Error "Network profile choice error."
+						Throw "Network profile choice error."
+					}
+				} # End switch
+			} # End If ($interface.NetworkCategory -eq "Public")
+		} # End ForEach
+	} Else {
+		Write-Host "No network profiles set to Private or Domain.`nSKIPPING...`n"
+	}
 }
 
 Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
@@ -2059,6 +2115,24 @@ If ($Disable) {
 			Write-Host " - C:\> ping $($IP.IPAddress)" -BackgroundColor Black -ForegroundColor Yellow
 		}
 	}
+	Write-Host " - Check for custom CIFS / SMB firewall Block rules:"
+	# Thanks to: https://social.technet.microsoft.com/Forums/en-US/68249d31-4927-43fb-b17b-ead92c3bd05e/protocolsports-for-windows-file-sharing-on-a-firewall
+	<#
+	I understood SMB to be an application layer "protocol" with the underlying transport mechanism being TCP. As it relates to opening firewall ports the minimum requirement is:
+	
+	TCP: 445
+	
+	UDP: 137, 138
+	
+	TCP: 137, 139
+	
+	Note: Historically CIFS / SMB are vulnerable to security threats. Also, the next admin admin to work on the server is 100% likely to set a local file permission incorrectly which could expose data. I suggest specifying specific source IP addresses in your firewall tables if you're going to enable SMB. 
+	
+	https://en.wikipedia.org/wiki/Server_Message_Block
+	#>
+	Write-Host "     - TCP: 445"
+	Write-Host "     - UDP: 137, 138"
+	Write-Host "     - TCP: 137, 139"
 }
 
 Write-Host "`n`n`n"
