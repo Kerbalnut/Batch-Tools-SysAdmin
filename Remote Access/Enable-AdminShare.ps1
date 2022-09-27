@@ -54,7 +54,7 @@ $CommonParameters = @{
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #-----------------------------------------------------------------------------------------------------------------------
-Function Get-PingResponseRules {
+Function Get-SmbFwRules {
 	<#
 	.SYNOPSIS
 	Returns a list of firewall rules for the IPv4 ICMP ping respone on the current machine.
@@ -101,15 +101,15 @@ Function Get-PingResponseRules {
 	https://serverfault.com/questions/516920/enable-file-and-print-sharing-command-line-how-to-enable-it-just-for-profile-p
 	https://serverfault.com/a/968310
 	.LINK
-	Get-PingResponseRules
-	Set-PingResponse
+	Get-SmbFwRules
+	Set-SmbFwRules
 	Enable-PingResponse
 	Disable-PingResponse
 	.LINK
 	Get-NetConnectionProfile
 	Set-NetConnectionProfile
 	.EXAMPLE
-	Get-PingResponseRules -IPv6 -NetBIOS -Table
+	Get-SmbFwRules -IPv6 -NetBIOS -Table
 	#>
 	[CmdletBinding()]
 	Param(
@@ -524,11 +524,11 @@ Function Get-PingResponseRules {
 		Write-Verbose "Ending $($MyInvocation.MyCommand)"
 		Return $OutputRules
 	}
-} # End of Get-PingResponseRules function.
+} # End of Get-SmbFwRules function.
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
-Function Set-PingResponse {
+Function Set-SmbFwRules {
 	<#
 	.SYNOPSIS
 	Sets firewall rules for the IPv4 ICMP ping respone on the current machine.
@@ -574,15 +574,15 @@ Function Set-PingResponse {
 	Does not make any changes to the system. Instead a message will be displayed for every change that would've happened.
 	.NOTES
 	.LINK
-	Get-PingResponseRules
-	Set-PingResponse
+	Get-SmbFwRules
+	Set-SmbFwRules
 	Enable-PingResponse
 	Disable-PingResponse
 	.LINK
 	Get-NetConnectionProfile
 	Set-NetConnectionProfile
 	.EXAMPLE
-	Set-PingResponse -WhatIf -Confirm
+	Set-SmbFwRules -WhatIf -Confirm
 	#>
 	#Requires -RunAsAdministrator
 	[CmdletBinding()]
@@ -627,12 +627,12 @@ Function Set-PingResponse {
 		Profiles = $Profiles
 	}
 	
-	$PingFirewallRule = Get-PingResponseRules @FunctionParams @CommonParameters
+	$PingFirewallRule = Get-SmbFwRules @FunctionParams @CommonParameters
 	
 	If ($VerbosePreference -ne 'SilentlyContinue') {
 		Write-Host "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
 		Write-Host "Firewall rules before change:"
-		Get-PingResponseRules @FunctionParams -Table | Out-Host
+		Get-SmbFwRules @FunctionParams -Table | Out-Host
 	}
 	
 	ForEach ($Rule in $PingFirewallRule) {
@@ -655,7 +655,7 @@ Function Set-PingResponse {
 	
 	If ($VerbosePreference -ne 'SilentlyContinue') {
 		Write-Host "Firewall rules after change:"
-		Get-PingResponseRules @FunctionParams -Table | Out-Host
+		Get-SmbFwRules @FunctionParams -Table | Out-Host
 	}
 	
 	<#
@@ -684,7 +684,7 @@ Function Set-PingResponse {
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	Return
-} # End of Set-PingResponse function.
+} # End of Set-SmbFwRules function.
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -726,8 +726,8 @@ Function Enable-PingResponse {
 	Does not make any changes to the system. Instead a message will be displayed for every change that would've happened.
 	.NOTES
 	.LINK
-	Get-PingResponseRules
-	Set-PingResponse
+	Get-SmbFwRules
+	Set-SmbFwRules
 	Enable-PingResponse
 	Disable-PingResponse
 	.LINK
@@ -774,7 +774,7 @@ Function Enable-PingResponse {
 		WhatIf = $WhatIf
 	}
 	
-	Set-PingResponse @ParamsHash @CommonParameters
+	Set-SmbFwRules @ParamsHash @CommonParameters
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	Return
@@ -820,8 +820,8 @@ Function Disable-PingResponse {
 	Does not make any changes to the system. Instead a message will be displayed for every change that would've happened.
 	.NOTES
 	.LINK
-	Get-PingResponseRules
-	Set-PingResponse
+	Get-SmbFwRules
+	Set-SmbFwRules
 	Enable-PingResponse
 	Disable-PingResponse
 	.LINK
@@ -868,7 +868,7 @@ Function Disable-PingResponse {
 		WhatIf = $WhatIf
 	}
 	
-	Set-PingResponse @ParamsHash @CommonParameters
+	Set-SmbFwRules @ParamsHash @CommonParameters
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	Return
@@ -1486,11 +1486,11 @@ $PingParamsHash = @{
 	#AllFilePrinterSharingRules = $True
 }
 
-#Get-PingResponseRules -ICMPv6 -NetBIOS -Table @CommonParameters
-Get-PingResponseRules @PingParamsHash -Table @CommonParameters
+#Get-SmbFwRules -ICMPv6 -NetBIOS -Table @CommonParameters
+Get-SmbFwRules @PingParamsHash -Table @CommonParameters
 
 Write-Verbose "Checking if ping/NetBIOS firewall rules are already allowed."
-$FwRules = Get-PingResponseRules @PingParamsHash @CommonParameters
+$FwRules = Get-SmbFwRules @PingParamsHash @CommonParameters
 $RulesDisabled = $False
 ForEach ($rule in $FwRules) {
 	If ($rule.Enabled -eq 'False') {
@@ -1534,7 +1534,7 @@ If (($RulesDisabled -And !$Disable) -Or (!$RulesDisabled -And $Disable)) {
 				Enable-PingResponse @PingParamsHash @CommonParameters
 			}
 			
-			Get-PingResponseRules @PingParamsHash -Table
+			Get-SmbFwRules @PingParamsHash -Table
 		}
 		1 {
 			Write-Verbose "Declined firewall rules change for ping."
