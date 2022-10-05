@@ -57,19 +57,25 @@ $CommonParameters = @{
 Function Get-SmbFwRules {
 	<#
 	.SYNOPSIS
-	Returns a list of firewall rules for the IPv4 ICMP ping respone on the current machine.
+	Returns a list of firewall rules relevant to Admin share (SMB) remote access.
 	.DESCRIPTION
-	Can also get IPv6 and NetBIOS-based Network Discovery and 'File and Printer Sharing' firewall rules.
+	Can also get ping (IPv4/IPv6), NetBIOS-based Network Discovery and 'File and Printer Sharing' firewall rules, SMB, and all additional File and Printer Sharing rules meeting a certain search criteria. Which rule sets depend on which switches are used. 
+	
+	At least one switch is required to produce output.
+	
+	Use the -ShowTable switch for formatted output.
+	.PARAMETER ICMPv4
+	Include IPv4 ICMP ping firewall rules in results.
 	.PARAMETER ICMPv6
-	Also gets IPv6 ICMP ping firewall rules, in addition to the IPv4 ICMP ping firewall rules.
+	Include IPv6 ICMP ping firewall rules in results.
 	.PARAMETER NetBIOS
-	Also gets NetBIOS-based Network Discovery and File and Printer Sharing firewall rules, in addition to the IPv4 ICMP ping firewall rules.
+	Include NetBIOS-based Network Discovery & File and Printer Sharing firewall rules in results.
 	.PARAMETER SMB
-	Gets SMB-based (Server Message Block) File and Printer Sharing firewall rules.
+	Include SMB-based (Server Message Block) File and Printer Sharing firewall rules in results.
 	.PARAMETER FpsRules
-	Gets a specific list of File & Printer Sharing firewall rules used for enabling access to Admin shares.
+	Include a specific list of File & Printer Sharing firewall rules used for enabling access to Admin shares.
 	.PARAMETER AllFilePrinterSharingRules
-	Gets every firewall rule in the Display Group, "File And Printer Sharing" that are set to Allow traffic, in either In/Out dierection.
+	Includes every firewall rule in the Display Group "File And Printer Sharing" that are set to Allow traffic, in either In/Out dierection.
 	.PARAMETER Profiles
 	Must be an array of strings, even if only one Profile is selected. Acceptable values are: Public, Private, Domain. Default is @('Domain','Private').
 	
@@ -94,7 +100,7 @@ Function Get-SmbFwRules {
 	https://4sysops.com/archives/manage-wifi-connection-in-windows-10-with-powershell/#show-and-export-profiles-read-password
 	Install wifi¬profile¬management is via PowerShellGet run the following command as Administrator: 
 	`Install-Module -Name wifiprofilemanagement`
-	.PARAMETER Table
+	.PARAMETER ShowTable
 	Formats output as a table instead of passing it down the pipeline, for easy viewing.
 	.NOTES
 	Thanks to StackOverflow user for the set of firewall rules that finally fixed a tricky one for me:
@@ -109,10 +115,13 @@ Function Get-SmbFwRules {
 	Get-NetConnectionProfile
 	Set-NetConnectionProfile
 	.EXAMPLE
-	Get-SmbFwRules -IPv6 -NetBIOS -Table
+	Get-SmbFwRules -IPv4 -IPv6 -NetBIOS -ShowTable
 	#>
 	[CmdletBinding()]
 	Param(
+		[Alias('PingV4','IPv4','v4')]
+		[switch]$ICMPv4,
+		
 		[Alias('PingV6','IPv6')]
 		[switch]$ICMPv6,
 		
@@ -126,8 +135,8 @@ Function Get-SmbFwRules {
 		
 		[Object[]]$Profiles = @('Domain','Private'),
 		
-		[Alias('FormatTable')]
-		[switch]$Table
+		[Alias('FormatTable','Table')]
+		[switch]$ShowTable
 		
 	)
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -138,6 +147,8 @@ Function Get-SmbFwRules {
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	Write-Verbose "Starting $($MyInvocation.MyCommand)"
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	$PingFirewallNames = @(
 		"CoreNet-Diag-ICMP4-EchoRequest-In",
@@ -319,7 +330,7 @@ Function Get-SmbFwRules {
 		}
 	}
 	
-	$FpsFwRules | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+	# $FpsFwRules | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
 	
 	$Orig = $FpsFwRules
 	$FpsFwRules = @()
@@ -353,7 +364,7 @@ Function Get-SmbFwRules {
 		$AllFilePrinterSharingFwRules += $_
 	}
 	
-	$AllFilePrinterSharingFwRules | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+	# $AllFilePrinterSharingFwRules | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
 	
 	$Orig = $AllFilePrinterSharingFwRules
 	$AllFilePrinterSharingFwRules = @()
@@ -381,11 +392,13 @@ Function Get-SmbFwRules {
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	# Combine sets of firewall rules into one output:
+	# Combine selected sets of firewall rules into one output:
 	
 	$OutputRules = @()
 	
-	$OutputRules += $PingFirewallRule
+	If ($ICMPv4) {
+		$OutputRules += $PingFirewallRule
+	}
 	
 	If ($ICMPv6) {
 		$OutputRules += $PingV6FirewallRule
@@ -413,7 +426,7 @@ Function Get-SmbFwRules {
 					}
 				} # End ForEach ($SetRule in $OutputRules)
 				If ($AddRule) {
-					Write-Host "Added rule to output list: $($CheckRule.Name)"
+					#Write-Host "Added rule to output list: $($CheckRule.Name)"
 					$OutputRules += $CheckRule
 				}
 			} # End ForEach ($CheckRule in $NetBiosFirewallRule)
@@ -444,7 +457,7 @@ Function Get-SmbFwRules {
 					}
 				} # End ForEach ($SetRule in $OutputRules)
 				If ($AddRule) {
-					Write-Host "Added rule to output list: $($CheckRule.Name)"
+					#Write-Host "Added rule to output list: $($CheckRule.Name)"
 					$OutputRules += $CheckRule
 				}
 			} # End ForEach ($CheckRule in $SmbFwRule)
@@ -475,7 +488,7 @@ Function Get-SmbFwRules {
 					}
 				} # End ForEach ($SetRule in $OutputRules)
 				If ($AddRule) {
-					Write-Host "Added rule to output list: $($CheckRule.Name)"
+					#Write-Host "Added rule to output list: $($CheckRule.Name)"
 					$OutputRules += $CheckRule
 				}
 			} # End ForEach ($CheckRule in $FpsFwRules)
@@ -506,7 +519,7 @@ Function Get-SmbFwRules {
 					}
 				} # End ForEach ($SetRule in $OutputRules)
 				If ($AddRule) {
-					Write-Host "Added rule to output list: $($CheckRule.Name)"
+					#Write-Host "Added rule to output list: $($CheckRule.Name)"
 					$OutputRules += $CheckRule
 				}
 			} # End ForEach ($CheckRule in $AllFilePrinterSharingFwRules)
@@ -515,8 +528,9 @@ Function Get-SmbFwRules {
 		} # End If ($OutputRules)
 	} # End If ($AllFilePrinterSharingRules)
 	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	If ($Table) {
+	If ($ShowTable) {
 		$OutputRules | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
 		Write-Verbose "Ending $($MyInvocation.MyCommand)"
 		Return
@@ -531,21 +545,27 @@ Function Get-SmbFwRules {
 Function Set-SmbFwRules {
 	<#
 	.SYNOPSIS
-	Sets firewall rules for the IPv4 ICMP ping respone on the current machine.
+	Changes certain sets of firewall rules relevant to Admin share remote access to on or off.
 	.DESCRIPTION
-	Can also enable/disable IPv6 and NetBIOS-based Network Discovery and 'File and Printer Sharing' firewall rules.
+	Can also enable/disable ping (IPv4/IPv6), NetBIOS-based Network Discovery and 'File and Printer Sharing' firewall rules, SMB, and all additional File and Printer Sharing rules meeting a certain search criteria.
 	
 	Either -Enable or -Disable switch is required.
 	.PARAMETER Enable
 	Turns on the rules that Allow ping packets through the firewall. (Required)
 	.PARAMETER Disable
 	Turns off the rules that Allow ping packets through the firewall. (Required)
+	.PARAMETER ICMPv4
+	Include IPv4 ICMP ping firewall rules in results.
 	.PARAMETER ICMPv6
-	Also enables/disables IPv6 ICMP ping firewall rules, in addition to the IPv4 ICMP ping firewall rules.
+	Include IPv6 ICMP ping firewall rules in results.
 	.PARAMETER NetBIOS
-	Also enables/disables NetBIOS-based Network Discovery and File and Printer Sharing firewall rules, in addition to the IPv4 ICMP ping firewall rules.
+	Include NetBIOS-based Network Discovery & File and Printer Sharing firewall rules in results.
 	.PARAMETER SMB
-	Also enables/disables NetBIOS-based Network Discovery and File and Printer Sharing firewall rules, in addition to the IPv4 ICMP ping firewall rules.
+	Include SMB-based (Server Message Block) File and Printer Sharing firewall rules in results.
+	.PARAMETER FpsRules
+	Include a specific list of File & Printer Sharing firewall rules used for enabling access to Admin shares.
+	.PARAMETER AllFilePrinterSharingRules
+	Includes every firewall rule in the Display Group "File And Printer Sharing" that are set to Allow traffic, in either In/Out dierection.
 	.PARAMETER Profiles
 	Must be an array of strings, even if only one Profile is selected. Acceptable values are: Public, Private, Domain. Default is @('Domain','Private').
 	
@@ -570,6 +590,10 @@ Function Set-SmbFwRules {
 	https://4sysops.com/archives/manage-wifi-connection-in-windows-10-with-powershell/#show-and-export-profiles-read-password
 	Install wifi¬profile¬management is via PowerShellGet run the following command as Administrator: 
 	`Install-Module -Name wifiprofilemanagement`
+	.PARAMETER ResetPublicProfiles
+	Some firewall rules apply to multiple profiles, e.g. Public & Private. This can be an additional security risk to enable these rules if you only intend to have Admin shares accessible from a Private network.
+	
+	Using this switch will change these rules to remove their Public profile references. This alters these rules from their defaults to make them more secure.
 	.PARAMETER WhatIf
 	Does not make any changes to the system. Instead a message will be displayed for every change that would've happened.
 	.NOTES
@@ -587,6 +611,9 @@ Function Set-SmbFwRules {
 	#Requires -RunAsAdministrator
 	[CmdletBinding()]
 	Param(
+		[Alias('PingV4','IPv4','v4')]
+		[switch]$ICMPv4,
+		
 		[Alias('PingV6','IPv6')]
 		[switch]$ICMPv6,
 		
@@ -619,6 +646,7 @@ Function Set-SmbFwRules {
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	$FunctionParams = @{
+		ICMPv4 = $ICMPv4
 		ICMPv6 = $ICMPv6
 		NetBIOS = $NetBIOS
 		SMB = $SMB
@@ -632,7 +660,7 @@ Function Set-SmbFwRules {
 	If ($VerbosePreference -ne 'SilentlyContinue') {
 		Write-Host "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
 		Write-Host "Firewall rules before change:"
-		Get-SmbFwRules @FunctionParams -Table | Out-Host
+		Get-SmbFwRules @FunctionParams -ShowTable | Out-Host
 	}
 	
 	ForEach ($Rule in $PingFirewallRule) {
@@ -654,8 +682,9 @@ Function Set-SmbFwRules {
 	}
 	
 	If ($VerbosePreference -ne 'SilentlyContinue') {
+		Write-Host "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
 		Write-Host "Firewall rules after change:"
-		Get-SmbFwRules @FunctionParams -Table | Out-Host
+		Get-SmbFwRules @FunctionParams -ShowTable | Out-Host
 	}
 	
 	<#
@@ -673,9 +702,8 @@ Function Set-SmbFwRules {
 	If ($ResetPublicProfiles) {
 		Write-Host "TODO - Allow user to change FW rules that include Public/Private profiles to be Private only. (better security, but might want to back up original rules first)"
 		
-		# The default rules have the non-Domain rule apply for both Public and
-		#  Private. This updates the rule to be Private only
-		$rules | Set-NetFirewallRule -Profile Private
+		# The default rules have the non-Domain rule apply for both Public and Private. This updates the rule to be Private only
+		#$rules | Set-NetFirewallRule -Profile Private
 		
 		ForEach ($Rule in $PingFirewallRule) {
 			
@@ -693,7 +721,11 @@ Function Enable-PingResponse {
 	.SYNOPSIS
 	Enable the IPv4 ICMP ping respone on the current machine.
 	.DESCRIPTION
-	Can also enable IPv6 and NetBIOS-based Network Discovery and 'File and Printer Sharing' firewall rules
+	Can also enable IPv6 and NetBIOS-based Network Discovery and 'File and Printer Sharing' firewall rules.
+	
+	By default will always include IPv4 firewall rules. To turn off the -IPv4 switch, -IPv4:$False is required.
+	.PARAMETER ICMPv4
+	Includes IPv4 ICMP ping firewall rules to enable. By default, this switch is always on. To disable it, use -ICMPv4:$False
 	.PARAMETER ICMPv6
 	Also enables IPv6 ICMP ping firewall rules, in addition to the IPv4 ICMP ping firewall rules.
 	.PARAMETER NetBIOS
@@ -734,11 +766,18 @@ Function Enable-PingResponse {
 	Get-NetConnectionProfile
 	Set-NetConnectionProfile
 	.EXAMPLE
+	Enable-PingResponse -ICMPv4:$False -ICMPv6
+	
+	This explicitly sets the ICMPv4 switch to False/Off, so that only ICMPv6 rules are targeted to be enabled.
+	.EXAMPLE
 	Enable-PingResponse -WhatIf -Confirm
 	#>
 	#Requires -RunAsAdministrator
 	[CmdletBinding()]
 	Param(
+		[Alias('PingV4','IPv4','v4')]
+		[switch]$ICMPv4 = $True,
+		
 		[Alias('PingV6','IPv6')]
 		[switch]$ICMPv6,
 		
@@ -763,6 +802,7 @@ Function Enable-PingResponse {
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	$ParamsHash = @{
+		ICMPv4 = $ICMPv4
 		ICMPv6 = $ICMPv6
 		NetBIOS = $NetBIOS
 		SMB = $SMB
@@ -788,6 +828,10 @@ Function Disable-PingResponse {
 	Disable the IPv4 ICMP ping respone on the current machine.
 	.DESCRIPTION
 	Can also disable IPv6 and NetBIOS-based Network Discovery and 'File and Printer Sharing' firewall rules
+	
+	By default will always include IPv4 firewall rules. To turn off the -IPv4 switch, -IPv4:$False is required.
+	.PARAMETER ICMPv4
+	Includes IPv4 ICMP ping firewall rules to disable. By default, this switch is always on. To disable it, use -ICMPv4:$False
 	.PARAMETER ICMPv6
 	Also disables IPv6 ICMP ping firewall rules, in addition to the IPv4 ICMP ping firewall rules.
 	.PARAMETER NetBIOS
@@ -828,11 +872,18 @@ Function Disable-PingResponse {
 	Get-NetConnectionProfile
 	Set-NetConnectionProfile
 	.EXAMPLE
+	Enable-PingResponse -ICMPv4:$False -ICMPv6
+	
+	This explicitly sets the ICMPv4 switch to False/Off, so that only ICMPv6 rules are targeted to be disabled.
+	.EXAMPLE
 	Disable-PingResponse -WhatIf -Confirm
 	#>
 	#Requires -RunAsAdministrator
 	[CmdletBinding()]
 	Param(
+		[Alias('PingV4','IPv4','v4')]
+		[switch]$ICMPv4 = $True,
+		
 		[Alias('PingV6','IPv6')]
 		[switch]$ICMPv6,
 		
@@ -857,6 +908,7 @@ Function Disable-PingResponse {
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	$ParamsHash = @{
+		ICMPv4 = $ICMPv4
 		ICMPv6 = $ICMPv6
 		NetBIOS = $NetBIOS
 		SMB = $SMB
