@@ -54,6 +54,38 @@ $CommonParameters = @{
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #-----------------------------------------------------------------------------------------------------------------------
+Function Write-LogFile {
+	<#
+	.SYNOPSIS
+	.DESCRIPTION
+	.PARAMETER Path
+	Path of log file.
+	.NOTES
+	.EXAMPLE
+	Write-LogFile
+	#>
+	[CmdletBinding()]
+	Param(
+		[String]$Path
+		
+	)
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	$CommonParameters = @{
+		Verbose = [System.Management.Automation.ActionPreference]$VerbosePreference
+		Debug = [System.Management.Automation.ActionPreference]$DebugPreference
+	}
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	Write-Verbose "Starting $($MyInvocation.MyCommand)"
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	
+	
+} # End of Write-LogFile function.
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
 Function Get-SmbFwRules {
 	<#
 	.SYNOPSIS
