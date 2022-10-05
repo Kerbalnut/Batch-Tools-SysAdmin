@@ -161,53 +161,57 @@ Function Get-SmbFwRules {
 		"CoreNet-Diag-ICMP6-EchoRequest-Out-NoScope"
 	)
 	
-	$PingFirewallRule = @()
-	
-	Get-NetFirewallRule -Description "*ICMP*" | ForEach-Object {
-		ForEach ($Name in $PingFirewallNames) {
-			If ($_.Name -eq $Name) {
-				$PingFirewallRule += $_
-			}
-		}
-	}
-	
-	$Orig = $PingFirewallRule
-	$PingFirewallRule = @()
-	$PingV6FirewallRule = @()
-	$Orig | ForEach-Object {
-		$AddV4 = $False
-		$AddV6 = $False
-		#Write-Host "$($_.Name)"
-		ForEach ($P in $_.Profile) {
-			#Write-Host "$P"
-			ForEach ($Filter in $Profiles) {
-				#Write-Host "$Filter"
-				If ($P -like "*$Filter*" -And $_.Action -eq "Allow") {
-					If ($_.Name -like "*4*") {
-						$AddV4 = $True
-					} Else {
-						$AddV6 = $True
-					}
-					
+	If ($ICMPv4 -Or $ICMPv6) {
+		
+		$PingFirewallRule = @()
+		
+		Get-NetFirewallRule -Description "*ICMP*" | ForEach-Object {
+			ForEach ($Name in $PingFirewallNames) {
+				If ($_.Name -eq $Name) {
+					$PingFirewallRule += $_
 				}
 			}
 		}
-		If ($AddV4) {
-			$PingFirewallRule += $_
+		
+		$Orig = $PingFirewallRule
+		$PingFirewallRule = @()
+		$PingV6FirewallRule = @()
+		$Orig | ForEach-Object {
+			$AddV4 = $False
+			$AddV6 = $False
+			#Write-Host "$($_.Name)"
+			ForEach ($P in $_.Profile) {
+				#Write-Host "$P"
+				ForEach ($Filter in $Profiles) {
+					#Write-Host "$Filter"
+					If ($P -like "*$Filter*" -And $_.Action -eq "Allow") {
+						If ($_.Name -like "*4*") {
+							$AddV4 = $True
+						} Else {
+							$AddV6 = $True
+						}
+						
+					}
+				}
+			}
+			If ($AddV4) {
+				$PingFirewallRule += $_
+			}
+			If ($AddV6) {
+				$PingV6FirewallRule += $_
+			}
 		}
-		If ($AddV6) {
-			$PingV6FirewallRule += $_
+		
+		If ($VerbosePreference -ne 'SilentlyContinue') {
+			Write-Host "IPv4 ICMP ping firewall rules:"
+			$PingFirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+			If ($ICMPv6) {
+				Write-Host "IPv6 ICMP ping firewall rules:"
+				$PingV6FirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+			}
 		}
-	}
-	
-	If ($VerbosePreference -ne 'SilentlyContinue') {
-		Write-Host "IPv4 ICMP ping firewall rules:"
-		$PingFirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
-		If ($ICMPv6) {
-			Write-Host "IPv6 ICMP ping firewall rules:"
-			$PingV6FirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
-		}
-	}
+		
+	} # End If ($ICMPv4 -Or $ICMPv6)
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
@@ -224,41 +228,45 @@ Function Get-SmbFwRules {
 		"FPS-NB_Name-Out-UDP"
 	)
 	
-	$NetBiosFirewallRule = @()
-	
-	Get-NetFirewallRule -Description "*NetBIOS*" | ForEach-Object {
-		ForEach ($Name in $NetBiosFirewallNames) {
-			If ($_.Name -eq $Name) {
-				$NetBiosFirewallRule += $_
-			}
-		}
-	}
-	
-	# $NetBiosFirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
-	
-	$Orig = $NetBiosFirewallRule
-	$NetBiosFirewallRule = @()
-	$Orig | ForEach-Object {
-		$Add = $False
-		#Write-Host "$($_.Name)"
-		ForEach ($P in $_.Profile) {
-			#Write-Host "$P"
-			ForEach ($Filter in $Profiles) {
-				#Write-Host "$Filter"
-				If ($P -like "*$Filter*" -And $_.Action -eq "Allow") {
-					$Add = $True
+	If ($NetBIOS) {
+		
+		$NetBiosFirewallRule = @()
+		
+		Get-NetFirewallRule -Description "*NetBIOS*" | ForEach-Object {
+			ForEach ($Name in $NetBiosFirewallNames) {
+				If ($_.Name -eq $Name) {
+					$NetBiosFirewallRule += $_
 				}
 			}
 		}
-		If ($Add) {
-			$NetBiosFirewallRule += $_
+		
+		# $NetBiosFirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+		
+		$Orig = $NetBiosFirewallRule
+		$NetBiosFirewallRule = @()
+		$Orig | ForEach-Object {
+			$Add = $False
+			#Write-Host "$($_.Name)"
+			ForEach ($P in $_.Profile) {
+				#Write-Host "$P"
+				ForEach ($Filter in $Profiles) {
+					#Write-Host "$Filter"
+					If ($P -like "*$Filter*" -And $_.Action -eq "Allow") {
+						$Add = $True
+					}
+				}
+			}
+			If ($Add) {
+				$NetBiosFirewallRule += $_
+			}
 		}
-	}
-	
-	If ($VerbosePreference -ne 'SilentlyContinue' -And $NetBIOS) {
-		Write-Host "NetBIOS-based Network Discovery and File and Printer Sharing firewall rules:"
-		$NetBiosFirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
-	}
+		
+		If ($VerbosePreference -ne 'SilentlyContinue' -And $NetBIOS) {
+			Write-Host "NetBIOS-based Network Discovery and File and Printer Sharing firewall rules:"
+			$NetBiosFirewallRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+		}
+		
+	} # End If ($NetBIOS)
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
@@ -269,42 +277,46 @@ Function Get-SmbFwRules {
 		"FPS-SMB-Out-TCP"
 	)
 	
-	$SmbFwRule = @()
-	
-	Get-NetFirewallRule -DisplayGroup "File And Printer Sharing" | ForEach-Object {
-		ForEach ($Name in $SmbFirewallRuleNames) {
-			If ($_.Name -eq $Name) {
-			#If ($_.Name -like "*SMB*") {
-				$SmbFwRule += $_
-			}
-		}
-	}
-	
-	# $SmbFwRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
-	
-	$Orig = $SmbFwRule
-	$SmbFwRule = @()
-	$Orig | ForEach-Object {
-		$Add = $False
-		#Write-Host "$($_.Name)"
-		ForEach ($P in $_.Profile) {
-			#Write-Host "$P"
-			ForEach ($Filter in $Profiles) {
-				#Write-Host "$Filter"
-				If ($P -like "*$Filter*" -And $_.Action -eq "Allow") {
-					$Add = $True
+	If ($SMB) {
+		
+		$SmbFwRule = @()
+		
+		Get-NetFirewallRule -DisplayGroup "File And Printer Sharing" | ForEach-Object {
+			ForEach ($Name in $SmbFirewallRuleNames) {
+				If ($_.Name -eq $Name) {
+				#If ($_.Name -like "*SMB*") {
+					$SmbFwRule += $_
 				}
 			}
 		}
-		If ($Add) {
-			$SmbFwRule += $_
+		
+		# $SmbFwRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+		
+		$Orig = $SmbFwRule
+		$SmbFwRule = @()
+		$Orig | ForEach-Object {
+			$Add = $False
+			#Write-Host "$($_.Name)"
+			ForEach ($P in $_.Profile) {
+				#Write-Host "$P"
+				ForEach ($Filter in $Profiles) {
+					#Write-Host "$Filter"
+					If ($P -like "*$Filter*" -And $_.Action -eq "Allow") {
+						$Add = $True
+					}
+				}
+			}
+			If ($Add) {
+				$SmbFwRule += $_
+			}
 		}
-	}
-	
-	If ($VerbosePreference -ne 'SilentlyContinue' -And $SMB) {
-		Write-Host "SMB File and Printer Sharing firewall rules:"
-		$SmbFwRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
-	}
+		
+		If ($VerbosePreference -ne 'SilentlyContinue' -And $SMB) {
+			Write-Host "SMB File and Printer Sharing firewall rules:"
+			$SmbFwRule | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+		}
+		
+	} # End If ($SMB)
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
@@ -320,75 +332,83 @@ Function Get-SmbFwRules {
 		"File and Printer Sharing (NB-Session-In)"
 	)
 	
-	$FpsFwRules = @()
-	
-	Get-NetFirewallRule -DisplayGroup "File And Printer Sharing" | ForEach-Object {
-		ForEach ($Name in $FpsFirewallNames) {
-			If ($_.DisplayName -eq $Name) {
+	If ($FpsRules) {
+		
+		$FpsFwRules = @()
+		
+		Get-NetFirewallRule -DisplayGroup "File And Printer Sharing" | ForEach-Object {
+			ForEach ($Name in $FpsFirewallNames) {
+				If ($_.DisplayName -eq $Name) {
+					$FpsFwRules += $_
+				}
+			}
+		}
+		
+		# $FpsFwRules | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+		
+		$Orig = $FpsFwRules
+		$FpsFwRules = @()
+		$Orig | ForEach-Object {
+			$Add = $False
+			#Write-Host "$($_.Name)"
+			ForEach ($P in $_.Profile) {
+				#Write-Host "$P"
+				ForEach ($Filter in $Profiles) {
+					#Write-Host "$Filter"
+					If ($P -like "*$Filter*" -And $_.Action -eq "Allow") {
+						$Add = $True
+					}
+				}
+			}
+			If ($Add) {
 				$FpsFwRules += $_
 			}
 		}
-	}
-	
-	# $FpsFwRules | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
-	
-	$Orig = $FpsFwRules
-	$FpsFwRules = @()
-	$Orig | ForEach-Object {
-		$Add = $False
-		#Write-Host "$($_.Name)"
-		ForEach ($P in $_.Profile) {
-			#Write-Host "$P"
-			ForEach ($Filter in $Profiles) {
-				#Write-Host "$Filter"
-				If ($P -like "*$Filter*" -And $_.Action -eq "Allow") {
-					$Add = $True
-				}
-			}
+		
+		If ($VerbosePreference -ne 'SilentlyContinue' -And $FpsRules) {
+			Write-Host "File and Printer Sharing firewall rules:"
+			$FpsFwRules | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
 		}
-		If ($Add) {
-			$FpsFwRules += $_
-		}
-	}
-	
-	If ($VerbosePreference -ne 'SilentlyContinue' -And $FpsRules) {
-		Write-Host "File and Printer Sharing firewall rules:"
-		$FpsFwRules | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
-	}
+		
+	} # End If ($FpsRules)
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	$AllFilePrinterSharingFwRules = @()
-	
-	Get-NetFirewallRule -DisplayGroup "File And Printer Sharing" | ForEach-Object {
-		$AllFilePrinterSharingFwRules += $_
-	}
-	
-	# $AllFilePrinterSharingFwRules | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
-	
-	$Orig = $AllFilePrinterSharingFwRules
-	$AllFilePrinterSharingFwRules = @()
-	$Orig | ForEach-Object {
-		$Add = $False
-		#Write-Host "$($_.Name)"
-		ForEach ($P in $_.Profile) {
-			#Write-Host "$P"
-			ForEach ($Filter in $Profiles) {
-				#Write-Host "$Filter"
-				If ($P -like "*$Filter*" -And $_.Action -eq "Allow") {
-					$Add = $True
-				}
-			}
-		}
-		If ($Add) {
+	If ($AllFilePrinterSharingRules) {
+		
+		$AllFilePrinterSharingFwRules = @()
+		
+		Get-NetFirewallRule -DisplayGroup "File And Printer Sharing" | ForEach-Object {
 			$AllFilePrinterSharingFwRules += $_
 		}
-	}
-	
-	If ($VerbosePreference -ne 'SilentlyContinue' -And $AllFilePrinterSharingRules) {
-		Write-Host "SMB File and Printer Sharing firewall rules:"
-		$AllFilePrinterSharingFwRules | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
-	}
+		
+		# $AllFilePrinterSharingFwRules | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+		
+		$Orig = $AllFilePrinterSharingFwRules
+		$AllFilePrinterSharingFwRules = @()
+		$Orig | ForEach-Object {
+			$Add = $False
+			#Write-Host "$($_.Name)"
+			ForEach ($P in $_.Profile) {
+				#Write-Host "$P"
+				ForEach ($Filter in $Profiles) {
+					#Write-Host "$Filter"
+					If ($P -like "*$Filter*" -And $_.Action -eq "Allow") {
+						$Add = $True
+					}
+				}
+			}
+			If ($Add) {
+				$AllFilePrinterSharingFwRules += $_
+			}
+		}
+		
+		If ($VerbosePreference -ne 'SilentlyContinue' -And $AllFilePrinterSharingRules) {
+			Write-Host "SMB File and Printer Sharing firewall rules:"
+			$AllFilePrinterSharingFwRules | Select-Object -Property Name, DisplayGroup, Enabled, Profile, Direction, Action, DisplayName | Format-Table | Out-Host
+		}
+		
+	} # End If ($AllFilePrinterSharingRules)
 	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
