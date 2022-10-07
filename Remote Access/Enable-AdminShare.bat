@@ -69,7 +69,7 @@ GOTO START
 SET "_ADMIN=FALSE"
 :START
 :: set the current directory to the batch file location
-::CD /D %~dp0
+CD /D %~dp0
 :-------------------------------------------------------------------------------
 :: End Run-As-Administrator function
 

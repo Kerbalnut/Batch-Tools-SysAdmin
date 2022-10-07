@@ -429,10 +429,10 @@ Function Write-LogFile {
 	} ElseIf ($ErrorMsg) {
 		$PrefixStr = 'ERROR: '
 	}
-	$LogMessage = $PrefixStr + $Message
 	
 	# Append line to file
 	
+	$LogMessage = $DateStr + " " + $PrefixStr + $Message
 	Add-Content -Path $Path -Value $LogMessage
 	
 	# Return input back down the pipeline
@@ -1830,26 +1830,39 @@ If ($LoadAllFunctions) {
 	Return
 }
 
+Set-Location -Path $WorkingDir
+$ScriptName = $MyInvocation.MyCommand
+$FileExtension = [System.IO.Path]::GetExtension($ScriptName)
+$FileNameWithoutExention = $ScriptName -replace "\$FileExtension$",""
+$LogFilePath = Join-Path -Path (Get-Location) -ChildPath "$FileNameWithoutExention.log"
+$TeeFilePath = Join-Path -Path (Get-Location) -ChildPath "$($FileNameWithoutExention)_tee-obj.txt"
+$Global:WriteLogFilePath = $LogFilePath
+Write-Verbose "Log file: '$LogFilePath'"
+If (Test-Path -Path $TeeFilePath) {Remove-Item -Path $TeeFilePath}
+
+
 $HR = "-----------------------------------------------------------------------------------------------------------------------"
-Write-Host $HR -BackgroundColor Black -ForegroundColor White
-Write-Host "Starting script: $($MyInvocation.MyCommand)" -BackgroundColor Black -ForegroundColor White
+$HR | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
+"Starting script: $($MyInvocation.MyCommand)" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 If ($Disable) {$Verb1 = "Disabling"} Else {$Verb1 = "Enabling"}
-Write-Host "$Verb1 Admin shares (e.g. \\$env:COMPUTERNAME\C$) on this machine: `n" -BackgroundColor Black -ForegroundColor White
+"$Verb1 Admin shares (e.g. \\$env:COMPUTERNAME\C$) on this machine: `n" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 
-Write-Host $HR -BackgroundColor Black -ForegroundColor White
-Write-Host "Current network shares:" -BackgroundColor Black -ForegroundColor White
-Write-Host "C:\> net share"
-net share
+$HR | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
+"Current network shares:" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
+"C:\> net share" | Write-LogFile | Write-Host
+net share | Tee-Object -FilePath $TeeFilePath
+Get-Content -Path $TeeFilePath | Add-Content -Path $LogFilePath
+If (Test-Path -Path $TeeFilePath) {Remove-Item -Path $TeeFilePath}
 
-Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+"-----------------------------------------------------------------------------------------------------------------------" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 $Step1 = "Step 1: Check that connected network(s) are not set to 'Public' profile type."
 #Write-Host "Step 1: Check that connected network(s) are not set to 'Public' profile type.`n" -BackgroundColor Black -ForegroundColor White
-Write-Host $Step1 -BackgroundColor Black -ForegroundColor White
+$Step1 | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 Write-Host ""
 
 $NetProfiles = Get-NetConnectionProfile
 
-$NetProfiles | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Format-Table
+$NetProfiles | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Format-Table | Out-Host | Write-LogFile
 
 $PublicProfiles = $False
 $NetProfiles | ForEach-Object {
