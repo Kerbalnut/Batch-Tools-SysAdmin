@@ -43,7 +43,9 @@ Param(
 	[Parameter(ParameterSetName = "LoadFuncs")]
 	[switch]$LoadFunctions,
 	[Parameter(ParameterSetName = "LoadAllFuncs")]
-	[switch]$LoadAllFunctions
+	[switch]$LoadAllFunctions,
+	
+	[string]$LogFilePath
 	
 )
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -53,21 +55,233 @@ $CommonParameters = @{
 }
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+Write-Host "`$LogFilePath '$LogFilePath'"
+
+Write-Host "$($MyInvocation.MyCommand)"
+Write-Host "$($MyInvocation.ScriptName)"
+Write-Host "$($MyInvocation.PSScriptRoot)"
+Write-Host "$($MyInvocation.PSCommandPath)"
+
+$LogFilePath = "$(Get-Location)\$($MyInvocation.ScriptName).log"
+Write-host $LogFilePath
+$LogFilePath = "$(Get-Location)\$($MyInvocation.MyCommand).log"
+Write-host $LogFilePath
+$LogFilePath = "$(Get-Location)\$($MyInvocation.PSScriptRoot).log"
+Write-host $LogFilePath
+
+
+
+$LogFilePath = "$(Get-Location)\$($MyInvocation.MyCommand).log"
+
+$FileExtension = [System.IO.Path]::GetExtension($UserPath)
+$FilePathWithoutExention = $UserPath -replace "\$FileExtension$",""
+
+
+$ScriptName = $MyInvocation.MyCommand
+$FileExtension = [System.IO.Path]::GetExtension($ScriptName)
+$FileNameWithoutExention = $ScriptName -replace "\$FileExtension$",""
+$LogFilePath = Join-Path -Path (Get-Location) -ChildPath "$FileNameWithoutExention.log"
+
+Write-host $LogFilePath
+
+$MyInvocation | Out-Host
+
+
+Function Write-Test {
+	[CmdletBinding()]
+	Param(
+		[Parameter(
+			Mandatory = $True, 
+			Position = 1, 
+			ValueFromPipeline = $True, 
+			ValueFromPipelineByPropertyName = $True
+		)]
+		[String]$Message
+	)
+	
+	#$MyInvocation.MyCommand | Out-Host
+	
+	Return $Message
+	
+}
+
+
+$Global:WriteLogFilePath = "Hello World"
+$Global:WriteLogFilePath = ""
+$Global:WriteLogFilePath = $null
+
+Remove-Variable -Name WriteLogFilePath -Scope Global
+
+Function New-GloTest {
+	If ($Global:WriteLogFilePath) {
+		If ($Global:WriteLogFilePath -eq '' -Or $null -eq $Global:WriteLogFilePath) {
+			Write-Warning "Global var exists, but is blank or null!"
+		} Else {
+			Write-Host "Global var is: $Global:WriteLogFilePath"
+		}
+	} Else {
+		Write-Warning "Global var does not exist."
+	}
+}
+
+
+
+
+
+#Pause
+#Return
+
 #-----------------------------------------------------------------------------------------------------------------------
 Function Write-LogFile {
 	<#
 	.SYNOPSIS
+	Adds a time-stamped message to a log file, and passes the message text on down the pipeline to be output using other methods.
 	.DESCRIPTION
+	For example, to make a message both get written to the log file and be output to the terminal using Write-Host on one line:
+	
+	"Hello World" | Write-LogFile | Write-Host
+	
+	Or, using other output options:
+	
+	"Hello World" | Write-LogFile | Write-Verbose
+	"Hello World" | Write-LogFile | Write-Debug
+	"Hello World" | Write-LogFile | Write-Warning
+	"Hello World" | Write-LogFile | Write-Error
+	
+	Caution: This function will always return the text string input down the pipeline, meaning even if Write-Host is omitted the text will still be printed to the terminal. These 2 commands are essentially the same: 
+	
+	"Hello World" | Write-LogFile
+	"Hello World" | Write-LogFile | Write-Host
+	
+	To silence the terminal output and only write the message to the log file, pipe output into Out-Null:
+	
+	"Hello World" | Write-LogFile | Out-Null
+	
+	Log messages can also be tagged the same ways as the different PowerShell output streams:
+	
+	"Hello World" | Write-LogFile -VerboseMsg | Write-Verbose
+	"Hello World" | Write-LogFile -DebugMsg | Write-Debug
+	"Hello World" | Write-LogFile -WarningMsg | Write-Warning
+	"Hello World" | Write-LogFile -ErrorMsg | Write-Error
+	
+	Caution: The -Path parameter is required, but if the $Global:WriteLogFilePath global var is used it can be omitted. See Path param for more info.
 	.PARAMETER Path
-	Path of log file.
+	Path of log file to update. This is a required parameter.
+	
+	E.g. "C:\foo bar\file.log"
+	
+	For example, using a code block like below will set-up a $LogFilePath var with the same name as the executing script, and in the current path:
+	
+	$ScriptName = $MyInvocation.MyCommand
+	$FileExtension = [System.IO.Path]::GetExtension($ScriptName)
+	$FileNameWithoutExention = $ScriptName -replace "\$FileExtension$",""
+	$LogFilePath = Join-Path -Path (Get-Location) -ChildPath "$FileNameWithoutExention.log"
+
+	Then, log messages can be written like below:
+	
+	"Hello World" | Write-LogFile -Path $LogFilePath | Write-Host
+	
+	To omit having to type out the -Path $LogFilePath parameter, a global var can be set that this function will use automatically, for example:
+	
+	$Global:WriteLogFilePath = "C:\foo bar\file.log"
+	- or
+	$Global:WriteLogFilePath = $LogFilePath
+	- or
+	Write-LogFile -SetGlobalLogPath $LogFilePath
+	
+	Then, logging can be simplified to: 
+	
+	"Hello World" | Write-LogFile | Write-Host
+	- or
+	"Hello World" | Write-LogFile
+	
+	To remove the global var after you're done:
+	Remove-Variable -Name WriteLogFilePath -Scope Global
+	
+	Note: If the -Path parameter is explicitly set, it will take preference over the $Global:WriteLogFilePath var. To target the log file path store in $Global:WriteLogFilePath, leave -Path parameter blank.
+	
+	See also:
+	-SetGlobalLogPath
+	-GetGlobalLogPath
+	-RemoveGlobalLogPath
+	.PARAMETER VerboseMsg
+	Adds a prefix of 'VERBOSE:' to the log message. Only one prefix tag should be used at a time.
+	.PARAMETER DebugMsg
+	Adds a prefix of 'DEBUG:' to the log message. Only one prefix tag should be used at a time.
+	.PARAMETER WarningMsg
+	Adds a prefix of 'WARNING:' to the log message. Only one prefix tag should be used at a time.
+	.PARAMETER ErrorMsg
+	Adds a prefix of 'ERROR:' to the log message. Only one prefix tag should be used at a time.
+	.PARAMETER SetGlobalLogPath
+	Sets the $Global:WriteLogFilePath var. This must be a valid path to a log file.
+	
+	When the $Global:WriteLogFilePath var is set, this function will use it as a value for the -Path param, allowing you omit that parameter and still target the same log file.
+	.PARAMETER GetGlobalLogPath
+	If the $Global:WriteLogFilePath var is set, will print it's value.
+	.PARAMETER RemoveGlobalLogPath
+	Removes the $Global:WriteLogFilePath var.
+	
+	Remove-Variable -Name WriteLogFilePath -Scope Global -Force
 	.NOTES
+	This function is very similar to Tee-Object. However this function is much more focused on log file generation, with automatic timestamping and PowerShell-themed tagging. Use Tee-Object for more general output splitting to a file.
+	.LINK
+	Tee-Object
 	.EXAMPLE
 	Write-LogFile
 	#>
-	[CmdletBinding()]
+	[CmdletBinding(DefaultParameterSetName = '12hour')]
 	Param(
-		[String]$Path
+		[Parameter(Position = 0, ValueFromPipelineByPropertyName = $True, ParameterSetName = '12hour')]
+		[Parameter(Position = 0, ValueFromPipelineByPropertyName = $True, ParameterSetName = '24hour')]
+		[String]$Path,
 		
+		[Parameter(
+			Mandatory = $True, 
+			Position = 1, 
+			ValueFromPipeline = $True, 
+			ValueFromPipelineByPropertyName = $True,
+			ParameterSetName = '12hour'
+		)]
+		[Parameter(
+			Mandatory = $True, 
+			Position = 1, 
+			ValueFromPipeline = $True, 
+			ValueFromPipelineByPropertyName = $True,
+			ParameterSetName = '24hour'
+		)]
+		[String]$Message,
+		
+		[Parameter(ParameterSetName = '12hour')]
+		[Parameter(ParameterSetName = '24hour')]
+		[Switch]$VerboseMsg,
+		[Parameter(ParameterSetName = '12hour')]
+		[Parameter(ParameterSetName = '24hour')]
+		[Switch]$DebugMsg,
+		[Parameter(ParameterSetName = '12hour')]
+		[Parameter(ParameterSetName = '24hour')]
+		[Switch]$WarningMsg,
+		[Parameter(ParameterSetName = '12hour')]
+		[Parameter(ParameterSetName = '24hour')]
+		[Switch]$ErrorMsg,
+		
+		[Parameter(ParameterSetName = '12hour')]
+		[Switch]$12hour,
+		[Parameter(ParameterSetName = '24hour')]
+		[Switch]$24hour,
+		
+		[Parameter(ParameterSetName = '12hour')]
+		[Parameter(ParameterSetName = '24hour')]
+		[ValidateSet('','SilentlyContinue','Continue','Stop')]
+		[String]$ErrorActionStr = 'Stop',
+		
+		[Parameter(Mandatory = $True, ParameterSetName = 'SetGlobal')]
+		[String]$SetGlobalLogPath,
+		
+		[Parameter(Mandatory = $True, ParameterSetName = 'GetGlobal')]
+		[Switch]$GetGlobalLogPath,
+		
+		[Parameter(Mandatory = $True, ParameterSetName = 'RemoveGlobal')]
+		[Switch]$RemoveGlobalLogPath
 	)
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	$CommonParameters = @{
@@ -78,9 +292,152 @@ Function Write-LogFile {
 	
 	Write-Verbose "Starting $($MyInvocation.MyCommand)"
 	
+	# Set default behavior:
+	
+	If (!$12hour -And !$24hour) {
+		$12hour = $True
+		#$24hour = $True
+	}
+	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
+	# Set/Get/Delete global var:
 	
+	If ($SetGlobalLogPath) {
+		If ($Global:WriteLogFilePath) {
+			Remove-Variable -Name WriteLogFilePath -Scope Global
+		}
+		Start-Sleep -Milliseconds 20
+		If (!$SetGlobalLogPath -Or $SetGlobalLogPath -eq '' -Or $null -eq $SetGlobalLogPath) {
+			#$ScriptName = $MyInvocation.MyCommand
+			$LogName = "logfile.log"
+			$FileExtension = [System.IO.Path]::GetExtension($LogName)
+			$FileNameWithoutExention = $LogName -replace "\$FileExtension$",""
+			$LogFilePath = Join-Path -Path (Get-Location) -ChildPath "$FileNameWithoutExention.log"
+			$SetGlobalLogPath = $LogFilePath
+		}
+		$Global:WriteLogFilePath = $SetGlobalLogPath
+		Return
+	}
+	
+	If ($GetGlobalLogPath) {
+		If ($Global:WriteLogFilePath) {
+			Write-Host "`$Global:WriteLogFilePath = '$Global:WriteLogFilePath'"
+		}
+		Return
+	}
+	
+	If ($RemoveGlobalLogPath) {
+		If ($Global:WriteLogFilePath) {
+			Try {
+				Remove-Variable -Name WriteLogFilePath -Scope Global
+			} Catch {
+				Start-Sleep -Milliseconds 20
+				Remove-Variable -Name WriteLogFilePath -Scope Global -Force
+			}
+		}
+		Start-Sleep -Milliseconds 20
+		If ($Global:WriteLogFilePath) {
+			Remove-Variable -Name WriteLogFilePath -Scope Global -Force
+		}
+		Return
+	}
+	
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+	# Check if a global var exists:
+	
+	If ($Global:WriteLogFilePath) {
+		If ($Global:WriteLogFilePath -eq '' -Or $null -eq $Global:WriteLogFilePath) {
+			Write-Warning "Global var exists, but is blank or null!"
+			Write-Host "The var is not usable in this state. Clean it up now?"
+			Do {
+				$UserInput = Read-Host "Delete empty var? [Y/N]"
+			} Until ($UserInput -eq 'Y' -Or $UserInput -eq 'N')
+			If ($UserInput -eq 'Y') {
+				Remove-Variable -Name WriteLogFilePath -Scope Global
+			}
+		} Else {
+			#Write-Host "Global var is: $Global:WriteLogFilePath"
+			If (!$Path) {
+				$Path = $Global:WriteLogFilePath
+			}
+		}
+	}
+	
+	If (!$Path -Or $Path -eq '' -Or $null -eq $Path) {
+		Write-Error "Invalid path. Path is blank/null/empty."
+		Throw "Invalid path. Path is blank/null/empty."
+	}
+	
+	# Check that path to log file exists:
+	
+	$ParentFolder = Split-Path -Path $Path -Parent
+	If (!(Test-Path -Path $ParentFolder)) {
+		Write-Verbose "Log file folder path does not exist, creating folder"
+		Try {
+			mkdir $ParentFolder
+		} Catch {
+			If ($ErrorActionStr -eq 'SilentlyContiue' -Or $ErrorActionStr -eq '') {
+				Write-Warning "Could not create folder for log file: `"$ParentFolder`""
+			} ElseIf ($ErrorActionStr -eq 'Continue' -Or $ErrorActionStr -eq 'Stop') {
+				Write-Error "Could not create folder for log file: `"$ParentFolder`""
+				If ($ErrorActionStr -eq 'Stop') {
+					Throw "Could not create folder for log file: `"$ParentFolder`""
+				}
+			}
+		}
+	}
+	
+	# Create log file if it does not already exist.
+	
+	If (!(Test-Path -Path $Path)) {
+		Write-Verbose "Log file does not exist, creating log file"
+		Try {
+			New-Item -Path $Path -ItemType File
+		} Catch {
+			If ($ErrorActionStr -eq 'SilentlyContiue' -Or $ErrorActionStr -eq '') {
+				Write-Warning "Could not create log file: `"$Path`""
+			} ElseIf ($ErrorActionStr -eq 'Continue' -Or $ErrorActionStr -eq 'Stop') {
+				Write-Error "Could not create log file: `"$Path`""
+				If ($ErrorActionStr -eq 'Stop') {
+					Throw "Could not create log file: `"$Path`""
+				}
+			}
+		}
+	}
+	
+	# Get date string
+	
+	If ($12hour) {
+		$DateStr = Get-Date -UFormat '%Y/%m/%d %r'
+	} ElseIf ($24hour) {
+		$DateStr = Get-Date -UFormat '%Y/%m/%d %T'
+	}
+	If (!$DateStr) {
+		$DateStr = Get-Date -UFormat '%Y/%m/%d %T'
+	}
+	
+	# Add message tags
+	
+	If ($VerboseMsg) {
+		$PrefixStr = 'VERBOSE: '
+	} ElseIf ($DebugMsg) {
+		$PrefixStr = 'DEBUG: '
+	} ElseIf ($WarningMsg) {
+		$PrefixStr = 'WARNING: '
+	} ElseIf ($ErrorMsg) {
+		$PrefixStr = 'ERROR: '
+	}
+	$LogMessage = $PrefixStr + $Message
+	
+	# Append line to file
+	
+	Add-Content -Path $Path -Value $LogMessage
+	
+	# Return input back down the pipeline
+	
+	Return $Message
 	
 } # End of Write-LogFile function.
 #-----------------------------------------------------------------------------------------------------------------------
@@ -981,6 +1338,12 @@ Function Disable-PingResponse {
 
 #-----------------------------------------------------------------------------------------------------------------------
 Function Backup-RegistryPath {
+	<#
+	.SYNOPSIS
+	Interactively backup a given registry key path, prompting the user for backup location.
+	.DESCRIPTION
+	.NOTES
+	#>
 	[CmdletBinding()]
 	Param(
 		$KeyPath,
@@ -997,6 +1360,10 @@ Function Backup-RegistryPath {
 	
 	#-----------------------------------------------------------------------------------------------------------------------
 	Function Add-NewRegFileName($NewFileName) {
+		<#
+		.SYNOPSIS
+		Given a file name string, this function checks & makes sure it has a .reg extension.
+		#>
 		#$NewFileName = Read-Host "New file name"
 		#If (!$NewFileName -Or $NewFileName -eq "") {Continue}
 		$NewFileName = $NewFileName.Trim()
@@ -1030,6 +1397,13 @@ Function Backup-RegistryPath {
 	
 	#-----------------------------------------------------------------------------------------------------------------------
 	Function Export-RegPath {
+		<#
+		.SYNOPSIS
+		Backs up the given Registry key path to the given File Path and File Name.
+		.PARAMETER BackupFileName
+		.PARAMETER BackupRegPath
+		.PARAMETER BackupFilePath
+		#>
 		[CmdletBinding()]
 		Param(
 			$BackupFileName,
@@ -1462,7 +1836,7 @@ Write-Host "Starting script: $($MyInvocation.MyCommand)" -BackgroundColor Black 
 If ($Disable) {$Verb1 = "Disabling"} Else {$Verb1 = "Enabling"}
 Write-Host "$Verb1 Admin shares (e.g. \\$env:COMPUTERNAME\C$) on this machine: `n" -BackgroundColor Black -ForegroundColor White
 
-Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+Write-Host $HR -BackgroundColor Black -ForegroundColor White
 Write-Host "Current network shares:" -BackgroundColor Black -ForegroundColor White
 Write-Host "C:\> net share"
 net share
