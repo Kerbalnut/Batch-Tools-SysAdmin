@@ -1830,7 +1830,6 @@ If ($LoadAllFunctions) {
 	Return
 }
 
-Set-Location -Path $WorkingDir
 $ScriptName = $MyInvocation.MyCommand
 $FileExtension = [System.IO.Path]::GetExtension($ScriptName)
 $FileNameWithoutExention = $ScriptName -replace "\$FileExtension$",""
@@ -1839,7 +1838,6 @@ $TeeFilePath = Join-Path -Path (Get-Location) -ChildPath "$($FileNameWithoutExen
 $Global:WriteLogFilePath = $LogFilePath
 Write-Verbose "Log file: '$LogFilePath'"
 If (Test-Path -Path $TeeFilePath) {Remove-Item -Path $TeeFilePath}
-
 
 $HR = "-----------------------------------------------------------------------------------------------------------------------"
 $HR | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
@@ -1862,7 +1860,10 @@ Write-Host ""
 
 $NetProfiles = Get-NetConnectionProfile
 
-$NetProfiles | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Format-Table | Out-Host | Write-LogFile
+#$NetProfiles | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Tee-Object -FilePath $TeeFilePath | Format-Table | Out-Host
+$NetProfiles | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Format-Table | Tee-Object -FilePath $TeeFilePath | Out-Host
+Get-Content -Path $TeeFilePath | Add-Content -Path $LogFilePath
+If (Test-Path -Path $TeeFilePath) {Remove-Item -Path $TeeFilePath}
 
 $PublicProfiles = $False
 $NetProfiles | ForEach-Object {
