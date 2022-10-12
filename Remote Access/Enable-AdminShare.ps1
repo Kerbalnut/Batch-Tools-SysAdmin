@@ -25,7 +25,7 @@ Check out the source code for updates to this script:
 https://github.com/Kerbalnut/Batch-Tools-SysAdmin
 
 TODO:
-- Finish adding redirection to Write-LogFile for all messages.
+X Finish adding redirection to Write-LogFile for all messages.
 - Add option to backup firewall rules before change.
 - Add option to change relevant firewall rules that apply to both "Private, Public" profiles, to only apply to "Private" network profiles for better security.
 - Further testing all the way through the script after these changes have been made.
@@ -220,7 +220,7 @@ Function Write-LogFile {
 	}
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
-	Write-Verbose "Starting $($MyInvocation.MyCommand)"
+	#Write-Verbose "Starting $($MyInvocation.MyCommand)"
 	
 	# Set default behavior:
 	
@@ -1845,7 +1845,7 @@ If (!($Disable)) {
 			} # End If ($interface.NetworkCategory -eq "Public")
 		} # End ForEach
 	} Else {
-		Write-Host "No network profiles set to Public.`nSKIPPING...`n"
+		"No network profiles set to Public.`nSKIPPING...`n" | Write-LogFile | Write-Host
 	}
 } Else {
 	#Write-Host "Disabling Admin shares, no need to mess with network profiles.`nSKIPPING...`n"
@@ -1889,15 +1889,16 @@ If (!($Disable)) {
 			} # End If ($interface.NetworkCategory -eq "Public")
 		} # End ForEach
 	} Else {
-		Write-Host "No network profiles set to Private or Domain.`nSKIPPING...`n"
+		"No network profiles set to Private or Domain.`nSKIPPING...`n" | Write-LogFile | Write-Host
 	}
 }
 
-Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+"-----------------------------------------------------------------------------------------------------------------------" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 If ($Disable) {$Verb2 = "Disable"} Else {$Verb2 = "Enable"}
 $Step2 = "Step 2: $Verb2 ping response and `"File and print sharing`" through Windows Firewall."
 #Write-Host "Step 2: Enable ping response and `"File and print sharing`" through Windows Firewall.`n" -BackgroundColor Black -ForegroundColor White
-Write-Host $Step2 -BackgroundColor Black -ForegroundColor White
+#Write-Host $Step2 -BackgroundColor Black -ForegroundColor White
+$Step2 | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 Write-Host ""
 
 $PingParamsHash = @{
@@ -1967,10 +1968,8 @@ If (($RulesDisabled -And !$Disable) -Or (!$RulesDisabled -And $Disable)) {
 		}
 	}
 } Else {
-	If (!$RulesDisabled -And !$Disable) {
-		Write-Host "All ping firewall rules already enabled.`nSKIPPING...`n"
-	} ElseIf ($RulesDisabled -And $Disable) {
-		Write-Host "All ping firewall rules already disabled.`nSKIPPING...`n"
+	If (!$RulesDisabled) {
+		"All ping firewall rules already enabled.`nSKIPPING...`n" | Write-LogFile | Write-Host
 	}
 }
 
@@ -1979,30 +1978,31 @@ If (($RulesDisabled -And !$Disable) -Or (!$RulesDisabled -And $Disable)) {
 #Disable-NetAdapterBinding -Name "Network Adapter Name" -DisplayName "File and Printer Sharing for Microsoft Networks"
 
 
-Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+"-----------------------------------------------------------------------------------------------------------------------" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 $Step3 = "Step 3: Ensure that both computers belong to the same Workgroup or Domain."
 #Write-Host "Step 3: Ensure that both computers belong to the same Workgroup or Domain." -BackgroundColor Black -ForegroundColor White
-Write-Host $Step3 -BackgroundColor Black -ForegroundColor White
+#Write-Host $Step3 -BackgroundColor Black -ForegroundColor White
+$Step3 | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 Write-Host ""
 
 # PartOfDomain (boolean Property)
 $PartOfDomain = (Get-WmiObject -Class Win32_ComputerSystem).PartOfDomain
 
 If ($PartOfDomain) {
-	Write-Host "This PC's domain/workgroup status:"
-	Write-Host "DOMAIN:" -BackgroundColor Black -ForegroundColor Yellow
+	"This PC's domain/workgroup status:" | Write-LogFile | Write-Host
+	"DOMAIN:" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor Yellow
 	$Domain = Get-WmiObject -Namespace root\cimv2 -Class Win32_ComputerSystem | Select-Object Name, Domain
 	$Domain | Format-Table | Out-Host
 } Else {
-	Write-Host "Note: Non-domain PC's should have the same Workgroup name set in order to network together.`n"
-	Write-Host "This PC's domain/workgroup status:"
+	"Note: Non-domain PC's should have the same Workgroup name set in order to network together.`n" | Write-LogFile | Write-Host
+	"This PC's domain/workgroup status:" | Write-LogFile | Write-Host
 	# Workgroup (string Property)
 	$Workgroup = (Get-WmiObject -Class Win32_ComputerSystem).Workgroup
-	Write-Host "WORKGROUP: `"$Workgroup`"" -BackgroundColor Black -ForegroundColor Yellow
-	Write-Host "`nTo check another PC's Workgroup name:"
-	Write-Host " - Run (Win+R): sysdm.cpl"
-	Write-Host " - Run (Win+R): SystemPropertiesComputerName"
-	Write-Host " - ......  C:\> net config workstation | find `"Workstation domain`"`n"
+	"WORKGROUP: `"$Workgroup`"" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor Yellow
+	"`nTo check another PC's Workgroup name:" | Write-LogFile | Write-Host
+	" - Run (Win+R): sysdm.cpl" | Write-LogFile | Write-Host
+	" - Run (Win+R): SystemPropertiesComputerName" | Write-LogFile | Write-Host
+	" - ......  C:\> net config workstation | find `"Workstation domain`"`n" | Write-LogFile | Write-Host
 }
 
 If (!($Disable)) {
@@ -2018,7 +2018,7 @@ If (!($Disable)) {
 	switch ($Result) {
 		0 {
 			Write-Verbose "Changing Workgroup name."
-			Write-Host "Ctrl+C to cancel."
+			"Ctrl+C to cancel." | Write-LogFile | Write-Host
 			$NewWgName = Read-Host "New Workgroup name"
 			Add-Computer -WorkGroupName $NewWgName @CommonParameters
 			
@@ -2032,14 +2032,14 @@ If (!($Disable)) {
 			$Restart = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
 			switch ($Restart) {
 				0 {
-					Write-Host "Rebooting in 10 seconds" -BackgroundColor Black -ForegroundColor White
-					Write-Host "Ctrl+C to Cancel" -BackgroundColor Black -ForegroundColor White
+					"Rebooting in 10 seconds" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
+					"Ctrl+C to Cancel" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 					Start-Sleep -Seconds 10
 					Restart-Computer @CommonParameters
 				}
 				1 {
 					Write-Verbose "Reboot deferred."
-					Write-Warning "If the Workgroup name was changed, this PC must be restarted for the changes to take effect."
+					"If the Workgroup name was changed, this PC must be restarted for the changes to take effect." | Write-LogFile -WarningMsg | Write-Warning
 				}
 				Default {
 					Write-Error "Reboot choice error."
@@ -2056,17 +2056,18 @@ If (!($Disable)) {
 		}
 	}
 } Else {
-	Write-Host "Disabling Admin shares, no need to change Workgroup.`nSKIPPING...`n"
+	"Disabling Admin shares, no need to change Workgroup.`nSKIPPING...`n" | Write-LogFile | Write-Host
 }
 
-Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+"-----------------------------------------------------------------------------------------------------------------------" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 $Step4 = "Step 4: Update registry values"
 #Write-Host "Step 4: Update registry values" -BackgroundColor Black -ForegroundColor White
-Write-Host $Step4 -BackgroundColor Black -ForegroundColor White
+#Write-Host $Step4 -BackgroundColor Black -ForegroundColor White
+$Step4 | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 Write-Host ""
 
 $RegKey1 = "Reg key 1: LanmanServer and AutoShareWks/AutoShareServer (auto-generate & publish Admin shares on reboot)"
-Write-Host $RegKey1
+$RegKey1 | Write-LogFile | Write-Host
 # Check if Server OS:
 $ServerOS = $False
 $OSName = ((Get-CimInstance -ClassName CIM_OperatingSystem).Caption)
@@ -2180,15 +2181,15 @@ If ($Disable) {
 			# Ask user to disable key
 			
 			# Ask user to disable registry key.
-			Write-Warning "'$KeyName' is enabled."
+			"'$KeyName' is enabled." | Write-LogFile -WarningMsg | Write-Warning
 			$DisplayTable = [PSCustomObject]@{
 				Key = $KeyName
 				Value = "$($KeyValue.$KeyName) (True)"
 			}
-			Write-Host "`nRegistry path:`n$KeyPath\`nKey:$KeyName"
+			"`nRegistry path:`n$KeyPath\`nKey:$KeyName" | Write-LogFile | Write-Host
 			$DisplayTable | Format-Table | Out-Host
-			Write-Host "`nIn order to prevent Windows 10 from publishing administrative shares, the registry key '$KeyPath' needs a Dword parameter named AutoShareWks (for desktop versions of Windows) or AutoShareServer (for Windows Server) and the value 0.`n"
-			Write-Warning "After a reboot, administrative shares will not be created. In this case, the tools for remote computer manage, including psexec, will stop working.`n"
+			"`nIn order to prevent Windows 10 from publishing administrative shares, the registry key '$KeyPath' needs a Dword parameter named AutoShareWks (for desktop versions of Windows) or AutoShareServer (for Windows Server) and the value 0.`n" | Write-LogFile | Write-Host
+			"After a reboot, administrative shares will not be created. In this case, the tools for remote computer manage, including psexec, will stop working.`n" | Write-LogFile -WarningMsg | Write-Warning
 			# Ask user to either disable or delete registry key
 			$Title = "Disable registry key?"
 			$Info = "Change the value of '$KeyName' to 0 to disable Admin shares?"
@@ -2224,9 +2225,9 @@ If ($Disable) {
 		# Ask user to create it as disabled
 		
 		# Ask user to create registry key as disabled.
-		Write-Warning "Key '$KeyName' does not exist."
-		Write-Host "`nIn order to prevent Windows 10 from publishing administrative shares, the registry key '$KeyPath' needs a Dword parameter named AutoShareWks (for desktop versions of Windows) or AutoShareServer (for Windows Server) and the value 0.`n"
-		Write-Warning "After a reboot, administrative shares will not be created. In this case, the tools for remote computer manage, including psexec, will stop working.`n"
+		"Key '$KeyName' does not exist." | Write-LogFile -WarningMsg | Write-Warning
+		"`nIn order to prevent Windows 10 from publishing administrative shares, the registry key '$KeyPath' needs a Dword parameter named AutoShareWks (for desktop versions of Windows) or AutoShareServer (for Windows Server) and the value 0.`n" | Write-LogFile | Write-Host
+		"After a reboot, administrative shares will not be created. In this case, the tools for remote computer manage, including psexec, will stop working.`n" | Write-LogFile -WarningMsg | Write-Warning
 		
 		#$null = New-ItemProperty -Path $KeyPath -Name $KeyName -Type DWORD -Value 1
 		New-RegistryKey -KeyPath $KeyPath -KeyName $KeyName -NewValue 0 @CommonParameters
@@ -2241,14 +2242,14 @@ If ($Disable) {
 			# Ask user to enable it or delete it.
 			
 			# Ask user to enable or delete registry key.
-			Write-Warning "'$KeyName' is disabled."
+			"'$KeyName' is disabled." | Write-LogFile -WarningMsg | Write-Warning
 			$DisplayTable = [PSCustomObject]@{
 				Key = $KeyName
 				Value = "$($KeyValue.$KeyName) (False)"
 			}
-			Write-Host "`nRegistry path:`n$KeyPath\`nKey:$KeyName"
+			"`nRegistry path:`n$KeyPath\`nKey:$KeyName" | Write-LogFile | Write-Host
 			$DisplayTable | Format-Table | Out-Host
-			Write-Host "`nFor Windows 10 to automatically create & publish administrative shares after a reboot, the registry key '$KeyPath' needs a Dword parameter either named '$KeyName' with the value 1 (enabled), or for that parameter to be deleted completely. Currently '$KeyName' is set as $($KeyValue.$KeyName) (disabled).`n"
+			"`nFor Windows 10 to automatically create & publish administrative shares after a reboot, the registry key '$KeyPath' needs a Dword parameter either named '$KeyName' with the value 1 (enabled), or for that parameter to be deleted completely. Currently '$KeyName' is set as $($KeyValue.$KeyName) (disabled).`n" | Write-LogFile | Write-Host
 			# Ask user to either disable or delete registry key
 			$Title = "Enable or delete the registry key?"
 			$Info = "Change the value of '$KeyName' to 1 (enabled) or delete it completely to enable Admin shares?"
@@ -2287,7 +2288,7 @@ If ($Disable) {
 			# Ask if user wants to delete it anyway.
 			
 			# Either deleting or enabling (1) this registry key will turn the Admin shares feature back on. User wants it on and it's already on (1), so we can leave the reg key as-is. But deleting it would also work.
-			Write-Host "Registry key '$KeyName' is already enabled ($($KeyValue.$KeyName)). Windows will already automatically publish Administrative shares when this key is set to 1, or is deleted. No registry changes are necessary, but it can also be deleted for the same effect."
+			"Registry key '$KeyName' is already enabled ($($KeyValue.$KeyName)). Windows will already automatically publish Administrative shares when this key is set to 1, or is deleted. No registry changes are necessary, but it can also be deleted for the same effect." | Write-LogFile | Write-Host
 			
 			#Remove-ItemProperty -Path $KeyPath -Name $KeyName -Verbose
 			#Remove-ItemProperty -Path $KeyPath -Name $KeyName @CommonParameters
@@ -2298,7 +2299,7 @@ If ($Disable) {
 		# Ask if user wants to explicitly set it to enabled anyway.
 		
 		# Ask user to create registry key as enabled.
-		Write-Host "Registry key '$KeyName' already doesn't exist. Windows will automatically publish Administrative shares. No registry changes are necessary, but this key can still be created as enabled if desired.`n"
+		"Registry key '$KeyName' already doesn't exist. Windows will automatically publish Administrative shares. No registry changes are necessary, but this key can still be created as enabled if desired.`n" | Write-LogFile | Write-Host
 		
 		#$null = New-ItemProperty -Path $KeyPath -Name $KeyName -Type DWORD -Value 1
 		New-RegistryKey -KeyPath $KeyPath -KeyName $KeyName -NewValue 1 @CommonParameters
@@ -2308,10 +2309,10 @@ If ($Disable) {
 Write-Verbose "Restarting LanmanServer service..."
 Get-Service LanmanServer @CommonParameters | Restart-Service @CommonParameters
 
-Write-Host "`n- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+"`n- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -" | Write-LogFile | Write-Host
 
 $RegKey2 = "Reg key 2: LocalAccountTokenFilterPolicy (disable Remote UAC)"
-Write-Host $RegKey2
+$RegKey2 | Write-LogFile | Write-Host
 
 <#
 http://woshub.com/enable-remote-access-to-admin-shares-in-workgroup/
@@ -2390,13 +2391,13 @@ If ($Disable) {
 If ($Disable) {
 	# To disable remote shares, ask user to delete the LocalAccountTokenFilterPolicy parameter in the registry to turn Remote UAC back on.
 	If ($KeyValue) {
-		Write-Warning "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
+		"Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'" | Write-LogFile -WarningMsg | Write-Warning
 		Backup-RegistryPath -KeyPath $KeyPath -KeyName $KeyName -BackupFolderName $BackupFolderName @CommonParameters
 		
-		Write-Host $DescriptionText
+		$DescriptionText | Write-LogFile | Write-Host
 		Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyName -Quiet @CommonParameters
 	} Else {
-		Write-Host "Key '$KeyName' already doesn't exist, no changes necessary.`nSKIPPING...`n"
+		"Key '$KeyName' already doesn't exist, no changes necessary.`nSKIPPING...`n" | Write-LogFile | Write-Host
 	}
 } Else {
 	# To enable remote shares, ask user to disable Remote UAC by creating the LocalAccountTokenFilterPolicy parameter as DWORD value 1 in the registry.
@@ -2404,23 +2405,23 @@ If ($Disable) {
 		Write-Verbose "'$KeyName' does not exist."
 		Backup-RegistryPath -KeyPath $KeyPath -KeyName $KeyName -BackupFolderName $BackupFolderName @CommonParameters
 		
-		Write-Host $DescriptionText
-		Write-Warning "Tip. This will slightly reduce the Windows security level."
+		$DescriptionText | Write-LogFile | Write-Host
+		"Tip. This will slightly reduce the Windows security level." | Write-LogFile -WarningMsg | Write-Warning
 		New-RegistryKey -KeyPath $KeyPath -KeyName $KeyName -NewValue 1 @CommonParameters
 	} Else {
 		Write-Verbose "Key '$KeyName' already exists. Value = '$($KeyValue.$KeyName)'"
 		If ($KeyValue.$KeyName -ne 1) {
-			Write-Warning "Key '$KeyName' exists but does not equal 1."
+			"Key '$KeyName' exists but does not equal 1." | Write-LogFile -WarningMsg | Write-Warning
 			Backup-RegistryPath -KeyPath $KeyPath -KeyName $KeyName -BackupFolderName $BackupFolderName @CommonParameters
 			
-			Write-Host $DescriptionText
+			$DescriptionText | Write-LogFile | Write-Host
 			$DisplayTable = [PSCustomObject]@{
 				Key = $KeyName
 				Value = "$($KeyValue.$KeyName) (False)"
 			}
-			Write-Host "`nRegistry path:`n$KeyPath\`nKey:$KeyName"
+			"`nRegistry path:`n$KeyPath\`nKey:$KeyName" | Write-LogFile | Write-Host
 			$DisplayTable | Format-Table | Out-Host
-			Write-Warning "Tip. This will slightly reduce the Windows security level."
+			"Tip. This will slightly reduce the Windows security level." | Write-LogFile -WarningMsg | Write-Warning
 			# Ask user to either disable or delete registry key
 			$Title = "Change setting of registry key to 1?"
 			$Info = "Change the value of '$KeyName' to 1 (disabled) to disable Remote UAC?"
@@ -2451,20 +2452,21 @@ If ($Disable) {
 	}
 }
 
-Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+"-----------------------------------------------------------------------------------------------------------------------" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 $Step5 = "Step 5: Specify which user(s) can access the Admin Shares (Disk Volumes)."
 #Write-Host "Step 5: Specify which user(s) can access the Admin Shares (Disk Volumes)." -BackgroundColor Black -ForegroundColor White
-Write-Host $Step5 -BackgroundColor Black -ForegroundColor White
+#Write-Host $Step5 -BackgroundColor Black -ForegroundColor White
+$Step5 | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 Write-Host ""
 
-Write-Host "Users in Administrators group:"
+"Users in Administrators group:" | Write-LogFile | Write-Host
 $AdminGroupMembers = Get-LocalGroupMember -Group "Administrators" @CommonParameters
 $AdminGroupMembers | Select-Object -Property Name, ObjectClass, PrincipalSource | Format-Table | Out-Host
 
-Write-Host "`n"
-Write-Warning "TODO - Check if current user name is in the Admin group of the local machine."
-Write-Warning "TODO - Ask user to activate default local Administrator account."
-Write-Host "`n"
+"`n" | Write-LogFile | Write-Host
+"TODO - Check if current user name is in the Admin group of the local machine." | Write-LogFile -WarningMsg | Write-Warning
+"TODO - Ask user to activate default local Administrator account." | Write-LogFile -WarningMsg | Write-Warning
+"`n" | Write-LogFile | Write-Host
 
 #New-ItemProperty -Name AutoShareWks -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Type DWORD -Value 0
 #You can deploy this registry parameter to all domain computers through a GPO.
@@ -2483,31 +2485,32 @@ Write-Host "`n"
 
 
 
-Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+"-----------------------------------------------------------------------------------------------------------------------" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 $Step6 = "Step 6: TODO - Create/Delete Admininistrative shares."
-Write-Host $Step6 -BackgroundColor Black -ForegroundColor White
+#Write-Host $Step6 -BackgroundColor Black -ForegroundColor White
+$Step6 | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 Write-Host ""
 
 
 
-Write-Host "-----------------------------------------------------------------------------------------------------------------------" -BackgroundColor Black -ForegroundColor White
+"-----------------------------------------------------------------------------------------------------------------------" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 $EndOfSteps = "End of Steps: Admin shares on this PC ($env:COMPUTERNAME) should now be active."
 #Write-Host "End of Steps: Admin shares on this PC ($env:COMPUTERNAME) should now be active." -BackgroundColor Black -ForegroundColor White
-Write-Host $EndOfSteps -BackgroundColor Black -ForegroundColor White
+#Write-Host $EndOfSteps -BackgroundColor Black -ForegroundColor White
+$EndOfSteps | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 Write-Host ""
 
-Write-Host "Current network shares:" -BackgroundColor Black -ForegroundColor White
-Write-Host "C:\> net share"
-net share
+"Current network shares:" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
+"C:\> net share" | Write-LogFile | Write-Host
+net share | Tee-Object -FilePath $TeeFilePath
+Get-Content -Path $TeeFilePath | Add-Content -Path $LogFilePath
+If (Test-Path -Path $TeeFilePath) {Remove-Item -Path $TeeFilePath}
 
 If ($Disable) {
-	Write-Host "Admin shares should be disabled on this machine now." -BackgroundColor Black -ForegroundColor Yellow
+	"Admin shares should be disabled on this machine now." | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor Yellow
 } Else {
-	Write-Host "`nTry accessing a share from another PC, e.g.:" -BackgroundColor Black -ForegroundColor Yellow
-	Write-Host " - \\$env:COMPUTERNAME\C$" -BackgroundColor Black -ForegroundColor Yellow
-	
-	$VerbosePreference = $False
-	#Verbose = [System.Management.Automation.ActionPreference]$VerbosePreference
+	"`nTry accessing a share from another PC, e.g.:" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
+	" - \\$env:COMPUTERNAME\C$" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 	
 	$NetProfiles = Get-NetConnectionProfile
 	$IpAddresses = Get-NetIPAddress
@@ -2523,21 +2526,22 @@ If ($Disable) {
 	
 	ForEach ($IP in $ValidIPs) {
 		If ($IP.IPAddress -like "169.254.*") {
-			Write-Host " - \\$($IP.IPAddress)\C$ - (DHCP error: Unassigned APIPA network address in use.)" -BackgroundColor Black -ForegroundColor Red
+			" - \\$($IP.IPAddress)\C$ - (DHCP error: Unassigned APIPA network address in use.)" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor Red
 		} Else {
-			Write-Host " - \\$($IP.IPAddress)\C$" -BackgroundColor Black -ForegroundColor Yellow
+			" - \\$($IP.IPAddress)\C$" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 		}
 	}
+	.-+
 	
-	Write-Host "`nTroubleshooting:" -BackgroundColor Black -ForegroundColor Yellow
-	Write-Host " - C:\> nslookup $env:COMPUTERNAME" -BackgroundColor Black -ForegroundColor Yellow
-	Write-Host " - C:\> ping $env:COMPUTERNAME" -BackgroundColor Black -ForegroundColor Yellow
+	"`nTroubleshooting:" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor Yellow
+	" - C:\> nslookup $env:COMPUTERNAME" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor Yellow
+	" - C:\> ping $env:COMPUTERNAME" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor Yellow
 	ForEach ($IP in $ValidIPs) {
 		If ($IP.IPAddress -notlike "169.254.*") {
-			Write-Host " - C:\> ping $($IP.IPAddress)" -BackgroundColor Black -ForegroundColor Yellow
+			" - C:\> ping $($IP.IPAddress)" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor Yellow
 		}
 	}
-	Write-Host " - Check for custom CIFS / SMB firewall Block rules:"
+	" - Check for custom CIFS / SMB firewall Block rules:" | Write-LogFile | Write-Host
 	# Thanks to: https://social.technet.microsoft.com/Forums/en-US/68249d31-4927-43fb-b17b-ead92c3bd05e/protocolsports-for-windows-file-sharing-on-a-firewall
 	<#
 	I understood SMB to be an application layer "protocol" with the underlying transport mechanism being TCP. As it relates to opening firewall ports the minimum requirement is:
@@ -2552,12 +2556,12 @@ If ($Disable) {
 	
 	https://en.wikipedia.org/wiki/Server_Message_Block
 	#>
-	Write-Host "     - TCP: 445"
-	Write-Host "     - UDP: 137, 138"
-	Write-Host "     - TCP: 137, 139"
+	"     - TCP: 445" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor Yellow
+	"     - UDP: 137, 138" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor Yellow
+	"     - TCP: 137, 139" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor Yellow
 }
 
-Write-Host "`n`n`n"
+"`n`n`n" | Write-LogFile | Write-Host
 
 Pause
 
