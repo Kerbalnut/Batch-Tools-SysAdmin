@@ -23,6 +23,12 @@ Warning: Most of these steps will lower the security of your system in some way.
 
 Check out the source code for updates to this script:
 https://github.com/Kerbalnut/Batch-Tools-SysAdmin
+
+TODO:
+- Finish adding redirection to Write-LogFile for all messages.
+- Add option to backup firewall rules before change.
+- Add option to change relevant firewall rules that apply to both "Private, Public" profiles, to only apply to "Private" network profiles for better security.
+- Further testing all the way through the script after these changes have been made.
 .EXAMPLE
 . "$Home\Documents\GitHub\Batch-Tools-SysAdmin\Remote Access\Enable-AdminShare.ps1" -LoadFunctions -Verbose
 
@@ -54,82 +60,6 @@ $CommonParameters = @{
 	Debug = [System.Management.Automation.ActionPreference]$DebugPreference
 }
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Write-Host "`$LogFilePath '$LogFilePath'"
-
-Write-Host "$($MyInvocation.MyCommand)"
-Write-Host "$($MyInvocation.ScriptName)"
-Write-Host "$($MyInvocation.PSScriptRoot)"
-Write-Host "$($MyInvocation.PSCommandPath)"
-
-$LogFilePath = "$(Get-Location)\$($MyInvocation.ScriptName).log"
-Write-host $LogFilePath
-$LogFilePath = "$(Get-Location)\$($MyInvocation.MyCommand).log"
-Write-host $LogFilePath
-$LogFilePath = "$(Get-Location)\$($MyInvocation.PSScriptRoot).log"
-Write-host $LogFilePath
-
-
-
-$LogFilePath = "$(Get-Location)\$($MyInvocation.MyCommand).log"
-
-$FileExtension = [System.IO.Path]::GetExtension($UserPath)
-$FilePathWithoutExention = $UserPath -replace "\$FileExtension$",""
-
-
-$ScriptName = $MyInvocation.MyCommand
-$FileExtension = [System.IO.Path]::GetExtension($ScriptName)
-$FileNameWithoutExention = $ScriptName -replace "\$FileExtension$",""
-$LogFilePath = Join-Path -Path (Get-Location) -ChildPath "$FileNameWithoutExention.log"
-
-Write-host $LogFilePath
-
-$MyInvocation | Out-Host
-
-
-Function Write-Test {
-	[CmdletBinding()]
-	Param(
-		[Parameter(
-			Mandatory = $True, 
-			Position = 1, 
-			ValueFromPipeline = $True, 
-			ValueFromPipelineByPropertyName = $True
-		)]
-		[String]$Message
-	)
-	
-	#$MyInvocation.MyCommand | Out-Host
-	
-	Return $Message
-	
-}
-
-
-$Global:WriteLogFilePath = "Hello World"
-$Global:WriteLogFilePath = ""
-$Global:WriteLogFilePath = $null
-
-Remove-Variable -Name WriteLogFilePath -Scope Global
-
-Function New-GloTest {
-	If ($Global:WriteLogFilePath) {
-		If ($Global:WriteLogFilePath -eq '' -Or $null -eq $Global:WriteLogFilePath) {
-			Write-Warning "Global var exists, but is blank or null!"
-		} Else {
-			Write-Host "Global var is: $Global:WriteLogFilePath"
-		}
-	} Else {
-		Write-Warning "Global var does not exist."
-	}
-}
-
-
-
-
-
-#Pause
-#Return
 
 #-----------------------------------------------------------------------------------------------------------------------
 Function Write-LogFile {
@@ -1870,7 +1800,7 @@ $NetProfiles | ForEach-Object {
 	If ($_.NetworkCategory -eq "Public") {
 		$PublicProfiles = $True
 		If (!($Disable)) {
-			Write-Warning "The network '$($_.Name)' on interface '($($_.InterfaceIndex)) $($_.InterfaceAlias)' is set to '$($_.NetworkCategory)'."
+			"The network '$($_.Name)' on interface '($($_.InterfaceIndex)) $($_.InterfaceAlias)' is set to '$($_.NetworkCategory)'." | Write-LogFile -WarningMsg | Write-Warning
 		}
 	}
 }
