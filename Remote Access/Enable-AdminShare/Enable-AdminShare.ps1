@@ -2546,7 +2546,6 @@ If ($Disable) {
 			" - \\$($IP.IPAddress)\C$" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 		}
 	}
-	.-+
 	
 	"`nTroubleshooting:" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor Yellow
 	" - C:\> nslookup $env:COMPUTERNAME" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor Yellow
