@@ -1838,7 +1838,7 @@ If (!($Disable)) {
 						"No changes made to '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile. ($($interface.NetworkCategory))" | Write-LogFile -VerboseMsg | Write-Verbose
 					}
 					Default {
-						Write-Error "Network profile choice error."
+						"Network profile choice error." | Write-LogFile -ErrorMsg | Write-Error
 						Throw "Network profile choice error."
 					}
 				} # End switch
@@ -1882,7 +1882,7 @@ If (!($Disable)) {
 						"No changes made to '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile. ($($interface.NetworkCategory))" | Write-LogFile -VerboseMsg | Write-Verbose
 					}
 					Default {
-						Write-Error "Network profile choice error."
+						"Network profile choice error." | Write-LogFile -ErrorMsg | Write-Error
 						Throw "Network profile choice error."
 					}
 				} # End switch
@@ -1963,7 +1963,7 @@ If (($RulesDisabled -And !$Disable) -Or (!$RulesDisabled -And $Disable)) {
 			"Declined firewall rules change for ping." | Write-LogFile -VerboseMsg | Write-Verbose
 		}
 		Default {
-			Write-Error "Ping response choice error."
+			"Ping response choice error." | Write-LogFile -ErrorMsg | Write-Error
 			Throw "Ping response choice error."
 		}
 	}
@@ -2042,7 +2042,7 @@ If (!($Disable)) {
 					"If the Workgroup name was changed, this PC must be restarted for the changes to take effect." | Write-LogFile -WarningMsg | Write-Warning
 				}
 				Default {
-					Write-Error "Reboot choice error."
+					"Reboot choice error." | Write-LogFile -ErrorMsg | Write-Error
 					Throw "Workgroup choice error."
 				}
 			}
@@ -2051,7 +2051,7 @@ If (!($Disable)) {
 			"Keeping Workgroup name: $Workgroup" | Write-LogFile -VerboseMsg | Write-Verbose
 		}
 		Default {
-			Write-Error "Workgroup choice error."
+			"Workgroup choice error." | Write-LogFile -ErrorMsg | Write-Error
 			Throw "Workgroup choice error."
 		}
 	}
@@ -2210,7 +2210,7 @@ If ($Disable) {
 					"Keeping registry key the same: '$KeyName' ($($KeyValue.$KeyName))" | Write-LogFile -VerboseMsg | Write-Verbose
 				}
 				Default {
-					Write-Error "Disable registry key choice error."
+					"Disable registry key choice error." | Write-LogFile -ErrorMsg | Write-Error
 					Throw "Disable registry key choice error."
 				}
 			}
@@ -2278,7 +2278,7 @@ If ($Disable) {
 					"Keeping registry key the same: '$KeyName' ($($KeyValue.$KeyName))" | Write-LogFile -VerboseMsg | Write-Verbose
 				}
 				Default {
-					Write-Error "Disable registry key choice error."
+					"Disable registry key choice error." | Write-LogFile -ErrorMsg | Write-Error
 					Throw "Disable registry key choice error."
 				}
 			}
@@ -2442,7 +2442,7 @@ If ($Disable) {
 					"Keeping registry key the same: '$KeyName' ($($KeyValue.$KeyName))" | Write-LogFile -VerboseMsg | Write-Verbose
 				}
 				Default {
-					Write-Error "Change '$KeyName' (Remote UAC) registry key choice error."
+					"Change '$KeyName' (Remote UAC) registry key choice error." | Write-LogFile -ErrorMsg | Write-Error
 					Throw "Change '$KeyName' (Remote UAC) registry key choice error."
 				}
 			}
