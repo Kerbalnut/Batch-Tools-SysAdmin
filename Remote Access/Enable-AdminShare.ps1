@@ -1766,7 +1766,7 @@ $FileNameWithoutExention = $ScriptName -replace "\$FileExtension$",""
 $LogFilePath = Join-Path -Path (Get-Location) -ChildPath "$FileNameWithoutExention.log"
 $TeeFilePath = Join-Path -Path (Get-Location) -ChildPath "$($FileNameWithoutExention)_tee-obj.txt"
 $Global:WriteLogFilePath = $LogFilePath
-Write-Verbose "Log file: '$LogFilePath'"
+"Log file: '$LogFilePath'" | Write-LogFile -VerboseMsg | Write-Verbose
 If (Test-Path -Path $TeeFilePath) {Remove-Item -Path $TeeFilePath}
 
 $HR = "-----------------------------------------------------------------------------------------------------------------------"
@@ -1820,14 +1820,14 @@ If (!($Disable)) {
 				$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
 				switch ($Result) {
 					0 {
-						Write-Verbose "Changing '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile to 'Private'."
+						"Changing '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile to 'Private'." | Write-LogFile -VerboseMsg | Write-Verbose
 						
 						#Set-NetConnectionProfile -InterfaceIndex $interface.InterfaceIndex -NetworkCategory 'Private' @CommonParameters
 						$interface | Set-NetConnectionProfile -NetworkCategory 'Private' @CommonParameters
 						
 						Start-Sleep -Milliseconds 500
 						
-						Write-Verbose "Restarting '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network adapter"
+						"Restarting '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network adapter" | Write-LogFile -VerboseMsg | Write-Verbose
 						Get-NetAdapter -InterfaceIndex $interface.InterfaceIndex | Restart-NetAdapter
 						
 						Start-Sleep -Milliseconds 500
@@ -1835,7 +1835,7 @@ If (!($Disable)) {
 						Get-NetConnectionProfile | Where-Object {$_.InterfaceIndex -eq $interface.InterfaceIndex} | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Format-Table | Out-Host
 					}
 					1 {
-						Write-Verbose "No changes made to '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile. ($($interface.NetworkCategory))"
+						"No changes made to '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile. ($($interface.NetworkCategory))" | Write-LogFile -VerboseMsg | Write-Verbose
 					}
 					Default {
 						Write-Error "Network profile choice error."
@@ -1864,14 +1864,14 @@ If (!($Disable)) {
 				$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
 				switch ($Result) {
 					0 {
-						Write-Verbose "Changing '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile to 'Public'."
+						"Changing '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile to 'Public'." | Write-LogFile -VerboseMsg | Write-Verbose
 						
 						#Set-NetConnectionProfile -InterfaceIndex $interface.InterfaceIndex -NetworkCategory 'Public' @CommonParameters
 						$interface | Set-NetConnectionProfile -NetworkCategory 'Public' @CommonParameters
 						
 						Start-Sleep -Milliseconds 500
 						
-						Write-Verbose "Restarting '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network adapter"
+						"Restarting '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network adapter" | Write-LogFile -VerboseMsg | Write-Verbose
 						Get-NetAdapter -InterfaceIndex $interface.InterfaceIndex | Restart-NetAdapter
 						
 						Start-Sleep -Milliseconds 500
@@ -1879,7 +1879,7 @@ If (!($Disable)) {
 						Get-NetConnectionProfile | Where-Object {$_.InterfaceIndex -eq $interface.InterfaceIndex} | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Format-Table | Out-Host
 					}
 					1 {
-						Write-Verbose "No changes made to '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile. ($($interface.NetworkCategory))"
+						"No changes made to '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile. ($($interface.NetworkCategory))" | Write-LogFile -VerboseMsg | Write-Verbose
 					}
 					Default {
 						Write-Error "Network profile choice error."
@@ -1912,7 +1912,7 @@ $PingParamsHash = @{
 #Get-SmbFwRules -ICMPv6 -NetBIOS -Table @CommonParameters
 Get-SmbFwRules @PingParamsHash -Table @CommonParameters
 
-Write-Verbose "Checking if ping/NetBIOS firewall rules are already allowed."
+"Checking if ping/NetBIOS firewall rules are already allowed." | Write-LogFile -VerboseMsg | Write-Verbose
 $FwRules = Get-SmbFwRules @PingParamsHash @CommonParameters
 $RulesDisabled = $False
 ForEach ($rule in $FwRules) {
@@ -1950,17 +1950,17 @@ If (($RulesDisabled -And !$Disable) -Or (!$RulesDisabled -And $Disable)) {
 	switch ($Result) {
 		0 {
 			If ($Disable) {
-				Write-Verbose "Disabling ping response:"
+				"Disabling ping response:" | Write-LogFile -VerboseMsg | Write-Verbose
 				Disable-PingResponse @PingParamsHash @CommonParameters
 			} Else {
-				Write-Verbose "Enabling ping response:"
+				"Enabling ping response:" | Write-LogFile -VerboseMsg | Write-Verbose
 				Enable-PingResponse @PingParamsHash @CommonParameters
 			}
 			
 			Get-SmbFwRules @PingParamsHash -Table
 		}
 		1 {
-			Write-Verbose "Declined firewall rules change for ping."
+			"Declined firewall rules change for ping." | Write-LogFile -VerboseMsg | Write-Verbose
 		}
 		Default {
 			Write-Error "Ping response choice error."
@@ -2017,7 +2017,7 @@ If (!($Disable)) {
 	$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
 	switch ($Result) {
 		0 {
-			Write-Verbose "Changing Workgroup name."
+			"Changing Workgroup name." | Write-LogFile -VerboseMsg | Write-Verbose
 			"Ctrl+C to cancel." | Write-LogFile | Write-Host
 			$NewWgName = Read-Host "New Workgroup name"
 			Add-Computer -WorkGroupName $NewWgName @CommonParameters
@@ -2038,7 +2038,7 @@ If (!($Disable)) {
 					Restart-Computer @CommonParameters
 				}
 				1 {
-					Write-Verbose "Reboot deferred."
+					"Reboot deferred." | Write-LogFile -VerboseMsg | Write-Verbose
 					"If the Workgroup name was changed, this PC must be restarted for the changes to take effect." | Write-LogFile -WarningMsg | Write-Warning
 				}
 				Default {
@@ -2048,7 +2048,7 @@ If (!($Disable)) {
 			}
 		}
 		1 {
-			Write-Verbose "Keeping Workgroup name: $Workgroup"
+			"Keeping Workgroup name: $Workgroup" | Write-LogFile -VerboseMsg | Write-Verbose
 		}
 		Default {
 			Write-Error "Workgroup choice error."
@@ -2074,7 +2074,7 @@ $OSName = ((Get-CimInstance -ClassName CIM_OperatingSystem).Caption)
 If ($OSName -like "*Server*") {
 	$ServerOS = $True
 }
-Write-Verbose "Server OS detected: $ServerOS ('$OSName')"
+"Server OS detected: $ServerOS ('$OSName')" | Write-LogFile -VerboseMsg | Write-Verbose
 
 # Set registry key path & name
 #$KeyPath = "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
@@ -2095,13 +2095,13 @@ Remove-Variable -Name KeyValue -Force -ErrorAction 'SilentlyContinue'
 Try {
 	$KeyValue = Get-ItemProperty -Path $KeyPath -Name $KeyName -ErrorAction 'Stop'
 } Catch {
-	Write-Verbose "Registry key '$KeyName' does not exist."
+	"Registry key '$KeyName' does not exist." | Write-LogFile -VerboseMsg | Write-Verbose
 	If ($KeyValue) {Remove-Variable -Name KeyValue -Force -ErrorAction 'SilentlyContinue'}
 }
 Try {
 	$WrongKeyValue = Get-ItemProperty -Path $KeyPath -Name $WrongKeyName -ErrorAction 'Stop'
 } Catch {
-	Write-Verbose "Registry key '$WrongKeyName' does not exist."
+	"Registry key '$WrongKeyName' does not exist." | Write-LogFile -VerboseMsg | Write-Verbose
 	If ($WrongKeyValue) {Remove-Variable -Name WrongKeyValue -Force -ErrorAction 'SilentlyContinue'}
 }
 
@@ -2115,34 +2115,34 @@ If (!$ServerOS -And ($KeyValue.$KeyName -eq $KeyNameServer)) {$BackupRegistry = 
 If ($Disable) {
 	# A registry key with value 0 is required to disable admin share creation on reboot.
 	If ($KeyValue) {
-		Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
+		"Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'" | Write-LogFile -VerboseMsg | Write-Verbose
 		If ($KeyValue.$KeyName -eq 1) {
-			Write-Verbose "'$KeyName' is enabled."
+			"'$KeyName' is enabled." | Write-LogFile -VerboseMsg | Write-Verbose
 			# Ask user to disable key
 			$BackupRegistry = $True
 		} Else {
-			Write-Verbose "'$KeyName' is already disabled."
+			"'$KeyName' is already disabled." | Write-LogFile -VerboseMsg | Write-Verbose
 		}
 	} Else {
-		Write-Verbose "'$KeyName' doesn't exist, Admin shares are enabled."
+		"'$KeyName' doesn't exist, Admin shares are enabled." | Write-LogFile -VerboseMsg | Write-Verbose
 		# Ask user to create it as disabled
 		$BackupRegistry = $True
 	}
 } Else {
 	# Either no key or a key with value 1 will enable it.
 	If ($KeyValue) {
-		Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
+		"Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'" | Write-LogFile -VerboseMsg | Write-Verbose
 		If ($KeyValue.$KeyName -eq 0) {
-			Write-Verbose "'$KeyName' is disabled."
+			"'$KeyName' is disabled." | Write-LogFile -VerboseMsg | Write-Verbose
 			# Ask user to enable it or delete it.
 			$BackupRegistry = $True
 		} Else {
-			Write-Verbose "'$KeyName' is already enabled."
+			"'$KeyName' is already enabled." | Write-LogFile -VerboseMsg | Write-Verbose
 			# Ask if user wants to delete it anyway.
 			$BackupRegistry = $True
 		}
 	} Else {
-		Write-Verbose "'$KeyName' doesn't exist, Admin shares are already enabled."
+		"'$KeyName' doesn't exist, Admin shares are already enabled." | Write-LogFile -VerboseMsg | Write-Verbose
 		# Ask if user wants to explicitly set it to enabled anyway.
 		$BackupRegistry = $True
 	}
@@ -2153,7 +2153,7 @@ If ($BackupRegistry) {
 }
 
 # Detect & delete non-necessary registry keys:
-Write-Verbose "KeyValue = '$KeyValue'"
+"KeyValue = '$KeyValue'" | Write-LogFile -VerboseMsg | Write-Verbose
 $RemoveKeyParams = @{
 	KeyPath = $KeyPath
 	ServerOS = $ServerOS
@@ -2166,7 +2166,7 @@ If ($ServerOS) {
 	#Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyNameServer -Verbose
 	Remove-RegistryKey -KeyName $KeyNameServer @RemoveKeyParams @CommonParameters
 }
-Write-Verbose "KeyValue = '$KeyValue'"
+"KeyValue = '$KeyValue'" | Write-LogFile -VerboseMsg | Write-Verbose
 
 # Create/Enable/Disable/Delete registry key:
 
@@ -2175,9 +2175,9 @@ Write-Verbose "KeyValue = '$KeyValue'"
 If ($Disable) {
 	# A registry key with value 0 is required to disable admin share creation on reboot.
 	If ($KeyValue) {
-		Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
+		"Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'" | Write-LogFile -VerboseMsg | Write-Verbose
 		If ($KeyValue.$KeyName -eq 1) {
-			Write-Verbose "'$KeyName' is enabled."
+			"'$KeyName' is enabled." | Write-LogFile -VerboseMsg | Write-Verbose
 			# Ask user to disable key
 			
 			# Ask user to disable registry key.
@@ -2201,13 +2201,13 @@ If ($Disable) {
 			$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
 			switch ($Result) {
 				0 {
-					Write-Verbose "Changing '$KeyName' reg key to 0 (disabled)."
+					"Changing '$KeyName' reg key to 0 (disabled)." | Write-LogFile -VerboseMsg | Write-Verbose
 					
 					#Set-ItemProperty -Name AutoShareWks -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Value 0
 					Set-ItemProperty -Path $KeyPath -Name $KeyName -Value 0 @CommonParameters
 				}
 				1 {
-					Write-Verbose "Keeping registry key the same: '$KeyName' ($($KeyValue.$KeyName))"
+					"Keeping registry key the same: '$KeyName' ($($KeyValue.$KeyName))" | Write-LogFile -VerboseMsg | Write-Verbose
 				}
 				Default {
 					Write-Error "Disable registry key choice error."
@@ -2216,12 +2216,12 @@ If ($Disable) {
 			}
 			
 		} Else {
-			Write-Verbose "'$KeyName' is already disabled."
+			"'$KeyName' is already disabled." | Write-LogFile -VerboseMsg | Write-Verbose
 			
-			Write-Verbose "Registry key '$KeyName' is already set to $($KeyValue.$KeyName) (disabled).`nSKIPPING...`n"
+			"Registry key '$KeyName' is already set to $($KeyValue.$KeyName) (disabled).`nSKIPPING...`n" | Write-LogFile -VerboseMsg | Write-Verbose
 		}
 	} Else {
-		Write-Verbose "'$KeyName' doesn't exist, Admin shares are enabled."
+		"'$KeyName' doesn't exist, Admin shares are enabled." | Write-LogFile -VerboseMsg | Write-Verbose
 		# Ask user to create it as disabled
 		
 		# Ask user to create registry key as disabled.
@@ -2236,9 +2236,9 @@ If ($Disable) {
 	# Either no key or a key with value 1 will enable it.
 	
 	If ($KeyValue) {
-		Write-Verbose "Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'"
+		"Key '$KeyName' exists. Value = '$($KeyValue.$KeyName)'" | Write-LogFile -VerboseMsg | Write-Verbose
 		If ($KeyValue.$KeyName -eq 0) {
-			Write-Verbose "'$KeyName' is disabled."
+			"'$KeyName' is disabled." | Write-LogFile -VerboseMsg | Write-Verbose
 			# Ask user to enable it or delete it.
 			
 			# Ask user to enable or delete registry key.
@@ -2262,20 +2262,20 @@ If ($Disable) {
 			$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
 			switch ($Result) {
 				0 {
-					Write-Verbose "Changing '$KeyName' reg key from $($KeyValue.$KeyName) (disabled) to 1 (enabled)."
+					"Changing '$KeyName' reg key from $($KeyValue.$KeyName) (disabled) to 1 (enabled)." | Write-LogFile -VerboseMsg | Write-Verbose
 					
 					#Set-ItemProperty -Name AutoShareWks -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Value 1
 					Set-ItemProperty -Path $KeyPath -Name $KeyName -Value 1 @CommonParameters
 				}
 				1 {
-					Write-Verbose "Deleting registry key: '$KeyName'"
+					"Deleting registry key: '$KeyName'" | Write-LogFile -VerboseMsg | Write-Verbose
 					
 					#Remove-ItemProperty -Path $KeyPath -Name $KeyName -Verbose
 					Remove-ItemProperty -Path $KeyPath -Name $KeyName @CommonParameters
 					#Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyName -ServerOS $ServerOS -OSName $OSName @CommonParameters
 				}
 				2 {
-					Write-Verbose "Keeping registry key the same: '$KeyName' ($($KeyValue.$KeyName))"
+					"Keeping registry key the same: '$KeyName' ($($KeyValue.$KeyName))" | Write-LogFile -VerboseMsg | Write-Verbose
 				}
 				Default {
 					Write-Error "Disable registry key choice error."
@@ -2284,7 +2284,7 @@ If ($Disable) {
 			}
 			
 		} Else {
-			Write-Verbose "'$KeyName' is already enabled."
+			"'$KeyName' is already enabled." | Write-LogFile -VerboseMsg | Write-Verbose
 			# Ask if user wants to delete it anyway.
 			
 			# Either deleting or enabling (1) this registry key will turn the Admin shares feature back on. User wants it on and it's already on (1), so we can leave the reg key as-is. But deleting it would also work.
@@ -2295,7 +2295,7 @@ If ($Disable) {
 			Remove-RegistryKey -KeyPath $KeyPath -KeyName $KeyNameDesktop -OptionalRemoval @CommonParameters
 		}
 	} Else {
-		Write-Verbose "'$KeyName' doesn't exist, Admin shares are already enabled."
+		"'$KeyName' doesn't exist, Admin shares are already enabled." | Write-LogFile -VerboseMsg | Write-Verbose
 		# Ask if user wants to explicitly set it to enabled anyway.
 		
 		# Ask user to create registry key as enabled.
@@ -2306,7 +2306,7 @@ If ($Disable) {
 	}
 }
 
-Write-Verbose "Restarting LanmanServer service..."
+"Restarting LanmanServer service..." | Write-LogFile -VerboseMsg | Write-Verbose
 Get-Service LanmanServer @CommonParameters | Restart-Service @CommonParameters
 
 "`n- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -" | Write-LogFile | Write-Host
@@ -2358,7 +2358,7 @@ Remove-Variable -Name KeyValue -Force -ErrorAction 'SilentlyContinue'
 Try {
 	$KeyValue = Get-ItemProperty -Path $KeyPath -Name $KeyName -ErrorAction 'Stop'
 } Catch {
-	Write-Verbose "Registry key '$KeyName' does not exist."
+	"Registry key '$KeyName' does not exist." | Write-LogFile -VerboseMsg | Write-Verbose
 	If ($KeyValue) {Remove-Variable -Name KeyValue -Force -ErrorAction 'SilentlyContinue'}
 }
 
@@ -2402,14 +2402,14 @@ If ($Disable) {
 } Else {
 	# To enable remote shares, ask user to disable Remote UAC by creating the LocalAccountTokenFilterPolicy parameter as DWORD value 1 in the registry.
 	If (!($KeyValue)) {
-		Write-Verbose "'$KeyName' does not exist."
+		"'$KeyName' does not exist." | Write-LogFile -VerboseMsg | Write-Verbose
 		Backup-RegistryPath -KeyPath $KeyPath -KeyName $KeyName -BackupFolderName $BackupFolderName @CommonParameters
 		
 		$DescriptionText | Write-LogFile | Write-Host
 		"Tip. This will slightly reduce the Windows security level." | Write-LogFile -WarningMsg | Write-Warning
 		New-RegistryKey -KeyPath $KeyPath -KeyName $KeyName -NewValue 1 @CommonParameters
 	} Else {
-		Write-Verbose "Key '$KeyName' already exists. Value = '$($KeyValue.$KeyName)'"
+		"Key '$KeyName' already exists. Value = '$($KeyValue.$KeyName)'" | Write-LogFile -VerboseMsg | Write-Verbose
 		If ($KeyValue.$KeyName -ne 1) {
 			"Key '$KeyName' exists but does not equal 1." | Write-LogFile -WarningMsg | Write-Warning
 			Backup-RegistryPath -KeyPath $KeyPath -KeyName $KeyName -BackupFolderName $BackupFolderName @CommonParameters
@@ -2433,13 +2433,13 @@ If ($Disable) {
 			$Result = $Host.UI.PromptForChoice($Title, $Info, $Options, $DefaultChoice)
 			switch ($Result) {
 				0 {
-					Write-Verbose "Changing '$KeyName' reg key from $($KeyValue.$KeyName) to 1 (Remote UAC disabled)."
+					"Changing '$KeyName' reg key from $($KeyValue.$KeyName) to 1 (Remote UAC disabled)." | Write-LogFile -VerboseMsg | Write-Verbose
 					
 					#Set-ItemProperty -Name AutoShareWks -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Value 1
 					Set-ItemProperty -Path $KeyPath -Name $KeyName -Value 1 @CommonParameters
 				}
 				1 {
-					Write-Verbose "Keeping registry key the same: '$KeyName' ($($KeyValue.$KeyName))"
+					"Keeping registry key the same: '$KeyName' ($($KeyValue.$KeyName))" | Write-LogFile -VerboseMsg | Write-Verbose
 				}
 				Default {
 					Write-Error "Change '$KeyName' (Remote UAC) registry key choice error."
