@@ -28,6 +28,7 @@ TODO:
 X Finish adding redirection to Write-LogFile for all messages.
 - Add option to backup firewall rules before change.
 - Add option to change relevant firewall rules that apply to both "Private, Public" profiles, to only apply to "Private" network profiles for better security.
+- Add check for custom block firewall rules.
 - Further testing all the way through the script after these changes have been made.
 .EXAMPLE
 . "$Home\Documents\GitHub\Batch-Tools-SysAdmin\Remote Access\Enable-AdminShare.ps1" -LoadFunctions -Verbose
@@ -1832,7 +1833,9 @@ If (!($Disable)) {
 						
 						Start-Sleep -Milliseconds 500
 						
-						Get-NetConnectionProfile | Where-Object {$_.InterfaceIndex -eq $interface.InterfaceIndex} | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Format-Table | Out-Host
+						Get-NetConnectionProfile | Where-Object {$_.InterfaceIndex -eq $interface.InterfaceIndex} | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Format-Table | Tee-Object -FilePath $TeeFilePath | Out-Host
+Get-Content -Path $TeeFilePath | Add-Content -Path $LogFilePath
+If (Test-Path -Path $TeeFilePath) {Remove-Item -Path $TeeFilePath}
 					}
 					1 {
 						"No changes made to '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile. ($($interface.NetworkCategory))" | Write-LogFile -VerboseMsg | Write-Verbose
@@ -1876,7 +1879,9 @@ If (!($Disable)) {
 						
 						Start-Sleep -Milliseconds 500
 						
-						Get-NetConnectionProfile | Where-Object {$_.InterfaceIndex -eq $interface.InterfaceIndex} | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Format-Table | Out-Host
+						Get-NetConnectionProfile | Where-Object {$_.InterfaceIndex -eq $interface.InterfaceIndex} | Select-Object -Property InterfaceIndex, InterfaceAlias, NetworkCategory, IPv4Connectivity, IPv6Connectivity | Format-Table | Tee-Object -FilePath $TeeFilePath | Out-Host
+Get-Content -Path $TeeFilePath | Add-Content -Path $LogFilePath
+If (Test-Path -Path $TeeFilePath) {Remove-Item -Path $TeeFilePath}
 					}
 					1 {
 						"No changes made to '$($interface.InterfaceIndex) $($interface.InterfaceAlias)' network profile. ($($interface.NetworkCategory))" | Write-LogFile -VerboseMsg | Write-Verbose
@@ -1992,7 +1997,9 @@ If ($PartOfDomain) {
 	"This PC's domain/workgroup status:" | Write-LogFile | Write-Host
 	"DOMAIN:" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor Yellow
 	$Domain = Get-WmiObject -Namespace root\cimv2 -Class Win32_ComputerSystem | Select-Object Name, Domain
-	$Domain | Format-Table | Out-Host
+	$Domain | Format-Table | Tee-Object -FilePath $TeeFilePath | Out-Host
+Get-Content -Path $TeeFilePath | Add-Content -Path $LogFilePath
+If (Test-Path -Path $TeeFilePath) {Remove-Item -Path $TeeFilePath}
 } Else {
 	"Note: Non-domain PC's should have the same Workgroup name set in order to network together.`n" | Write-LogFile | Write-Host
 	"This PC's domain/workgroup status:" | Write-LogFile | Write-Host
@@ -2187,7 +2194,9 @@ If ($Disable) {
 				Value = "$($KeyValue.$KeyName) (True)"
 			}
 			"`nRegistry path:`n$KeyPath\`nKey:$KeyName" | Write-LogFile | Write-Host
-			$DisplayTable | Format-Table | Out-Host
+			$DisplayTable | Format-Table | Tee-Object -FilePath $TeeFilePath | Out-Host
+Get-Content -Path $TeeFilePath | Add-Content -Path $LogFilePath
+If (Test-Path -Path $TeeFilePath) {Remove-Item -Path $TeeFilePath}
 			"`nIn order to prevent Windows 10 from publishing administrative shares, the registry key '$KeyPath' needs a Dword parameter named AutoShareWks (for desktop versions of Windows) or AutoShareServer (for Windows Server) and the value 0.`n" | Write-LogFile | Write-Host
 			"After a reboot, administrative shares will not be created. In this case, the tools for remote computer manage, including psexec, will stop working.`n" | Write-LogFile -WarningMsg | Write-Warning
 			# Ask user to either disable or delete registry key
@@ -2248,7 +2257,9 @@ If ($Disable) {
 				Value = "$($KeyValue.$KeyName) (False)"
 			}
 			"`nRegistry path:`n$KeyPath\`nKey:$KeyName" | Write-LogFile | Write-Host
-			$DisplayTable | Format-Table | Out-Host
+			$DisplayTable | Format-Table | Tee-Object -FilePath $TeeFilePath | Out-Host
+Get-Content -Path $TeeFilePath | Add-Content -Path $LogFilePath
+If (Test-Path -Path $TeeFilePath) {Remove-Item -Path $TeeFilePath}
 			"`nFor Windows 10 to automatically create & publish administrative shares after a reboot, the registry key '$KeyPath' needs a Dword parameter either named '$KeyName' with the value 1 (enabled), or for that parameter to be deleted completely. Currently '$KeyName' is set as $($KeyValue.$KeyName) (disabled).`n" | Write-LogFile | Write-Host
 			# Ask user to either disable or delete registry key
 			$Title = "Enable or delete the registry key?"
@@ -2420,7 +2431,9 @@ If ($Disable) {
 				Value = "$($KeyValue.$KeyName) (False)"
 			}
 			"`nRegistry path:`n$KeyPath\`nKey:$KeyName" | Write-LogFile | Write-Host
-			$DisplayTable | Format-Table | Out-Host
+			$DisplayTable | Format-Table | Tee-Object -FilePath $TeeFilePath | Out-Host
+Get-Content -Path $TeeFilePath | Add-Content -Path $LogFilePath
+If (Test-Path -Path $TeeFilePath) {Remove-Item -Path $TeeFilePath}
 			"Tip. This will slightly reduce the Windows security level." | Write-LogFile -WarningMsg | Write-Warning
 			# Ask user to either disable or delete registry key
 			$Title = "Change setting of registry key to 1?"
@@ -2461,7 +2474,9 @@ Write-Host ""
 
 "Users in Administrators group:" | Write-LogFile | Write-Host
 $AdminGroupMembers = Get-LocalGroupMember -Group "Administrators" @CommonParameters
-$AdminGroupMembers | Select-Object -Property Name, ObjectClass, PrincipalSource | Format-Table | Out-Host
+$AdminGroupMembers | Select-Object -Property Name, ObjectClass, PrincipalSource | Format-Table | Tee-Object -FilePath $TeeFilePath | Out-Host
+Get-Content -Path $TeeFilePath | Add-Content -Path $LogFilePath
+If (Test-Path -Path $TeeFilePath) {Remove-Item -Path $TeeFilePath}
 
 "`n" | Write-LogFile | Write-Host
 "TODO - Check if current user name is in the Admin group of the local machine." | Write-LogFile -WarningMsg | Write-Warning
