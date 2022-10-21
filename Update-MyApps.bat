@@ -67,7 +67,12 @@ SET "_ADMIN=FALSE"
 :-------------------------------------------------------------------------------
 :: End Run-As-Administrator function
 
-choco upgrade notepadplusplus googlechrome firefox vscode -y
+choco upgrade notepadplusplus GoogleChrome Firefox vscode vscodium keepass nextcloud-client dropbox signal putty vlc wireshark nmap filezilla thunderbird paint.net discord steam epicgameslauncher -y
+::choco upgrade telegram -y
+::choco upgrade libreoffice -7
+::choco upgrade libreoffice-fresh -7
+choco upgrade hg git tortoisegit tortoisehg github-desktop -y
+::choco upgrade javaruntime jre8 -y
 
 ECHO End of script.
 PAUSE
