@@ -52,7 +52,10 @@ Param(
 	[Parameter(ParameterSetName = "LoadAllFuncs")]
 	[switch]$LoadAllFunctions,
 	
-	[string]$LogFilePath
+	[string]$LogFilePath,
+	
+	[switch]$CsvLog = $True
+	#[switch]$CsvLog
 	
 )
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -143,6 +146,8 @@ Function Write-LogFile {
 	Adds a prefix of 'WARNING:' to the log message. Only one prefix tag should be used at a time.
 	.PARAMETER ErrorMsg
 	Adds a prefix of 'ERROR:' to the log message. Only one prefix tag should be used at a time.
+	.PARAMETER Csv
+	Creates a .csv log instead, for easier filtering.
 	.PARAMETER SetGlobalLogPath
 	Sets the $Global:WriteLogFilePath var. This must be a valid path to a log file.
 	
@@ -202,6 +207,10 @@ Function Write-LogFile {
 		
 		[Parameter(ParameterSetName = '12hour')]
 		[Parameter(ParameterSetName = '24hour')]
+		[Switch]$Csv,
+		
+		[Parameter(ParameterSetName = '12hour')]
+		[Parameter(ParameterSetName = '24hour')]
 		[ValidateSet('','SilentlyContinue','Continue','Stop')]
 		[String]$ErrorActionStr = 'Stop',
 		
@@ -230,6 +239,8 @@ Function Write-LogFile {
 		#$24hour = $True
 	}
 	
+	#$Csv = $True
+	
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	# Set/Get/Delete global var:
@@ -237,15 +248,6 @@ Function Write-LogFile {
 	If ($SetGlobalLogPath) {
 		If ($Global:WriteLogFilePath) {
 			Remove-Variable -Name WriteLogFilePath -Scope Global
-		}
-		Start-Sleep -Milliseconds 20
-		If (!$SetGlobalLogPath -Or $SetGlobalLogPath -eq '' -Or $null -eq $SetGlobalLogPath) {
-			#$ScriptName = $MyInvocation.MyCommand
-			$LogName = "logfile.log"
-			$FileExtension = [System.IO.Path]::GetExtension($LogName)
-			$FileNameWithoutExention = $LogName -replace "\$FileExtension$",""
-			$LogFilePath = Join-Path -Path (Get-Location) -ChildPath "$FileNameWithoutExention.log"
-			$SetGlobalLogPath = $LogFilePath
 		}
 		$Global:WriteLogFilePath = $SetGlobalLogPath
 		Return
@@ -299,6 +301,23 @@ Function Write-LogFile {
 	If (!$Path -Or $Path -eq '' -Or $null -eq $Path) {
 		Write-Error "Invalid path. Path is blank/null/empty."
 		Throw "Invalid path. Path is blank/null/empty."
+	}
+	
+	# Force Csv mode if swtich/file extension is used:
+	
+	$FileExtension = [System.IO.Path]::GetExtension($Path)
+	If ($Csv) {
+		$FileExtension = [System.IO.Path]::GetExtension($Path)
+		If ($FileExtension) {
+			$FilePathWithoutExention = $Path -replace "\$FileExtension$",""
+		} Else {
+			$FilePathWithoutExention = $Path
+		}
+		$Path = "$FilePathWithoutExention.csv"
+	} Else {
+		If ($FileExtension -eq '.csv') {
+			$Csv = $True
+		}
 	}
 	
 	# Check that path to log file exists:
@@ -363,7 +382,11 @@ Function Write-LogFile {
 	
 	# Append line to file
 	
-	$LogMessage = $DateStr + " " + $PrefixStr + $Message
+	If ($Csv) {
+		$LogMessage = "$DateStr,$PrefixStr,`"$Message`""
+	} Else {
+		$LogMessage = $DateStr + " " + $PrefixStr + $Message
+	}
 	Add-Content -Path $Path -Value $LogMessage
 	
 	# Return input back down the pipeline
@@ -1761,11 +1784,31 @@ If ($LoadAllFunctions) {
 	Return
 }
 
-$ScriptName = $MyInvocation.MyCommand
-$FileExtension = [System.IO.Path]::GetExtension($ScriptName)
-$FileNameWithoutExention = $ScriptName -replace "\$FileExtension$",""
-$LogFilePath = Join-Path -Path (Get-Location) -ChildPath "$FileNameWithoutExention.log"
-$TeeFilePath = Join-Path -Path (Get-Location) -ChildPath "$($FileNameWithoutExention)_tee-obj.txt"
+If ($LogFilePath) {
+	$FileExtension = [System.IO.Path]::GetExtension($LogFilePath)
+	$FilePathWithoutExention = $LogFilePath -replace "\$FileExtension$",""
+	$TeeFilePath = Join-Path -Path (Get-Location) -ChildPath "$($FileNameWithoutExention)_tee-obj.txt"
+	If ($CsvLog) {
+		If ($FileExtension -ne '.csv') {
+			$FilePathWithoutExention = $LogFilePath -replace "\$FileExtension$",""
+			$LogFilePath = "$FilePathWithoutExention.csv"
+		}
+	} Else {
+		If ($FileExtension -eq '.csv') {
+			$CsvLog = $True
+		}
+	}
+} Else {
+	$ScriptName = $MyInvocation.MyCommand
+	$FileExtension = [System.IO.Path]::GetExtension($ScriptName)
+	$FileNameWithoutExention = $ScriptName -replace "\$FileExtension$",""
+	If ($CsvLog) {
+		$LogFilePath = Join-Path -Path (Get-Location) -ChildPath "$FileNameWithoutExention.csv"
+	} Else {
+		$LogFilePath = Join-Path -Path (Get-Location) -ChildPath "$FileNameWithoutExention.log"
+	}
+	$TeeFilePath = Join-Path -Path (Get-Location) -ChildPath "$($FileNameWithoutExention)_tee-obj.txt"
+}
 $Global:WriteLogFilePath = $LogFilePath
 "Log file: '$LogFilePath'" | Write-LogFile -VerboseMsg | Write-Verbose
 If (Test-Path -Path $TeeFilePath) {Remove-Item -Path $TeeFilePath}
@@ -1774,7 +1817,7 @@ $HR = "-------------------------------------------------------------------------
 $HR | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 "Starting script: $($MyInvocation.MyCommand)" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 If ($Disable) {$Verb1 = "Disabling"} Else {$Verb1 = "Enabling"}
-"$Verb1 Admin shares (e.g. \\$env:COMPUTERNAME\C$) on this machine: `n" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
+"$Verb1 Admininistrative shares (e.g. \\$env:COMPUTERNAME\C$) on this machine: `n" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 
 $HR | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 "Current network shares:" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
@@ -2483,6 +2526,9 @@ If (Test-Path -Path $TeeFilePath) {Remove-Item -Path $TeeFilePath}
 "TODO - Ask user to activate default local Administrator account." | Write-LogFile -WarningMsg | Write-Warning
 "`n" | Write-LogFile | Write-Host
 
+
+
+
 #New-ItemProperty -Name AutoShareWks -Path HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters -Type DWORD -Value 0
 #You can deploy this registry parameter to all domain computers through a GPO.
 
@@ -2499,6 +2545,7 @@ If (Test-Path -Path $TeeFilePath) {Remove-Item -Path $TeeFilePath}
 
 
 
+Pause
 
 "-----------------------------------------------------------------------------------------------------------------------" | Write-LogFile | Write-Host -BackgroundColor Black -ForegroundColor White
 $Step6 = "Step 6: TODO - Create/Delete Admininistrative shares."
