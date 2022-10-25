@@ -11,7 +11,7 @@ MsgBox,
 		
 		To stop this script, right-click the AutoHotKey icon in the TaskBar notification tray, and select 'Pause Script' or 'Exit'.
 	) ; A period is used to concatenate (join) two strings, and % is used to designate a expression. E.g.: MsgBox % "Kill repeat: " . killrepeat . "."
-Return
+;Return
 
 ;ClipSaved := ClipboardAll 
 
@@ -48,6 +48,8 @@ Return
 ;^c:: ; Wait for Ctrl+C
 ;	clipboard := ""  ; Start off empty to allow ClipWait to detect when the text has arrived.
 ;	Send ^c
+;	;SendInput ^c
+;	;SendRaw ^c
 ;	ClipWait, 5, 0  ; Wait for the clipboard to contain text.
 ;	ClipSaved := clipboard
 ;	MsgBox Ctrl+Shift+V for Impossible Paste.`n`nCopied the following text to clipboard:`n`n%ClipSaved%`n`n%clipboard%
@@ -55,8 +57,8 @@ Return
 
 ; Paste
 ^+v:: ; Ctrl+Shift+V to activate
-	;Send, %ClipSaved% ; Sends the contents of the %ClipSaved% variable to the AHK HID keyboard.
-	SendInput %Clipboard% ; Sends the contents of the %ClipSaved% variable to the AHK HID keyboard.
+	;Send, %ClipSaved% ; Sends the contents of the %ClipSaved% variable to using the same method as the pre-1.0.43 Send command, synonymous with SendEvent.
+	SendInput %Clipboard% ; Sends the contents of the %ClipSaved% variable to the AHK HID keyboard, uses the same syntax as Send but is generally faster and more reliable.
 Return
 
 
