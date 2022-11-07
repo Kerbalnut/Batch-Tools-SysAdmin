@@ -67,6 +67,10 @@ Copy **functions-template.bat** to the place you need it, delete the stuff you d
 
 ## Get started with some unique and useful tools:
 
+### ImpossiblePaste.ahk
+
+With AutoHotKey installed (a language that allows you to automate sending keystrokes and mouse clicks), this script allows you to paste text into locked fields that otherwise block clipboard pasting.
+
 ### File & Folder merge tool
 
 **CompareTo-Parent.bat** (located in the **Tools** folder) is a great for merging text documents utilizing [KDiff3](https://chocolatey.org/packages/kdiff3). There are 2 ways to use this tool:
