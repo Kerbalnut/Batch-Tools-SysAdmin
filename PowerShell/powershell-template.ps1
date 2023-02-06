@@ -573,6 +573,31 @@ function Get-ScriptDirectory3 { #https://stackoverflow.com/questions/1183183/pat
 #-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
+function Get-DirSizes { #https://stackoverflow.com/questions/1183183/path-of-currently-executing-powershell-script#1183197
+  <#
+  .NOTES
+  Thanks to Jeffrey Snover of the PowerShell team:
+  https://www.red-gate.com/simple-talk/dotnet/.net-tools/further-down-the-rabbit-hole-powershell-modules-and-encapsulation/
+  
+  .EXAMPLE  
+  Write-Host (Get-DirSizes)
+  
+  Will properly display the directory where your script resides rather than your current directory. 
+  
+  **Maybe.** The results you get from this function depend on where you call it from!
+  
+  .LINK
+  https://stackoverflow.com/questions/1183183/path-of-currently-executing-powershell-script#1183197
+  
+  .LINK
+  https://www.red-gate.com/simple-talk/dotnet/.net-tools/further-down-the-rabbit-hole-powershell-modules-and-encapsulation/
+  #>
+  $Invocation = (Get-Variable MyInvocation -Scope 1).Value
+  Split-Path $Invocation.MyCommand.Path
+} # End Get-DirSize function -----------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
 Function Write-HorizontalRule { #---------------------------------------------------------------------------------------
   Param (
     #Script parameters go here
