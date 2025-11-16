@@ -18,6 +18,8 @@ choco upgrade notepadplusplus -y
 choco upgrade putty -y
 choco upgrade signal -y
 choco upgrade thunderbird -y
+choco upgrade TortoiseGit -y
+choco upgrade tortoisehg -y
 choco upgrade vlc -y
 choco upgrade vscodium -y
 

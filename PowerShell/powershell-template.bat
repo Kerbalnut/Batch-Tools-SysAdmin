@@ -24,8 +24,8 @@ REM ECHO DEBUGGING: Parameter %%1: "%1"
 IF "%1"=="RunAsAdmin" GOTO RUNASADMIN
 IF "%1"=="NoAdmin" GOTO SKIPADMIN
 
-::GOTO SKIPADMIN & REM <-- Leave this line in to always skip Elevation Prompt -->
-::GOTO RUNASADMIN & REM <-- Leave this line in to always Run As Administrator (skip choice) -->
+::GOTO SKIPADMIN & REM <-- Un-comment this line in to always skip Elevation Prompt -->
+::GOTO RUNASADMIN & REM <-- Un-comment this line in to always Run As Administrator (skip choice) -->
 :: Comment out both GOTO statements to prompt user to elevate.
 ECHO:
 ECHO CHOICE Loading...
@@ -188,7 +188,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :: If no input file is given, default to a .ps1 file of the same name.
-IF /I "%_PowerShellFile%"=="" SET "_PowerShellFile=%~dpn0.ps1"
+IF /I "%_PowerShellFile%"=="" SET "_PowerShellFile=%~dpn0.ps1" & REM %~dpn0.ps1 This script's (%0) [D]rive letter, [P]ath, and [N]ame, but with a .ps1 extension. E.g. HelloWorld.bat will launch HelloWorld.ps1
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
