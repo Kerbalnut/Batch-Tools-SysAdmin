@@ -17,8 +17,8 @@ Return
 ; Paste text into locked fields that block clipboard pasting, by allowing AHK to type the clipboard's contents via HID keyboard instead.
 ; (Remember to update the help text above if you change the activation hotkey below!)
 ; !+v:: ; Alt+Shift+V to activate
-; ^!v:: ; Ctrl+Alt+V to activate
-^+v:: ; Ctrl+Shift+V to activate
+; ^+v:: ; Ctrl+Shift+V to activate
+^!v:: ; Ctrl+Alt+V to activate
 	;Send, %Clipboard% ;  Types the contents of the %Clipboard% variable (a built-in var) --- using the same method as the pre-1.0.43 Send command, synonymous with SendEvent.
 	SendInput %Clipboard% ;  Types the contents of the %Clipboard% variable (a built-in var) --- uses the same syntax as Send but is generally faster and more reliable.
 Return
