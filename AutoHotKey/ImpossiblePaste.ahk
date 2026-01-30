@@ -1,13 +1,9 @@
-﻿#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
-#Warn  ; Enable warnings to assist with detecting common errors.
-SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
-; SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-MsgBox,
+﻿MsgBox,
 	(LTrim
 		Impossible Paste: Paste text into locked fields that block it.
 		
 		1. Copy text normally (Ctrl+C).
-		2. Ctrl+Shift+V for Impossible Paste.
+		2. Ctrl+Alt+V for Impossible Paste.
 		
 		(To stop this script right-click the AutoHotKey icon in the TaskBar notification tray, and select "Pause Script" or "Exit".)
 	) ; A period is used to concatenate (join) two strings, and % is used to designate a expression. E.g.: MsgBox % "Kill repeat: " . killrepeat . "."
