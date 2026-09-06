@@ -14,6 +14,9 @@ message := '
 MsgBox Format(message, msgboxtitle)
 ;Return
 
+; Author: Kerbalnut
+; https://github.com/Kerbalnut/Batch-Tools-SysAdmin
+; https://github.com/Kerbalnut/ScrapingSharepointTimesNotes
 
 ; !+v:: ; Alt+Shift+V to activate
 ; ^!v:: ; Ctrl+Alt+V to activate
