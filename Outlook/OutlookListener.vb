@@ -1,3 +1,5 @@
+'https://stackoverflow.com/questions/11263483/how-do-i-trigger-a-macro-to-run-after-a-new-mail-is-received-in-outlook
+
 Private WithEvents Items As Outlook.Items 
 Private Sub Application_Startup() 
   Dim olApp As Outlook.Application 
