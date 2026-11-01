@@ -1,11 +1,11 @@
 
 REM Bugfix: Use "REM ECHO DEBUG*ING: " instead of "::ECHO DEBUG*ING: " to comment-out debugging lines, in case any are within IF statements.
-REM ECHO DEBUGGING: Begin RunAsAdministrator block.
 
 :RunAsAdministrator
 :: SS64 Run with elevated permissions script (ElevateMe.vbs)
 :: Thanks to: http://ss64.com/vb/syntax-elevate.html
 :-------------------------------------------------------------------------------
+REM ECHO DEBUGGING: Begin RunAsAdministrator block.
 :: First check if we are already running As Admin/Elevated
 FSUTIL dirty query %SystemDrive% >nul
 IF %ERRORLEVEL% EQU 0 SET "_ADMIN=TRUE" & GOTO START
@@ -15,9 +15,11 @@ REM ECHO DEBUGGING: Parameter %%1: "%1"
 IF "%1"=="RunAsAdmin" GOTO RUNASADMIN
 IF "%1"=="NoAdmin" GOTO SKIPADMIN
 
+:: Change code behavior
 ::GOTO SKIPADMIN & REM <-- Leave this line in to always skip Elevation Prompt --
 ::GOTO RUNASADMIN & REM <-- Leave this line in to always Run As Administrator (skip choice) --
 :: Comment out both GOTO statements above to prompt user to elevate.
+
 ECHO:
 ECHO CHOICE Loading...
 ECHO:
@@ -62,5 +64,6 @@ SET "_ADMIN=FALSE"
 :START
 :: set the current directory to the batch file location
 ::CD /D %~dp0
+REM ECHO DEBUGGING: End RunAsAdministrator block.
 :-------------------------------------------------------------------------------
 :: End Run-As-Administrator function
