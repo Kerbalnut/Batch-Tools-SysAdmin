@@ -1,5 +1,8 @@
+@ECHO OFF
+SETLOCAL
 
 REM Bugfix: Use "REM ECHO DEBUG*ING: " instead of "::ECHO DEBUG*ING: " to comment-out debugging lines, in case any are within IF statements.
+REM ECHO DEBUGGING: Begin script "%~nx0"
 
 :RunAsAdministrator
 :: SS64 Run with elevated permissions script (ElevateMe.vbs)
@@ -67,3 +70,16 @@ SET "_ADMIN=FALSE"
 REM ECHO DEBUGGING: End RunAsAdministrator block.
 :-------------------------------------------------------------------------------
 :: End Run-As-Administrator function
+
+:: Begin script
+:Main
+ECHO:
+ECHO Starting %~nx0 on %DATE% at %TIME%
+ECHO:
+
+:: Set-up vars
+SET "_START_TIME=%TIME%"
+CALL :ConvertTimeToSeconds "%_START_TIME%"
+SET "_START_TIME_SECS=%_TIME_SECONDS%"
+
+
