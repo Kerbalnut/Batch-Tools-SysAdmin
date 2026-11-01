@@ -119,6 +119,13 @@ REM ECHO DEBUGGING: Begin Parameters block.
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+:: Set-up vars
+SET "_START_TIME=%TIME%"
+CALL :ConvertTimeToSeconds "%_START_TIME%"
+SET "_START_TIME_SECS=%_TIME_SECONDS%"
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 :: Param1 = File A
 
 SET "_FILE_A=%UserProfile%\Documents\SpiderOak Hive\SysAdmin\Tools\Compare To\CompareTo-Parent.bat"
@@ -1742,7 +1749,24 @@ ECHO ---------------------------------------------------------------------------
 
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+REM ECHO DEBUGGING: End Main block.
 :EndMain
+:Footer
+:END
+SET "_END_TIME=%TIME%"
+REM ECHO DEBUGGING: End time = "%_END_TIME%"
+CALL :ConvertTimeToSeconds "%_END_TIME%"
+SET "_END_TIME_SECS=%_TIME_SECONDS%"
+SET /A "_TIME_DIFF=%_END_TIME_SECS%-%_START_TIME_SECS%"
+CALL :ConvertSecondsToTime "%_TIME_DIFF%"
+REM ECHO DEBUGGING: Time difference = "%_TIME_DURATION%"
+ECHO: 
+ECHO End of %~nx0 at %DATE% on %TIME%%_TIME_DURATION%
+ECHO: 
+PAUSE
+ENDLOCAL
+::GOTO :EOF
+EXIT /B & REM If you call this program from the command line and want it to return to CMD instead of closing Command Prompt, need to use EXIT /B or no EXIT command at all.
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 REM ===============================================================================
@@ -2698,6 +2722,9 @@ EXIT /B
 :GetDate
 :: Get an alphabetically sortable date, returned in a var, in yyyy-mm-dd format.
 :: For convienence also get a path returned of "C:\Home Path\this script_yyyy-mm-dd.log" in a var
+:: Example:
+:: CALL :GetDate
+:: REM ECHO DEBUGGING: Sortable date = "%_SORTABLE_DATE%"
 :: Outputs:
 :: "%_SORTABLE_DATE%" (will always be exactly 10 characters long) e.g. 2018-01-28
 :: "%_SORTABLE_TIME%" (will always be exactly 8 characters long) e.g. 21-31-39 or 01-57-25
@@ -2782,8 +2809,15 @@ EXIT /B
 :-------------------------------------------------------------------------------
 :ConvertTimeToSeconds TimeValue [/D]
 :: Takes a given 24-hour time input like " 5:47:23.52" or "21-31-39" and converts it into seconds
+:: Accpets the environment variable %TIME% default formatting.
 :: 		/D 	Include decimal calculations. If this switch is omitted any decimal values passed will be dropped.
-:: Output: %_TIME_SECONDS%
+:: Example:
+:: SET "_START_TIME=%TIME%"
+:: CALL :ConvertTimeToSeconds "%_START_TIME%"
+:: SET "_START_TIME_SECS=%_TIME_SECONDS%"
+:: Output: 
+:: %_TIME_SECONDS%
+::https://ss64.com/nt/syntax-variables.html
 @ECHO OFF
 SETLOCAL
 SET "_INPUT_TIME=%~1"
@@ -2850,6 +2884,14 @@ EXIT /B
 :-------------------------------------------------------------------------------
 :ConvertSecondsToTime TimeValInSeconds
 :: Takes a value given in seconds and converts it into several time formats
+:: Example:
+:: SET "_END_TIME=%TIME%"
+:: ECHO DEBUGGING: End time = "%_END_TIME%"
+:: CALL :ConvertTimeToSeconds "%_END_TIME%"
+:: SET "_END_TIME_SECS=%_TIME_SECONDS%"
+:: SET /A "_TIME_DIFF=%_END_TIME_SECS%-%_START_TIME_SECS%"
+:: CALL :ConvertSecondsToTime "%_TIME_DIFF%"
+:: ECHO DEBUGGING: Time difference = "%_TIME_DURATION%"
 :: Outputs:
 :: "%_TIME_FORMATTED%" (will always be exactly 8 characters long) e.g. " 9:31:39"
 :: "%_TIME_SORTABLE%" (will always be exactly 8 characters long) e.g. "09-31-39"
