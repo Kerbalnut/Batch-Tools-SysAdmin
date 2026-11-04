@@ -1814,11 +1814,13 @@ REM ECHO DEBUGGING: Begin DefineFunctions block.
 :: 24. :GetDate
 :: 25. :ConvertTimeToSeconds
 :: 26. :ConvertSecondsToTime
-:: 27. :InitLogOriginal
-:: 28. :InitLog
-:: 29. :SplashLogoKdiff
-:: 30. :SplashLogoMerge
-:: 31. :SplashLogoMergeComplete
+:: 27. :CalcDuration
+:: 28. :GetDuration
+:: 29. :InitLogOriginal
+:: 30. :InitLog
+:: 31. :SplashLogoKdiff
+:: 32. :SplashLogoMerge
+:: 33. :SplashLogoMergeComplete
 
 GOTO SkipFunctions
 :-------------------------------------------------------------------------------
