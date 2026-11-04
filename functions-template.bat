@@ -11,8 +11,8 @@ SETLOCAL EnableDelayedExpansion
 :: 3. :Parameters
 :: 4. :ExternalFunctions
 :: 5. :Main
-:: 6. :DefineFunctions
-:: 7. :Footer
+:: 6. :Footer
+:: 7. :DefineFunctions
 
 REM Bugfix: Use "REM ECHO DEBUG*ING: " instead of "::ECHO DEBUG*ING: " to comment-out debugging lines, in case any are within IF statements.
 REM ECHO DEBUGGING: Begin RunAsAdministrator block.
@@ -120,9 +120,7 @@ REM ECHO DEBUGGING: Begin Parameters block.
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 :: Set-up vars
-SET "_START_TIME=%TIME%"
-CALL :ConvertTimeToSeconds "%_START_TIME%"
-SET "_START_TIME_SECS=%_TIME_SECONDS%"
+SET "_SCRIPTSTART_TIME=%TIME%"
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -893,9 +891,14 @@ IF NOT EXIST "%_FOSSIL_EXE%" (
 REM -------------------------------------------------------------------------------
 REM ===============================================================================
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-:Main
 
+:: Begin script
+:Main
 REM ECHO DEBUGGING: Beginning Main execution block.
+SET "_SCRIPTSTART_TIME=%TIME%"
+ECHO:
+ECHO Starting %~nx0 on %DATE% at %TIME%
+ECHO:
 
 ::Index of Main:
 
@@ -1749,30 +1752,31 @@ ECHO ---------------------------------------------------------------------------
 
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+REM ===============================================================================
+REM -------------------------------------------------------------------------------
+
 REM ECHO DEBUGGING: End Main block.
 :EndMain
 :Footer
 :END
 SET "_END_TIME=%TIME%"
 REM ECHO DEBUGGING: End time = "%_END_TIME%"
-CALL :ConvertTimeToSeconds "%_END_TIME%"
-SET "_END_TIME_SECS=%_TIME_SECONDS%"
-SET /A "_TIME_DIFF=%_END_TIME_SECS%-%_START_TIME_SECS%"
-CALL :ConvertSecondsToTime "%_TIME_DIFF%"
-REM ECHO DEBUGGING: Time difference = "%_TIME_DURATION%"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+CALL :CalcDuration "%_START_TIME%" "%_END_TIME%"
+SET "_SCRIPT_RUNTIME=%_TIME_DURATION%"
+REM ECHO DEBUGGING: Time duration = "%_TIME_DURATION%"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+::CALL :GetDuration "%_START_TIME%" "%_END_TIME%"
+::REM ECHO DEBUGGING: Duration: %_OUTPUT_DUR_HOURS%h %_OUTPUT_DUR_MINS%m %_OUTPUT_DUR_SECS%s
+::SET "_SCRIPT_RUNTIME= %_OUTPUT_DUR_HOURS%h %_OUTPUT_DUR_MINS%m %_OUTPUT_DUR_SECS%s"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ECHO: 
-ECHO End of %~nx0 at %DATE% on %TIME%%_TIME_DURATION%
-ECHO: 
+ECHO End of %~nx0 at %DATE% on %TIME% %_SCRIPT_RUNTIME%
 PAUSE
 ENDLOCAL
 ::GOTO :EOF
 EXIT /B & REM If you call this program from the command line and want it to return to CMD instead of closing Command Prompt, need to use EXIT /B or no EXIT command at all.
-
-REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-REM ===============================================================================
-REM -------------------------------------------------------------------------------
-
-:: <-- Footer could also go here -->
 
 :: End Footer
 
@@ -2885,17 +2889,35 @@ EXIT /B
 :ConvertSecondsToTime TimeValInSeconds
 :: Takes a value given in seconds and converts it into several time formats
 :: Example:
+:: SETLOCAL EnableDelayedExpansion
+:: SET "_START_TIME=%TIME%"
+:: SET "_START_TIME=12:15:00"
+:: REM ECHO DEBUGGING: Start time = "%_START_TIME%"
+:: CALL :ConvertTimeToSeconds "%_START_TIME%"
+:: SET "_START_SECS=%_TIME_SECONDS%"
 :: SET "_END_TIME=%TIME%"
-:: ECHO DEBUGGING: End time = "%_END_TIME%"
+:: SET "_END_TIME=13:20:30"
+:: REM ECHO DEBUGGING: End time = "%_END_TIME%"
 :: CALL :ConvertTimeToSeconds "%_END_TIME%"
-:: SET "_END_TIME_SECS=%_TIME_SECONDS%"
-:: SET /A "_TIME_DIFF=%_END_TIME_SECS%-%_START_TIME_SECS%"
+:: SET "_END_SECS=%_TIME_SECONDS%"
+:: If end time is before start time, add 24 hours, for times passing over midnight.
+:: IF !_END_SECS! LSS !_START_SECS! SET /A "_END_SECS+=86400"
+:: SET /A "_TIME_DIFF=%_END_SECS%-%_START_SECS%"
 :: CALL :ConvertSecondsToTime "%_TIME_DIFF%"
-:: ECHO DEBUGGING: Time difference = "%_TIME_DURATION%"
+:: REM ECHO DEBUGGING: Time formatted = "%_TIME_FORMATTED%"
+:: REM ECHO DEBUGGING: Time sortable = "%_TIME_SORTABLE%"
+:: REM ECHO DEBUGGING: Time duration = "%_TIME_DURATION%"
+:: REM ECHO DEBUGGING: _OUTPUT_HOURS="%_OUTPUT_HOURS%"
+:: REM ECHO DEBUGGING: _OUTPUT_MINS="%_OUTPUT_MINS%"
+:: REM ECHO DEBUGGING: _OUTPUT_SECS="%_OUTPUT_SECS%"
+:: ENDLOCAL
 :: Outputs:
 :: "%_TIME_FORMATTED%" (will always be exactly 8 characters long) e.g. " 9:31:39"
 :: "%_TIME_SORTABLE%" (will always be exactly 8 characters long) e.g. "09-31-39"
 :: "%_TIME_DURATION%" (will always be exactly 12 characters long) e.g. "  9h 31m 39s" or "109h  7m  9s"
+:: "%_OUTPUT_HOURS%"
+:: "%_OUTPUT_MINS%"
+:: "%_OUTPUT_SECS%"
 @ECHO OFF
 SETLOCAL
 SET "_INPUT_SECS=%~1"
@@ -2928,7 +2950,173 @@ IF %_TIME_MINS% LSS 10 (SET "_DUR_MINS= %_TIME_MINS%") ELSE (SET "_DUR_MINS=%_TI
 IF %_TIME_SECS% LSS 10 (SET "_DUR_SECS= %_TIME_SECS%") ELSE (SET "_DUR_SECS=%_TIME_SECS%")
 SET "_DUR_TIME=%_DUR_HOURS%h %_DUR_MINS%m %_DUR_SECS%s"
 :: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ENDLOCAL & SET "_TIME_FORMATTED=%_FORM_TIME%" & SET "_TIME_SORTABLE=%_SORT_TIME%" & SET "_TIME_DURATION=%_DUR_TIME%"
+ENDLOCAL & SET "_TIME_FORMATTED=%_FORM_TIME%" & SET "_TIME_SORTABLE=%_SORT_TIME%" & SET "_TIME_DURATION=%_DUR_TIME%" & SET "_OUTPUT_HOURS=%_TIME_HOURS%" & SET "_OUTPUT_MINS=%_TIME_MINS%" & SET "_OUTPUT_SECS=%_TIME_SECS%"
+EXIT /B
+:-------------------------------------------------------------------------------
+:CalcDuration StartTime EndTime
+:: Calculates the time difference between two time values, and outputs the duration of time it took from start to end.
+:: Example:
+:: SET "_START_TIME=%TIME%"
+:: SET "_END_TIME=%TIME%"
+:: CALL :CalcDuration "%_START_TIME%" "%_END_TIME%"
+:: REM ECHO DEBUGGING: Time formatted = "%_TIME_FORMATTED%"
+:: REM ECHO DEBUGGING: Time sortable = "%_TIME_SORTABLE%"
+:: REM ECHO DEBUGGING: Time duration = "%_TIME_DURATION%"
+:: REM ECHO DEBUGGING: Duration: %_OUTPUT_HOURS% hours, %_OUTPUT_MINS% minutes, %_OUTPUT_SECS% seconds
+:: REM ECHO DEBUGGING: Duration: %_OUTPUT_HOURS%h %_OUTPUT_MINS%m %_OUTPUT_SECS%s
+:: REM ECHO DEBUGGING: Duration: %_OUTPUT_HOURS%:%_OUTPUT_MINS%:%_OUTPUT_SECS%
+:: Outputs:
+:: "%_TIME_FORMATTED%" (will always be exactly 8 characters long) e.g. " 9:31:39"
+:: "%_TIME_SORTABLE%" (will always be exactly 8 characters long) e.g. "09-31-39"
+:: "%_TIME_DURATION%" (will always be exactly 12 characters long) e.g. "  9h 31m 39s" or "109h  7m  9s"
+:: "%_OUTPUT_HOURS%"
+:: "%_OUTPUT_MINS%"
+:: "%_OUTPUT_SECS%"
+:: Dependences: other functions this one is dependent on.
+:: CALL :ConvertTimeToSeconds "%_INPUT_END_TIME%"
+:: CALL :ConvertSecondsToTime "%_TIME_DIFF%"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+@ECHO OFF
+::SETLOCAL
+SETLOCAL EnableExtensions EnableDelayedExpansion
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+SET "_INPUT_START_TIME=%~1"
+SET "_INPUT_END_TIME=%~2"
+REM ECHO DEBUGGING: Start time = "%_INPUT_START_TIME%"
+REM ECHO DEBUGGING: End time = "%_INPUT_END_TIME%"
+:: Input tests:
+:: Test duration: 4 hours, 30 minutes, 22 seconds
+:: SET "_INPUT_START_TIME=08:15:00"
+:: SET "_INPUT_END_TIME=12:45:22"
+:: Test duration: 4 hours, 29 minutes, 00 seconds
+:: SET "_INPUT_START_TIME=08:15:30"
+:: SET "_INPUT_END_TIME=12:45:30"
+:: Test duration: 16 hours, 05 minutes, 06 seconds
+:: SET "_INPUT_START_TIME=09:15:02"
+:: SET "_INPUT_END_TIME= 1:20:08"
+:: Test duration: 00 hours, 06  minutes, 06 seconds
+:: SET "_INPUT_START_TIME=23:59:00"
+:: SET "_INPUT_END_TIME=00:05:06"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+REM ECHO DEBUGGING: Start time = "%_INPUT_START_TIME%"
+CALL :ConvertTimeToSeconds "%_INPUT_START_TIME%"
+SET "_INPUT_START_TIME_SECS=%_TIME_SECONDS%"
+REM ECHO DEBUGGING: Start secs = "%_INPUT_START_TIME_SECS%"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+REM ECHO DEBUGGING: End time = "%_INPUT_END_TIME%"
+CALL :ConvertTimeToSeconds "%_INPUT_END_TIME%"
+SET "_INPUT_END_TIME_SECS=%_TIME_SECONDS%"
+REM ECHO DEBUGGING: End secs = "%_INPUT_END_TIME_SECS%"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: If end time is before start time, add 24 hours, for times passing over midnight.
+IF !_INPUT_END_TIME_SECS! LSS !_INPUT_START_TIME_SECS! SET /A "_INPUT_END_TIME_SECS+=86400"
+SET /A "_TIME_DIFF=%_INPUT_END_TIME_SECS%-%_INPUT_START_TIME_SECS%"
+CALL :ConvertSecondsToTime "%_TIME_DIFF%"
+SET "_FORM_TIME=%_TIME_FORMATTED%"
+SET "_SORT_TIME=%_TIME_SORTABLE%"
+SET "_DUR_TIME=%_TIME_DURATION%"
+SET "_CALC_HOURS=0%_OUTPUT_HOURS%"
+SET "_CALC_MINS=0%_OUTPUT_MINS%"
+SET "_CALC_SECS=0%_OUTPUT_SECS%"
+REM ECHO DEBUGGING: _FORM_TIME="%_FORM_TIME%"
+REM ECHO DEBUGGING: _SORT_TIME="%_SORT_TIME%"
+REM ECHO DEBUGGING: _DUR_TIME="%_DUR_TIME%"
+REM ECHO DEBUGGING: _OUTPUT_HOURS="%_OUTPUT_HOURS%"
+REM ECHO DEBUGGING: _OUTPUT_MINS="%_OUTPUT_MINS%"
+REM ECHO DEBUGGING: _OUTPUT_SECS="%_OUTPUT_SECS%"
+REM ECHO DEBUGGING: _CALC_HOURS="%_CALC_HOURS%"
+REM ECHO DEBUGGING: _CALC_MINS="%_CALC_MINS%"
+REM ECHO DEBUGGING: _CALC_SECS="%_CALC_SECS%"
+SET "_CALC_HOURS=%_CALC_HOURS:~-2%"
+SET "_CALC_MINS=%_CALC_MINS:~-2%"
+SET "_CALC_SECS=%_CALC_SECS:~-2%"
+REM ECHO DEBUGGING: _CALC_HOURS="%_CALC_HOURS%"
+REM ECHO DEBUGGING: _CALC_MINS="%_CALC_MINS%"
+REM ECHO DEBUGGING: _CALC_SECS="%_CALC_SECS%"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ENDLOCAL & SET "_TIME_FORMATTED=%_FORM_TIME%" & SET "_TIME_SORTABLE=%_SORT_TIME%" & SET "_TIME_DURATION=%_DUR_TIME%" & SET "_OUTPUT_HOURS=%_CALC_HOURS%" & SET "_OUTPUT_MINS=%_CALC_MINS%" & SET "_OUTPUT_SECS=%_CALC_SECS%"
+EXIT /B
+:-------------------------------------------------------------------------------
+:GetDuration StartTime EndTime
+:: Calculates the time difference between two time values, and outputs the duration of time it took from start to end.
+:: Example:
+:: SET "_START_TIME=%TIME%"
+:: SET "_END_TIME=%TIME%"
+:: CALL :GetDuration "%_START_TIME%" "%_END_TIME%"
+:: REM ECHO DEBUGGING: Duration: %_OUTPUT_DUR_HOURS% hours, %_OUTPUT_DUR_MINS% minutes, %_OUTPUT_DUR_SECS% seconds
+:: REM ECHO DEBUGGING: Duration: %_OUTPUT_DUR_HOURS%h %_OUTPUT_DUR_MINS%m %_OUTPUT_DUR_SECS%s
+:: REM ECHO DEBUGGING: Duration: %_OUTPUT_DUR_HOURS%:%_OUTPUT_DUR_MINS%:%_OUTPUT_DUR_SECS%
+:: Outputs:
+:: "%_OUTPUT_DUR_HOURS%"
+:: "%_OUTPUT_DUR_MINS%"
+:: "%_OUTPUT_DUR_SECS%"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+@ECHO OFF
+::SETLOCAL
+SETLOCAL EnableExtensions EnableDelayedExpansion
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+SET "_start_param=%~1"
+SET "_end_param=%~2"
+:: Input tests:
+:: Test duration: 4 hours, 30 minutes, 22 seconds
+:: SET "_start_param=08:15:02"
+:: SET "_end_param=12:45:24"
+:: Test duration: 4 hours, 29 minutes, 40 seconds
+:: SET "_start_param=08:15:30"
+:: SET "_end_param=12:45:10"
+:: Test duration: 16 hours, 05 minutes, 06 seconds
+:: SET "_start_param=09:15:02"
+:: SET "_end_param= 1:20:08"
+:: Test duration: 00 hours, 06  minutes, 06 seconds
+:: SET "_start_param=23:59:00"
+:: SET "_end_param=00:05:06"
+REM ECHO DEBUGGING: _start_param="%_start_param%"
+REM ECHO DEBUGGING: _end_param="%_end_param%"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: https://ss64.com/nt/syntax-substring.html
+:: Extract only the first 8 characters
+SET "_start_param=%_start_param:~0,8%"
+SET "_end_param=%_end_param:~0,8%"
+REM ECHO DEBUGGING: _start_param="%_start_param%"
+REM ECHO DEBUGGING: _end_param="%_end_param%"
+:: https://ss64.com/nt/syntax-replace.html
+REM SET "_start_param=%_start_param:old=new%"
+REM SET "_start_param=%_start_param:StrToFind=NewStr%"
+SET "_start_param=%_start_param: =0%"
+SET "_end_param=%_end_param: =0%"
+REM ECHO DEBUGGING: _start_param="%_start_param%"
+REM ECHO DEBUGGING: _end_param="%_end_param%"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+FOR /F "tokens=1-3 delims=:" %%A IN ("!_start_param!") DO (
+    SET /A "_SH=1%%A-100, _SM=1%%B-100, _SS=1%%C-100"
+)
+FOR /F "tokens=1-3 delims=:" %%A IN ("!_end_param!") DO (
+    SET /A "_EH=1%%A-100, _EM=1%%B-100, _ES=1%%C-100"
+)
+REM ECHO DEBUGGING: _SH=%_SH% : _SM=%_SM% : _SS=%_SS%
+REM ECHO DEBUGGING: _EH=%_EH% : _EM=%_EM% : _ES=%_ES%
+:: The 1%%A-100 conversion avoids CMD interpreting leading-zero values as octal. This handles times within a single day, including an interval crossing midnight. For actual date-and-time values, durations spanning multiple days, or varied input formats, PowerShell is generally more reliable than parsing %TIME%, whose format depends on Windows settings.
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:: Calculate total seconds
+SET /A "_start_param_Seconds=_SH*3600+_SM*60+_SS, _end_param_Seconds=_EH*3600+_EM*60+_ES"
+:: Add 24 hours if it's the next day
+IF !_end_param_Seconds! LSS !_start_param_Seconds! SET /A "_end_param_Seconds+=86400"
+:: Calculate the duration
+SET /A "Duration=_end_param_Seconds-_start_param_Seconds"
+::SET /A "Hours=Duration/60, Minutes=Duration%%60"
+SET /A "Hours=Duration/3600, Minutes=(Duration%%3600)/60, Seconds=Duration%%60"
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+SET "HH=0!Hours!"
+SET "MM=0!Minutes!"
+SET "SS=0!Seconds!"
+REM ECHO DEBUGGING: Duration: !HH:~-2!:!MM:~-2!:!SS:~-2!
+REM ECHO DEBUGGING: Duration: !HH:~-2! hours, !MM:~-2! minutes, !SS:~-2! seconds
+SET "_CALC_HOURS=!HH:~-2!"
+SET "_CALC_MINS=!MM:~-2!"
+SET "_CALC_SECS=!SS:~-2!"
+REM ECHO DEBUGGING: Duration: %_CALC_HOURS% hours, %_CALC_MINS% minutes, %_CALC_SECS% seconds
+:: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ENDLOCAL & SET "_OUTPUT_DUR_HOURS=%_CALC_HOURS%" & SET "_OUTPUT_DUR_MINS=%_CALC_MINS%" & SET "_OUTPUT_DUR_SECS=%_CALC_SECS%"
 EXIT /B
 :-------------------------------------------------------------------------------
 :InitLogOriginal
@@ -3292,12 +3480,14 @@ EXIT /B
 :EndDefineFunctions
 :SkipFunctions
 
-:Footer
-:END
-ENDLOCAL
+REM ECHO DEBUGGING: End DefineFunctions block.
 ECHO: 
-ECHO End of %~nx0
+ECHO End of %~nx0 at %DATE% on %TIME%
 ECHO: 
 PAUSE
+ENDLOCAL
 ::GOTO :EOF
 EXIT /B & REM If you call this program from the command line and want it to return to CMD instead of closing Command Prompt, need to use EXIT /B or no EXIT command at all.
+
+
+
