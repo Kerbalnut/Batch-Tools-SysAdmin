@@ -936,6 +936,11 @@ IF NOT "%~1"=="" (
 		GOTO END
 		REM ENDLOCAL & EXIT /B
 	)
+	IF /I "%~1"=="/h" (
+		CALL :DisplayHelp
+		GOTO END
+		REM ENDLOCAL & EXIT /B
+	)
 	IF /I "%~1"=="-help" (
 		CALL :DisplayHelp
 		GOTO END
@@ -946,23 +951,27 @@ IF NOT "%~1"=="" (
 		GOTO END
 		REM ENDLOCAL & EXIT /B
 	)
-	IF /I "%~1"=="/?" (
-		CALL :DisplayHelp
-		GOTO END
-		REM ENDLOCAL & EXIT /B
-	)
-	IF /I "%~1"=="/h" (
-		CALL :DisplayHelp
-		GOTO END
-		REM ENDLOCAL & EXIT /B
-	)
 	IF /I "%~1"=="/help" (
 		CALL :DisplayHelp
 		GOTO END
 		REM ENDLOCAL & EXIT /B
 	)
+	IF /I "%~1"=="?" (
+		CALL :DisplayHelp
+		GOTO END
+		REM ENDLOCAL & EXIT /B
+	)
+	IF /I "%~1"=="/?" (
+		CALL :DisplayHelp
+		GOTO END
+		REM ENDLOCAL & EXIT /B
+	)
+	IF /I "%~1"=="\?" (
+		CALL :DisplayHelp
+		GOTO END
+		REM ENDLOCAL & EXIT /B
+	)
 )
-
 REM ECHO DEBUGGING: Finished help evaluation.
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
