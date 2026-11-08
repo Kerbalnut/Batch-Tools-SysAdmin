@@ -3,7 +3,10 @@
 clickHeld := false
 OnExit ReleaseHeldClick
 
-^LButton::
+; ^LButton:: ; Ctrl+LeftClick to activate
+; ^+LButton:: ; Ctrl+Shift+LeftClick to activate
+; !LButton:: ; Alt+LeftClick to activate
+^+LButton:: ; Ctrl+Shift+LeftClick to activate
 {
     global clickHeld
     clickHeld := !clickHeld
